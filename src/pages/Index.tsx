@@ -26,6 +26,8 @@ import PomodoroTimer from "@/components/widgets/PomodoroTimer";
 import Analytics from "@/components/widgets/Analytics";
 import ChillCorner from "@/components/widgets/ChillCorner";
 import NotesWidget from "@/components/widgets/NotesWidget";
+import StudyMaterialHub from "@/components/widgets/StudyMaterialHub";
+import AIStudyBuddy from "@/components/widgets/AIStudyBuddy";
 
 const Index = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -38,6 +40,8 @@ const Index = () => {
     analytics: false,
     chill: true,
     notes: true,
+    studyMaterials: true,
+    aiChat: true,
   });
 
   useEffect(() => {
@@ -68,6 +72,8 @@ const Index = () => {
     { key: 'analytics', label: 'Analytics', icon: BarChart3, component: Analytics },
     { key: 'chill', label: 'Chill Corner', icon: Heart, component: ChillCorner },
     { key: 'notes', label: 'Quick Notes', icon: StickyNote, component: NotesWidget },
+    { key: 'studyMaterials', label: 'Study Hub', icon: Brain, component: StudyMaterialHub },
+    { key: 'aiChat', label: 'AI Buddy', icon: MessageCircle, component: AIStudyBuddy },
   ];
 
   return (
