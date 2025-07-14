@@ -16,7 +16,9 @@ import {
   Sparkles,
   Zap,
   Heart,
-  Brain
+  Brain,
+  User,
+  GraduationCap
 } from "lucide-react";
 import MusicPlayer from "@/components/widgets/MusicPlayer";
 import FileExplorer from "@/components/widgets/FileExplorer";
@@ -28,9 +30,11 @@ import ChillCorner from "@/components/widgets/ChillCorner";
 import NotesWidget from "@/components/widgets/NotesWidget";
 import StudyMaterialHub from "@/components/widgets/StudyMaterialHub";
 import AIStudyBuddy from "@/components/widgets/AIStudyBuddy";
+import MacDock from "@/components/layout/MacDock";
 
 const Index = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [currentPage, setCurrentPage] = useState('dashboard');
   const [activeWidgets, setActiveWidgets] = useState({
     music: true,
     files: true,
@@ -61,6 +65,15 @@ const Index = () => {
       ...prev,
       [widget]: !prev[widget]
     }));
+  };
+
+  const handleNavigation = (page: string) => {
+    if (page === 'dashboard') {
+      setCurrentPage(page);
+    } else {
+      // Navigate to other pages
+      window.location.href = `/${page}`;
+    }
   };
 
   const widgets = [
@@ -102,6 +115,16 @@ const Index = () => {
             {isDarkMode ? <Sun className="w-4 h-4 mr-2" /> : <Moon className="w-4 h-4 mr-2" />}
             {isDarkMode ? 'Light Mode' : 'Dark Mode'}
           </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => window.location.href = '/login'}
+            className="glass-button"
+          >
+            <User className="w-4 h-4 mr-2" />
+            Login
+          </Button>
           
           <div className="flex flex-wrap gap-2">
             {widgets.map(({ key, label, icon: Icon }) => (
@@ -137,6 +160,9 @@ const Index = () => {
       >
         <Zap className="w-6 h-6" />
       </Button>
+
+      {/* macOS Dock */}
+      <MacDock onNavigate={handleNavigation} currentPage={currentPage} />
 
       {/* Background Decorations */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
