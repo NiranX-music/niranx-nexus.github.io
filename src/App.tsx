@@ -8,6 +8,10 @@ import Login from "./pages/Login";
 import SmartTimetable from "./pages/SmartTimetable";
 import Analytics from "./pages/Analytics";
 import ExamHub from "./pages/ExamHub";
+import TasksPage from "./pages/TasksPage";
+import PomodoroPage from "./pages/PomodoroPage";
+import MusicPage from "./pages/MusicPage";
+import GamesPage from "./pages/GamesPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +25,10 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/tasks" element={<TasksPage />} />
+          <Route path="/pomodoro" element={<PomodoroPage />} />
+          <Route path="/music" element={<MusicPage />} />
+          <Route path="/games" element={<GamesPage />} />
           <Route path="/timetable" element={<SmartTimetable />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/exams" element={<ExamHub />} />

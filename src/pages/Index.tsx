@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   Music, 
@@ -18,7 +18,8 @@ import {
   Heart,
   Brain,
   User,
-  GraduationCap
+  GraduationCap,
+  Gamepad2
 } from "lucide-react";
 import MusicPlayer from "@/components/widgets/MusicPlayer";
 import FileExplorer from "@/components/widgets/FileExplorer";
@@ -70,8 +71,11 @@ const Index = () => {
   const handleNavigation = (page: string) => {
     if (page === 'dashboard') {
       setCurrentPage(page);
+    } else if (page === 'profile') {
+      // Handle profile page (could be a modal or separate page)
+      console.log('Navigate to profile');
     } else {
-      // Navigate to other pages
+      // Navigate to other pages using proper routing
       window.location.href = `/${page}`;
     }
   };
@@ -103,6 +107,53 @@ const Index = () => {
         <p className="text-lg text-muted-foreground mb-6">
           Your all-in-one Gen-Z study ecosystem 🚀
         </p>
+        
+        {/* Quick Navigation Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <Card 
+            className="glass-card cursor-pointer hover:scale-105 transition-transform"
+            onClick={() => window.location.href = '/tasks'}
+          >
+            <CardContent className="p-4 text-center">
+              <CheckSquare className="w-8 h-8 text-primary mx-auto mb-2" />
+              <h3 className="font-semibold">Tasks</h3>
+              <p className="text-xs text-muted-foreground">Manage your work</p>
+            </CardContent>
+          </Card>
+          
+          <Card 
+            className="glass-card cursor-pointer hover:scale-105 transition-transform"
+            onClick={() => window.location.href = '/pomodoro'}
+          >
+            <CardContent className="p-4 text-center">
+              <Timer className="w-8 h-8 text-primary mx-auto mb-2" />
+              <h3 className="font-semibold">Focus</h3>
+              <p className="text-xs text-muted-foreground">Pomodoro timer</p>
+            </CardContent>
+          </Card>
+          
+          <Card 
+            className="glass-card cursor-pointer hover:scale-105 transition-transform"
+            onClick={() => window.location.href = '/music'}
+          >
+            <CardContent className="p-4 text-center">
+              <Music className="w-8 h-8 text-primary mx-auto mb-2" />
+              <h3 className="font-semibold">Music</h3>
+              <p className="text-xs text-muted-foreground">Study vibes</p>
+            </CardContent>
+          </Card>
+          
+          <Card 
+            className="glass-card cursor-pointer hover:scale-105 transition-transform"
+            onClick={() => window.location.href = '/games'}
+          >
+            <CardContent className="p-4 text-center">
+              <Gamepad2 className="w-8 h-8 text-primary mx-auto mb-2" />
+              <h3 className="font-semibold">Games</h3>
+              <p className="text-xs text-muted-foreground">Brain training</p>
+            </CardContent>
+          </Card>
+        </div>
         
         {/* Theme Toggle & Widget Controls */}
         <div className="flex flex-wrap justify-center gap-4 mb-8">

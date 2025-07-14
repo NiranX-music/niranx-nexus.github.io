@@ -6,7 +6,10 @@ import {
   GraduationCap,
   Music,
   Settings,
-  User
+  User,
+  CheckSquare,
+  Timer,
+  Gamepad2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -29,11 +32,13 @@ const MacDock = ({ onNavigate, currentPage }: MacDockProps) => {
 
   const dockItems: DockItem[] = [
     { id: 'dashboard', label: 'Dashboard', icon: Home, onClick: () => onNavigate('dashboard') },
+    { id: 'tasks', label: 'Tasks', icon: CheckSquare, onClick: () => onNavigate('tasks') },
+    { id: 'pomodoro', label: 'Pomodoro', icon: Timer, onClick: () => onNavigate('pomodoro') },
+    { id: 'music', label: 'Music Zone', icon: Music, onClick: () => onNavigate('music') },
+    { id: 'games', label: 'Games', icon: Gamepad2, onClick: () => onNavigate('games') },
     { id: 'timetable', label: 'Smart Timetable', icon: Calendar, onClick: () => onNavigate('timetable') },
     { id: 'analytics', label: 'Analytics', icon: BarChart3, onClick: () => onNavigate('analytics') },
     { id: 'exams', label: 'Exam Hub', icon: GraduationCap, onClick: () => onNavigate('exams') },
-    { id: 'music', label: 'Music Zone', icon: Music, onClick: () => onNavigate('music') },
-    { id: 'settings', label: 'Settings', icon: Settings, onClick: () => onNavigate('settings') },
     { id: 'profile', label: 'Profile', icon: User, onClick: () => onNavigate('profile') },
   ];
 
