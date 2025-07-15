@@ -354,9 +354,9 @@ const AIStudyBuddy = () => {
                    personality === 'professional' ? '🎓 Pro' : '🤖 Technical'}
                 </Badge>
               </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Your personal learning assistant
-              </p>
+               <p className="text-sm text-muted-foreground">
+                 AI Doubt Resolver
+               </p>
             </div>
           </div>
           
@@ -505,6 +505,17 @@ const AIStudyBuddy = () => {
               </Button>
             </div>
           </div>
+        </div>
+
+        {/* Chatbase Iframe */}
+        <div className="mt-6 h-[300px] border rounded-lg overflow-hidden">
+          <iframe
+            src="https://www.chatbase.co/chatbot-iframe/hhBF5Dz69MamfJ2WaVo5E"
+            width="100%"
+            height="100%"
+            style={{ border: 'none' }}
+            title="AI Doubt Resolver Chatbot"
+          />
         </div>
       </CardContent>
 
