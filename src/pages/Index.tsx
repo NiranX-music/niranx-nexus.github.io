@@ -19,8 +19,10 @@ import {
   Brain,
   User,
   GraduationCap,
-  Gamepad2
+  Gamepad2,
+  Lock
 } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
 import MusicPlayer from "@/components/widgets/MusicPlayer";
 import FileExplorer from "@/components/widgets/FileExplorer";
 import ClassScheduler from "@/components/widgets/ClassScheduler";
@@ -36,6 +38,8 @@ import MacDock from "@/components/layout/MacDock";
 const Index = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [currentPage, setCurrentPage] = useState('dashboard');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
   const [activeWidgets, setActiveWidgets] = useState({
     music: true,
     files: true,
@@ -48,12 +52,20 @@ const Index = () => {
     studyMaterials: true,
     aiChat: true,
   });
+  const navigate = useNavigate();
 
   useEffect(() => {
     const saved = localStorage.getItem('studyverse-dark-mode');
     if (saved) {
       setIsDarkMode(JSON.parse(saved));
     }
+    
+    // Check login status
+    const loginStatus = localStorage.getItem("isLoggedIn");
+    const authMethod = localStorage.getItem("authMethod");
+    
+    setIsLoggedIn(loginStatus === "true");
+    setIsGuest(authMethod === "guest");
   }, []);
 
   useEffect(() => {
@@ -75,8 +87,13 @@ const Index = () => {
       // Handle profile page (could be a modal or separate page)
       console.log('Navigate to profile');
     } else {
+      // Check if requires auth and redirect if needed
+      if (page !== 'pomodoro' && (!isLoggedIn || isGuest)) {
+        navigate('/login');
+        return;
+      }
       // Navigate to other pages using proper routing
-      window.location.href = `/${page}`;
+      navigate(`/${page}`);
     }
   };
 
@@ -109,57 +126,82 @@ const Index = () => {
         </p>
         
         {/* Quick Navigation Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
           <Card 
-            className="glass-card cursor-pointer hover:scale-105 transition-transform"
-            onClick={() => window.location.href = '/tasks'}
+            className={`glass-card cursor-pointer hover:scale-105 transition-transform ${
+              !isLoggedIn && isGuest ? 'opacity-60' : ''
+            }`}
+            onClick={() => handleNavigation('tasks')}
           >
-            <CardContent className="p-4 text-center">
-              <CheckSquare className="w-8 h-8 text-primary mx-auto mb-2" />
-              <h3 className="font-semibold">Tasks</h3>
-              <p className="text-xs text-muted-foreground">Manage your work</p>
+            <CardContent className="p-6 text-center">
+              <div className="flex justify-center items-center mb-3">
+                <CheckSquare className="w-10 h-10 text-primary" />
+                {!isLoggedIn && <Lock className="w-4 h-4 text-muted-foreground ml-2" />}
+              </div>
+              <h3 className="font-semibold text-lg">Tasks</h3>
+              <p className="text-sm text-muted-foreground">Manage your work</p>
+              {!isLoggedIn && (
+                <Badge variant="outline" className="mt-2 text-xs">Login Required</Badge>
+              )}
             </CardContent>
           </Card>
           
           <Card 
             className="glass-card cursor-pointer hover:scale-105 transition-transform"
-            onClick={() => window.location.href = '/pomodoro'}
+            onClick={() => handleNavigation('pomodoro')}
           >
-            <CardContent className="p-4 text-center">
-              <Timer className="w-8 h-8 text-primary mx-auto mb-2" />
-              <h3 className="font-semibold">Focus</h3>
-              <p className="text-xs text-muted-foreground">Pomodoro timer</p>
+            <CardContent className="p-6 text-center">
+              <Timer className="w-10 h-10 text-primary mx-auto mb-3" />
+              <h3 className="font-semibold text-lg">Focus</h3>
+              <p className="text-sm text-muted-foreground">Pomodoro timer</p>
+              <Badge variant="secondary" className="mt-2 text-xs">Always Available</Badge>
             </CardContent>
           </Card>
           
           <Card 
-            className="glass-card cursor-pointer hover:scale-105 transition-transform"
-            onClick={() => window.location.href = '/music'}
+            className={`glass-card cursor-pointer hover:scale-105 transition-transform ${
+              !isLoggedIn && isGuest ? 'opacity-60' : ''
+            }`}
+            onClick={() => handleNavigation('music')}
           >
-            <CardContent className="p-4 text-center">
-              <Music className="w-8 h-8 text-primary mx-auto mb-2" />
-              <h3 className="font-semibold">Music</h3>
-              <p className="text-xs text-muted-foreground">Study vibes</p>
+            <CardContent className="p-6 text-center">
+              <div className="flex justify-center items-center mb-3">
+                <Music className="w-10 h-10 text-primary" />
+                {!isLoggedIn && <Lock className="w-4 h-4 text-muted-foreground ml-2" />}
+              </div>
+              <h3 className="font-semibold text-lg">Music</h3>
+              <p className="text-sm text-muted-foreground">Study vibes</p>
+              {!isLoggedIn && (
+                <Badge variant="outline" className="mt-2 text-xs">Login Required</Badge>
+              )}
             </CardContent>
           </Card>
           
           <Card 
-            className="glass-card cursor-pointer hover:scale-105 transition-transform"
-            onClick={() => window.location.href = '/games'}
+            className={`glass-card cursor-pointer hover:scale-105 transition-transform ${
+              !isLoggedIn && isGuest ? 'opacity-60' : ''
+            }`}
+            onClick={() => handleNavigation('games')}
           >
-            <CardContent className="p-4 text-center">
-              <Gamepad2 className="w-8 h-8 text-primary mx-auto mb-2" />
-              <h3 className="font-semibold">Games</h3>
-              <p className="text-xs text-muted-foreground">Brain training</p>
+            <CardContent className="p-6 text-center">
+              <div className="flex justify-center items-center mb-3">
+                <Gamepad2 className="w-10 h-10 text-primary" />
+                {!isLoggedIn && <Lock className="w-4 h-4 text-muted-foreground ml-2" />}
+              </div>
+              <h3 className="font-semibold text-lg">Games</h3>
+              <p className="text-sm text-muted-foreground">Brain training</p>
+              {!isLoggedIn && (
+                <Badge variant="outline" className="mt-2 text-xs">Login Required</Badge>
+              )}
             </CardContent>
           </Card>
         </div>
         
         {/* Theme Toggle & Widget Controls */}
-        <div className="flex flex-wrap justify-center gap-4 mb-8">
+        <div className="flex flex-wrap justify-center gap-6 mb-10">
           <Button
             variant="outline"
-            size="sm"
+            size="default"
             onClick={() => setIsDarkMode(!isDarkMode)}
             className="glass-button"
           >
@@ -168,24 +210,24 @@ const Index = () => {
           </Button>
 
           <Button
-            variant="outline"
-            size="sm"
-            onClick={() => window.location.href = '/login'}
+            variant={isLoggedIn ? "default" : "outline"}
+            size="default"
+            onClick={() => navigate('/login')}
             className="glass-button"
           >
             <User className="w-4 h-4 mr-2" />
-            Login
+            {isLoggedIn ? (isGuest ? 'Guest Mode' : 'Logged In') : 'Login'}
           </Button>
           
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-3">
             {widgets.map(({ key, label, icon: Icon }) => (
               <Badge
                 key={key}
                 variant={activeWidgets[key] ? "default" : "secondary"}
-                className="cursor-pointer hover:scale-105 transition-transform"
+                className="cursor-pointer hover:scale-105 transition-transform text-sm px-3 py-1"
                 onClick={() => toggleWidget(key)}
               >
-                <Icon className="w-3 h-3 mr-1" />
+                <Icon className="w-4 h-4 mr-1" />
                 {label}
               </Badge>
             ))}
