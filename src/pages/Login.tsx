@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Brain, Mail, Shield, Sparkles, ArrowRight, Eye, EyeOff, User, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 const GOOGLE_CLIENT_ID = "994620627677-vkpe20tuhved8tcgu34na01m1ea8scld.apps.googleusercontent.com";
 
@@ -15,12 +16,20 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
-  const [code, setCode] = useState('');
-  const [isCodeSent, setIsCodeSent] = useState(false);
+  const [displayName, setDisplayName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { user, signIn, signUp } = useAuth();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   const handleGoogleLogin = async () => {
     try {
@@ -70,8 +79,8 @@ const Login = () => {
     navigate("/");
   };
 
-  const handlePasswordLogin = async () => {
-    if (!username || !password) {
+  const handleAuth = async () => {
+    if (!email || !password) {
       toast({
         title: "Missing Information",
         description: "Please fill in all fields",
@@ -81,67 +90,36 @@ const Login = () => {
     }
 
     setIsLoading(true);
-    setTimeout(() => {
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("authMethod", "password");
-      localStorage.setItem("userEmail", username);
-      setIsLoading(false);
-      toast({
-        title: "Welcome back! 👋",
-        description: "Login successful",
-      });
-      navigate("/");
-    }, 1500);
-  };
 
-  const handleSendCode = async () => {
-    if (!email) {
-      toast({
-        title: "Email Required",
-        description: "Please enter your email address",
-        variant: "destructive"
+    if (isSignUp) {
+      if (!username || !displayName) {
+        toast({
+          title: "Missing Information", 
+          description: "Please fill in all fields for sign up",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      const { error } = await signUp(email, password, {
+        username,
+        display_name: displayName
       });
-      return;
+
+      if (!error) {
+        navigate('/');
+      }
+    } else {
+      const { error } = await signIn(email, password);
+      if (!error) {
+        navigate('/');
+      }
     }
 
-    setIsLoading(true);
-    
-    // Simulate API call - Replace with actual Supabase auth
-    setTimeout(() => {
-      setIsCodeSent(true);
-      setIsLoading(false);
-      toast({
-        title: "Code Sent! 📧",
-        description: `Verification code sent to ${email}`,
-      });
-    }, 1500);
+    setIsLoading(false);
   };
 
-  const handleVerifyCode = async () => {
-    if (!code) {
-      toast({
-        title: "Code Required",
-        description: "Please enter the verification code",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    
-    // Simulate verification - Replace with actual Supabase auth
-    setTimeout(() => {
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("authMethod", "email");
-      localStorage.setItem("userEmail", email);
-      setIsLoading(false);
-      toast({
-        title: "Welcome to StudyVerse! 🎉",
-        description: "Successfully authenticated",
-      });
-      navigate("/");
-    }, 1500);
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-primary/5 via-background to-accent/5">
@@ -162,9 +140,11 @@ const Login = () => {
           </div>
           
           <div className="space-y-3">
-            <CardTitle className="text-2xl">Welcome Back! 👋</CardTitle>
+            <CardTitle className="text-2xl">
+              {isSignUp ? 'Join NiranX StudyVerse! 🚀' : 'Welcome Back! 👋'}
+            </CardTitle>
             <CardDescription className="text-base">
-              Your Gen-Z study ecosystem awaits
+              {isSignUp ? 'Create your account and start your learning journey' : 'Your Gen-Z study ecosystem awaits'}
             </CardDescription>
           </div>
 
@@ -206,147 +186,106 @@ const Login = () => {
             </div>
           </div>
 
-          {/* Tabs for different login methods */}
-          <Tabs defaultValue="email" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="email">Email Code</TabsTrigger>
-              <TabsTrigger value="password">Password</TabsTrigger>
-            </TabsList>
+          {/* Auth Form */}
+          <div className="space-y-4">
+            <div className="flex justify-center mb-4">
+              <Button
+                variant="ghost"
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="text-sm"
+              >
+                {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
+              </Button>
+            </div>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium">
+                  Email Address
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="student@university.edu"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="h-12 text-base"
+                />
+              </div>
 
-            <TabsContent value="email" className="space-y-4 mt-6">
-              {!isCodeSent ? (
-                <div className="space-y-4">
+              {isSignUp && (
+                <>
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-medium">
-                      Email Address
+                    <Label htmlFor="username" className="text-sm font-medium">
+                      Username
                     </Label>
                     <Input
-                      id="email"
-                      type="email"
-                      placeholder="student@university.edu"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      id="username"
+                      type="text"
+                      placeholder="Your unique username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
                       className="h-12 text-base"
-                      onKeyPress={(e) => e.key === 'Enter' && handleSendCode()}
                     />
                   </div>
 
-                  <Button 
-                    onClick={handleSendCode}
-                    className="w-full h-12 text-base font-medium"
-                    disabled={isLoading}
+                  <div className="space-y-2">
+                    <Label htmlFor="displayName" className="text-sm font-medium">
+                      Display Name
+                    </Label>
+                    <Input
+                      id="displayName"
+                      type="text"
+                      placeholder="Your display name"
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      className="h-12 text-base"
+                    />
+                  </div>
+                </>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm font-medium">
+                  Password
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="h-12 text-base pr-10"
+                    onKeyPress={(e) => e.key === 'Enter' && handleAuth()}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-12 w-12"
+                    onClick={() => setShowPassword(!showPassword)}
                   >
-                    {isLoading ? (
-                      "Sending Code..."
-                    ) : (
-                      <>
-                        Send Verification Code
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </>
-                    )}
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </Button>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="code" className="text-sm font-medium">
-                      Verification Code
-                    </Label>
-                    <Input
-                      id="code"
-                      type="text"
-                      placeholder="123456"
-                      value={code}
-                      onChange={(e) => setCode(e.target.value)}
-                      className="h-12 text-base text-center text-lg font-mono tracking-widest"
-                      maxLength={6}
-                      onKeyPress={(e) => e.key === 'Enter' && handleVerifyCode()}
-                    />
-                    <p className="text-xs text-muted-foreground text-center">
-                      Code sent to {email}
-                    </p>
-                  </div>
-
-                  <div className="space-y-3">
-                    <Button 
-                      onClick={handleVerifyCode}
-                      className="w-full h-12 text-base font-medium"
-                      disabled={isLoading}
-                    >
-                      {isLoading ? "Verifying..." : "Verify & Login"}
-                    </Button>
-
-                    <Button 
-                      variant="ghost" 
-                      onClick={() => setIsCodeSent(false)}
-                      className="w-full text-sm"
-                    >
-                      ← Back to Email
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="password" className="space-y-4 mt-6">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="username" className="text-sm font-medium">
-                    Username or Email
-                  </Label>
-                  <Input
-                    id="username"
-                    type="text"
-                    placeholder="username or email@domain.com"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="h-12 text-base"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="text-sm font-medium">
-                    Password
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Enter your password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="h-12 text-base pr-10"
-                      onKeyPress={(e) => e.key === 'Enter' && handlePasswordLogin()}
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="absolute right-0 top-0 h-12 w-12"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </Button>
-                  </div>
-                </div>
-
-                <Button 
-                  onClick={handlePasswordLogin}
-                  className="w-full h-12 text-base font-medium"
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    "Signing In..."
-                  ) : (
-                    <>
-                      <User className="w-4 h-4 mr-2" />
-                      Sign In
-                    </>
-                  )}
-                </Button>
               </div>
-            </TabsContent>
-          </Tabs>
+
+              <Button 
+                onClick={handleAuth}
+                className="w-full h-12 text-base font-medium"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  isSignUp ? "Creating Account..." : "Signing In..."
+                ) : (
+                  <>
+                    <User className="w-4 h-4 mr-2" />
+                    {isSignUp ? 'Create Account' : 'Sign In'}
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
