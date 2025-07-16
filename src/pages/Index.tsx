@@ -113,20 +113,37 @@ const Index = () => {
   return (
     <div className="min-h-screen p-4 md:p-6 lg:p-8">
       {/* Header */}
-      <div className="mb-8 text-center">
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <Brain className="w-10 h-10 text-primary animate-pulse-scale" />
-          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-            StudyVerse
-          </h1>
-          <Sparkles className="w-8 h-8 text-accent animate-bounce-gentle" />
+      <div className="mb-8">
+        {/* Top Toolbar */}
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex-1"></div>
+          <div className="flex items-center gap-3">
+            <Brain className="w-8 h-8 text-primary animate-pulse-scale" />
+            <h1 className="text-2xl md:text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+              StudyVerse
+            </h1>
+            <Sparkles className="w-6 h-6 text-accent animate-bounce-gentle" />
+          </div>
+          <div className="flex-1 flex justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleNavigation('analytics')}
+              className="flex items-center gap-2"
+            >
+              <BarChart3 className="w-4 h-4" />
+              Analytics
+            </Button>
+          </div>
         </div>
-        <p className="text-lg text-muted-foreground mb-6">
-          Your all-in-one Gen-Z study ecosystem 🚀
-        </p>
         
-        {/* Quick Navigation Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
+        <div className="text-center">
+          <p className="text-lg text-muted-foreground mb-6">
+            Your all-in-one Gen-Z study ecosystem 🚀
+          </p>
+        
+          {/* Quick Navigation Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
           <Card 
             className={`glass-card cursor-pointer hover:scale-105 transition-transform ${
               !isLoggedIn && isGuest ? 'opacity-60' : ''
@@ -232,6 +249,7 @@ const Index = () => {
               </Badge>
             ))}
           </div>
+        </div>
         </div>
       </div>
 
