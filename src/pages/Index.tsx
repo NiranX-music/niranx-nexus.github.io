@@ -120,7 +120,7 @@ const Index = () => {
           <div className="flex items-center gap-3">
             <Brain className="w-8 h-8 text-primary animate-pulse-scale" />
             <h1 className="text-2xl md:text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              StudyVerse
+              NiranX StudyVerse
             </h1>
             <Sparkles className="w-6 h-6 text-accent animate-bounce-gentle" />
           </div>
