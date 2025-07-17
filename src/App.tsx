@@ -4,10 +4,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
+import { AppLayout } from "./components/layout/AppLayout";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import Messages from "./pages/Messages";
+import ChatRoom from "./pages/ChatRoom";
 import SmartTimetable from "./pages/SmartTimetable";
 import Analytics from "./pages/Analytics";
 import ExamHub from "./pages/ExamHub";
@@ -27,19 +29,25 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/messages" element={<Messages />} />
-            <Route path="/tasks" element={<TasksPage />} />
-            <Route path="/pomodoro" element={<PomodoroPage />} />
-            <Route path="/music" element={<MusicPage />} />
-            <Route path="/games" element={<GamesPage />} />
-            <Route path="/timetable" element={<SmartTimetable />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/exams" element={<ExamHub />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
+            <Route path="*" element={
+              <AppLayout>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/messages" element={<Messages />} />
+                  <Route path="/messages/:chatId" element={<ChatRoom />} />
+                  <Route path="/tasks" element={<TasksPage />} />
+                  <Route path="/pomodoro" element={<PomodoroPage />} />
+                  <Route path="/music" element={<MusicPage />} />
+                  <Route path="/games" element={<GamesPage />} />
+                  <Route path="/timetable" element={<SmartTimetable />} />
+                  <Route path="/analytics" element={<Analytics />} />
+                  <Route path="/exams" element={<ExamHub />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </AppLayout>
+            } />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>

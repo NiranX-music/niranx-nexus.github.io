@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { 
   MessageSquare, 
   Send, 
@@ -194,9 +195,8 @@ const Messages = () => {
   };
 
   const startNewChat = (userProfile: Profile) => {
-    setSelectedChat(userProfile);
     setShowUserList(false);
-    fetchMessages(userProfile.user_id);
+    navigate(`/messages/${userProfile.user_id}`);
   };
 
   const setupRealtimeSubscription = () => {
@@ -315,10 +315,7 @@ const Messages = () => {
                         className={`p-4 border-b hover:bg-muted/50 cursor-pointer transition-colors ${
                           selectedChat?.user_id === chat.user.user_id ? 'bg-muted' : ''
                         }`}
-                        onClick={() => {
-                          setSelectedChat(chat.user);
-                          fetchMessages(chat.user.user_id);
-                        }}
+                        onClick={() => navigate(`/messages/${chat.user.user_id}`)}
                       >
                         <div className="flex items-center gap-3">
                           <Avatar>
