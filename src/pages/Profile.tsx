@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
 import { 
   User, 
   Edit, 
@@ -20,7 +22,13 @@ import {
   Mail,
   Shield,
   MessageSquare,
-  Settings
+  Settings,
+  Trophy,
+  Star,
+  Zap,
+  Gift,
+  Target,
+  GraduationCap
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
@@ -29,6 +37,8 @@ const Profile = () => {
   const { user, profile, updateProfile, signOut } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [dailyRewardClaimed, setDailyRewardClaimed] = useState(false);
+  const [xpData, setXpData] = useState({ xp: 0, level: 1, nextLevelXp: 1000, progress: 0 });
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -40,7 +50,9 @@ const Profile = () => {
     location: '',
     website: '',
     date_of_birth: '',
-    avatar_url: ''
+    avatar_url: '',
+    class: '',
+    ambition: ''
   });
 
   useEffect(() => {
@@ -53,10 +65,86 @@ const Profile = () => {
         location: profile.location || '',
         website: profile.website || '',
         date_of_birth: profile.date_of_birth || '',
-        avatar_url: profile.avatar_url || ''
+        avatar_url: profile.avatar_url || '',
+        class: profile.class || '',
+        ambition: profile.ambition || ''
       });
+
+      // Calculate XP data
+      const currentXp = profile.xp || 0;
+      const currentLevel = profile.level || 1;
+      const nextLevelXp = getXpForLevel(currentLevel + 1);
+      const currentLevelXp = getXpForLevel(currentLevel);
+      
+      setXpData({
+        xp: currentXp,
+        level: currentLevel,
+        nextLevelXp: nextLevelXp - currentLevelXp,
+        progress: Math.max(0, ((currentXp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100)
+      });
+
+      // Check if daily reward already claimed
+      checkDailyReward();
     }
   }, [profile]);
+
+  const getXpForLevel = (level: number) => {
+    const xpThresholds = [0, 1000, 2500, 5000, 10000, 20000, 35000, 50000, 75000, 100000, 100000];
+    return xpThresholds[Math.min(level, xpThresholds.length - 1)] || 100000;
+  };
+
+  const checkDailyReward = async () => {
+    if (!user) return;
+    
+    const today = new Date().toISOString().split('T')[0];
+    const { data } = await supabase
+      .from('daily_rewards')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('reward_date', today)
+      .single();
+    
+    setDailyRewardClaimed(!!data);
+  };
+
+  const claimDailyReward = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase.rpc('claim_daily_reward', {
+        user_uuid: user.id
+      });
+
+      if (error) throw error;
+
+      const result = data as any;
+      if (result?.success) {
+        toast({
+          title: result.level_up ? "🎉 Level Up!" : "🎁 Daily Reward Claimed!",
+          description: result.level_up 
+            ? `Congratulations! You reached level ${result.new_level}!`
+            : `You earned ${result.xp_earned} XP! Keep it up!`,
+        });
+        
+        setDailyRewardClaimed(true);
+        // Refresh profile to update XP
+        window.location.reload();
+      } else {
+        toast({
+          title: "Already Claimed",
+          description: result?.message || "Daily reward already claimed",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error claiming daily reward:', error);
+      toast({
+        title: "Error",
+        description: "Failed to claim daily reward",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleSave = async () => {
     setLoading(true);
@@ -124,13 +212,115 @@ const Profile = () => {
         </div>
 
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="profile">Profile</TabsTrigger>
+            <TabsTrigger value="level">Level & XP</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
             <TabsTrigger value="activity">Activity</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="profile" className="space-y-6">
+          <TabsContent value="level" className="space-y-6">
+            {/* XP and Level Card */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Trophy className="w-5 h-5 text-yellow-500" />
+                      Level {xpData.level}
+                    </CardTitle>
+                    <CardDescription>
+                      {xpData.xp.toLocaleString()} XP Total
+                    </CardDescription>
+                  </div>
+                  {!dailyRewardClaimed ? (
+                    <Button 
+                      onClick={claimDailyReward}
+                      className="gap-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600"
+                    >
+                      <Gift className="w-4 h-4" />
+                      Claim Daily Reward (+100 XP)
+                    </Button>
+                  ) : (
+                    <Badge variant="secondary" className="gap-1">
+                      <Zap className="w-3 h-3" />
+                      Daily Reward Claimed
+                    </Badge>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between text-sm mb-2">
+                      <span>Progress to Level {xpData.level + 1}</span>
+                      <span>{Math.round(xpData.progress || 0)}%</span>
+                    </div>
+                    <Progress value={xpData.progress || 0} className="h-3" />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {Math.max(0, xpData.nextLevelXp - (xpData.xp - getXpForLevel(xpData.level)))} XP to next level
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Card>
+                      <CardContent className="p-4 text-center">
+                        <div className="text-2xl font-bold text-blue-500">{xpData.xp.toLocaleString()}</div>
+                        <p className="text-sm text-muted-foreground">Total XP</p>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="p-4 text-center">
+                        <div className="text-2xl font-bold text-yellow-500">{xpData.level}</div>
+                        <p className="text-sm text-muted-foreground">Current Level</p>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="p-4 text-center">
+                        <div className="text-2xl font-bold text-green-500">
+                          {Math.max(0, getXpForLevel(xpData.level + 1) - xpData.xp)}
+                        </div>
+                        <p className="text-sm text-muted-foreground">XP to Next Level</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold mb-3">Level Rewards & Milestones</h3>
+                    <div className="space-y-2">
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((level) => (
+                        <div 
+                          key={level}
+                          className={`flex items-center justify-between p-3 rounded-lg border ${
+                            xpData.level >= level ? 'bg-green-50 border-green-200 dark:bg-green-900/20' : 'bg-muted'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                              xpData.level >= level ? 'bg-green-500 text-white' : 'bg-muted-foreground text-background'
+                            }`}>
+                              {xpData.level >= level ? <Star className="w-4 h-4" /> : level}
+                            </div>
+                            <div>
+                              <p className="font-medium">Level {level}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {getXpForLevel(level).toLocaleString()} XP required
+                              </p>
+                            </div>
+                          </div>
+                          <Badge variant={xpData.level >= level ? "default" : "secondary"}>
+                            {xpData.level >= level ? "Unlocked" : "Locked"}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="profile" className="space-y-6">....
             {/* Profile Header Card */}
             <Card>
               <CardContent className="pt-6">
@@ -158,6 +348,10 @@ const Profile = () => {
                       <h2 className="text-2xl font-bold">
                         {formData.display_name || formData.username || 'User'}
                       </h2>
+                      <Badge variant="default" className="gap-1">
+                        <Star className="w-3 h-3" />
+                        Level {xpData.level}
+                      </Badge>
                       {profile?.is_verified && (
                         <Badge variant="secondary" className="gap-1">
                           <Shield className="w-3 h-3" />
@@ -166,6 +360,20 @@ const Profile = () => {
                       )}
                     </div>
                     <p className="text-muted-foreground mb-2">@{formData.username}</p>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {formData.class && (
+                        <Badge variant="outline" className="gap-1">
+                          <GraduationCap className="w-3 h-3" />
+                          {formData.class}
+                        </Badge>
+                      )}
+                      {formData.ambition && (
+                        <Badge variant="outline" className="gap-1">
+                          <Target className="w-3 h-3" />
+                          {formData.ambition}
+                        </Badge>
+                      )}
+                    </div>
                     <p className="text-sm">{formData.bio}</p>
                     
                     <div className="flex flex-wrap gap-4 mt-4 justify-center md:justify-start text-sm text-muted-foreground">
@@ -299,6 +507,27 @@ const Profile = () => {
                         type="date"
                         value={formData.date_of_birth}
                         onChange={(e) => handleInputChange('date_of_birth', e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="class">Class/Year</Label>
+                      <Input
+                        id="class"
+                        value={formData.class}
+                        onChange={(e) => handleInputChange('class', e.target.value)}
+                        placeholder="e.g., Class 12, First Year, etc."
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="ambition">Ambition/Goal</Label>
+                      <Input
+                        id="ambition"
+                        value={formData.ambition}
+                        onChange={(e) => handleInputChange('ambition', e.target.value)}
+                        placeholder="e.g., Doctor, Engineer, etc."
                       />
                     </div>
                   </div>

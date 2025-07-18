@@ -11,6 +11,8 @@ import {
   GraduationCap,
   User,
   Settings,
+  Star,
+  Target,
 } from "lucide-react";
 import {
   Sidebar,
@@ -26,7 +28,9 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 const navigation = [
   {
@@ -79,12 +83,22 @@ const navigation = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
+  const { profile } = useAuth();
   const currentPath = location.pathname;
   const isCollapsed = state === "collapsed";
 
   const isActive = (path: string) => {
     if (path === "/") return currentPath === "/";
     return currentPath.startsWith(path);
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   return (
@@ -138,13 +152,41 @@ export function AppSidebar() {
             <SidebarMenuButton asChild>
               <NavLink to="/profile" className="flex items-center gap-3 px-3 py-2">
                 <Avatar className="h-6 w-6">
-                  <AvatarImage src="" alt="User" />
-                  <AvatarFallback>U</AvatarFallback>
+                  <AvatarImage src={profile?.avatar_url} alt="User" />
+                  <AvatarFallback>
+                    {profile?.display_name ? getInitials(profile.display_name) : 'U'}
+                  </AvatarFallback>
                 </Avatar>
                 {!isCollapsed && (
-                  <div className="flex flex-1 items-center justify-between">
-                    <span className="text-sm">Profile</span>
-                    <Settings className="h-4 w-4" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium truncate">
+                          {profile?.display_name || profile?.username || 'User'}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1">
+                          {profile?.class && (
+                            <Badge variant="outline" className="text-xs px-1 py-0">
+                              <GraduationCap className="w-2 h-2 mr-1" />
+                              {profile.class}
+                            </Badge>
+                          )}
+                          {profile?.level && (
+                            <Badge variant="secondary" className="text-xs px-1 py-0">
+                              <Star className="w-2 h-2 mr-1" />
+                              L{profile.level}
+                            </Badge>
+                          )}
+                        </div>
+                        {profile?.ambition && (
+                          <p className="text-xs text-muted-foreground truncate flex items-center mt-1">
+                            <Target className="w-2 h-2 mr-1" />
+                            {profile.ambition}
+                          </p>
+                        )}
+                      </div>
+                      <Settings className="h-4 w-4 ml-2" />
+                    </div>
                   </div>
                 )}
               </NavLink>

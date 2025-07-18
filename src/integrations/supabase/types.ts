@@ -350,6 +350,30 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_rewards: {
+        Row: {
+          created_at: string | null
+          id: string
+          reward_date: string
+          user_id: string
+          xp_earned: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          reward_date?: string
+          user_id: string
+          xp_earned?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          reward_date?: string
+          user_id?: string
+          xp_earned?: number | null
+        }
+        Relationships: []
+      }
       fan_club_members: {
         Row: {
           fan_club_id: string | null
@@ -775,13 +799,17 @@ export type Database = {
       }
       profiles: {
         Row: {
+          ambition: string | null
           avatar_url: string | null
           bio: string | null
+          class: string | null
           created_at: string
           date_of_birth: string | null
           display_name: string | null
           id: string
           is_verified: boolean | null
+          last_login_reward: string | null
+          level: number | null
           location: string | null
           phone_number: string | null
           social_links: Json | null
@@ -789,15 +817,20 @@ export type Database = {
           user_id: string
           username: string | null
           website: string | null
+          xp: number | null
         }
         Insert: {
+          ambition?: string | null
           avatar_url?: string | null
           bio?: string | null
+          class?: string | null
           created_at?: string
           date_of_birth?: string | null
           display_name?: string | null
           id?: string
           is_verified?: boolean | null
+          last_login_reward?: string | null
+          level?: number | null
           location?: string | null
           phone_number?: string | null
           social_links?: Json | null
@@ -805,15 +838,20 @@ export type Database = {
           user_id: string
           username?: string | null
           website?: string | null
+          xp?: number | null
         }
         Update: {
+          ambition?: string | null
           avatar_url?: string | null
           bio?: string | null
+          class?: string | null
           created_at?: string
           date_of_birth?: string | null
           display_name?: string | null
           id?: string
           is_verified?: boolean | null
+          last_login_reward?: string | null
+          level?: number | null
           location?: string | null
           phone_number?: string | null
           social_links?: Json | null
@@ -821,6 +859,7 @@ export type Database = {
           user_id?: string
           username?: string | null
           website?: string | null
+          xp?: number | null
         }
         Relationships: []
       }
@@ -1072,7 +1111,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      calculate_level: {
+        Args: { xp_amount: number }
+        Returns: number
+      }
+      claim_daily_reward: {
+        Args: { user_uuid: string }
+        Returns: Json
+      }
+      xp_for_next_level: {
+        Args: { current_level: number }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never
