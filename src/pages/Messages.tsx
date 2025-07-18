@@ -232,7 +232,7 @@ const Messages = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center p-8">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <CardTitle>Authentication Required</CardTitle>
@@ -248,8 +248,8 @@ const Messages = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
-      <div className="max-w-7xl mx-auto p-6">
+    <div className="bg-gradient-to-br from-primary/5 via-background to-accent/5">
+      <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <Button 

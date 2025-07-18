@@ -1,5 +1,6 @@
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
+import { RightSidebar } from "./RightSidebar";
 import { Separator } from "@/components/ui/separator";
 import {
   Breadcrumb,
@@ -10,6 +11,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { useLocation } from "react-router-dom";
+import MacDock from "./MacDock";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -33,11 +35,25 @@ export function AppLayout({ children }: AppLayoutProps) {
   const location = useLocation();
   const breadcrumbs = getBreadcrumbs(location.pathname);
 
+  const handleDockNavigation = (page: string) => {
+    if (page === 'dashboard') {
+      window.location.href = '/';
+    } else {
+      window.location.href = `/${page}`;
+    }
+  };
+
+  const getCurrentPage = () => {
+    const path = location.pathname;
+    if (path === '/') return 'dashboard';
+    return path.slice(1).split('/')[0];
+  };
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <AppSidebar />
-        <SidebarInset>
+        <SidebarInset className="flex-1">
           <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
@@ -62,10 +78,14 @@ export function AppLayout({ children }: AppLayoutProps) {
               </BreadcrumbList>
             </Breadcrumb>
           </header>
-          <div className="flex flex-1 flex-col gap-4 p-4">
+          <div className="flex flex-1 flex-col gap-4 p-4 pb-20">
             {children}
           </div>
         </SidebarInset>
+        <RightSidebar />
+        
+        {/* MacDock */}
+        <MacDock onNavigate={handleDockNavigation} currentPage={getCurrentPage()} />
       </div>
     </SidebarProvider>
   );
