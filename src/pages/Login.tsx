@@ -10,9 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { validateEmail, validatePassword, validateUsername, validateDisplayName, sanitizeInput } from '@/lib/security';
-
-// Move Google Client ID to environment variable in production
-const GOOGLE_CLIENT_ID = "994620627677-vkpe20tuhved8tcgu34na01m1ea8scld.apps.googleusercontent.com";
+import { appConfig } from '@/lib/appConfig';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -38,7 +36,7 @@ const Login = () => {
       // Initialize Google Sign-In
       if (typeof window !== 'undefined' && (window as any).google) {
         (window as any).google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
+          client_id: appConfig.google.clientId,
           callback: (response: any) => {
             localStorage.setItem("isLoggedIn", "true");
             localStorage.setItem("authMethod", "google");

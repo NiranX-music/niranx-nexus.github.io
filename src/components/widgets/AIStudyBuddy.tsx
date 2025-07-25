@@ -144,10 +144,13 @@ const AIStudyBuddy = () => {
     }
     
     // Load secure API key
-    const secureApiKey = openAIStorage.getKey();
-    if (secureApiKey) {
-      setApiKey(secureApiKey);
-    }
+    openAIStorage.getKey().then(secureApiKey => {
+      if (secureApiKey) {
+        setApiKey(secureApiKey);
+      }
+    }).catch(error => {
+      console.error('Error loading API key:', error);
+    });
     
     // Load other settings from localStorage (non-sensitive)
     const savedSettings = localStorage.getItem('studyverse-ai-settings');
