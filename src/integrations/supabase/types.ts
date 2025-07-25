@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instanciate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.3 (519615d)"
+    PostgrestVersion: "12.2.12 (cd3cf9e)"
   }
   public: {
     Tables: {
@@ -863,6 +863,33 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limits: {
+        Row: {
+          action_count: number | null
+          action_type: string
+          created_at: string | null
+          id: string
+          user_id: string
+          window_start: string | null
+        }
+        Insert: {
+          action_count?: number | null
+          action_type: string
+          created_at?: string | null
+          id?: string
+          user_id: string
+          window_start?: string | null
+        }
+        Update: {
+          action_count?: number | null
+          action_type?: string
+          created_at?: string | null
+          id?: string
+          user_id?: string
+          window_start?: string | null
+        }
+        Relationships: []
+      }
       track_analysis: {
         Row: {
           acousticness: number | null
@@ -1115,9 +1142,33 @@ export type Database = {
         Args: { xp_amount: number }
         Returns: number
       }
+      check_rate_limit: {
+        Args: {
+          user_uuid: string
+          action_type_param: string
+          limit_per_hour?: number
+        }
+        Returns: boolean
+      }
       claim_daily_reward: {
         Args: { user_uuid: string }
         Returns: Json
+      }
+      cleanup_rate_limits: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      validate_message_content: {
+        Args: { content: string }
+        Returns: boolean
+      }
+      validate_profile_data: {
+        Args: {
+          display_name_input?: string
+          username_input?: string
+          bio_input?: string
+        }
+        Returns: boolean
       }
       xp_for_next_level: {
         Args: { current_level: number }
