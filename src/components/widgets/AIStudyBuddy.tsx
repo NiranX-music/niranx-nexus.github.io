@@ -27,6 +27,10 @@ import {
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { validateMessageContent, checkClientRateLimit } from "@/lib/security";
+import { openAIStorage, validateSession } from "@/lib/apiKeyStorage";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ChatMessage {
   id: string;
@@ -56,6 +60,7 @@ interface QuickAction {
 
 const AIStudyBuddy = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentInput, setCurrentInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -112,10 +117,18 @@ const AIStudyBuddy = () => {
     }
   ];
 
-  // Load data from localStorage
+  // Load data from localStorage and validate session
   useEffect(() => {
+    if (!validateSession()) {
+      toast({
+        title: "Session Expired",
+        description: "Please refresh the page and re-enter your API keys",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const savedSessions = localStorage.getItem('studyverse-ai-sessions');
-    const savedSettings = localStorage.getItem('studyverse-ai-settings');
     
     if (savedSessions) {
       try {
@@ -130,11 +143,18 @@ const AIStudyBuddy = () => {
       }
     }
     
+    // Load secure API key
+    const secureApiKey = openAIStorage.getKey();
+    if (secureApiKey) {
+      setApiKey(secureApiKey);
+    }
+    
+    // Load other settings from localStorage (non-sensitive)
+    const savedSettings = localStorage.getItem('studyverse-ai-settings');
     if (savedSettings) {
       try {
         const settings = JSON.parse(savedSettings);
-        setApiKey(settings.apiKey || '');
-        setModel(settings.model || 'gpt-3.5-turbo');
+        setModel(settings.model || 'gpt-4o-mini');
         setPersonality(settings.personality || 'friendly');
       } catch (error) {
         console.error('Error loading AI settings:', error);
@@ -142,14 +162,21 @@ const AIStudyBuddy = () => {
     }
   }, []);
 
-  // Save data to localStorage
+  // Save data to localStorage (sessions) and secure storage (API key)
   useEffect(() => {
     localStorage.setItem('studyverse-ai-sessions', JSON.stringify(sessions));
   }, [sessions]);
 
   useEffect(() => {
+    // Save API key securely
+    if (apiKey) {
+      openAIStorage.setKey(apiKey);
+    } else {
+      openAIStorage.removeKey();
+    }
+    
+    // Save non-sensitive settings to localStorage
     localStorage.setItem('studyverse-ai-settings', JSON.stringify({
-      apiKey,
       model,
       personality
     }));
@@ -187,15 +214,33 @@ const AIStudyBuddy = () => {
   };
 
   const sendMessage = async (content: string, category?: ChatMessage['category']) => {
-    if (!content.trim()) return;
-
-    if (!apiKey) {
+    // Validate content
+    const contentValidation = validateMessageContent(content);
+    if (!contentValidation.valid) {
       toast({
-        title: "API Key Required",
-        description: "Please add your OpenAI API key in settings to use AI features",
+        title: "Invalid Message",
+        description: contentValidation.message,
         variant: "destructive",
       });
-      setShowSettings(true);
+      return;
+    }
+
+    // Check client-side rate limiting
+    if (!checkClientRateLimit('ai_chat', 20, 60 * 60 * 1000)) { // 20 messages per hour
+      toast({
+        title: "Rate Limit Exceeded",
+        description: "You've sent too many messages. Please wait before sending another.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to use AI features",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -214,15 +259,29 @@ const AIStudyBuddy = () => {
     setIsLoading(true);
 
     try {
-      // Simulate AI response for demo (replace with actual OpenAI API call)
-      await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
-      
-      const aiResponse = generateMockResponse(content, category);
-      
+      // Call secure edge function instead of client-side OpenAI
+      const { data, error } = await supabase.functions.invoke('secure-ai-chat', {
+        body: { prompt: content, category }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data.needsApiKey) {
+        toast({
+          title: "API Key Required",
+          description: "OpenAI API key not configured. Please contact administrator.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
       const aiMessage: ChatMessage = {
         id: Math.random().toString(36).substr(2, 9),
         type: 'ai',
-        content: aiResponse,
+        content: data.response,
         timestamp: new Date().toISOString(),
         category
       };
@@ -244,10 +303,11 @@ const AIStudyBuddy = () => {
         ));
       }
 
-    } catch (error) {
+    } catch (error: any) {
+      console.error('AI chat error:', error);
       toast({
         title: "Error",
-        description: "Failed to get AI response. Please try again.",
+        description: error.message || "Failed to get AI response. Please try again.",
         variant: "destructive",
       });
     } finally {

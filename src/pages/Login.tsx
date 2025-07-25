@@ -9,7 +9,9 @@ import { Brain, Mail, Shield, Sparkles, ArrowRight, Eye, EyeOff, User, Clock } f
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { validateEmail, validatePassword, validateUsername, validateDisplayName, sanitizeInput } from '@/lib/security';
 
+// Move Google Client ID to environment variable in production
 const GOOGLE_CLIENT_ID = "994620627677-vkpe20tuhved8tcgu34na01m1ea8scld.apps.googleusercontent.com";
 
 const Login = () => {
@@ -80,10 +82,22 @@ const Login = () => {
   };
 
   const handleAuth = async () => {
-    if (!email || !password) {
+    // Validate email
+    if (!validateEmail(email)) {
       toast({
-        title: "Missing Information",
-        description: "Please fill in all fields",
+        title: "Invalid Email",
+        description: "Please enter a valid email address",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate password
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.valid) {
+      toast({
+        title: "Invalid Password",
+        description: passwordValidation.message,
         variant: "destructive",
       });
       return;
@@ -92,10 +106,24 @@ const Login = () => {
     setIsLoading(true);
 
     if (isSignUp) {
-      if (!username || !displayName) {
+      // Validate username
+      const usernameValidation = validateUsername(username);
+      if (!usernameValidation.valid) {
         toast({
-          title: "Missing Information", 
-          description: "Please fill in all fields for sign up",
+          title: "Invalid Username",
+          description: usernameValidation.message,
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Validate display name
+      const displayNameValidation = validateDisplayName(displayName);
+      if (!displayNameValidation.valid) {
+        toast({
+          title: "Invalid Display Name",
+          description: displayNameValidation.message,
           variant: "destructive",
         });
         setIsLoading(false);
@@ -103,8 +131,8 @@ const Login = () => {
       }
 
       const { error } = await signUp(email, password, {
-        username,
-        display_name: displayName
+        username: sanitizeInput(username),
+        display_name: sanitizeInput(displayName)
       });
 
       if (!error) {

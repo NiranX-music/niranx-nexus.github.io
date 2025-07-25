@@ -21,6 +21,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import { validateMessageContent, sanitizeInput, checkClientRateLimit } from "@/lib/security";
 
 interface Message {
   id: string;
@@ -139,9 +140,32 @@ export default function ChatRoom() {
   const sendMessage = async () => {
     if (!newMessage.trim() || !user || !chatId) return;
 
+    // Validate message content
+    const contentValidation = validateMessageContent(newMessage);
+    if (!contentValidation.valid) {
+      toast({
+        title: "Invalid Message",
+        description: contentValidation.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Rate limiting
+    if (!checkClientRateLimit('send_message', 30, 60 * 1000)) { // 30 messages per minute
+      toast({
+        title: "Rate Limit Exceeded",
+        description: "You're sending messages too quickly. Please slow down.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
+      const sanitizedContent = sanitizeInput(newMessage.trim());
+      
       const { error } = await supabase.from("messages").insert({
-        content: newMessage.trim(),
+        content: sanitizedContent,
         sender_id: user.id,
         receiver_id: chatId,
       });

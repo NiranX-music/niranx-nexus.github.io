@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { validateDisplayName, validateBio, sanitizeInput, checkClientRateLimit } from '@/lib/security';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -147,10 +148,67 @@ const Profile = () => {
   };
 
   const handleSave = async () => {
+    // Rate limiting
+    if (!checkClientRateLimit('profile_update', 5, 60 * 60 * 1000)) { // 5 updates per hour
+      toast({
+        title: "Rate Limit Exceeded",
+        description: "Too many profile updates. Please wait before trying again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate inputs
+    if (formData.display_name) {
+      const displayNameValidation = validateDisplayName(formData.display_name);
+      if (!displayNameValidation.valid) {
+        toast({
+          title: "Invalid Display Name",
+          description: displayNameValidation.message,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    if (formData.bio) {
+      const bioValidation = validateBio(formData.bio);
+      if (!bioValidation.valid) {
+        toast({
+          title: "Invalid Bio",
+          description: bioValidation.message,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     setLoading(true);
-    await updateProfile(formData);
-    setIsEditing(false);
-    setLoading(false);
+    
+    try {
+      // Sanitize inputs before saving
+      const sanitizedData = {
+        ...formData,
+        display_name: formData.display_name ? sanitizeInput(formData.display_name) : formData.display_name,
+        bio: formData.bio ? sanitizeInput(formData.bio) : formData.bio,
+        location: formData.location ? sanitizeInput(formData.location) : formData.location,
+        website: formData.website ? sanitizeInput(formData.website) : formData.website,
+        class: formData.class ? sanitizeInput(formData.class) : formData.class,
+        ambition: formData.ambition ? sanitizeInput(formData.ambition) : formData.ambition,
+      };
+
+      await updateProfile(sanitizedData);
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update profile",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
