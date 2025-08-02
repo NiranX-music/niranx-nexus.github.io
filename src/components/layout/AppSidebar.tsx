@@ -36,52 +36,52 @@ import { useAuth } from "@/contexts/AuthContext";
 const navigation = [
   {
     title: "Dashboard",
-    url: "/",
+    url: "/niranx/dashboard",
     icon: Home,
   },
   {
     title: "Messages",
-    url: "/messages",
+    url: "/niranx/messages",
     icon: MessageCircle,
   },
   {
     title: "Tasks",
-    url: "/tasks",
+    url: "/niranx/tasks",
     icon: CheckSquare,
   },
   {
     title: "Pomodoro",
-    url: "/pomodoro",
+    url: "/niranx/pomodoro",
     icon: Timer,
   },
   {
     title: "Music",
-    url: "/music",
+    url: "/niranx/music",
     icon: Music,
   },
   {
     title: "Games",
-    url: "/games",
+    url: "/niranx/games",
     icon: Gamepad2,
   },
   {
     title: "Timetable",
-    url: "/timetable",
+    url: "/niranx/timetable",
     icon: Calendar,
   },
   {
     title: "Scheduler",
-    url: "/scheduler",
+    url: "/niranx/scheduler",
     icon: CalendarDays,
   },
   {
     title: "Analytics",
-    url: "/analytics",
+    url: "/niranx/analytics",
     icon: BarChart3,
   },
   {
     title: "Exams",
-    url: "/exams",
+    url: "/niranx/exams",
     icon: GraduationCap,
   },
 ];
@@ -94,7 +94,7 @@ export function AppSidebar() {
   const isCollapsed = state === "collapsed";
 
   const isActive = (path: string) => {
-    if (path === "/") return currentPath === "/";
+    if (path === "/niranx/dashboard") return currentPath === "/niranx/dashboard";
     return currentPath.startsWith(path);
   };
 
@@ -156,7 +156,7 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <NavLink to="/profile" className="flex items-center gap-3 px-3 py-2">
+              <NavLink to="/niranx/profile" className="flex items-center gap-3 px-3 py-2">
                 <Avatar className="h-6 w-6">
                   <AvatarImage src={profile?.avatar_url} alt="User" />
                   <AvatarFallback>

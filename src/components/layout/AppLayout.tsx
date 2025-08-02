@@ -19,13 +19,14 @@ interface AppLayoutProps {
 
 const getBreadcrumbs = (pathname: string) => {
   const segments = pathname.split("/").filter(Boolean);
-  const breadcrumbs = [{ title: "Home", href: "/" }];
+  const breadcrumbs = [{ title: "Home", href: "/niranx/dashboard" }];
   
   let currentPath = "";
   segments.forEach((segment) => {
+    if (segment === "niranx") return; // Skip the niranx prefix in breadcrumbs
     currentPath += `/${segment}`;
     const title = segment.charAt(0).toUpperCase() + segment.slice(1);
-    breadcrumbs.push({ title, href: currentPath });
+    breadcrumbs.push({ title, href: `/niranx${currentPath}` });
   });
   
   return breadcrumbs;
@@ -37,16 +38,20 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   const handleDockNavigation = (page: string) => {
     if (page === 'dashboard') {
-      window.location.href = '/';
+      window.location.href = '/niranx/dashboard';
     } else {
-      window.location.href = `/${page}`;
+      window.location.href = `/niranx/${page}`;
     }
   };
 
   const getCurrentPage = () => {
     const path = location.pathname;
-    if (path === '/') return 'dashboard';
-    return path.slice(1).split('/')[0];
+    if (path === '/niranx/dashboard') return 'dashboard';
+    const segments = path.split('/').filter(Boolean);
+    if (segments[0] === 'niranx' && segments[1]) {
+      return segments[1];
+    }
+    return 'dashboard';
   };
 
   return (

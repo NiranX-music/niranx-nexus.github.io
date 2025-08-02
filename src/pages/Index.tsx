@@ -89,11 +89,11 @@ const Index = () => {
     } else {
       // Check if requires auth and redirect if needed
       if (page !== 'pomodoro' && (!isLoggedIn || isGuest)) {
-        navigate('/login');
+        navigate('/niranx/login');
         return;
       }
       // Navigate to other pages using proper routing
-      navigate(`/${page}`);
+      navigate(`/niranx/${page}`);
     }
   };
 
@@ -229,7 +229,7 @@ const Index = () => {
           <Button
             variant={isLoggedIn ? "default" : "outline"}
             size="default"
-            onClick={() => navigate('/login')}
+            onClick={() => navigate('/niranx/login')}
             className="glass-button"
           >
             <User className="w-4 h-4 mr-2" />

@@ -27,7 +27,7 @@ const Login = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      navigate('/');
+      navigate('/niranx/dashboard');
     }
   }, [user, navigate]);
 
@@ -45,7 +45,7 @@ const Login = () => {
               title: "Welcome to StudyVerse! 🎉",
               description: "Google login successful",
             });
-            navigate("/");
+            navigate("/niranx/dashboard");
           },
         });
         
@@ -58,7 +58,7 @@ const Login = () => {
           title: "Welcome to StudyVerse! 🎉",
           description: "Google login successful",
         });
-        navigate("/");
+        navigate("/niranx/dashboard");
       }
     } catch (error) {
       toast({
@@ -76,7 +76,7 @@ const Login = () => {
       title: "Guest Mode Activated 🕐",
       description: "Limited to Pomodoro timer only",
     });
-    navigate("/");
+    navigate("/niranx/dashboard");
   };
 
   const handleAuth = async () => {
@@ -134,12 +134,12 @@ const Login = () => {
       });
 
       if (!error) {
-        navigate('/');
+        navigate('/niranx/dashboard');
       }
     } else {
       const { error } = await signIn(email, password);
       if (!error) {
-        navigate('/');
+        navigate('/niranx/dashboard');
       }
     }
 
