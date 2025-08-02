@@ -30,7 +30,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { validateMessageContent, checkClientRateLimit } from "@/lib/security";
 import { openAIStorage, validateSession } from "@/lib/apiKeyStorage";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+
 
 interface ChatMessage {
   id: string;
@@ -60,7 +60,6 @@ interface QuickAction {
 
 const AIStudyBuddy = () => {
   const { toast } = useToast();
-  const { user } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentInput, setCurrentInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -238,14 +237,6 @@ const AIStudyBuddy = () => {
       return;
     }
 
-    if (!user) {
-      toast({
-        title: "Authentication Required",
-        description: "Please log in to use AI features",
-        variant: "destructive",
-      });
-      return;
-    }
 
     // Add user message
     const userMessage: ChatMessage = {

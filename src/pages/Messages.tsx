@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -49,7 +49,6 @@ interface ChatPreview {
 }
 
 const Messages = () => {
-  const { user, profile } = useAuth();
   const [chats, setChats] = useState<ChatPreview[]>([]);
   const [selectedChat, setSelectedChat] = useState<Profile | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -61,164 +60,56 @@ const Messages = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Mock user for demo purposes
+  const mockUser = { id: 'demo-user-1', email: 'demo@example.com' };
+
   useEffect(() => {
-    if (user) {
-      fetchChats();
-      fetchAllUsers();
-      setupRealtimeSubscription();
-    }
-  }, [user]);
+    fetchChats();
+    fetchAllUsers();
+    setupRealtimeSubscription();
+  }, []);
 
   const fetchAllUsers = async () => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .neq('user_id', user?.id);
-
-    if (error) {
-      console.error('Error fetching users:', error);
-    } else {
-      setAllUsers(data || []);
-    }
+    // Mock data for demo
+    setAllUsers([
+      { id: '1', user_id: 'user-1', username: 'john_doe', display_name: 'John Doe', avatar_url: '' },
+      { id: '2', user_id: 'user-2', username: 'jane_smith', display_name: 'Jane Smith', avatar_url: '' },
+    ]);
   };
 
   const fetchChats = async () => {
-    if (!user) return;
-
-    // Fetch messages with profiles joined manually
-    const { data: messagesData, error } = await supabase
-      .from('messages')
-      .select('*')
-      .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching messages:', error);
-      return;
-    }
-
-    // Get unique user IDs that are conversation partners
-    const partnerIds = new Set<string>();
-    messagesData?.forEach((message: any) => {
-      const partnerId = message.sender_id === user.id ? message.receiver_id : message.sender_id;
-      partnerIds.add(partnerId);
-    });
-
-    // Fetch profiles for all partners
-    const { data: profilesData } = await supabase
-      .from('profiles')
-      .select('*')
-      .in('user_id', Array.from(partnerIds));
-
-    // Group messages by conversation partners
-    const chatMap = new Map<string, ChatPreview>();
-    const profileMap = new Map<string, Profile>();
-    
-    // Create profile map for quick lookup
-    profilesData?.forEach((profile: any) => {
-      profileMap.set(profile.user_id, profile);
-    });
-    
-    messagesData?.forEach((message: any) => {
-      const partnerId = message.sender_id === user.id ? message.receiver_id : message.sender_id;
-      const partnerProfile = profileMap.get(partnerId);
-
-      if (partnerProfile && !chatMap.has(partnerId)) {
-        chatMap.set(partnerId, {
-          user: partnerProfile,
-          lastMessage: message,
-          unreadCount: message.receiver_id === user.id && !message.is_read ? 1 : 0
-        });
-      } else if (partnerProfile) {
-        const existing = chatMap.get(partnerId)!;
-        if (!existing.lastMessage || new Date(message.created_at) > new Date(existing.lastMessage.created_at)) {
-          existing.lastMessage = message;
-        }
-        if (message.receiver_id === user.id && !message.is_read) {
-          existing.unreadCount++;
-        }
-      }
-    });
-
-    setChats(Array.from(chatMap.values()));
+    // Mock data for demo
+    setChats([]);
   };
 
   const fetchMessages = async (partnerId: string) => {
-    if (!user) return;
-
-    const { data, error } = await supabase
-      .from('messages')
-      .select('*')
-      .or(`and(sender_id.eq.${user.id},receiver_id.eq.${partnerId}),and(sender_id.eq.${partnerId},receiver_id.eq.${user.id})`)
-      .order('created_at', { ascending: true });
-
-    if (error) {
-      console.error('Error fetching messages:', error);
-    } else {
-      setMessages(data || []);
-      // Mark messages as read
-      await supabase
-        .from('messages')
-        .update({ is_read: true })
-        .eq('sender_id', partnerId)
-        .eq('receiver_id', user.id);
-    }
+    // Mock implementation
+    setMessages([]);
   };
 
   const sendMessage = async () => {
-    if (!user || !selectedChat || !newMessage.trim()) return;
+    if (!selectedChat || !newMessage.trim()) return;
 
     setLoading(true);
 
-    const { error } = await supabase
-      .from('messages')
-      .insert({
-        sender_id: user.id,
-        receiver_id: selectedChat.user_id,
-        content: newMessage.trim(),
-        message_type: 'text'
-      });
+    // Mock sending message
+    toast({
+      title: "Demo Mode",
+      description: "Message sending is not available in demo mode",
+    });
 
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to send message",
-        variant: "destructive",
-      });
-    } else {
-      setNewMessage('');
-      fetchMessages(selectedChat.user_id);
-      fetchChats();
-    }
-
+    setNewMessage('');
     setLoading(false);
   };
 
   const startNewChat = (userProfile: Profile) => {
     setShowUserList(false);
-    navigate(`/messages/${userProfile.user_id}`);
+    navigate(`/niranx/messages/${userProfile.user_id}`);
   };
 
   const setupRealtimeSubscription = () => {
-    const channel = supabase
-      .channel('messages')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages'
-        },
-        () => {
-          fetchChats();
-          if (selectedChat) {
-            fetchMessages(selectedChat.user_id);
-          }
-        }
-      )
-      .subscribe();
-
-    return () => supabase.removeChannel(channel);
+    // Mock subscription for demo
+    return () => {};
   };
 
   const getInitials = (name: string) => {
@@ -229,23 +120,6 @@ const Messages = () => {
       .toUpperCase()
       .slice(0, 2);
   };
-
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <CardTitle>Authentication Required</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={() => navigate('/login')} className="w-full">
-              Sign In
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="bg-gradient-to-br from-primary/5 via-background to-accent/5">
@@ -403,11 +277,11 @@ const Messages = () => {
                         {messages.map((message) => (
                           <div
                             key={message.id}
-                            className={`flex ${message.sender_id === user.id ? 'justify-end' : 'justify-start'}`}
+                            className={`flex ${message.sender_id === mockUser.id ? 'justify-end' : 'justify-start'}`}
                           >
                             <div
                               className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                                message.sender_id === user.id
+                                message.sender_id === mockUser.id
                                   ? 'bg-primary text-primary-foreground'
                                   : 'bg-muted'
                               }`}

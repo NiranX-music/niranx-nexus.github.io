@@ -16,7 +16,7 @@ import {
   SkipForward,
   SkipBack
 } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+
 
 export function RightSidebar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,7 +24,7 @@ export function RightSidebar() {
   const [musicPlaying, setMusicPlaying] = useState(false);
   const [pomodoroTime, setPomodoroTime] = useState(25 * 60); // 25 minutes
   const [pomodoroActive, setPomodoroActive] = useState(false);
-  const { user } = useAuth();
+  
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -225,37 +225,22 @@ export function RightSidebar() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {user ? (
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Save your progress and notes to your account
-                      </p>
-                      <div className="space-y-2">
-                        <Button className="w-full">
-                          Save Current Session
-                        </Button>
-                        <Button variant="outline" className="w-full">
-                          View Saved Sessions
-                        </Button>
-                        <Button variant="outline" className="w-full">
-                          Export Data
-                        </Button>
-                      </div>
-                      <Separator className="my-4" />
-                      <p className="text-xs text-muted-foreground">
-                        Logged in as: {user.email}
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="text-center">
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Sign in to save your progress
-                      </p>
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Save your progress and notes locally
+                    </p>
+                    <div className="space-y-2">
                       <Button className="w-full">
-                        Sign In
+                        Save Current Session
+                      </Button>
+                      <Button variant="outline" className="w-full">
+                        View Saved Sessions
+                      </Button>
+                      <Button variant="outline" className="w-full">
+                        Export Data
                       </Button>
                     </div>
-                  )}
+                  </div>
                 </CardContent>
               </Card>
             )}

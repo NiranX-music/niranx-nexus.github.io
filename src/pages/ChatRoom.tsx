@@ -19,7 +19,7 @@ import {
   Info,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+
 import { toast } from "@/hooks/use-toast";
 import { validateMessageContent, sanitizeInput, checkClientRateLimit } from "@/lib/security";
 
@@ -42,7 +42,8 @@ interface Profile {
 export default function ChatRoom() {
   const { chatId } = useParams<{ chatId: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  // Mock user for demo purposes
+  const mockUser = { id: 'demo-user-1', email: 'demo@example.com' };
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [chatPartner, setChatPartner] = useState<Profile | null>(null);
@@ -58,48 +59,28 @@ export default function ChatRoom() {
   }, [messages]);
 
   useEffect(() => {
-    if (!user || !chatId) {
-      navigate("/messages");
+    if (!chatId) {
+      navigate("/niranx/messages");
       return;
     }
 
     fetchChatData();
     setupRealtimeSubscription();
-  }, [user, chatId, navigate]);
+  }, [chatId, navigate]);
 
   const fetchChatData = async () => {
-    if (!user || !chatId) return;
+    if (!chatId) return;
 
     try {
-      // Fetch messages for this chat
-      const { data: messagesData, error: messagesError } = await supabase
-        .from("messages")
-        .select("*")
-        .or(`and(sender_id.eq.${user.id},receiver_id.eq.${chatId}),and(sender_id.eq.${chatId},receiver_id.eq.${user.id})`)
-        .order("created_at", { ascending: true });
-
-      if (messagesError) throw messagesError;
-
-      setMessages(messagesData || []);
-
-      // Fetch chat partner profile
-      const { data: profileData, error: profileError } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", chatId)
-        .single();
-
-      if (profileError) throw profileError;
-
-      setChatPartner(profileData);
-
-      // Mark messages as read
-      await supabase
-        .from("messages")
-        .update({ is_read: true })
-        .eq("sender_id", chatId)
-        .eq("receiver_id", user.id);
-
+      // Mock implementation for demo
+      setChatPartner({
+        id: '1',
+        display_name: 'Demo User',
+        username: 'demo_user',
+        avatar_url: ''
+      });
+      
+      setMessages([]);
     } catch (error) {
       console.error("Error fetching chat data:", error);
       toast({
@@ -113,74 +94,20 @@ export default function ChatRoom() {
   };
 
   const setupRealtimeSubscription = () => {
-    if (!user || !chatId) return;
-
-    const channel = supabase
-      .channel(`chat-${user.id}-${chatId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-          filter: `or(and(sender_id.eq.${user.id},receiver_id.eq.${chatId}),and(sender_id.eq.${chatId},receiver_id.eq.${user.id}))`,
-        },
-        (payload) => {
-          const newMessage = payload.new as Message;
-          setMessages((prev) => [...prev, newMessage]);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    // Mock subscription for demo
+    return () => {};
   };
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || !user || !chatId) return;
+    if (!newMessage.trim() || !chatId) return;
 
-    // Validate message content
-    const contentValidation = validateMessageContent(newMessage);
-    if (!contentValidation.valid) {
-      toast({
-        title: "Invalid Message",
-        description: contentValidation.message,
-        variant: "destructive",
-      });
-      return;
-    }
+    // Mock sending message
+    toast({
+      title: "Demo Mode",
+      description: "Message sending is not available in demo mode",
+    });
 
-    // Rate limiting
-    if (!checkClientRateLimit('send_message', 30, 60 * 1000)) { // 30 messages per minute
-      toast({
-        title: "Rate Limit Exceeded",
-        description: "You're sending messages too quickly. Please slow down.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      const sanitizedContent = sanitizeInput(newMessage.trim());
-      
-      const { error } = await supabase.from("messages").insert({
-        content: sanitizedContent,
-        sender_id: user.id,
-        receiver_id: chatId,
-      });
-
-      if (error) throw error;
-
-      setNewMessage("");
-    } catch (error) {
-      console.error("Error sending message:", error);
-      toast({
-        title: "Error",
-        description: "Failed to send message",
-        variant: "destructive",
-      });
-    }
+    setNewMessage("");
   };
 
   const getInitials = (name: string) => {
@@ -213,7 +140,7 @@ export default function ChatRoom() {
         <div className="text-center">
           <h3 className="text-lg font-semibold">Chat not found</h3>
           <p className="text-muted-foreground">This conversation doesn't exist.</p>
-          <Button onClick={() => navigate("/messages")} className="mt-4">
+          <Button onClick={() => navigate("/niranx/messages")} className="mt-4">
             Back to Messages
           </Button>
         </div>
@@ -231,7 +158,7 @@ export default function ChatRoom() {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => navigate("/messages")}
+                onClick={() => navigate("/niranx/messages")}
               >
                 <ArrowLeft className="h-4 w-4" />
               </Button>
@@ -278,12 +205,12 @@ export default function ChatRoom() {
             <div
               key={message.id}
               className={`flex ${
-                message.sender_id === user?.id ? "justify-end" : "justify-start"
+                message.sender_id === mockUser?.id ? "justify-end" : "justify-start"
               }`}
             >
               <div
                 className={`max-w-[70%] rounded-lg px-3 py-2 ${
-                  message.sender_id === user?.id
+                  message.sender_id === mockUser?.id
                     ? "bg-primary text-primary-foreground"
                     : "bg-muted"
                 }`}

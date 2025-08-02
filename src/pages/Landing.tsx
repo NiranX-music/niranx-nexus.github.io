@@ -89,9 +89,6 @@ const Landing = () => {
               <Badge variant="secondary" className="ml-2">by NiranX</Badge>
             </div>
             <div className="flex items-center space-x-4">
-              <Link to="/niranx/login">
-                <Button variant="outline">Sign In</Button>
-              </Link>
               <Link to="/niranx/dashboard">
                 <Button>Go to Your Profile</Button>
               </Link>

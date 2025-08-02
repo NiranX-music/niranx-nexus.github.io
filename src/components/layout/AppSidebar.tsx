@@ -34,7 +34,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
 import XPDisplay from "@/components/ui/XPDisplay";
 
 const navigation = [
@@ -113,22 +112,12 @@ const navigation = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
-  const { profile } = useAuth();
   const currentPath = location.pathname;
   const isCollapsed = state === "collapsed";
 
   const isActive = (path: string) => {
     if (path === "/niranx/dashboard") return currentPath === "/niranx/dashboard";
     return currentPath.startsWith(path);
-  };
-
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(word => word[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
   };
 
   return (
@@ -182,9 +171,8 @@ export function AppSidebar() {
             <SidebarMenuButton asChild>
               <NavLink to="/niranx/profile" className="flex items-center gap-3 px-3 py-2">
                 <Avatar className="h-6 w-6">
-                  <AvatarImage src={profile?.avatar_url} alt="User" />
                   <AvatarFallback>
-                    {profile?.display_name ? getInitials(profile.display_name) : 'U'}
+                    U
                   </AvatarFallback>
                 </Avatar>
                 {!isCollapsed && (
@@ -192,15 +180,9 @@ export function AppSidebar() {
                     <div className="flex items-center justify-between">
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium truncate">
-                          {profile?.display_name || profile?.username || 'User'}
+                          User Profile
                         </p>
                         <XPDisplay className="mt-2" />
-                        {profile?.ambition && (
-                          <p className="text-xs text-muted-foreground truncate flex items-center mt-1">
-                            <Target className="w-2 h-2 mr-1" />
-                            {profile.ambition}
-                          </p>
-                        )}
                       </div>
                       <Settings className="h-4 w-4 ml-2" />
                     </div>
