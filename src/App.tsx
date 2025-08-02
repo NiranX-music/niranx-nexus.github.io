@@ -12,7 +12,7 @@ import Profile from "./pages/Profile";
 import Messages from "./pages/Messages";
 import ChatRoom from "./pages/ChatRoom";
 import SmartTimetable from "./pages/SmartTimetable";
-import Scheduler from "./pages/Scheduler";
+import TaskScheduler from "./pages/TaskScheduler";
 import Analytics from "./pages/Analytics";
 import ExamHub from "./pages/ExamHub";
 import TasksPage from "./pages/TasksPage";
@@ -45,7 +45,7 @@ const App = () => (
                   <Route path="/music" element={<MusicPage />} />
                   <Route path="/games" element={<GamesPage />} />
                   <Route path="/timetable" element={<SmartTimetable />} />
-                  <Route path="/scheduler" element={<Scheduler />} />
+                  <Route path="/scheduler" element={<TaskScheduler />} />
                   <Route path="/analytics" element={<Analytics />} />
                   <Route path="/exams" element={<ExamHub />} />
                   <Route path="*" element={<NotFound />} />
