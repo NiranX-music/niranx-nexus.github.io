@@ -11,6 +11,8 @@ import {
   BarChart3,
   GraduationCap,
   User,
+  Users,
+  BookOpen,
   Settings,
   Star,
   Target,
@@ -32,6 +34,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import XPDisplay from "@/components/ui/XPDisplay";
 
 const navigation = [
   {
@@ -73,6 +76,21 @@ const navigation = [
     title: "Scheduler",
     url: "/niranx/scheduler",
     icon: CalendarDays,
+  },
+  {
+    title: "Library",
+    url: "/niranx/library",
+    icon: BookOpen,
+  },
+  {
+    title: "Allen",
+    url: "/niranx/allen",
+    icon: GraduationCap,
+  },
+  {
+    title: "PW",
+    url: "/niranx/pw",
+    icon: Users,
   },
   {
     title: "Analytics",
@@ -170,20 +188,7 @@ export function AppSidebar() {
                         <p className="text-sm font-medium truncate">
                           {profile?.display_name || profile?.username || 'User'}
                         </p>
-                        <div className="flex items-center gap-2 mt-1">
-                          {profile?.class && (
-                            <Badge variant="outline" className="text-xs px-1 py-0">
-                              <GraduationCap className="w-2 h-2 mr-1" />
-                              {profile.class}
-                            </Badge>
-                          )}
-                          {profile?.level && (
-                            <Badge variant="secondary" className="text-xs px-1 py-0">
-                              <Star className="w-2 h-2 mr-1" />
-                              L{profile.level}
-                            </Badge>
-                          )}
-                        </div>
+                        <XPDisplay className="mt-2" />
                         {profile?.ambition && (
                           <p className="text-xs text-muted-foreground truncate flex items-center mt-1">
                             <Target className="w-2 h-2 mr-1" />

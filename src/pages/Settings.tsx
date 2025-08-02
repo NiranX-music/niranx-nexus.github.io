@@ -1,0 +1,318 @@
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
+import { 
+  Settings as SettingsIcon, 
+  Bell, 
+  Shield, 
+  Palette, 
+  Database, 
+  Download, 
+  Trash2,
+  Moon,
+  Sun,
+  Volume2,
+  VolumeX
+} from 'lucide-react';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useToast } from "@/hooks/use-toast";
+import { useState, useEffect } from 'react';
+
+const Settings = () => {
+  const { theme, setTheme } = useTheme();
+  const { toast } = useToast();
+  
+  const [settings, setSettings] = useState({
+    notifications: true,
+    soundEffects: true,
+    autoSave: true,
+    darkMode: theme === 'dark',
+    dataCollection: false,
+    emailUpdates: true,
+    pushNotifications: false
+  });
+
+  useEffect(() => {
+    const savedSettings = localStorage.getItem('appSettings');
+    if (savedSettings) {
+      setSettings(JSON.parse(savedSettings));
+    }
+  }, []);
+
+  const updateSetting = (key: string, value: boolean) => {
+    const newSettings = { ...settings, [key]: value };
+    setSettings(newSettings);
+    localStorage.setItem('appSettings', JSON.stringify(newSettings));
+    
+    if (key === 'darkMode') {
+      setTheme(value ? 'dark' : 'light');
+    }
+
+    toast({
+      title: "Settings Updated",
+      description: `${key.replace(/([A-Z])/g, ' $1').toLowerCase()} ${value ? 'enabled' : 'disabled'}`,
+    });
+  };
+
+  const clearData = () => {
+    localStorage.clear();
+    toast({
+      title: "Data Cleared",
+      description: "All local data has been cleared",
+      variant: "destructive",
+    });
+  };
+
+  const exportData = () => {
+    const data = {
+      profile: localStorage.getItem('userProfile'),
+      xp: localStorage.getItem('userXP'),
+      level: localStorage.getItem('userLevel'),
+      tasks: localStorage.getItem('task-scheduler-data'),
+      library: localStorage.getItem('library-books'),
+      settings: localStorage.getItem('appSettings')
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'studyverse-data.json';
+    a.click();
+    
+    toast({
+      title: "Data Exported",
+      description: "Your data has been downloaded as JSON file",
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-background p-6">
+      <div className="container mx-auto max-w-4xl space-y-6">
+        {/* Header */}
+        <div className="flex items-center gap-3">
+          <SettingsIcon className="w-8 h-8 text-primary" />
+          <div>
+            <h1 className="text-3xl font-bold">Settings</h1>
+            <p className="text-muted-foreground">Customize your StudyVerse experience</p>
+          </div>
+        </div>
+
+        {/* Appearance Settings */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Palette className="w-5 h-5" />
+              Appearance
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {settings.darkMode ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+                <div>
+                  <Label htmlFor="darkMode">Dark Mode</Label>
+                  <p className="text-sm text-muted-foreground">Use dark theme across the application</p>
+                </div>
+              </div>
+              <Switch
+                id="darkMode"
+                checked={settings.darkMode}
+                onCheckedChange={(checked) => updateSetting('darkMode', checked)}
+              />
+            </div>
+
+            <Separator />
+
+            <div>
+              <Label className="text-base font-medium">Theme Selection</Label>
+              <p className="text-sm text-muted-foreground mb-4">Choose your preferred color theme</p>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                {[
+                  { name: 'light', label: 'Light', color: 'bg-white border-2' },
+                  { name: 'dark', label: 'Dark', color: 'bg-gray-900' },
+                  { name: 'space', label: 'Space', color: 'bg-purple-900' },
+                  { name: 'grey', label: 'Grey', color: 'bg-gray-500' },
+                  { name: 'pink', label: 'Pink', color: 'bg-pink-500' },
+                ].map((themeOption) => (
+                  <Button
+                    key={themeOption.name}
+                    variant={theme === themeOption.name ? "default" : "outline"}
+                    className="h-20 flex-col gap-2"
+                    onClick={() => setTheme(themeOption.name as any)}
+                  >
+                    <div className={`w-8 h-8 rounded-full ${themeOption.color}`} />
+                    <span className="text-sm">{themeOption.label}</span>
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Notification Settings */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bell className="w-5 h-5" />
+              Notifications
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="notifications">Desktop Notifications</Label>
+                <p className="text-sm text-muted-foreground">Get notified about important updates</p>
+              </div>
+              <Switch
+                id="notifications"
+                checked={settings.notifications}
+                onCheckedChange={(checked) => updateSetting('notifications', checked)}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="emailUpdates">Email Updates</Label>
+                <p className="text-sm text-muted-foreground">Receive study tips and announcements via email</p>
+              </div>
+              <Switch
+                id="emailUpdates"
+                checked={settings.emailUpdates}
+                onCheckedChange={(checked) => updateSetting('emailUpdates', checked)}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="pushNotifications">Push Notifications</Label>
+                <p className="text-sm text-muted-foreground">Browser push notifications for reminders</p>
+              </div>
+              <Switch
+                id="pushNotifications"
+                checked={settings.pushNotifications}
+                onCheckedChange={(checked) => updateSetting('pushNotifications', checked)}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Audio Settings */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              {settings.soundEffects ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+              Audio
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="soundEffects">Sound Effects</Label>
+                <p className="text-sm text-muted-foreground">Play sounds for interactions and notifications</p>
+              </div>
+              <Switch
+                id="soundEffects"
+                checked={settings.soundEffects}
+                onCheckedChange={(checked) => updateSetting('soundEffects', checked)}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Privacy Settings */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="w-5 h-5" />
+              Privacy & Security
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="autoSave">Auto Save</Label>
+                <p className="text-sm text-muted-foreground">Automatically save your progress and data</p>
+              </div>
+              <Switch
+                id="autoSave"
+                checked={settings.autoSave}
+                onCheckedChange={(checked) => updateSetting('autoSave', checked)}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="dataCollection">Anonymous Analytics</Label>
+                <p className="text-sm text-muted-foreground">Help improve the app by sharing anonymous usage data</p>
+              </div>
+              <Switch
+                id="dataCollection"
+                checked={settings.dataCollection}
+                onCheckedChange={(checked) => updateSetting('dataCollection', checked)}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Data Management */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Database className="w-5 h-5" />
+              Data Management
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button onClick={exportData} variant="outline" className="flex-1">
+                <Download className="w-4 h-4 mr-2" />
+                Export Data
+              </Button>
+              
+              <Button onClick={clearData} variant="destructive" className="flex-1">
+                <Trash2 className="w-4 h-4 mr-2" />
+                Clear All Data
+              </Button>
+            </div>
+            
+            <p className="text-sm text-muted-foreground">
+              Export your data as a backup or clear all local data to start fresh. This action cannot be undone.
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* App Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle>About StudyVerse</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="flex justify-between">
+              <span>Version</span>
+              <span className="text-muted-foreground">1.0.0</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Build</span>
+              <span className="text-muted-foreground">2024.01.01</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Developer</span>
+              <span className="text-muted-foreground">NiranX Developers</span>
+            </div>
+            <Separator className="my-4" />
+            <p className="text-sm text-muted-foreground">
+              StudyVerse is designed to enhance your learning experience with modern tools and features. 
+              For support or feedback, please contact our team.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default Settings;
