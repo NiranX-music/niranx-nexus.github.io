@@ -13,10 +13,20 @@ import {
   Library as LibraryIcon,
   FileText,
   Download,
-  Star
+  Star,
+  Edit,
+  Trash2,
+  MoreVertical
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useXP } from '@/contexts/XPContext';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Book {
   id: string;
@@ -25,6 +35,7 @@ interface Book {
   subject: string;
   url: string;
   type: 'book' | 'folder';
+  materialType: 'textbook' | 'reference' | 'notes' | 'video' | 'audio' | 'practice' | 'other';
   description?: string;
   rating?: number;
 }
@@ -38,6 +49,7 @@ const Library = () => {
       subject: 'Mathematics',
       url: 'https://example.com/vedic-math',
       type: 'book',
+      materialType: 'textbook',
       description: 'Ancient Indian mathematical techniques',
       rating: 5
     },
@@ -48,6 +60,7 @@ const Library = () => {
       subject: 'Physics',
       url: 'https://example.com/physics-folder',
       type: 'folder',
+      materialType: 'notes',
       description: 'Complete physics notes and practice papers'
     },
     {
@@ -57,6 +70,7 @@ const Library = () => {
       subject: 'Literature',
       url: 'https://example.com/literature',
       type: 'folder',
+      materialType: 'reference',
       description: 'Classical Sanskrit and Hindi texts'
     }
   ]);
@@ -67,16 +81,31 @@ const Library = () => {
     subject: '',
     url: '',
     type: 'book' as 'book' | 'folder',
+    materialType: 'textbook' as 'textbook' | 'reference' | 'notes' | 'video' | 'audio' | 'practice' | 'other',
     description: ''
   });
+
+  const [editingBook, setEditingBook] = useState<Book | null>(null);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
   const { addXP } = useXP();
 
+  const materialTypeOptions = [
+    { value: 'textbook', label: 'Textbook' },
+    { value: 'reference', label: 'Reference' },
+    { value: 'notes', label: 'Notes' },
+    { value: 'video', label: 'Video' },
+    { value: 'audio', label: 'Audio' },
+    { value: 'practice', label: 'Practice' },
+    { value: 'other', label: 'Other' }
+  ];
+
   const handleAddBook = () => {
-    if (!newBook.title || !newBook.author || !newBook.url) {
+    const bookData = editingBook ? editingBook : newBook;
+    
+    if (!bookData.title || !bookData.author || !bookData.url) {
       toast({
         title: "Missing Information",
         description: "Please fill in all required fields",
@@ -85,19 +114,36 @@ const Library = () => {
       return;
     }
 
-    const book: Book = {
-      id: Date.now().toString(),
-      ...newBook,
-      rating: Math.floor(Math.random() * 5) + 1
-    };
+    if (editingBook) {
+      // Update existing book
+      setBooks(prev => prev.map(book => 
+        book.id === editingBook.id 
+          ? { ...editingBook, ...bookData }
+          : book
+      ));
+      
+      toast({
+        title: "Book Updated! 📚",
+        description: `${bookData.title} has been updated.`,
+      });
+      
+      setEditingBook(null);
+    } else {
+      // Add new book
+      const book: Book = {
+        id: Date.now().toString(),
+        ...newBook,
+        rating: Math.floor(Math.random() * 5) + 1
+      };
 
-    setBooks(prev => [...prev, book]);
-    addXP(50); // Add XP for contributing to library
-    
-    toast({
-      title: "Book Added! 📚",
-      description: `${book.title} has been added to the library. +50 XP earned!`,
-    });
+      setBooks(prev => [...prev, book]);
+      addXP(50); // Add XP for contributing to library
+      
+      toast({
+        title: "Book Added! 📚",
+        description: `${book.title} has been added to the library. +50 XP earned!`,
+      });
+    }
 
     setNewBook({
       title: '',
@@ -105,9 +151,34 @@ const Library = () => {
       subject: '',
       url: '',
       type: 'book',
+      materialType: 'textbook',
       description: ''
     });
     setIsDialogOpen(false);
+  };
+
+  const handleEditBook = (book: Book) => {
+    setEditingBook(book);
+    setNewBook({
+      title: book.title,
+      author: book.author,
+      subject: book.subject,
+      url: book.url,
+      type: book.type,
+      materialType: book.materialType,
+      description: book.description || ''
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleDeleteBook = (bookId: string) => {
+    const book = books.find(b => b.id === bookId);
+    setBooks(prev => prev.filter(book => book.id !== bookId));
+    
+    toast({
+      title: "Book Removed",
+      description: `${book?.title} has been removed from the library.`,
+    });
   };
 
   const handleOpenBook = (book: Book) => {
@@ -174,19 +245,19 @@ const Library = () => {
               </div>
               
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Book/Folder
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[500px]">
-                  <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2">
-                      <BookOpen className="w-5 h-5 text-orange-500" />
-                      Add to Library
-                    </DialogTitle>
-                  </DialogHeader>
+                  <DialogTrigger asChild>
+                    <Button className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Book/Folder
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[500px] max-h-[80vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle className="flex items-center gap-2">
+                        <BookOpen className="w-5 h-5 text-orange-500" />
+                        {editingBook ? 'Edit Resource' : 'Add to Library'}
+                      </DialogTitle>
+                    </DialogHeader>
                   <div className="space-y-4">
                     <div>
                       <label className="text-sm font-medium">Title *</label>
@@ -238,6 +309,27 @@ const Library = () => {
                       </div>
                     </div>
                     <div>
+                      <label className="text-sm font-medium">Type of Material</label>
+                      <Select 
+                        value={newBook.materialType} 
+                        onValueChange={(value) => setNewBook(prev => ({ 
+                          ...prev, 
+                          materialType: value as typeof newBook.materialType 
+                        }))}
+                      >
+                        <SelectTrigger className="w-full mt-2">
+                          <SelectValue placeholder="Select material type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {materialTypeOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
                       <label className="text-sm font-medium">URL/Link *</label>
                       <Input
                         value={newBook.url}
@@ -253,9 +345,31 @@ const Library = () => {
                         placeholder="Brief description"
                       />
                     </div>
-                    <Button onClick={handleAddBook} className="w-full">
-                      Add to Library
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button onClick={handleAddBook} className="flex-1">
+                        {editingBook ? 'Update Resource' : 'Add to Library'}
+                      </Button>
+                      {editingBook && (
+                        <Button 
+                          variant="outline" 
+                          onClick={() => {
+                            setEditingBook(null);
+                            setNewBook({
+                              title: '',
+                              author: '',
+                              subject: '',
+                              url: '',
+                              type: 'book',
+                              materialType: 'textbook',
+                              description: ''
+                            });
+                            setIsDialogOpen(false);
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </DialogContent>
               </Dialog>
@@ -285,12 +399,11 @@ const Library = () => {
           {filteredBooks.map(book => (
             <Card 
               key={book.id} 
-              className="group hover:shadow-xl transition-all duration-300 border-orange-200 dark:border-orange-800 hover:border-orange-400 dark:hover:border-orange-600 cursor-pointer overflow-hidden"
-              onClick={() => handleOpenBook(book)}
+              className="group hover:shadow-xl transition-all duration-300 border-orange-200 dark:border-orange-800 hover:border-orange-400 dark:hover:border-orange-600 overflow-hidden"
             >
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     {book.type === 'book' ? (
                       <BookOpen className="w-5 h-5 text-orange-500" />
                     ) : (
@@ -299,12 +412,38 @@ const Library = () => {
                     <Badge variant="outline" className="text-xs border-orange-300">
                       {book.subject}
                     </Badge>
+                    <Badge variant="secondary" className="text-xs">
+                      {materialTypeOptions.find(opt => opt.value === book.materialType)?.label}
+                    </Badge>
                   </div>
-                  <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-orange-500 transition-colors" />
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                        <MoreVertical className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="bg-background border z-50">
+                      <DropdownMenuItem onClick={() => handleOpenBook(book)} className="cursor-pointer">
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                        Open
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleEditBook(book)} className="cursor-pointer">
+                        <Edit className="w-4 h-4 mr-2" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => handleDeleteBook(book.id)} 
+                        className="cursor-pointer text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </CardHeader>
-              <CardContent className="pt-0">
-                <h3 className="font-bold text-lg mb-2 line-clamp-2 group-hover:text-orange-600 transition-colors">
+              <CardContent className="pt-0" onClick={() => handleOpenBook(book)}>
+                <h3 className="font-bold text-lg mb-2 line-clamp-2 group-hover:text-orange-600 transition-colors cursor-pointer">
                   {book.title}
                 </h3>
                 <p className="text-sm text-muted-foreground mb-2">by {book.author}</p>

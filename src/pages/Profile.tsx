@@ -238,7 +238,7 @@ const Profile = () => {
             </Card>
 
             {/* Profile Details Cards */}
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-6">
               {/* Personal Information */}
               <Card>
                 <CardHeader>
@@ -247,7 +247,7 @@ const Profile = () => {
                     Personal Information
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="name">Full Name</Label>
                     <Input
@@ -292,7 +292,7 @@ const Profile = () => {
                     />
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-2 md:col-span-2">
                     <Label htmlFor="bio">Bio</Label>
                     <Textarea
                       id="bio"
@@ -319,20 +319,25 @@ const Profile = () => {
                     <Label>Institutes Enrolled</Label>
                     <div className="space-y-2">
                       {formData.institutes.map((institute, index) => (
-                        <div key={index} className="flex items-center justify-between p-2 bg-muted rounded-md">
-                          <span className="text-sm">{institute}</span>
+                        <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-md border">
+                          <span className="text-sm font-medium">{institute}</span>
                           {isEditing && (
                             <Button
                               size="sm"
                               variant="ghost"
                               onClick={() => removeInstitute(institute)}
-                              className="h-6 w-6 p-0"
+                              className="h-6 w-6 p-0 hover:bg-destructive hover:text-destructive-foreground"
                             >
                               <X className="w-3 h-3" />
                             </Button>
                           )}
                         </div>
                       ))}
+                      {formData.institutes.length === 0 && !isEditing && (
+                        <div className="text-center py-4 text-muted-foreground">
+                          No institutes added yet
+                        </div>
+                      )}
                       {isEditing && (
                         <div className="flex gap-2">
                           <Input
@@ -359,7 +364,7 @@ const Profile = () => {
                     Contact Information
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="phone">Phone Number</Label>
                     <Input
