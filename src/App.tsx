@@ -28,6 +28,7 @@ import PW from "./pages/PW";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import WebsiteEmbed from "./pages/WebsiteEmbed";
+import StudyPlatforms from "./pages/StudyPlatforms";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +65,7 @@ const App = () => (
                       <Route path="/analytics" element={<Analytics />} />
                       <Route path="/exams" element={<ExamHub />} />
                       <Route path="/website" element={<WebsiteEmbed />} />
+                      <Route path="/website/study-platforms" element={<StudyPlatforms />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </AppLayout>

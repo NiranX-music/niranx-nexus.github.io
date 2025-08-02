@@ -3,14 +3,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Globe, ExternalLink, AlertTriangle } from 'lucide-react';
+import { Globe, ExternalLink, AlertTriangle, GraduationCap, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 const WebsiteEmbed = () => {
   const [url, setUrl] = useState('');
   const [embedUrl, setEmbedUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleEmbedWebsite = () => {
     if (!url.trim()) {
@@ -169,6 +171,28 @@ const WebsiteEmbed = () => {
             </CardContent>
           </Card>
         )}
+
+        {/* Study Platforms Quick Access */}
+        <Card className="max-w-2xl mx-auto bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <GraduationCap className="w-5 h-5" />
+              Study Platforms
+            </CardTitle>
+            <CardDescription>Quick access to Allen and Physics Wallah platforms</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-4">
+              <Button 
+                onClick={() => navigate('/niranx/website/study-platforms')}
+                className="flex-1 gap-2 bg-blue-500 hover:bg-blue-600"
+              >
+                <GraduationCap className="w-4 h-4" />
+                Allen & PW Platforms
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Popular Websites */}
         <Card className="max-w-2xl mx-auto">
