@@ -7,6 +7,7 @@ import {
   Music,
   Gamepad2,
   Calendar,
+  CalendarDays,
   BarChart3,
   GraduationCap,
   User,
@@ -67,6 +68,11 @@ const navigation = [
     title: "Timetable",
     url: "/timetable",
     icon: Calendar,
+  },
+  {
+    title: "Scheduler",
+    url: "/scheduler",
+    icon: CalendarDays,
   },
   {
     title: "Analytics",

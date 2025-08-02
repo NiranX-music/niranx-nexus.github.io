@@ -27,6 +27,9 @@ interface ClassSession {
   resources?: string[];
   isRecurring?: boolean;
   status: 'upcoming' | 'active' | 'completed';
+  type?: 'main' | 'optional';
+  professor?: string;
+  room?: string;
 }
 
 const ClassScheduler = () => {
@@ -41,20 +44,73 @@ const ClassScheduler = () => {
     notes: '',
   });
 
-  // Load classes from localStorage
+  // Load classes from localStorage (both old format and new scheduler format)
   useEffect(() => {
+    let allClasses: ClassSession[] = [];
+    
+    // Load old format classes
     const savedClasses = localStorage.getItem('studyverse-classes');
     if (savedClasses) {
       try {
         const parsed = JSON.parse(savedClasses);
-        setClasses(parsed.map((cls: any) => ({
+        allClasses = parsed.map((cls: any) => ({
           ...cls,
           time: new Date(cls.time)
-        })));
+        }));
       } catch (error) {
-        console.error('Error loading classes:', error);
+        console.error('Error loading old classes:', error);
       }
     }
+    
+    // Load new scheduler classes and convert to ClassSession format
+    const schedulerClasses = localStorage.getItem('upcomingClasses');
+    if (schedulerClasses) {
+      try {
+        const schedulerParsed = JSON.parse(schedulerClasses);
+        const convertedClasses = schedulerParsed.map((cls: any) => {
+          // Convert day + time to Date object for next occurrence
+          const today = new Date();
+          const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+          const targetDay = dayNames.indexOf(cls.day);
+          const [hours, minutes] = cls.time.split(':').map(Number);
+          
+          const nextOccurrence = new Date();
+          const currentDay = nextOccurrence.getDay();
+          const daysUntilTarget = (targetDay - currentDay + 7) % 7;
+          nextOccurrence.setDate(nextOccurrence.getDate() + daysUntilTarget);
+          nextOccurrence.setHours(hours, minutes, 0, 0);
+          
+          // If the time has passed today, move to next week
+          if (daysUntilTarget === 0 && nextOccurrence < new Date()) {
+            nextOccurrence.setDate(nextOccurrence.getDate() + 7);
+          }
+          
+          return {
+            id: `scheduler_${cls.id}`,
+            subject: cls.subject,
+            time: nextOccurrence,
+            duration: cls.duration,
+            link: '',
+            notes: cls.professor ? `Professor: ${cls.professor}${cls.room ? ` • Room: ${cls.room}` : ''}` : (cls.room ? `Room: ${cls.room}` : ''),
+            resources: cls.room ? [cls.room] : [],
+            isRecurring: true,
+            status: 'upcoming' as const,
+            type: cls.type,
+            professor: cls.professor,
+            room: cls.room
+          };
+        });
+        
+        // Remove duplicates and merge
+        const existingIds = allClasses.map(cls => cls.id);
+        const newClasses = convertedClasses.filter(cls => !existingIds.includes(cls.id));
+        allClasses = [...allClasses, ...newClasses];
+      } catch (error) {
+        console.error('Error loading scheduler classes:', error);
+      }
+    }
+    
+    setClasses(allClasses);
   }, []);
 
   // Save classes to localStorage
@@ -182,7 +238,13 @@ const ClassScheduler = () => {
 
   const upcomingClasses = classes
     .filter(cls => cls.status === 'upcoming')
-    .sort((a, b) => a.time.getTime() - b.time.getTime());
+    .sort((a, b) => {
+      // Sort by type first (main classes first), then by time
+      if (a.type && b.type && a.type !== b.type) {
+        return a.type === 'main' ? -1 : 1;
+      }
+      return a.time.getTime() - b.time.getTime();
+    });
 
   const activeClasses = classes.filter(cls => cls.status === 'active');
 
@@ -254,7 +316,14 @@ const ClassScheduler = () => {
                 <div key={cls.id} className="p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
                   <div className="flex items-start justify-between mb-2">
                     <div>
-                      <h5 className="font-semibold">{cls.subject}</h5>
+                      <div className="flex items-center gap-2 mb-1">
+                        <h5 className="font-semibold">{cls.subject}</h5>
+                        {cls.type && (
+                          <Badge variant={cls.type === 'main' ? 'default' : 'secondary'} className="text-xs">
+                            {cls.type}
+                          </Badge>
+                        )}
+                      </div>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Clock className="w-4 h-4" />
                         {cls.time.toLocaleDateString()} at {cls.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -265,22 +334,26 @@ const ClassScheduler = () => {
                         </Badge>
                       )}
                     </div>
-                    <div className="flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => startEdit(cls)}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteClass(cls.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
+                     <div className="flex gap-1">
+                       {!cls.id.startsWith('scheduler_') && (
+                         <>
+                           <Button
+                             variant="ghost"
+                             size="sm"
+                             onClick={() => startEdit(cls)}
+                           >
+                             <Edit className="w-4 h-4" />
+                           </Button>
+                           <Button
+                             variant="ghost"
+                             size="sm"
+                             onClick={() => deleteClass(cls.id)}
+                           >
+                             <Trash2 className="w-4 h-4" />
+                           </Button>
+                         </>
+                       )}
+                     </div>
                   </div>
                   
                   {cls.notes && (
