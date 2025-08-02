@@ -1,7 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { validateDisplayName, validateBio, sanitizeInput, checkClientRateLimit } from '@/lib/security';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,7 +7,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Progress } from '@/components/ui/progress';
 import { 
   User, 
   Edit, 
@@ -29,175 +25,55 @@ import {
   Zap,
   Gift,
   Target,
-  GraduationCap
+  GraduationCap,
+  Plus,
+  X
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
-  const { user, profile, updateProfile, signOut } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [dailyRewardClaimed, setDailyRewardClaimed] = useState(false);
-  const [xpData, setXpData] = useState({ xp: 0, level: 1, nextLevelXp: 1000, progress: 0 });
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    username: '',
-    display_name: '',
+    name: '',
+    grade: '',
+    class: '',
+    institutes: [] as string[],
     bio: '',
     phone_number: '',
     location: '',
     website: '',
     date_of_birth: '',
     avatar_url: '',
-    class: '',
     ambition: ''
   });
 
+  const [newInstitute, setNewInstitute] = useState('');
+
   useEffect(() => {
-    if (profile) {
-      setFormData({
-        username: profile.username || '',
-        display_name: profile.display_name || '',
-        bio: profile.bio || '',
-        phone_number: profile.phone_number || '',
-        location: profile.location || '',
-        website: profile.website || '',
-        date_of_birth: profile.date_of_birth || '',
-        avatar_url: profile.avatar_url || '',
-        class: profile.class || '',
-        ambition: profile.ambition || ''
-      });
-
-      // Calculate XP data
-      const currentXp = profile.xp || 0;
-      const currentLevel = profile.level || 1;
-      const nextLevelXp = getXpForLevel(currentLevel + 1);
-      const currentLevelXp = getXpForLevel(currentLevel);
-      
-      setXpData({
-        xp: currentXp,
-        level: currentLevel,
-        nextLevelXp: nextLevelXp - currentLevelXp,
-        progress: Math.max(0, ((currentXp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100)
-      });
-
-      // Check if daily reward already claimed
-      checkDailyReward();
+    // Load profile data from localStorage
+    const savedProfile = localStorage.getItem('userProfile');
+    if (savedProfile) {
+      setFormData(JSON.parse(savedProfile));
     }
-  }, [profile]);
-
-  const getXpForLevel = (level: number) => {
-    const xpThresholds = [0, 1000, 2500, 5000, 10000, 20000, 35000, 50000, 75000, 100000, 100000];
-    return xpThresholds[Math.min(level, xpThresholds.length - 1)] || 100000;
-  };
-
-  const checkDailyReward = async () => {
-    if (!user) return;
-    
-    const today = new Date().toISOString().split('T')[0];
-    const { data } = await supabase
-      .from('daily_rewards')
-      .select('*')
-      .eq('user_id', user.id)
-      .eq('reward_date', today)
-      .single();
-    
-    setDailyRewardClaimed(!!data);
-  };
-
-  const claimDailyReward = async () => {
-    if (!user) return;
-    
-    try {
-      const { data, error } = await supabase.rpc('claim_daily_reward', {
-        user_uuid: user.id
-      });
-
-      if (error) throw error;
-
-      const result = data as any;
-      if (result?.success) {
-        toast({
-          title: result.level_up ? "🎉 Level Up!" : "🎁 Daily Reward Claimed!",
-          description: result.level_up 
-            ? `Congratulations! You reached level ${result.new_level}!`
-            : `You earned ${result.xp_earned} XP! Keep it up!`,
-        });
-        
-        setDailyRewardClaimed(true);
-        // Refresh profile to update XP
-        window.location.reload();
-      } else {
-        toast({
-          title: "Already Claimed",
-          description: result?.message || "Daily reward already claimed",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error('Error claiming daily reward:', error);
-      toast({
-        title: "Error",
-        description: "Failed to claim daily reward",
-        variant: "destructive",
-      });
-    }
-  };
+  }, []);
 
   const handleSave = async () => {
-    // Rate limiting
-    if (!checkClientRateLimit('profile_update', 5, 60 * 60 * 1000)) { // 5 updates per hour
-      toast({
-        title: "Rate Limit Exceeded",
-        description: "Too many profile updates. Please wait before trying again.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Validate inputs
-    if (formData.display_name) {
-      const displayNameValidation = validateDisplayName(formData.display_name);
-      if (!displayNameValidation.valid) {
-        toast({
-          title: "Invalid Display Name",
-          description: displayNameValidation.message,
-          variant: "destructive",
-        });
-        return;
-      }
-    }
-
-    if (formData.bio) {
-      const bioValidation = validateBio(formData.bio);
-      if (!bioValidation.valid) {
-        toast({
-          title: "Invalid Bio",
-          description: bioValidation.message,
-          variant: "destructive",
-        });
-        return;
-      }
-    }
-
     setLoading(true);
     
     try {
-      // Sanitize inputs before saving
-      const sanitizedData = {
-        ...formData,
-        display_name: formData.display_name ? sanitizeInput(formData.display_name) : formData.display_name,
-        bio: formData.bio ? sanitizeInput(formData.bio) : formData.bio,
-        location: formData.location ? sanitizeInput(formData.location) : formData.location,
-        website: formData.website ? sanitizeInput(formData.website) : formData.website,
-        class: formData.class ? sanitizeInput(formData.class) : formData.class,
-        ambition: formData.ambition ? sanitizeInput(formData.ambition) : formData.ambition,
-      };
-
-      await updateProfile(sanitizedData);
+      // Save to localStorage
+      localStorage.setItem('userProfile', JSON.stringify(formData));
+      
+      toast({
+        title: "Profile updated! ✨",
+        description: "Changes saved successfully",
+      });
+      
       setIsEditing(false);
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -215,6 +91,23 @@ const Profile = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const addInstitute = () => {
+    if (newInstitute.trim() && !formData.institutes.includes(newInstitute.trim())) {
+      setFormData(prev => ({
+        ...prev,
+        institutes: [...prev.institutes, newInstitute.trim()]
+      }));
+      setNewInstitute('');
+    }
+  };
+
+  const removeInstitute = (institute: string) => {
+    setFormData(prev => ({
+      ...prev,
+      institutes: prev.institutes.filter(inst => inst !== institute)
+    }));
+  };
+
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -224,161 +117,33 @@ const Profile = () => {
       .slice(0, 2);
   };
 
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <CardTitle>Authentication Required</CardTitle>
-            <CardDescription>Please sign in to view your profile</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={() => navigate('/login')} className="w-full">
-              Sign In
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5 p-6">
+    <div className="min-h-screen bg-background p-6">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold text-foreground">
             My Profile
           </h1>
           <div className="flex gap-2">
             <Button 
               variant="outline" 
-              onClick={() => navigate('/messages')}
+              onClick={() => navigate('/niranx/settings')}
               className="gap-2"
             >
-              <MessageSquare className="w-4 h-4" />
-              Messages
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={signOut}
-              className="gap-2"
-            >
-              Sign Out
+              <Settings className="w-4 h-4" />
+              Settings
             </Button>
           </div>
         </div>
 
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="level">Level & XP</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
             <TabsTrigger value="activity">Activity</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="level" className="space-y-6">
-            {/* XP and Level Card */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <Trophy className="w-5 h-5 text-yellow-500" />
-                      Level {xpData.level}
-                    </CardTitle>
-                    <CardDescription>
-                      {xpData.xp.toLocaleString()} XP Total
-                    </CardDescription>
-                  </div>
-                  {!dailyRewardClaimed ? (
-                    <Button 
-                      onClick={claimDailyReward}
-                      className="gap-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600"
-                    >
-                      <Gift className="w-4 h-4" />
-                      Claim Daily Reward (+100 XP)
-                    </Button>
-                  ) : (
-                    <Badge variant="secondary" className="gap-1">
-                      <Zap className="w-3 h-3" />
-                      Daily Reward Claimed
-                    </Badge>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span>Progress to Level {xpData.level + 1}</span>
-                      <span>{Math.round(xpData.progress || 0)}%</span>
-                    </div>
-                    <Progress value={xpData.progress || 0} className="h-3" />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {Math.max(0, xpData.nextLevelXp - (xpData.xp - getXpForLevel(xpData.level)))} XP to next level
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Card>
-                      <CardContent className="p-4 text-center">
-                        <div className="text-2xl font-bold text-blue-500">{xpData.xp.toLocaleString()}</div>
-                        <p className="text-sm text-muted-foreground">Total XP</p>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="p-4 text-center">
-                        <div className="text-2xl font-bold text-yellow-500">{xpData.level}</div>
-                        <p className="text-sm text-muted-foreground">Current Level</p>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="p-4 text-center">
-                        <div className="text-2xl font-bold text-green-500">
-                          {Math.max(0, getXpForLevel(xpData.level + 1) - xpData.xp)}
-                        </div>
-                        <p className="text-sm text-muted-foreground">XP to Next Level</p>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-3">Level Rewards & Milestones</h3>
-                    <div className="space-y-2">
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((level) => (
-                        <div 
-                          key={level}
-                          className={`flex items-center justify-between p-3 rounded-lg border ${
-                            xpData.level >= level ? 'bg-green-50 border-green-200 dark:bg-green-900/20' : 'bg-muted'
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                              xpData.level >= level ? 'bg-green-500 text-white' : 'bg-muted-foreground text-background'
-                            }`}>
-                              {xpData.level >= level ? <Star className="w-4 h-4" /> : level}
-                            </div>
-                            <div>
-                              <p className="font-medium">Level {level}</p>
-                              <p className="text-sm text-muted-foreground">
-                                {getXpForLevel(level).toLocaleString()} XP required
-                              </p>
-                            </div>
-                          </div>
-                          <Badge variant={xpData.level >= level ? "default" : "secondary"}>
-                            {xpData.level >= level ? "Unlocked" : "Locked"}
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="profile" className="space-y-6">....
+          <TabsContent value="profile" className="space-y-6">
             {/* Profile Header Card */}
             <Card>
               <CardContent className="pt-6">
@@ -387,7 +152,7 @@ const Profile = () => {
                     <Avatar className="w-32 h-32">
                       <AvatarImage src={formData.avatar_url} />
                       <AvatarFallback className="text-2xl">
-                        {getInitials(formData.display_name || formData.username || 'U')}
+                        {getInitials(formData.name || 'U')}
                       </AvatarFallback>
                     </Avatar>
                     {isEditing && (
@@ -404,25 +169,19 @@ const Profile = () => {
                   <div className="flex-1 text-center md:text-left">
                     <div className="flex items-center gap-2 justify-center md:justify-start mb-2">
                       <h2 className="text-2xl font-bold">
-                        {formData.display_name || formData.username || 'User'}
+                        {formData.name || 'User'}
                       </h2>
-                      <Badge variant="default" className="gap-1">
-                        <Star className="w-3 h-3" />
-                        Level {xpData.level}
-                      </Badge>
-                      {profile?.is_verified && (
-                        <Badge variant="secondary" className="gap-1">
-                          <Shield className="w-3 h-3" />
-                          Verified
-                        </Badge>
-                      )}
                     </div>
-                    <p className="text-muted-foreground mb-2">@{formData.username}</p>
                     <div className="flex flex-wrap gap-2 mb-2">
-                      {formData.class && (
+                      {formData.grade && (
                         <Badge variant="outline" className="gap-1">
                           <GraduationCap className="w-3 h-3" />
-                          {formData.class}
+                          Grade {formData.grade}
+                        </Badge>
+                      )}
+                      {formData.class && (
+                        <Badge variant="outline" className="gap-1">
+                          Class {formData.class}
                         </Badge>
                       )}
                       {formData.ambition && (
@@ -432,7 +191,7 @@ const Profile = () => {
                         </Badge>
                       )}
                     </div>
-                    <p className="text-sm">{formData.bio}</p>
+                    <p className="text-sm text-muted-foreground">{formData.bio}</p>
                     
                     <div className="flex flex-wrap gap-4 mt-4 justify-center md:justify-start text-sm text-muted-foreground">
                       {formData.location && (
@@ -450,10 +209,6 @@ const Profile = () => {
                           </a>
                         </div>
                       )}
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
-                        Joined {new Date(profile?.created_at).toLocaleDateString()}
-                      </div>
                     </div>
                   </div>
 
@@ -464,56 +219,77 @@ const Profile = () => {
                         Edit Profile
                       </Button>
                     ) : (
-                      <>
-                        <Button 
-                          variant="outline" 
-                          onClick={() => setIsEditing(false)}
-                          disabled={loading}
-                        >
-                          Cancel
-                        </Button>
-                        <Button 
-                          onClick={handleSave} 
-                          disabled={loading}
-                          className="gap-2"
-                        >
+                      <div className="flex gap-2">
+                        <Button onClick={handleSave} disabled={loading} className="gap-2">
                           <Save className="w-4 h-4" />
                           {loading ? 'Saving...' : 'Save'}
                         </Button>
-                      </>
+                        <Button 
+                          variant="outline" 
+                          onClick={() => setIsEditing(false)}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
                     )}
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Profile Details */}
-            {isEditing ? (
+            {/* Profile Details Cards */}
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* Personal Information */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Edit Profile</CardTitle>
-                  <CardDescription>Update your personal information</CardDescription>
+                  <CardTitle className="flex items-center gap-2">
+                    <User className="w-5 h-5" />
+                    Personal Information
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="username">Username</Label>
-                      <Input
-                        id="username"
-                        value={formData.username}
-                        onChange={(e) => handleInputChange('username', e.target.value)}
-                        placeholder="Your unique username"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="display_name">Display Name</Label>
-                      <Input
-                        id="display_name"
-                        value={formData.display_name}
-                        onChange={(e) => handleInputChange('display_name', e.target.value)}
-                        placeholder="Your display name"
-                      />
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) => handleInputChange('name', e.target.value)}
+                      disabled={!isEditing}
+                      placeholder="Enter your full name"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="grade">Grade</Label>
+                    <Input
+                      id="grade"
+                      value={formData.grade}
+                      onChange={(e) => handleInputChange('grade', e.target.value)}
+                      disabled={!isEditing}
+                      placeholder="e.g., 10th, 12th, 1st Year"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="class">Class/Section</Label>
+                    <Input
+                      id="class"
+                      value={formData.class}
+                      onChange={(e) => handleInputChange('class', e.target.value)}
+                      disabled={!isEditing}
+                      placeholder="e.g., A, B, Science, Commerce"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="ambition">Career Goal</Label>
+                    <Input
+                      id="ambition"
+                      value={formData.ambition}
+                      onChange={(e) => handleInputChange('ambition', e.target.value)}
+                      disabled={!isEditing}
+                      placeholder="e.g., Engineer, Doctor, Teacher"
+                    />
                   </div>
 
                   <div className="space-y-2">
@@ -522,137 +298,126 @@ const Profile = () => {
                       id="bio"
                       value={formData.bio}
                       onChange={(e) => handleInputChange('bio', e.target.value)}
+                      disabled={!isEditing}
                       placeholder="Tell us about yourself..."
                       rows={3}
                     />
                   </div>
+                </CardContent>
+              </Card>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Academic Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <GraduationCap className="w-5 h-5" />
+                    Academic Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Institutes Enrolled</Label>
                     <div className="space-y-2">
-                      <Label htmlFor="phone_number">Phone Number</Label>
-                      <Input
-                        id="phone_number"
-                        value={formData.phone_number}
-                        onChange={(e) => handleInputChange('phone_number', e.target.value)}
-                        placeholder="+1 (555) 123-4567"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="location">Location</Label>
-                      <Input
-                        id="location"
-                        value={formData.location}
-                        onChange={(e) => handleInputChange('location', e.target.value)}
-                        placeholder="City, Country"
-                      />
+                      {formData.institutes.map((institute, index) => (
+                        <div key={index} className="flex items-center justify-between p-2 bg-muted rounded-md">
+                          <span className="text-sm">{institute}</span>
+                          {isEditing && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => removeInstitute(institute)}
+                              className="h-6 w-6 p-0"
+                            >
+                              <X className="w-3 h-3" />
+                            </Button>
+                          )}
+                        </div>
+                      ))}
+                      {isEditing && (
+                        <div className="flex gap-2">
+                          <Input
+                            value={newInstitute}
+                            onChange={(e) => setNewInstitute(e.target.value)}
+                            placeholder="Add institute..."
+                            onKeyPress={(e) => e.key === 'Enter' && addInstitute()}
+                          />
+                          <Button size="sm" onClick={addInstitute} className="px-3">
+                            <Plus className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </div>
+                </CardContent>
+              </Card>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="website">Website</Label>
-                      <Input
-                        id="website"
-                        value={formData.website}
-                        onChange={(e) => handleInputChange('website', e.target.value)}
-                        placeholder="https://your-website.com"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="date_of_birth">Date of Birth</Label>
-                      <Input
-                        id="date_of_birth"
-                        type="date"
-                        value={formData.date_of_birth}
-                        onChange={(e) => handleInputChange('date_of_birth', e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="class">Class/Year</Label>
-                      <Input
-                        id="class"
-                        value={formData.class}
-                        onChange={(e) => handleInputChange('class', e.target.value)}
-                        placeholder="e.g., Class 12, First Year, etc."
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="ambition">Ambition/Goal</Label>
-                      <Input
-                        id="ambition"
-                        value={formData.ambition}
-                        onChange={(e) => handleInputChange('ambition', e.target.value)}
-                        placeholder="e.g., Doctor, Engineer, etc."
-                      />
-                    </div>
+              {/* Contact Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Phone className="w-5 h-5" />
+                    Contact Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone Number</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={formData.phone_number}
+                      onChange={(e) => handleInputChange('phone_number', e.target.value)}
+                      disabled={!isEditing}
+                      placeholder="+1 (555) 123-4567"
+                    />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="avatar_url">Avatar URL</Label>
+                    <Label htmlFor="location">Location</Label>
                     <Input
-                      id="avatar_url"
-                      value={formData.avatar_url}
-                      onChange={(e) => handleInputChange('avatar_url', e.target.value)}
-                      placeholder="https://example.com/avatar.jpg"
+                      id="location"
+                      value={formData.location}
+                      onChange={(e) => handleInputChange('location', e.target.value)}
+                      disabled={!isEditing}
+                      placeholder="City, Country"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="website">Website/Portfolio</Label>
+                    <Input
+                      id="website"
+                      type="url"
+                      value={formData.website}
+                      onChange={(e) => handleInputChange('website', e.target.value)}
+                      disabled={!isEditing}
+                      placeholder="https://your-website.com"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="dob">Date of Birth</Label>
+                    <Input
+                      id="dob"
+                      type="date"
+                      value={formData.date_of_birth}
+                      onChange={(e) => handleInputChange('date_of_birth', e.target.value)}
+                      disabled={!isEditing}
                     />
                   </div>
                 </CardContent>
               </Card>
-            ) : (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Contact Information</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex items-center gap-3">
-                      <Mail className="w-5 h-5 text-muted-foreground" />
-                      <div>
-                        <p className="font-medium">Email</p>
-                        <p className="text-sm text-muted-foreground">{user.email}</p>
-                      </div>
-                    </div>
-                    {formData.phone_number && (
-                      <div className="flex items-center gap-3">
-                        <Phone className="w-5 h-5 text-muted-foreground" />
-                        <div>
-                          <p className="font-medium">Phone</p>
-                          <p className="text-sm text-muted-foreground">{formData.phone_number}</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            </div>
           </TabsContent>
 
-          <TabsContent value="settings">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="w-5 h-5" />
-                  Account Settings
-                </CardTitle>
-                <CardDescription>Manage your account preferences</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Settings options coming soon...</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="activity">
+          <TabsContent value="activity" className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Recent Activity</CardTitle>
-                <CardDescription>Your recent activity on NiranX StudyVerse</CardDescription>
+                <CardDescription>Your recent actions and achievements</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">Activity feed coming soon...</p>
+                <p className="text-muted-foreground">No recent activity to display.</p>
               </CardContent>
             </Card>
           </TabsContent>

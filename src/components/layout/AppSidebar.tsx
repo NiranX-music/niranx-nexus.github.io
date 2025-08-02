@@ -16,6 +16,7 @@ import {
   Settings,
   Star,
   Target,
+  Globe,
 } from "lucide-react";
 import {
   Sidebar,
@@ -101,6 +102,11 @@ const navigation = [
     title: "Exams",
     url: "/niranx/exams",
     icon: GraduationCap,
+  },
+  {
+    title: "Open Website",
+    url: "/niranx/website",
+    icon: Globe,
   },
 ];
 
