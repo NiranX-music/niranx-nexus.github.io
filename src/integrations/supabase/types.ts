@@ -890,6 +890,51 @@ export type Database = {
         }
         Relationships: []
       }
+      study_materials: {
+        Row: {
+          category: string | null
+          created_at: string
+          flashcards: Json | null
+          id: string
+          name: string
+          notes: string | null
+          size: number
+          summary: string | null
+          tags: string[] | null
+          type: string
+          uploaded_by: string | null
+          url: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          flashcards?: Json | null
+          id?: string
+          name: string
+          notes?: string | null
+          size: number
+          summary?: string | null
+          tags?: string[] | null
+          type: string
+          uploaded_by?: string | null
+          url: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          flashcards?: Json | null
+          id?: string
+          name?: string
+          notes?: string | null
+          size?: number
+          summary?: string | null
+          tags?: string[] | null
+          type?: string
+          uploaded_by?: string | null
+          url?: string
+        }
+        Relationships: []
+      }
       track_analysis: {
         Row: {
           acousticness: number | null

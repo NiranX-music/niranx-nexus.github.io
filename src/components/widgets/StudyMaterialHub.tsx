@@ -26,10 +26,12 @@ import {
   Pause,
   Volume2,
   ZoomIn,
-  ZoomOut
+  ZoomOut,
+  Loader2
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from '@/integrations/supabase/client';
 
 interface StudyFile {
   id: string;
@@ -37,108 +39,148 @@ interface StudyFile {
   type: 'pdf' | 'image' | 'video' | 'audio' | 'document' | 'other';
   size: number;
   url: string;
-  uploadedAt: string;
-  category: string;
-  tags: string[];
+  category?: string;
+  tags?: string[];
   notes?: string;
   summary?: string;
   flashcards?: Array<{
     question: string;
     answer: string;
   }>;
-}
-
-interface EmbeddedResource {
-  id: string;
-  title: string;
-  url: string;
-  type: 'youtube' | 'website' | 'spotify' | 'soundcloud';
-  category: string;
-  addedAt: string;
+  uploaded_by?: string;
+  created_at: string;
 }
 
 const StudyMaterialHub = () => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<StudyFile[]>([]);
-  const [embeddedResources, setEmbeddedResources] = useState<EmbeddedResource[]>([]);
   const [selectedFile, setSelectedFile] = useState<StudyFile | null>(null);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [filter, setFilter] = useState<'all' | 'pdf' | 'image' | 'video' | 'audio'>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
-  const [showAddResource, setShowAddResource] = useState(false);
-  const [pdfZoom, setPdfZoom] = useState(100);
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
-  const [newResource, setNewResource] = useState({
-    title: '',
-    url: '',
-    category: '',
-    type: 'website' as EmbeddedResource['type']
-  });
+  const [uploadingFiles, setUploadingFiles] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(true);
 
-  // Load data from localStorage
+  // Load files from Supabase
   useEffect(() => {
-    const savedFiles = localStorage.getItem('studyverse-files');
-    const savedResources = localStorage.getItem('studyverse-resources');
-    
-    if (savedFiles) {
-      try {
-        setFiles(JSON.parse(savedFiles));
-      } catch (error) {
-        console.error('Error loading files:', error);
-      }
-    }
-    
-    if (savedResources) {
-      try {
-        setEmbeddedResources(JSON.parse(savedResources));
-      } catch (error) {
-        console.error('Error loading resources:', error);
-      }
-    }
+    fetchFiles();
   }, []);
 
-  // Save data to localStorage
-  useEffect(() => {
-    localStorage.setItem('studyverse-files', JSON.stringify(files));
-  }, [files]);
+  const fetchFiles = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('study_materials')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-  useEffect(() => {
-    localStorage.setItem('studyverse-resources', JSON.stringify(embeddedResources));
-  }, [embeddedResources]);
+      if (error) throw error;
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+      // Convert database data to StudyFile format
+      const studyFiles: StudyFile[] = (data || []).map(item => ({
+        id: item.id,
+        name: item.name,
+        type: item.type as StudyFile['type'],
+        size: item.size,
+        url: item.url,
+        category: item.category,
+        tags: item.tags || [],
+        notes: item.notes,
+        summary: item.summary,
+        flashcards: Array.isArray(item.flashcards) ? item.flashcards as Array<{question: string; answer: string}> : undefined,
+        uploaded_by: item.uploaded_by,
+        created_at: item.created_at
+      }));
+
+      setFiles(studyFiles);
+    } catch (error) {
+      console.error('Error fetching files:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load study materials",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(event.target.files || []);
     
-    selectedFiles.forEach(file => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        
+    for (const file of selectedFiles) {
+      const fileId = Math.random().toString(36).substr(2, 9);
+      setUploadingFiles(prev => new Set(prev).add(fileId));
+
+      try {
+        // Upload file to Supabase Storage
+        const filePath = `${Date.now()}-${file.name}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('study-materials')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('study-materials')
+          .getPublicUrl(filePath);
+
+        // Save metadata to database
         const fileType = getFileType(file.type, file.name);
-        const newFile: StudyFile = {
-          id: Math.random().toString(36).substr(2, 9),
-          name: file.name,
-          type: fileType,
-          size: file.size,
-          url: result,
-          uploadedAt: new Date().toISOString(),
-          category: 'Uncategorized',
-          tags: [],
-          notes: ''
+        const { data: dbData, error: dbError } = await supabase
+          .from('study_materials')
+          .insert({
+            name: file.name,
+            type: fileType,
+            size: file.size,
+            url: publicUrl,
+            category: 'Uncategorized',
+            tags: [],
+            uploaded_by: 'Anonymous User',
+          })
+          .select()
+          .single();
+
+        if (dbError) throw dbError;
+
+        // Add to local state - convert to StudyFile format
+        const newStudyFile: StudyFile = {
+          id: dbData.id,
+          name: dbData.name,
+          type: dbData.type as StudyFile['type'],
+          size: dbData.size,
+          url: dbData.url,
+          category: dbData.category,
+          tags: dbData.tags || [],
+          notes: dbData.notes,
+          summary: dbData.summary,
+          flashcards: Array.isArray(dbData.flashcards) ? dbData.flashcards as Array<{question: string; answer: string}> : undefined,
+          uploaded_by: dbData.uploaded_by,
+          created_at: dbData.created_at
         };
-        
-        setFiles(prev => [...prev, newFile]);
+        setFiles(prev => [newStudyFile, ...prev]);
         
         toast({
           title: "File Uploaded! 📁",
-          description: `${file.name} has been added to your study materials`,
+          description: `${file.name} has been uploaded and is now visible to all users`,
         });
-      };
-      
-      reader.readAsDataURL(file);
-    });
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        toast({
+          title: "Upload Failed",
+          description: `Failed to upload ${file.name}`,
+          variant: "destructive",
+        });
+      } finally {
+        setUploadingFiles(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(fileId);
+          return newSet;
+        });
+      }
+    }
     
     // Reset input
     if (fileInputRef.current) {
@@ -180,51 +222,39 @@ const StudyMaterialHub = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  const deleteFile = (fileId: string) => {
-    setFiles(prev => prev.filter(file => file.id !== fileId));
-    if (selectedFile?.id === fileId) {
-      setSelectedFile(null);
-    }
-    toast({
-      title: "File Deleted 🗑️",
-      description: "File removed from your study materials",
-    });
-  };
+  const deleteFile = async (fileId: string) => {
+    try {
+      const { error } = await supabase
+        .from('study_materials')
+        .delete()
+        .eq('id', fileId);
 
-  const addEmbeddedResource = () => {
-    if (!newResource.title.trim() || !newResource.url.trim()) {
+      if (error) throw error;
+
+      setFiles(prev => prev.filter(file => file.id !== fileId));
+      if (selectedFile?.id === fileId) {
+        setSelectedFile(null);
+      }
+      
       toast({
-        title: "Missing Information",
-        description: "Please enter both title and URL",
+        title: "File Deleted 🗑️",
+        description: "File removed from study materials",
+      });
+    } catch (error) {
+      console.error('Error deleting file:', error);
+      toast({
+        title: "Delete Failed",
+        description: "Failed to delete file",
         variant: "destructive",
       });
-      return;
     }
-
-    const resource: EmbeddedResource = {
-      id: Math.random().toString(36).substr(2, 9),
-      title: newResource.title,
-      url: newResource.url,
-      type: newResource.type,
-      category: newResource.category || 'General',
-      addedAt: new Date().toISOString()
-    };
-
-    setEmbeddedResources(prev => [...prev, resource]);
-    setNewResource({ title: '', url: '', category: '', type: 'website' });
-    setShowAddResource(false);
-    
-    toast({
-      title: "Resource Added! 🌐",
-      description: `${resource.title} has been added to your resources`,
-    });
   };
 
   const generateAISummary = async (file: StudyFile) => {
     setIsGeneratingAI(true);
     
     // Simulate AI processing
-    setTimeout(() => {
+    setTimeout(async () => {
       const mockSummary = `This document covers key concepts related to ${file.category}. The main topics include fundamental principles, practical applications, and advanced techniques. Important points to remember for your studies.`;
       
       const mockFlashcards = [
@@ -233,32 +263,61 @@ const StudyMaterialHub = () => {
         { question: "What should you remember for exams?", answer: "Key formulas, definitions, and examples." }
       ];
 
-      setFiles(prev => prev.map(f => 
-        f.id === file.id 
-          ? { ...f, summary: mockSummary, flashcards: mockFlashcards }
-          : f
-      ));
+      try {
+        const { error } = await supabase
+          .from('study_materials')
+          .update({ 
+            summary: mockSummary, 
+            flashcards: mockFlashcards 
+          })
+          .eq('id', file.id);
+
+        if (error) throw error;
+
+        setFiles(prev => prev.map(f => 
+          f.id === file.id 
+            ? { ...f, summary: mockSummary, flashcards: mockFlashcards }
+            : f
+        ));
+
+        toast({
+          title: "AI Summary Generated! 🤖",
+          description: "Summary and flashcards have been created",
+        });
+      } catch (error) {
+        console.error('Error saving AI summary:', error);
+        toast({
+          title: "Error",
+          description: "Failed to save AI summary",
+          variant: "destructive",
+        });
+      }
 
       setIsGeneratingAI(false);
-      
-      toast({
-        title: "AI Summary Generated! 🤖",
-        description: "Summary and flashcards have been created",
-      });
     }, 2000);
   };
 
   const filteredFiles = files.filter(file => {
     const matchesSearch = file.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         file.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         file.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+                         (file.category && file.category.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                         (file.tags && file.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())));
     const matchesType = filter === 'all' || file.type === filter;
     const matchesCategory = categoryFilter === 'all' || file.category === categoryFilter;
     
     return matchesSearch && matchesType && matchesCategory;
   });
 
-  const categories = Array.from(new Set([...files.map(f => f.category), ...embeddedResources.map(r => r.category)]));
+  const categories = Array.from(new Set(files.map(f => f.category).filter(Boolean)));
+
+  if (loading) {
+    return (
+      <Card className="widget">
+        <CardContent className="flex items-center justify-center h-64">
+          <Loader2 className="w-8 h-8 animate-spin" />
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="widget">
@@ -269,9 +328,9 @@ const StudyMaterialHub = () => {
               <BookOpen className="w-6 h-6 text-white" />
             </div>
             <div>
-              <CardTitle>Study Material Hub</CardTitle>
+              <CardTitle>Shared Study Materials</CardTitle>
               <p className="text-sm text-muted-foreground">
-                {files.length} files • {embeddedResources.length} resources
+                {files.length} files shared by the community
               </p>
             </div>
           </div>
@@ -280,20 +339,16 @@ const StudyMaterialHub = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setShowAddResource(true)}
-              className="glass-button"
-            >
-              <ExternalLink className="w-4 h-4 mr-2" />
-              Add Link
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
               onClick={() => fileInputRef.current?.click()}
               className="glass-button"
+              disabled={uploadingFiles.size > 0}
             >
-              <Upload className="w-4 h-4 mr-2" />
-              Upload
+              {uploadingFiles.size > 0 ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Upload className="w-4 h-4 mr-2" />
+              )}
+              {uploadingFiles.size > 0 ? 'Uploading...' : 'Upload & Share'}
             </Button>
           </div>
         </div>
@@ -304,7 +359,7 @@ const StudyMaterialHub = () => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
-                placeholder="Search files and resources..."
+                placeholder="Search shared materials..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -359,7 +414,7 @@ const StudyMaterialHub = () => {
           <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
           <p className="text-lg font-medium mb-2">Drop files here or click to upload</p>
           <p className="text-sm text-muted-foreground">
-            Support for PDFs, images, videos, audio files, and documents
+            Upload and share study materials with the entire community
           </p>
         </div>
 
@@ -372,12 +427,8 @@ const StudyMaterialHub = () => {
           className="hidden"
         />
 
-        {/* Files Grid/List */}
-        <div className={
-          viewMode === 'grid' 
-            ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" 
-            : "space-y-2"
-        }>
+        {/* Files Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredFiles.map((file) => (
             <div
               key={file.id}
@@ -392,13 +443,13 @@ const StudyMaterialHub = () => {
                 <div className="flex-1 min-w-0">
                   <h4 className="font-medium truncate">{file.name}</h4>
                   <p className="text-sm text-muted-foreground">
-                    {formatFileSize(file.size)} • {file.category}
+                    {formatFileSize(file.size)} • {file.category || 'Uncategorized'}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {new Date(file.uploadedAt).toLocaleDateString()}
+                    By {file.uploaded_by || 'Anonymous'} • {new Date(file.created_at).toLocaleDateString()}
                   </p>
                   
-                  {file.tags.length > 0 && (
+                  {file.tags && file.tags.length > 0 && (
                     <div className="flex gap-1 mt-2">
                       {file.tags.slice(0, 3).map(tag => (
                         <Badge key={tag} variant="secondary" className="text-xs">
@@ -415,10 +466,11 @@ const StudyMaterialHub = () => {
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
-                      setSelectedFile(file);
+                      window.open(file.url, '_blank');
                     }}
+                    title="Download/View"
                   >
-                    <Eye className="w-4 h-4" />
+                    <Download className="w-4 h-4" />
                   </Button>
                   {file.type === 'pdf' && !file.summary && (
                     <Button
@@ -429,6 +481,7 @@ const StudyMaterialHub = () => {
                         generateAISummary(file);
                       }}
                       disabled={isGeneratingAI}
+                      title="Generate AI Summary"
                     >
                       <Brain className="w-4 h-4" />
                     </Button>
@@ -440,6 +493,7 @@ const StudyMaterialHub = () => {
                       e.stopPropagation();
                       deleteFile(file.id);
                     }}
+                    title="Delete"
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -449,207 +503,82 @@ const StudyMaterialHub = () => {
           ))}
         </div>
 
-        {/* Embedded Resources */}
-        {embeddedResources.length > 0 && (
-          <div className="space-y-3">
-            <h4 className="font-medium flex items-center gap-2">
-              <ExternalLink className="w-4 h-4" />
-              Embedded Resources
-            </h4>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {embeddedResources.map((resource) => (
-                <div
-                  key={resource.id}
-                  className="p-3 rounded-lg border border-border/50 hover:border-primary/50 transition-all"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h5 className="font-medium">{resource.title}</h5>
-                      <p className="text-sm text-muted-foreground">{resource.category}</p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => window.open(resource.url, '_blank')}
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {filteredFiles.length === 0 && embeddedResources.length === 0 && (
+        {filteredFiles.length === 0 && (
           <div className="text-center py-8 text-muted-foreground">
             <BookOpen className="w-12 h-12 mx-auto mb-4 opacity-50" />
             <p>No study materials found</p>
-            <p className="text-sm">Upload your first file or add a resource to get started!</p>
-          </div>
-        )}
-
-        {/* Add Resource Modal */}
-        {showAddResource && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <div className="bg-card rounded-lg max-w-md w-full p-6">
-              <h4 className="font-semibold mb-4">Add External Resource</h4>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium">Title*</label>
-                  <Input
-                    value={newResource.title}
-                    onChange={(e) => setNewResource(prev => ({ ...prev, title: e.target.value }))}
-                    placeholder="Resource title..."
-                  />
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium">URL*</label>
-                  <Input
-                    value={newResource.url}
-                    onChange={(e) => setNewResource(prev => ({ ...prev, url: e.target.value }))}
-                    placeholder="https://..."
-                  />
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium">Category</label>
-                  <Input
-                    value={newResource.category}
-                    onChange={(e) => setNewResource(prev => ({ ...prev, category: e.target.value }))}
-                    placeholder="e.g., Research, Videos, Tools"
-                  />
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium">Type</label>
-                  <Select
-                    value={newResource.type}
-                    onValueChange={(value: any) => setNewResource(prev => ({ ...prev, type: value }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="website">Website</SelectItem>
-                      <SelectItem value="youtube">YouTube</SelectItem>
-                      <SelectItem value="spotify">Spotify</SelectItem>
-                      <SelectItem value="soundcloud">SoundCloud</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              
-              <div className="flex gap-2 mt-6">
-                <Button onClick={addEmbeddedResource} className="flex-1">
-                  Add Resource
-                </Button>
-                <Button variant="outline" onClick={() => setShowAddResource(false)}>
-                  Cancel
-                </Button>
-              </div>
-            </div>
+            <p className="text-sm">Be the first to upload and share materials with the community!</p>
           </div>
         )}
 
         {/* File Viewer Modal */}
         {selectedFile && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <div className="bg-card rounded-lg max-w-4xl w-full h-[80vh] flex flex-col">
-              <div className="flex items-center justify-between p-4 border-b">
-                <h4 className="font-semibold truncate">{selectedFile.name}</h4>
+            <div className="bg-background rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
+              <div className="p-4 border-b flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold">{selectedFile.name}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Uploaded by {selectedFile.uploaded_by || 'Anonymous'}
+                  </p>
+                </div>
                 <div className="flex gap-2">
-                  {selectedFile.type === 'pdf' && (
-                    <>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setPdfZoom(prev => Math.min(prev + 25, 200))}
-                      >
-                        <ZoomIn className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setPdfZoom(prev => Math.max(prev - 25, 50))}
-                      >
-                        <ZoomOut className="w-4 h-4" />
-                      </Button>
-                    </>
-                  )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.open(selectedFile.url, '_blank')}
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
+                  </Button>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setSelectedFile(null)}
                   >
-                    ✕
+                    Close
                   </Button>
                 </div>
               </div>
               
-              <div className="flex-1 overflow-auto p-4">
+              <div className="p-4 max-h-[70vh] overflow-auto">
+                {selectedFile.type === 'image' && (
+                  <img 
+                    src={selectedFile.url} 
+                    alt={selectedFile.name}
+                    className="max-w-full h-auto rounded-lg"
+                  />
+                )}
+                
                 {selectedFile.type === 'pdf' && (
                   <iframe
                     src={selectedFile.url}
-                    className="w-full h-full border rounded-lg"
-                    style={{ transform: `scale(${pdfZoom / 100})`, transformOrigin: 'top left' }}
+                    className="w-full h-[60vh] rounded-lg"
+                    title={selectedFile.name}
                   />
                 )}
                 
-                {selectedFile.type === 'image' && (
-                  <img
-                    src={selectedFile.url}
-                    alt={selectedFile.name}
-                    className="max-w-full max-h-full mx-auto rounded-lg"
-                  />
-                )}
-                
-                {selectedFile.type === 'video' && (
-                  <video
-                    src={selectedFile.url}
-                    controls
-                    className="max-w-full max-h-full mx-auto rounded-lg"
-                  />
-                )}
-                
-                {selectedFile.type === 'audio' && (
-                  <div className="flex items-center justify-center h-full">
-                    <audio
-                      src={selectedFile.url}
-                      controls
-                      className="w-full max-w-md"
-                    />
-                  </div>
-                )}
-
-                {/* AI-Generated Content */}
                 {selectedFile.summary && (
-                  <div className="mt-4 p-4 bg-muted/30 rounded-lg">
-                    <h5 className="font-medium mb-2 flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-primary" />
+                  <div className="mt-4 p-4 bg-muted rounded-lg">
+                    <h4 className="font-medium mb-2 flex items-center gap-2">
+                      <Brain className="w-4 h-4" />
                       AI Summary
-                    </h5>
+                    </h4>
                     <p className="text-sm">{selectedFile.summary}</p>
-                  </div>
-                )}
-
-                {selectedFile.flashcards && selectedFile.flashcards.length > 0 && (
-                  <div className="mt-4 p-4 bg-muted/30 rounded-lg">
-                    <h5 className="font-medium mb-3 flex items-center gap-2">
-                      <Brain className="w-4 h-4 text-primary" />
-                      Generated Flashcards
-                    </h5>
-                    <div className="space-y-3">
-                      {selectedFile.flashcards.map((card, index) => (
-                        <div key={index} className="p-3 bg-card rounded-lg border">
-                          <p className="font-medium text-sm mb-1">Q: {card.question}</p>
-                          <p className="text-sm text-muted-foreground">A: {card.answer}</p>
+                    
+                    {selectedFile.flashcards && selectedFile.flashcards.length > 0 && (
+                      <div className="mt-4">
+                        <h5 className="font-medium mb-2">Flashcards</h5>
+                        <div className="space-y-2">
+                          {selectedFile.flashcards.map((card, index) => (
+                            <div key={index} className="p-3 bg-background rounded border">
+                              <p className="font-medium text-sm">{card.question}</p>
+                              <p className="text-sm text-muted-foreground mt-1">{card.answer}</p>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
