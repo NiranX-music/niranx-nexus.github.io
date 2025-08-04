@@ -890,6 +890,66 @@ export type Database = {
         }
         Relationships: []
       }
+      schedule_tasks: {
+        Row: {
+          class_duration: number
+          class_link: string | null
+          created_at: string
+          day_of_week: string
+          end_time: string
+          id: string
+          is_recurring: boolean | null
+          notes: string | null
+          priority: string
+          recording_link: string | null
+          start_time: string
+          status: string | null
+          subject: string
+          task_name: string
+          task_type: string
+          topic: string | null
+          updated_at: string
+        }
+        Insert: {
+          class_duration?: number
+          class_link?: string | null
+          created_at?: string
+          day_of_week: string
+          end_time: string
+          id?: string
+          is_recurring?: boolean | null
+          notes?: string | null
+          priority?: string
+          recording_link?: string | null
+          start_time: string
+          status?: string | null
+          subject: string
+          task_name: string
+          task_type?: string
+          topic?: string | null
+          updated_at?: string
+        }
+        Update: {
+          class_duration?: number
+          class_link?: string | null
+          created_at?: string
+          day_of_week?: string
+          end_time?: string
+          id?: string
+          is_recurring?: boolean | null
+          notes?: string | null
+          priority?: string
+          recording_link?: string | null
+          start_time?: string
+          status?: string | null
+          subject?: string
+          task_name?: string
+          task_type?: string
+          topic?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       study_materials: {
         Row: {
           category: string | null

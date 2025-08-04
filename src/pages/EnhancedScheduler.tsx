@@ -94,9 +94,8 @@ const EnhancedScheduler = () => {
   const fetchTasks = async () => {
     try {
       const { data, error } = await supabase
-        .from('study_materials')
+        .from('schedule_tasks')
         .select('*')
-        .eq('type', 'schedule')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -104,20 +103,20 @@ const EnhancedScheduler = () => {
       // Convert database data to ScheduleTask format
       const scheduleTasks: ScheduleTask[] = (data || []).map(item => ({
         id: item.id,
-        taskName: item.name,
-        subject: item.category || 'General',
-        topic: item.summary || '',
-        startTime: '09:00',
-        endTime: '10:00',
-        classDuration: 60,
-        classLink: item.url,
+        taskName: item.task_name,
+        subject: item.subject,
+        topic: item.topic || '',
+        startTime: item.start_time,
+        endTime: item.end_time,
+        classDuration: item.class_duration,
+        classLink: item.class_link,
         notes: item.notes,
-        recordingLink: '',
-        taskType: 'main',
-        priority: 'medium',
-        day: 'Monday',
-        isRecurring: false,
-        status: 'upcoming',
+        recordingLink: item.recording_link,
+        taskType: item.task_type as ScheduleTask['taskType'],
+        priority: item.priority as ScheduleTask['priority'],
+        day: item.day_of_week,
+        isRecurring: item.is_recurring,
+        status: item.status as ScheduleTask['status'],
         created_at: item.created_at
       }));
 
@@ -132,17 +131,22 @@ const EnhancedScheduler = () => {
   const saveTaskToSupabase = async (task: ScheduleTask) => {
     try {
       const { error } = await supabase
-        .from('study_materials')
+        .from('schedule_tasks')
         .insert({
-          name: task.taskName,
-          type: 'schedule',
-          size: 0,
-          url: task.classLink || '',
-          category: task.subject,
-          tags: [task.topic, task.taskType, task.priority],
+          task_name: task.taskName,
+          subject: task.subject,
+          topic: task.topic,
+          start_time: task.startTime,
+          end_time: task.endTime,
+          class_duration: task.classDuration,
+          class_link: task.classLink,
           notes: task.notes,
-          summary: task.topic,
-          uploaded_by: 'Scheduler',
+          recording_link: task.recordingLink,
+          task_type: task.taskType,
+          priority: task.priority,
+          day_of_week: task.day,
+          is_recurring: task.isRecurring,
+          status: task.status
         });
 
       if (error) throw error;

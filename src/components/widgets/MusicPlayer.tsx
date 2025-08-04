@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
+import { Badge } from "@/components/ui/badge";
 import { 
   Play, 
   Pause, 
@@ -14,17 +15,23 @@ import {
   Music,
   Heart,
   MoreHorizontal,
-  Disc3
+  Disc3,
+  Trash2,
+  Loader2
 } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from '@/integrations/supabase/client';
 
 interface Track {
   id: string;
   name: string;
-  file: File;
   url: string;
   duration?: number;
   isLiked?: boolean;
+  artist?: string;
+  album?: string;
+  size: number;
+  created_at: string;
 }
 
 const MusicPlayer = () => {
@@ -37,62 +44,215 @@ const MusicPlayer = () => {
   const [isShuffle, setIsShuffle] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadingTracks, setUploadingTracks] = useState<Set<string>>(new Set());
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
-  // Load saved tracks from localStorage
+  // Load tracks from Supabase
   useEffect(() => {
-    const savedTracks = localStorage.getItem('studyverse-music-tracks');
-    if (savedTracks) {
-      try {
-        const parsed = JSON.parse(savedTracks);
-        // Can't save File objects, so this would need a more complex solution
-        // For now, tracks are reset on page reload
-      } catch (error) {
-        console.error('Error loading tracks:', error);
-      }
-    }
+    fetchTracks();
   }, []);
 
-  // Update document title with current track
-  useEffect(() => {
-    if (tracks[currentTrackIndex]) {
-      document.title = `${tracks[currentTrackIndex].name} - StudyVerse`;
-    } else {
-      document.title = 'StudyVerse';
-    }
-  }, [currentTrackIndex, tracks]);
+  const fetchTracks = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('study_materials')
+        .select('*')
+        .eq('type', 'audio')
+        .order('created_at', { ascending: false });
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || []);
-    setIsLoading(true);
+      if (error) throw error;
 
-    Promise.all(
-      files.map(file => {
-        return new Promise<Track>((resolve) => {
-          const url = URL.createObjectURL(file);
-          const audio = new Audio(url);
-          
-          audio.addEventListener('loadedmetadata', () => {
-            resolve({
-              id: Math.random().toString(36).substr(2, 9),
-              name: file.name.replace(/\.[^/.]+$/, ""),
-              file,
-              url,
-              duration: audio.duration
-            });
-          });
-        });
-      })
-    ).then((newTracks) => {
-      setTracks(prev => [...prev, ...newTracks]);
-      setIsLoading(false);
+      const musicTracks: Track[] = (data || []).map(item => ({
+        id: item.id,
+        name: item.name,
+        url: item.url,
+        duration: 0,
+        isLiked: false,
+        artist: item.uploaded_by || 'Unknown Artist',
+        album: item.category || 'Unknown Album',
+        size: item.size,
+        created_at: item.created_at
+      }));
+
+      setTracks(musicTracks);
+    } catch (error) {
+      console.error('Error fetching tracks:', error);
       toast({
-        title: "Music Added!",
-        description: `Added ${newTracks.length} track(s) to your playlist`,
+        title: "Error",
+        description: "Failed to load music tracks",
+        variant: "destructive",
       });
-    });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    
+    for (const file of files) {
+      // Check if it's an audio file
+      if (!file.type.startsWith('audio/')) {
+        toast({
+          title: "Invalid File",
+          description: `${file.name} is not an audio file`,
+          variant: "destructive",
+        });
+        continue;
+      }
+
+      const trackId = Math.random().toString(36).substr(2, 9);
+      setUploadingTracks(prev => new Set(prev).add(trackId));
+
+      try {
+        // Upload file to Supabase Storage
+        const filePath = `${Date.now()}-${file.name}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('music-files')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('music-files')
+          .getPublicUrl(filePath);
+
+        // Get audio duration
+        const audio = new Audio();
+        audio.src = URL.createObjectURL(file);
+        
+        audio.addEventListener('loadedmetadata', async () => {
+          try {
+            // Save metadata to database
+            const { data: dbData, error: dbError } = await supabase
+              .from('study_materials')
+              .insert({
+                name: file.name.replace(/\.[^/.]+$/, ""),
+                type: 'audio',
+                size: file.size,
+                url: publicUrl,
+                category: 'Music',
+                tags: ['music', 'audio'],
+                uploaded_by: 'Music Player',
+              })
+              .select()
+              .single();
+
+            if (dbError) throw dbError;
+
+            // Add to local state
+            const newTrack: Track = {
+              id: dbData.id,
+              name: dbData.name,
+              url: dbData.url,
+              duration: audio.duration,
+              isLiked: false,
+              artist: 'Music Player',
+              album: 'Music',
+              size: dbData.size,
+              created_at: dbData.created_at
+            };
+
+            setTracks(prev => [newTrack, ...prev]);
+            
+            toast({
+              title: "Music Uploaded! 🎵",
+              description: `${file.name} has been uploaded and is now available to all users`,
+            });
+          } catch (error) {
+            console.error('Error saving track metadata:', error);
+            toast({
+              title: "Upload Failed",
+              description: `Failed to save ${file.name}`,
+              variant: "destructive",
+            });
+          } finally {
+            setUploadingTracks(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(trackId);
+              return newSet;
+            });
+            URL.revokeObjectURL(audio.src);
+          }
+        });
+
+        audio.addEventListener('error', () => {
+          setUploadingTracks(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(trackId);
+            return newSet;
+          });
+          toast({
+            title: "Upload Failed",
+            description: `Failed to process ${file.name}`,
+            variant: "destructive",
+          });
+          URL.revokeObjectURL(audio.src);
+        });
+
+        audio.load();
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        setUploadingTracks(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(trackId);
+          return newSet;
+        });
+        toast({
+          title: "Upload Failed",
+          description: `Failed to upload ${file.name}`,
+          variant: "destructive",
+        });
+      }
+    }
+
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const deleteTrack = async (trackId: string) => {
+    try {
+      const { error } = await supabase
+        .from('study_materials')
+        .delete()
+        .eq('id', trackId);
+
+      if (error) throw error;
+
+      setTracks(prev => prev.filter(track => track.id !== trackId));
+      
+      // If we deleted the currently playing track, stop playback
+      const deletedIndex = tracks.findIndex(track => track.id === trackId);
+      if (deletedIndex === currentTrackIndex) {
+        setIsPlaying(false);
+        setCurrentTime(0);
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.currentTime = 0;
+        }
+      } else if (deletedIndex < currentTrackIndex) {
+        setCurrentTrackIndex(prev => prev - 1);
+      }
+
+      toast({
+        title: "Track Deleted",
+        description: "Music track removed successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting track:', error);
+      toast({
+        title: "Delete Failed",
+        description: "Failed to delete track",
+        variant: "destructive",
+      });
+    }
   };
 
   const playTrack = (index: number) => {
@@ -109,35 +269,55 @@ const MusicPlayer = () => {
 
     if (isPlaying) {
       audioRef.current.pause();
-      setIsPlaying(false);
     } else {
+      if (!tracks[currentTrackIndex]) return;
+      
+      if (audioRef.current.src !== tracks[currentTrackIndex].url) {
+        audioRef.current.src = tracks[currentTrackIndex].url;
+      }
       audioRef.current.play();
-      setIsPlaying(true);
     }
-  };
-
-  const nextTrack = () => {
-    if (tracks.length === 0) return;
-    
-    let nextIndex;
-    if (isShuffle) {
-      nextIndex = Math.floor(Math.random() * tracks.length);
-    } else {
-      nextIndex = (currentTrackIndex + 1) % tracks.length;
-    }
-    playTrack(nextIndex);
+    setIsPlaying(!isPlaying);
   };
 
   const previousTrack = () => {
-    if (tracks.length === 0) return;
-    
-    const prevIndex = currentTrackIndex === 0 ? tracks.length - 1 : currentTrackIndex - 1;
-    playTrack(prevIndex);
+    const newIndex = isShuffle 
+      ? Math.floor(Math.random() * tracks.length)
+      : currentTrackIndex > 0 
+        ? currentTrackIndex - 1 
+        : tracks.length - 1;
+    playTrack(newIndex);
+  };
+
+  const nextTrack = () => {
+    const newIndex = isShuffle 
+      ? Math.floor(Math.random() * tracks.length)
+      : currentTrackIndex < tracks.length - 1 
+        ? currentTrackIndex + 1 
+        : 0;
+    playTrack(newIndex);
   };
 
   const handleTimeUpdate = () => {
     if (audioRef.current) {
       setCurrentTime(audioRef.current.currentTime);
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration);
+    }
+  };
+
+  const handleEnded = () => {
+    if (isRepeat) {
+      if (audioRef.current) {
+        audioRef.current.currentTime = 0;
+        audioRef.current.play();
+      }
+    } else {
+      nextTrack();
     }
   };
 
@@ -155,31 +335,69 @@ const MusicPlayer = () => {
     }
   };
 
-  const handleTrackEnd = () => {
-    if (isRepeat) {
-      playTrack(currentTrackIndex);
-    } else {
-      nextTrack();
-    }
-  };
-
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  const currentTrack = tracks[currentTrackIndex];
+  const toggleLike = (trackId: string) => {
+    setTracks(prev => prev.map(track => 
+      track.id === trackId 
+        ? { ...track, isLiked: !track.isLiked }
+        : track
+    ));
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  // Update document title with current track
+  useEffect(() => {
+    if (tracks[currentTrackIndex]) {
+      document.title = `${tracks[currentTrackIndex].name} - StudyVerse`;
+    } else {
+      document.title = 'StudyVerse';
+    }
+  }, [currentTrackIndex, tracks]);
+
+  // Set up audio event listeners
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.addEventListener('ended', handleEnded);
+    audio.volume = volume / 100;
+
+    return () => {
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('ended', handleEnded);
+    };
+  }, [currentTrackIndex, isRepeat, volume]);
+
+  if (isLoading) {
+    return (
+      <Card className="widget">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
+            <p>Loading music library...</p>
+          </div>
+        </div>
+      </Card>
+    );
+  }
 
   return (
-    <Card className="widget music-widget col-span-1 md:col-span-2">
-      <audio
-        ref={audioRef}
-        onTimeUpdate={handleTimeUpdate}
-        onLoadedMetadata={() => setDuration(audioRef.current?.duration || 0)}
-        onEnded={handleTrackEnd}
-      />
-
+    <Card className="widget">
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -188,25 +406,32 @@ const MusicPlayer = () => {
               <Music className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h3 className="font-bold text-lg">Music Player</h3>
+              <h3 className="font-bold text-lg">Shared Music Player</h3>
               <p className="text-sm text-muted-foreground">
-                {tracks.length} track{tracks.length !== 1 ? 's' : ''} loaded
+                {tracks.length} track{tracks.length !== 1 ? 's' : ''} shared by the community
               </p>
             </div>
           </div>
           
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isLoading}
-            className="glass-button"
-          >
-            <Upload className="w-4 h-4 mr-2" />
-            {isLoading ? 'Loading...' : 'Add Music'}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+              className="glass-button"
+              disabled={uploadingTracks.size > 0}
+            >
+              {uploadingTracks.size > 0 ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Upload className="w-4 h-4 mr-2" />
+              )}
+              {uploadingTracks.size > 0 ? 'Uploading...' : 'Upload Music'}
+            </Button>
+          </div>
         </div>
 
+        {/* Upload Input */}
         <input
           ref={fileInputRef}
           type="file"
@@ -217,129 +442,178 @@ const MusicPlayer = () => {
         />
 
         {/* Current Track Display */}
-        {currentTrack && (
-          <div className="text-center space-y-4">
-            <div className="w-24 h-24 mx-auto bg-gradient-accent rounded-full flex items-center justify-center animate-rotate-slow">
-              <Disc3 className="w-12 h-12 text-white" />
-            </div>
-            
-            <div>
-              <h4 className="font-semibold text-lg truncate">{currentTrack.name}</h4>
-              <p className="text-sm text-muted-foreground">Unknown Artist</p>
-            </div>
-
-            {/* Progress Bar */}
-            <div className="space-y-2">
-              <Slider
-                value={[currentTime]}
-                max={duration}
-                step={1}
-                onValueChange={handleSeek}
-                className="w-full"
-              />
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>{formatTime(currentTime)}</span>
-                <span>{formatTime(duration)}</span>
+        {tracks[currentTrackIndex] && (
+          <div className="p-4 bg-muted/30 rounded-lg">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 bg-gradient-primary rounded-lg flex items-center justify-center">
+                <Disc3 className={`w-8 h-8 text-white ${isPlaying ? 'animate-spin' : ''}`} />
               </div>
+              <div className="flex-1">
+                <h4 className="font-semibold">{tracks[currentTrackIndex].name}</h4>
+                <p className="text-sm text-muted-foreground">
+                  {tracks[currentTrackIndex].artist} • {tracks[currentTrackIndex].album}
+                </p>
+                <Badge variant="secondary" className="mt-1">
+                  {formatFileSize(tracks[currentTrackIndex].size)}
+                </Badge>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => toggleLike(tracks[currentTrackIndex].id)}
+              >
+                <Heart 
+                  className={`w-5 h-5 ${tracks[currentTrackIndex].isLiked ? 'fill-red-500 text-red-500' : ''}`} 
+                />
+              </Button>
             </div>
           </div>
         )}
 
-        {/* Controls */}
-        <div className="flex items-center justify-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsShuffle(!isShuffle)}
-            className={isShuffle ? 'text-primary' : ''}
-          >
-            <Shuffle className="w-4 h-4" />
-          </Button>
+        {/* Player Controls */}
+        <div className="space-y-4">
+          {/* Progress Bar */}
+          <div className="space-y-2">
+            <Slider
+              value={[currentTime]}
+              max={duration || 100}
+              step={1}
+              onValueChange={handleSeek}
+              className="w-full"
+            />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>{formatTime(currentTime)}</span>
+              <span>{formatTime(duration)}</span>
+            </div>
+          </div>
 
-          <Button variant="ghost" size="sm" onClick={previousTrack}>
-            <SkipBack className="w-5 h-5" />
-          </Button>
+          {/* Control Buttons */}
+          <div className="flex items-center justify-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsShuffle(!isShuffle)}
+              className={isShuffle ? 'text-primary' : ''}
+            >
+              <Shuffle className="w-4 h-4" />
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={previousTrack}
+              disabled={tracks.length === 0}
+            >
+              <SkipBack className="w-4 h-4" />
+            </Button>
+            
+            <Button
+              size="lg"
+              onClick={togglePlayPause}
+              disabled={tracks.length === 0}
+              className="w-12 h-12 rounded-full"
+            >
+              {isPlaying ? 
+                <Pause className="w-6 h-6" /> : 
+                <Play className="w-6 h-6" />
+              }
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={nextTrack}
+              disabled={tracks.length === 0}
+            >
+              <SkipForward className="w-4 h-4" />
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsRepeat(!isRepeat)}
+              className={isRepeat ? 'text-primary' : ''}
+            >
+              <Repeat className="w-4 h-4" />
+            </Button>
+          </div>
 
-          <Button
-            size="lg"
-            onClick={togglePlayPause}
-            disabled={!currentTrack}
-            className="w-14 h-14 rounded-full bg-gradient-primary hover:scale-110 transition-transform"
-          >
-            {isPlaying ? (
-              <Pause className="w-6 h-6 text-white" />
-            ) : (
-              <Play className="w-6 h-6 text-white ml-1" />
-            )}
-          </Button>
-
-          <Button variant="ghost" size="sm" onClick={nextTrack}>
-            <SkipForward className="w-5 h-5" />
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsRepeat(!isRepeat)}
-            className={isRepeat ? 'text-primary' : ''}
-          >
-            <Repeat className="w-4 h-4" />
-          </Button>
+          {/* Volume Control */}
+          <div className="flex items-center gap-3">
+            <Volume2 className="w-4 h-4" />
+            <Slider
+              value={[volume]}
+              max={100}
+              step={1}
+              onValueChange={handleVolumeChange}
+              className="flex-1"
+            />
+            <span className="text-xs text-muted-foreground w-8">{volume}%</span>
+          </div>
         </div>
 
-        {/* Volume Control */}
-        <div className="flex items-center gap-3">
-          <Volume2 className="w-4 h-4 text-muted-foreground" />
-          <Slider
-            value={[volume]}
-            max={100}
-            step={1}
-            onValueChange={handleVolumeChange}
-            className="flex-1"
-          />
-          <span className="text-xs text-muted-foreground w-8">{volume}%</span>
-        </div>
-
-        {/* Playlist */}
-        {tracks.length > 0 && (
-          <div className="space-y-2 max-h-40 overflow-y-auto">
-            <h5 className="font-medium text-sm text-muted-foreground">Playlist</h5>
-            {tracks.map((track, index) => (
+        {/* Track List */}
+        <div className="space-y-2 max-h-64 overflow-y-auto">
+          {tracks.length > 0 ? (
+            tracks.map((track, index) => (
               <div
                 key={track.id}
-                className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${
-                  index === currentTrackIndex
-                    ? 'bg-primary/20 text-primary'
-                    : 'hover:bg-muted/50'
+                className={`p-3 rounded-lg border cursor-pointer transition-colors hover:bg-muted/50 ${
+                  index === currentTrackIndex ? 'bg-primary/10 border-primary' : ''
                 }`}
                 onClick={() => playTrack(index)}
               >
-                <div className="w-8 h-8 bg-muted rounded flex items-center justify-center">
-                  <Music className="w-4 h-4" />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
+                      <Music className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1">
+                      <h5 className="font-medium truncate">{track.name}</h5>
+                      <p className="text-xs text-muted-foreground">
+                        {track.artist} • {formatFileSize(track.size)}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleLike(track.id);
+                      }}
+                    >
+                      <Heart 
+                        className={`w-4 h-4 ${track.isLiked ? 'fill-red-500 text-red-500' : ''}`} 
+                      />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteTrack(track.id);
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{track.name}</p>
-                  {track.duration && (
-                    <p className="text-xs text-muted-foreground">
-                      {formatTime(track.duration)}
-                    </p>
-                  )}
-                </div>
-                <Button variant="ghost" size="sm">
-                  <MoreHorizontal className="w-4 h-4" />
-                </Button>
               </div>
-            ))}
-          </div>
-        )}
+            ))
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <Music className="w-12 h-12 mx-auto mb-4 opacity-50" />
+              <p>No music tracks found</p>
+              <p className="text-sm">Upload your first track to get started!</p>
+            </div>
+          )}
+        </div>
 
-        {tracks.length === 0 && (
-          <div className="text-center py-8 text-muted-foreground">
-            <Music className="w-12 h-12 mx-auto mb-4 opacity-50" />
-            <p>No music added yet</p>
-            <p className="text-sm">Upload some tracks to get started!</p>
-          </div>
-        )}
+        {/* Audio Element */}
+        <audio ref={audioRef} preload="metadata" />
       </div>
     </Card>
   );

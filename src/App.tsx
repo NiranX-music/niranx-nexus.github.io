@@ -26,6 +26,7 @@ import PW from "./pages/PW";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import WebsiteEmbed from "./pages/WebsiteEmbed";
+import EnhancedScheduler from "./pages/EnhancedScheduler";
 import StudyPlatforms from "./pages/StudyPlatforms";
 
 const queryClient = new QueryClient();
@@ -53,7 +54,7 @@ const App = () => (
                       <Route path="/music" element={<MusicPage />} />
                       <Route path="/games" element={<GamesPage />} />
                       <Route path="/timetable" element={<SmartTimetable />} />
-                      <Route path="/scheduler" element={<TaskScheduler />} />
+                      <Route path="/scheduler" element={<EnhancedScheduler />} />
                       <Route path="/library" element={<Library />} />
                       <Route path="/allen" element={<Allen />} />
                       <Route path="/pw" element={<PW />} />
