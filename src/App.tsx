@@ -30,6 +30,8 @@ import EnhancedScheduler from "./pages/EnhancedScheduler";
 import InfiniteChainManager from "./pages/InfiniteChainManager";
 import FileHub from "./pages/FileHub";
 import MusicHub from "./pages/MusicHub";
+import PDFViewer from "./pages/PDFViewer";
+import VideoPlayer from "./pages/VideoPlayer";
 import StudyPlatforms from "./pages/StudyPlatforms";
 
 const queryClient = new QueryClient();
@@ -69,6 +71,8 @@ const App = () => (
                       <Route path="/infinite-chain" element={<InfiniteChainManager />} />
                       <Route path="/file-hub" element={<FileHub />} />
                       <Route path="/music-hub" element={<MusicHub />} />
+                      <Route path="/pdf-viewer" element={<PDFViewer />} />
+                      <Route path="/video-player" element={<VideoPlayer />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </AppLayout>
