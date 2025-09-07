@@ -27,6 +27,9 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import WebsiteEmbed from "./pages/WebsiteEmbed";
 import EnhancedScheduler from "./pages/EnhancedScheduler";
+import InfiniteChainManager from "./pages/InfiniteChainManager";
+import FileHub from "./pages/FileHub";
+import MusicHub from "./pages/MusicHub";
 import StudyPlatforms from "./pages/StudyPlatforms";
 
 const queryClient = new QueryClient();
@@ -63,6 +66,9 @@ const App = () => (
                       <Route path="/exams" element={<ExamHub />} />
                       <Route path="/website" element={<WebsiteEmbed />} />
                       <Route path="/website/study-platforms" element={<StudyPlatforms />} />
+                      <Route path="/infinite-chain" element={<InfiniteChainManager />} />
+                      <Route path="/file-hub" element={<FileHub />} />
+                      <Route path="/music-hub" element={<MusicHub />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </AppLayout>
