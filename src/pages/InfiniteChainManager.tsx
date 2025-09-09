@@ -50,6 +50,7 @@ import {
   EyeOff,
   Grid2X2,
   AlignLeft,
+  Upload,
   Import,
   Download,
   AlarmClock,
@@ -595,7 +596,7 @@ export default function InfiniteChainManager() {
           </button>
           <button onClick={() => setDensity(state.density === "comfortable" ? "compact" : "comfortable")} className="px-2 py-1 rounded border border-zinc-700 hover:bg-white/5 text-xs">{state.density === "compact" ? "Comfort" : "Compact"}</button>
           <button onClick={exportJSON} className="px-2 py-1 rounded border border-zinc-700 hover:bg-white/5 text-xs flex items-center gap-1"><Download size={14}/> Export</button>
-          <label className="px-2 py-1 rounded border border-zinc-700 hover:bg-white/5 text-xs flex items-center gap-1 cursor-pointer"><Import size={14}/> Import
+          <label className="px-2 py-1 rounded border border-zinc-700 hover:bg-white/5 text-xs flex items-center gap-1 cursor-pointer"><Upload size={14}/> Import
             <input type="file" accept="application/json" className="hidden" onChange={(e) => {
               const f = e.target.files?.[0];
               if (!f) return;
