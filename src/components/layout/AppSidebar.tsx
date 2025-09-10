@@ -17,6 +17,19 @@ import {
   Star,
   Target,
   Globe,
+  ExternalLink,
+  FolderOpen,
+  FileText,
+  Video,
+  Infinity,
+  Headphones,
+  Youtube,
+  Chrome,
+  Search,
+  Laptop,
+  Brain,
+  FileMusic,
+  Link
 } from "lucide-react";
 import {
   Sidebar,
@@ -36,16 +49,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import XPDisplay from "@/components/ui/XPDisplay";
 
-const navigation = [
+const mainNavigation = [
   {
     title: "Dashboard",
     url: "/niranx/dashboard",
     icon: Home,
-  },
-  {
-    title: "Messages",
-    url: "/niranx/messages",
-    icon: MessageCircle,
   },
   {
     title: "Tasks",
@@ -58,11 +66,6 @@ const navigation = [
     icon: Timer,
   },
   {
-    title: "Music",
-    url: "/niranx/music",
-    icon: Music,
-  },
-  {
     title: "Games",
     url: "/niranx/games",
     icon: Gamepad2,
@@ -71,26 +74,6 @@ const navigation = [
     title: "Timetable",
     url: "/niranx/timetable",
     icon: Calendar,
-  },
-  {
-    title: "Scheduler",
-    url: "/niranx/scheduler",
-    icon: CalendarDays,
-  },
-  {
-    title: "Library",
-    url: "/niranx/library",
-    icon: BookOpen,
-  },
-  {
-    title: "Allen",
-    url: "/niranx/allen",
-    icon: GraduationCap,
-  },
-  {
-    title: "PW",
-    url: "/niranx/pw",
-    icon: Users,
   },
   {
     title: "Analytics",
@@ -102,10 +85,85 @@ const navigation = [
     url: "/niranx/exams",
     icon: GraduationCap,
   },
+];
+
+const toolsNavigation = [
   {
-    title: "Open Website",
+    title: "Infinite Chain Manager",
+    url: "/niranx/infinite-chain",
+    icon: Infinity,
+  },
+  {
+    title: "File Hub",
+    url: "/niranx/file-hub",
+    icon: FolderOpen,
+  },
+  {
+    title: "Music Hub", 
+    url: "/niranx/music-hub",
+    icon: FileMusic,
+  },
+  {
+    title: "PDF Viewer",
+    url: "/niranx/pdf-viewer",
+    icon: FileText,
+  },
+  {
+    title: "Video Player",
+    url: "/niranx/video-player",
+    icon: Video,
+  },
+  {
+    title: "Website Embed",
     url: "/niranx/website",
     icon: Globe,
+  },
+];
+
+const studyPlatforms = [
+  {
+    title: "Study Platforms",
+    url: "/niranx/website/study-platforms",
+    icon: Brain,
+  },
+  {
+    title: "Allen Digital",
+    url: "https://allen.ac.in/",
+    icon: Target,
+    external: true,
+  },
+  {
+    title: "Physics Wallah",
+    url: "https://www.pw.live/",
+    icon: Users,
+    external: true,
+  },
+];
+
+const mediaRedirects = [
+  {
+    title: "Spotify Music",
+    url: "https://open.spotify.com/",
+    icon: Music,
+    external: true,
+  },
+  {
+    title: "YouTube",
+    url: "https://youtube.com/",
+    icon: Youtube,
+    external: true,
+  },
+  {
+    title: "Google",
+    url: "https://google.com/",
+    icon: Search,
+    external: true,
+  },
+  {
+    title: "ChatGPT",
+    url: "https://chat.openai.com/",
+    icon: Brain,
+    external: true,
   },
 ];
 
@@ -119,6 +177,50 @@ export function AppSidebar() {
     if (path === "/niranx/dashboard") return currentPath === "/niranx/dashboard";
     return currentPath.startsWith(path);
   };
+
+  const handleExternalLink = (url: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    window.open(url, '_blank');
+  };
+
+  const renderNavItems = (items: any[], showExternalIcon = false) => (
+    <>
+      {items.map((item) => (
+        <SidebarMenuItem key={item.title}>
+          <SidebarMenuButton asChild>
+            {item.external ? (
+              <button
+                onClick={(e) => handleExternalLink(item.url, e)}
+                className="flex items-center gap-3 rounded-lg px-3 py-2 transition-all text-muted-foreground hover:text-foreground hover:bg-muted w-full text-left"
+              >
+                <item.icon className="h-4 w-4" />
+                {!isCollapsed && (
+                  <span className="flex-1">{item.title}</span>
+                )}
+                {!isCollapsed && showExternalIcon && (
+                  <ExternalLink className="h-3 w-3 ml-auto opacity-50" />
+                )}
+              </button>
+            ) : (
+              <NavLink
+                to={item.url}
+                className={({ isActive: navIsActive }) =>
+                  `flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
+                    isActive(item.url) || navIsActive
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  }`
+                }
+              >
+                <item.icon className="h-4 w-4" />
+                {!isCollapsed && <span>{item.title}</span>}
+              </NavLink>
+            )}
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      ))}
+    </>
+  );
 
   return (
     <Sidebar collapsible="icon" className="border-r">
@@ -136,30 +238,43 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="overflow-y-auto">
+        {/* Main Navigation */}
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel>Main</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigation.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      className={({ isActive: navIsActive }) =>
-                        `flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
-                          isActive(item.url) || navIsActive
-                            ? "bg-primary text-primary-foreground"
-                            : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                        }`
-                      }
-                    >
-                      <item.icon className="h-4 w-4" />
-                      {!isCollapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {renderNavItems(mainNavigation)}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Tools & Utilities */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Tools</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {renderNavItems(toolsNavigation)}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Study Platforms */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Study Platforms</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {renderNavItems(studyPlatforms, true)}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Media & External */}
+        <SidebarGroup>
+          <SidebarGroupLabel>External Links</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {renderNavItems(mediaRedirects, true)}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
