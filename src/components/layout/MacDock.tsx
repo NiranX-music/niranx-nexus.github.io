@@ -34,7 +34,7 @@ const MacDock = ({ onNavigate, currentPage }: MacDockProps) => {
     { id: 'dashboard', label: 'Dashboard', icon: Home, onClick: () => onNavigate('dashboard') },
     { id: 'tasks', label: 'Tasks', icon: CheckSquare, onClick: () => onNavigate('tasks') },
     { id: 'pomodoro', label: 'Pomodoro', icon: Timer, onClick: () => onNavigate('pomodoro') },
-    { id: 'music', label: 'Music Zone', icon: Music, onClick: () => onNavigate('music') },
+    { id: 'music', label: 'Music Zone', icon: Music, onClick: () => window.open('https://open.spotify.com/', '_blank') },
     { id: 'games', label: 'Games', icon: Gamepad2, onClick: () => onNavigate('games') },
     { id: 'timetable', label: 'Smart Timetable', icon: Calendar, onClick: () => onNavigate('timetable') },
     { id: 'analytics', label: 'Analytics', icon: BarChart3, onClick: () => onNavigate('analytics') },

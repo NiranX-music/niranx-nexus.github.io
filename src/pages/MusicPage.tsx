@@ -15,7 +15,8 @@ import {
   Shuffle,
   Repeat,
   Upload,
-  Headphones
+  Headphones,
+  ExternalLink
 } from "lucide-react";
 
 interface Track {
@@ -177,8 +178,46 @@ const MusicPage = () => {
     return allTracks;
   };
 
+  const openSpotify = () => {
+    window.open('https://open.spotify.com/', '_blank');
+  };
+
+  const openSpotifyPlaylist = (mood: string) => {
+    const playlists = {
+      focus: 'https://open.spotify.com/genre/0JQ5DAqbMKFHOzuVTgTizF', // Focus playlists
+      energize: 'https://open.spotify.com/genre/0JQ5DAqbMKFCfObibaOZbv', // Workout playlists  
+      chill: 'https://open.spotify.com/genre/0JQ5DAqbMKFzHmL4bQU3tB', // Chill playlists
+      zen: 'https://open.spotify.com/genre/0JQ5DAqbMKFAXlCG6JvYjt', // Ambient playlists
+    };
+    window.open(playlists[mood] || 'https://open.spotify.com/', '_blank');
+  };
+
   return (
     <div className="min-h-screen p-6 pb-20">
+      {/* Spotify Redirect Banner */}
+      <div className="mb-8 p-6 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-lg">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+              <Music className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-green-600 dark:text-green-400">Listen on Spotify</h2>
+              <p className="text-sm text-muted-foreground">Access millions of songs and curated playlists</p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button 
+              onClick={openSpotify}
+              className="bg-green-500 hover:bg-green-600 text-white"
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Open Spotify
+            </Button>
+          </div>
+        </div>
+      </div>
+
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-4">
@@ -188,18 +227,27 @@ const MusicPage = () => {
           </h1>
         </div>
 
-        {/* Mood Selector */}
+        {/* Mood Selector with Spotify Integration */}
         <div className="flex gap-3 mb-6 overflow-x-auto">
           {moods.map((mood) => (
-            <Button
-              key={mood.id}
-              onClick={() => setSelectedMood(mood.id)}
-              variant={selectedMood === mood.id ? "default" : "outline"}
-              className="flex items-center gap-2 whitespace-nowrap glass-button"
-            >
-              <span className="text-lg">{mood.icon}</span>
-              {mood.name}
-            </Button>
+            <div key={mood.id} className="flex flex-col gap-2">
+              <Button
+                onClick={() => setSelectedMood(mood.id)}
+                variant={selectedMood === mood.id ? "default" : "outline"}
+                className="flex items-center gap-2 whitespace-nowrap glass-button"
+              >
+                <span className="text-lg">{mood.icon}</span>
+                {mood.name}
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => openSpotifyPlaylist(mood.id)}
+                className="text-xs text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
+              >
+                Spotify {mood.name}
+              </Button>
+            </div>
           ))}
         </div>
       </div>

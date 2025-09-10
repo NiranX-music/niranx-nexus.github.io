@@ -17,7 +17,8 @@ import {
   MoreHorizontal,
   Disc3,
   Trash2,
-  Loader2
+  Loader2,
+  ExternalLink
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
@@ -399,6 +400,29 @@ const MusicPlayer = () => {
   return (
     <Card className="widget">
       <div className="space-y-6">
+        {/* Spotify Redirect Header */}
+        <div className="mb-6 p-4 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                <Music className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-green-600 dark:text-green-400">Better Music Experience</h3>
+                <p className="text-sm text-muted-foreground">Listen to millions of songs on Spotify</p>
+              </div>
+            </div>
+            <Button 
+              onClick={() => window.open('https://open.spotify.com/', '_blank')}
+              className="bg-green-500 hover:bg-green-600 text-white"
+              size="sm"
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Open Spotify
+            </Button>
+          </div>
+        </div>
+
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -414,6 +438,15 @@ const MusicPlayer = () => {
           </div>
           
           <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => window.open('https://open.spotify.com/', '_blank')}
+              className="bg-green-500/10 border-green-500/30 text-green-600 hover:bg-green-500/20"
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Spotify
+            </Button>
             <Button
               variant="outline"
               size="sm"
