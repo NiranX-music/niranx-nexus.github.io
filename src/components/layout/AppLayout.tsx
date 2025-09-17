@@ -11,8 +11,6 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { useLocation } from "react-router-dom";
-import MacDock from "./MacDock";
-
 interface AppLayoutProps {
   children: React.ReactNode;
 }
@@ -36,23 +34,6 @@ export function AppLayout({ children }: AppLayoutProps) {
   const location = useLocation();
   const breadcrumbs = getBreadcrumbs(location.pathname);
 
-  const handleDockNavigation = (page: string) => {
-    if (page === 'dashboard') {
-      window.location.href = '/niranx/dashboard';
-    } else {
-      window.location.href = `/niranx/${page}`;
-    }
-  };
-
-  const getCurrentPage = () => {
-    const path = location.pathname;
-    if (path === '/niranx/dashboard') return 'dashboard';
-    const segments = path.split('/').filter(Boolean);
-    if (segments[0] === 'niranx' && segments[1]) {
-      return segments[1];
-    }
-    return 'dashboard';
-  };
 
   return (
     <SidebarProvider defaultOpen={false}>
@@ -83,14 +64,11 @@ export function AppLayout({ children }: AppLayoutProps) {
               </BreadcrumbList>
             </Breadcrumb>
           </header>
-          <div className="flex flex-1 flex-col gap-4 p-4 pb-20">
+          <div className="flex flex-1 flex-col gap-4 p-4">
             {children}
           </div>
         </SidebarInset>
         <RightSidebar />
-        
-        {/* MacDock */}
-        <MacDock onNavigate={handleDockNavigation} currentPage={getCurrentPage()} />
       </div>
     </SidebarProvider>
   );

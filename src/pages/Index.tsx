@@ -33,11 +33,9 @@ import ChillCorner from "@/components/widgets/ChillCorner";
 import NotesWidget from "@/components/widgets/NotesWidget";
 import StudyMaterialHub from "@/components/widgets/StudyMaterialHub";
 import AIStudyBuddy from "@/components/widgets/AIStudyBuddy";
-import MacDock from "@/components/layout/MacDock";
 
 const Index = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [currentPage, setCurrentPage] = useState('dashboard');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
   const [activeWidgets, setActiveWidgets] = useState({
@@ -82,7 +80,8 @@ const Index = () => {
 
   const handleNavigation = (page: string) => {
     if (page === 'dashboard') {
-      setCurrentPage(page);
+      // Stay on current dashboard page
+      return;
     } else if (page === 'profile') {
       // Handle profile page (could be a modal or separate page)
       console.log('Navigate to profile');
@@ -271,9 +270,6 @@ const Index = () => {
       >
         <Zap className="w-6 h-6" />
       </Button>
-
-      {/* macOS Dock */}
-      <MacDock onNavigate={handleNavigation} currentPage={currentPage} />
 
       {/* Background Decorations */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
