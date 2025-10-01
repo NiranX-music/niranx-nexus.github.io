@@ -235,9 +235,29 @@
 }
 
 @layer components {
-  /* Widget base styles */
+  /* 3D Perspective */
+  .perspective-3d {
+    perspective: 1000px;
+    transform-style: preserve-3d;
+  }
+
+  .transform-3d {
+    transform-style: preserve-3d;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .card-3d {
+    transform: rotateX(0deg) rotateY(0deg);
+    transition: transform 0.3s ease-out;
+  }
+
+  .card-3d:hover {
+    transform: rotateX(5deg) rotateY(5deg) translateZ(10px);
+  }
+
+  /* Widget base styles with 3D */
   .widget {
-    @apply bg-card/80 backdrop-blur-sm border border-white/20 rounded-3xl p-6 shadow-lg;
+    @apply bg-card/80 backdrop-blur-sm border border-white/20 rounded-3xl p-6 shadow-lg transform-3d;
     background: var(--gradient-card);
     backdrop-filter: var(--glass-blur);
     box-shadow: var(--shadow-widget);
@@ -247,6 +267,7 @@
   .widget:hover {
     @apply scale-[1.02];
     box-shadow: var(--shadow-hover);
+    transform: translateY(-5px) rotateX(2deg);
   }
 
   /* Glassmorphism button */
@@ -315,5 +336,54 @@
   /* Notification badge */
   .notification-badge {
     @apply absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-pulse;
+  }
+
+  /* Animated gradient text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent;
+    background-size: 200% auto;
+    animation: shimmer 3s linear infinite;
+  }
+
+  /* Hover lift effect */
+  .hover-lift {
+    @apply transition-all duration-300;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Glass morphism card */
+  .glass-card {
+    @apply backdrop-blur-xl bg-white/10 dark:bg-black/10 border border-white/20 rounded-2xl;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  /* Neon glow effect */
+  .neon-glow {
+    text-shadow: 0 0 10px hsl(var(--primary)),
+                 0 0 20px hsl(var(--primary)),
+                 0 0 30px hsl(var(--primary));
+  }
+
+  /* Button with 3D press effect */
+  .btn-3d {
+    @apply transform transition-all duration-150;
+    box-shadow: 0 6px 0 hsl(var(--primary) / 0.8),
+                0 8px 20px hsl(var(--primary) / 0.3);
+  }
+
+  .btn-3d:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 hsl(var(--primary) / 0.8),
+                0 4px 10px hsl(var(--primary) / 0.3);
+  }
+
+  /* Parallax background layers */
+  .parallax-layer {
+    @apply absolute inset-0 pointer-events-none;
+    will-change: transform;
   }
 }

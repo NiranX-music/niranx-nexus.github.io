@@ -191,34 +191,34 @@ export function AppSidebar() {
 
   const renderNavItems = (items: any[], showExternalIcon = false) => (
     <>
-      {items.map((item) => (
-        <SidebarMenuItem key={item.title}>
+      {items.map((item, index) => (
+        <SidebarMenuItem key={item.title} style={{ animationDelay: `${index * 0.05}s` }} className="animate-slide-in-left">
           <SidebarMenuButton asChild>
             {item.external ? (
               <button
                 onClick={(e) => handleExternalLink(item.url, e)}
-                className="flex items-center gap-3 rounded-lg px-3 py-2 transition-all text-muted-foreground hover:text-foreground hover:bg-muted w-full text-left"
+                className="flex items-center gap-3 rounded-lg px-3 py-2 transition-all text-muted-foreground hover:text-foreground hover:bg-muted w-full text-left transform-3d hover:scale-105 hover:translate-x-1 group"
               >
-                <item.icon className="h-4 w-4" />
+                <item.icon className="h-4 w-4 group-hover:rotate-12 transition-transform duration-300" />
                 {!isCollapsed && (
                   <span className="flex-1">{item.title}</span>
                 )}
                 {!isCollapsed && showExternalIcon && (
-                  <ExternalLink className="h-3 w-3 ml-auto opacity-50" />
+                  <ExternalLink className="h-3 w-3 ml-auto opacity-50 group-hover:opacity-100 transition-opacity" />
                 )}
               </button>
             ) : (
               <NavLink
                 to={item.url}
                 className={({ isActive: navIsActive }) =>
-                  `flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
+                  `flex items-center gap-3 rounded-lg px-3 py-2 transition-all transform-3d hover:scale-105 hover:translate-x-1 group ${
                     isActive(item.url) || navIsActive
-                      ? "bg-primary text-primary-foreground"
+                      ? "bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-lg animate-glow-pulse"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`
                 }
               >
-                <item.icon className="h-4 w-4" />
+                <item.icon className="h-4 w-4 group-hover:rotate-12 transition-transform duration-300" />
                 {!isCollapsed && <span>{item.title}</span>}
               </NavLink>
             )}
@@ -229,15 +229,15 @@ export function AppSidebar() {
   );
 
   return (
-    <Sidebar collapsible="icon" className="border-r">
-      <SidebarHeader className="border-b">
-        <div className="flex items-center gap-3 px-3 py-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+    <Sidebar collapsible="icon" className="border-r backdrop-blur-xl bg-background/95 animate-slide-in-right">
+      <SidebarHeader className="border-b backdrop-blur-sm">
+        <div className="flex items-center gap-3 px-3 py-2 group">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary-glow text-primary-foreground transform-3d group-hover:scale-110 transition-transform duration-300 animate-glow-pulse">
             <GraduationCap className="h-4 w-4" />
           </div>
           {!isCollapsed && (
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold">StudyVerse</span>
+            <div className="flex flex-col animate-fade-in">
+              <span className="text-sm font-semibold gradient-text">StudyVerse</span>
               <span className="text-xs text-muted-foreground">Study Platform</span>
             </div>
           )}
@@ -246,8 +246,8 @@ export function AppSidebar() {
 
       <SidebarContent className="overflow-y-auto">
         {/* Main Navigation */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Main</SidebarGroupLabel>
+        <SidebarGroup className="animate-fade-in">
+          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-primary animate-slide-in-left">Main</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {renderNavItems(mainNavigation)}
@@ -256,8 +256,8 @@ export function AppSidebar() {
         </SidebarGroup>
 
         {/* Tools & Utilities */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Tools</SidebarGroupLabel>
+        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
+          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-accent animate-slide-in-left" style={{ animationDelay: '0.1s' }}>Tools</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {renderNavItems(toolsNavigation)}
@@ -266,8 +266,8 @@ export function AppSidebar() {
         </SidebarGroup>
 
         {/* Study Platforms */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Study Platforms</SidebarGroupLabel>
+        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-success animate-slide-in-left" style={{ animationDelay: '0.2s' }}>Study Platforms</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {renderNavItems(studyPlatforms, true)}
@@ -276,8 +276,8 @@ export function AppSidebar() {
         </SidebarGroup>
 
         {/* Media & External */}
-        <SidebarGroup>
-          <SidebarGroupLabel>External Links</SidebarGroupLabel>
+        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
+          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-warning animate-slide-in-left" style={{ animationDelay: '0.3s' }}>External Links</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {renderNavItems(mediaRedirects, true)}
@@ -286,26 +286,26 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t">
+      <SidebarFooter className="border-t backdrop-blur-sm">
         <SidebarMenu>
-          <SidebarMenuItem>
+          <SidebarMenuItem className="animate-slide-up">
             <SidebarMenuButton asChild>
-              <NavLink to="/niranx/profile" className="flex items-center gap-3 px-3 py-2">
-                <Avatar className="h-6 w-6">
-                  <AvatarFallback>
+              <NavLink to="/niranx/profile" className="flex items-center gap-3 px-3 py-2 group transform-3d hover:scale-105 transition-all duration-300">
+                <Avatar className="h-6 w-6 ring-2 ring-primary/20 group-hover:ring-primary/50 transition-all duration-300">
+                  <AvatarFallback className="bg-gradient-to-br from-primary to-primary-glow">
                     U
                   </AvatarFallback>
                 </Avatar>
                 {!isCollapsed && (
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 animate-fade-in">
                     <div className="flex items-center justify-between">
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium truncate">
+                        <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
                           User Profile
                         </p>
                         <XPDisplay className="mt-2" />
                       </div>
-                      <Settings className="h-4 w-4 ml-2" />
+                      <Settings className="h-4 w-4 ml-2 group-hover:rotate-90 transition-transform duration-300" />
                     </div>
                   </div>
                 )}

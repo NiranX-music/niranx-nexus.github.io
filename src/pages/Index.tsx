@@ -110,48 +110,49 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen p-4 md:p-6 lg:p-8 perspective-3d">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-8 animate-fade-in">
         {/* Top Toolbar */}
         <div className="flex justify-between items-center mb-6">
           <div className="flex-1"></div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 card-3d hover-lift">
             <Brain className="w-8 h-8 text-primary animate-pulse-scale" />
-            <h1 className="text-2xl md:text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            <h1 className="text-2xl md:text-3xl font-bold gradient-text neon-glow">
               NiranX StudyVerse
             </h1>
-            <Sparkles className="w-6 h-6 text-accent animate-bounce-gentle" />
+            <Sparkles className="w-6 h-6 text-accent animate-float" />
           </div>
           <div className="flex-1 flex justify-end">
             <Button
               variant="outline"
               size="sm"
               onClick={() => handleNavigation('analytics')}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 transform-3d hover:scale-110 hover:shadow-lg transition-all duration-300"
             >
-              <BarChart3 className="w-4 h-4" />
+              <BarChart3 className="w-4 h-4 animate-bounce-gentle" />
               Analytics
             </Button>
           </div>
         </div>
         
-        <div className="text-center">
-          <p className="text-lg text-muted-foreground mb-6">
+        <div className="text-center animate-slide-up">
+          <p className="text-lg text-muted-foreground mb-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
             Your all-in-one Gen-Z study ecosystem 🚀
           </p>
         
           {/* Quick Navigation Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
           <Card 
-            className={`glass-card cursor-pointer hover:scale-105 transition-transform ${
+            className={`glass-card cursor-pointer card-3d hover-lift animate-scale-in transform-3d ${
               !isLoggedIn && isGuest ? 'opacity-60' : ''
             }`}
+            style={{ animationDelay: '0.1s' }}
             onClick={() => handleNavigation('tasks')}
           >
             <CardContent className="p-6 text-center">
               <div className="flex justify-center items-center mb-3">
-                <CheckSquare className="w-10 h-10 text-primary" />
+                <CheckSquare className="w-10 h-10 text-primary animate-wobble" />
                 {!isLoggedIn && <Lock className="w-4 h-4 text-muted-foreground ml-2" />}
               </div>
               <h3 className="font-semibold text-lg">Tasks</h3>
@@ -163,26 +164,28 @@ const Index = () => {
           </Card>
           
           <Card 
-            className="glass-card cursor-pointer hover:scale-105 transition-transform"
+            className="glass-card cursor-pointer card-3d hover-lift animate-scale-in transform-3d"
+            style={{ animationDelay: '0.2s' }}
             onClick={() => handleNavigation('pomodoro')}
           >
             <CardContent className="p-6 text-center">
-              <Timer className="w-10 h-10 text-primary mx-auto mb-3" />
+              <Timer className="w-10 h-10 text-primary mx-auto mb-3 animate-rotate-slow" />
               <h3 className="font-semibold text-lg">Focus</h3>
               <p className="text-sm text-muted-foreground">Pomodoro timer</p>
-              <Badge variant="secondary" className="mt-2 text-xs">Always Available</Badge>
+              <Badge variant="secondary" className="mt-2 text-xs animate-shimmer">Always Available</Badge>
             </CardContent>
           </Card>
           
           <Card 
-            className={`glass-card cursor-pointer hover:scale-105 transition-transform ${
+            className={`glass-card cursor-pointer card-3d hover-lift animate-scale-in transform-3d ${
               !isLoggedIn && isGuest ? 'opacity-60' : ''
             }`}
+            style={{ animationDelay: '0.3s' }}
             onClick={() => handleNavigation('music')}
           >
             <CardContent className="p-6 text-center">
               <div className="flex justify-center items-center mb-3">
-                <Music className="w-10 h-10 text-primary" />
+                <Music className="w-10 h-10 text-primary animate-pulse-scale" />
                 {!isLoggedIn && <Lock className="w-4 h-4 text-muted-foreground ml-2" />}
               </div>
               <h3 className="font-semibold text-lg">Music</h3>
@@ -194,9 +197,10 @@ const Index = () => {
           </Card>
           
           <Card 
-            className={`glass-card cursor-pointer hover:scale-105 transition-transform ${
+            className={`glass-card cursor-pointer card-3d hover-lift animate-scale-in transform-3d ${
               !isLoggedIn && isGuest ? 'opacity-60' : ''
             }`}
+            style={{ animationDelay: '0.4s' }}
             onClick={() => handleNavigation('games')}
           >
             <CardContent className="p-6 text-center">
@@ -214,14 +218,14 @@ const Index = () => {
         </div>
         
         {/* Theme Toggle & Widget Controls */}
-        <div className="flex flex-wrap justify-center gap-6 mb-10">
+        <div className="flex flex-wrap justify-center gap-6 mb-10 animate-slide-up" style={{ animationDelay: '0.5s' }}>
           <Button
             variant="outline"
             size="default"
             onClick={() => setIsDarkMode(!isDarkMode)}
-            className="glass-button"
+            className="glass-button transform-3d hover:scale-110 hover:rotate-6 transition-all duration-300"
           >
-            {isDarkMode ? <Sun className="w-4 h-4 mr-2" /> : <Moon className="w-4 h-4 mr-2" />}
+            {isDarkMode ? <Sun className="w-4 h-4 mr-2 animate-rotate-slow" /> : <Moon className="w-4 h-4 mr-2 animate-pulse-scale" />}
             {isDarkMode ? 'Light Mode' : 'Dark Mode'}
           </Button>
 
@@ -229,21 +233,22 @@ const Index = () => {
             variant={isLoggedIn ? "default" : "outline"}
             size="default"
             onClick={() => navigate('/niranx/login')}
-            className="glass-button"
+            className="glass-button btn-3d"
           >
-            <User className="w-4 h-4 mr-2" />
+            <User className="w-4 h-4 mr-2 animate-bounce-gentle" />
             {isLoggedIn ? (isGuest ? 'Guest Mode' : 'Logged In') : 'Login'}
           </Button>
           
           <div className="flex flex-wrap gap-3">
-            {widgets.map(({ key, label, icon: Icon }) => (
+            {widgets.map(({ key, label, icon: Icon }, index) => (
               <Badge
                 key={key}
                 variant={activeWidgets[key] ? "default" : "secondary"}
-                className="cursor-pointer hover:scale-105 transition-transform text-sm px-3 py-1"
+                className="cursor-pointer transform-3d hover:scale-110 transition-all duration-300 text-sm px-3 py-1 animate-scale-in"
+                style={{ animationDelay: `${0.6 + index * 0.05}s` }}
                 onClick={() => toggleWidget(key)}
               >
-                <Icon className="w-4 h-4 mr-1" />
+                <Icon className="w-4 h-4 mr-1 group-hover:rotate-12 transition-transform" />
                 {label}
               </Badge>
             ))}
@@ -253,10 +258,14 @@ const Index = () => {
       </div>
 
       {/* Widgets Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 auto-rows-min">
-        {widgets.map(({ key, component: Component }) => 
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 auto-rows-min perspective-3d">
+        {widgets.map(({ key, component: Component }, index) => 
           activeWidgets[key] && (
-            <div key={key} className="animate-fade-in">
+            <div 
+              key={key} 
+              className="animate-flip-in card-3d hover-lift"
+              style={{ animationDelay: `${index * 0.1}s` }}
+            >
               <Component />
             </div>
           )
@@ -265,16 +274,17 @@ const Index = () => {
 
       {/* Floating Action Button */}
       <Button
-        className="fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg hover:shadow-xl bg-gradient-primary hover:scale-110 transition-all duration-300"
+        className="fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg hover:shadow-xl bg-gradient-to-br from-primary to-primary-glow transform-3d hover:scale-125 hover:rotate-180 transition-all duration-500 animate-glow-pulse z-50"
         onClick={() => toggleWidget('analytics')}
       >
         <Zap className="w-6 h-6" />
       </Button>
 
-      {/* Background Decorations */}
+      {/* Background Decorations with 3D effects */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/5 rounded-full blur-3xl animate-pulse-scale"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-accent/5 rounded-full blur-3xl animate-bounce-gentle"></div>
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/5 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-accent/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/2 right-1/3 w-48 h-48 bg-success/5 rounded-full blur-3xl animate-pulse-scale" style={{ animationDelay: '2s' }}></div>
       </div>
     </div>
   );
