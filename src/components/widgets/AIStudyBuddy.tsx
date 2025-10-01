@@ -116,16 +116,9 @@ const AIStudyBuddy = () => {
     }
   ];
 
-  // Load data from localStorage and validate session
+  // Load data from localStorage
   useEffect(() => {
-    if (!validateSession()) {
-      toast({
-        title: "Session Expired",
-        description: "Please refresh the page and re-enter your API keys",
-        variant: "destructive",
-      });
-      return;
-    }
+    // Session validation removed to prevent popup notifications
 
     const savedSessions = localStorage.getItem('studyverse-ai-sessions');
     
@@ -561,16 +554,6 @@ const AIStudyBuddy = () => {
           </div>
         </div>
 
-        {/* Chatbase Iframe */}
-        <div className="mt-6 h-[300px] border rounded-lg overflow-hidden">
-          <iframe
-            src="https://www.chatbase.co/chatbot-iframe/hhBF5Dz69MamfJ2WaVo5E"
-            width="100%"
-            height="100%"
-            style={{ border: 'none' }}
-            title="AI Doubt Resolver Chatbot"
-          />
-        </div>
       </CardContent>
 
       {/* Settings Modal */}

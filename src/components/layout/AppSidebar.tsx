@@ -29,7 +29,8 @@ import {
   Laptop,
   Brain,
   FileMusic,
-  Link
+  Link,
+  Upload
 } from "lucide-react";
 import {
   Sidebar,
@@ -102,6 +103,11 @@ const toolsNavigation = [
     title: "Music Hub", 
     url: "/niranx/music-hub",
     icon: FileMusic,
+  },
+  {
+    title: "Upload Files",
+    url: "/niranx/upload",
+    icon: Upload,
   },
   {
     title: "PDF Viewer",
