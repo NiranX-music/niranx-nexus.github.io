@@ -202,24 +202,24 @@ export function AppSidebar() {
             {item.external ? (
               <button
                 onClick={(e) => handleExternalLink(item.url, e)}
-                className="flex items-center gap-3 rounded-lg px-3 py-2 transition-all text-foreground hover:bg-accent/20 bg-card/50 w-full text-left transform-3d hover:scale-105 hover:translate-x-1 group border border-border/50"
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all bg-muted/30 hover:bg-muted/60 w-full text-left transform-3d hover:scale-105 hover:translate-x-1 group border border-muted"
               >
-                <item.icon className="h-4 w-4 group-hover:rotate-12 transition-transform duration-300" />
+                <item.icon className="h-4 w-4 text-foreground group-hover:rotate-12 transition-transform duration-300" />
                 {!isCollapsed && (
-                  <span className="flex-1">{item.title}</span>
+                  <span className="flex-1 text-foreground font-medium">{item.title}</span>
                 )}
                 {!isCollapsed && showExternalIcon && (
-                  <ExternalLink className="h-3 w-3 ml-auto opacity-70 group-hover:opacity-100 transition-opacity" />
+                  <ExternalLink className="h-3 w-3 ml-auto text-foreground/70 group-hover:text-foreground transition-colors" />
                 )}
               </button>
             ) : (
               <NavLink
                 to={item.url}
                 className={({ isActive: navIsActive }) =>
-                  `flex items-center gap-3 rounded-lg px-3 py-2 transition-all transform-3d hover:scale-105 hover:translate-x-1 group border ${
+                  `flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all transform-3d hover:scale-105 hover:translate-x-1 group border ${
                     isActive(item.url) || navIsActive
-                      ? "bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-lg animate-glow-pulse border-primary/50"
-                      : "text-foreground hover:bg-accent/20 bg-card/50 border-border/50"
+                      ? "bg-gradient-to-r from-primary to-primary-glow text-primary-foreground font-semibold shadow-lg animate-glow-pulse border-primary/50"
+                      : "bg-muted/30 hover:bg-muted/60 text-foreground font-medium border-muted"
                   }`
                 }
               >
