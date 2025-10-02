@@ -7,6 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   User, 
   Edit, 
@@ -34,9 +36,10 @@ import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -55,19 +58,75 @@ const Profile = () => {
   const [newInstitute, setNewInstitute] = useState('');
 
   useEffect(() => {
-    // Load profile data from localStorage
-    const savedProfile = localStorage.getItem('userProfile');
-    if (savedProfile) {
-      setFormData(JSON.parse(savedProfile));
-    }
-  }, []);
+    const loadProfile = async () => {
+      if (!user) {
+        navigate('/niranx/auth');
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+
+        if (error && error.code !== 'PGRST116') {
+          throw error;
+        }
+
+        if (data) {
+          setFormData({
+            name: data.display_name || '',
+            grade: '', // Not in DB schema
+            class: data.class || '',
+            institutes: [], // Not in DB schema - could be stored in JSONB
+            bio: data.bio || '',
+            phone_number: data.phone_number || '',
+            location: data.location || '',
+            website: data.website || '',
+            date_of_birth: data.date_of_birth || '',
+            avatar_url: data.avatar_url || '',
+            ambition: data.ambition || ''
+          });
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load profile",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProfile();
+  }, [user, navigate, toast]);
 
   const handleSave = async () => {
+    if (!user) return;
+    
     setLoading(true);
     
     try {
-      // Save to localStorage
-      localStorage.setItem('userProfile', JSON.stringify(formData));
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          display_name: formData.name,
+          class: formData.class,
+          bio: formData.bio,
+          phone_number: formData.phone_number,
+          location: formData.location,
+          website: formData.website,
+          date_of_birth: formData.date_of_birth || null,
+          avatar_url: formData.avatar_url,
+          ambition: formData.ambition
+        })
+        .eq('user_id', user.id);
+
+      if (error) throw error;
       
       toast({
         title: "Profile updated! ✨",

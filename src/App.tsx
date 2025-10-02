@@ -5,9 +5,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { XPProvider } from "./contexts/XPContext";
+import { AuthProvider } from "./contexts/AuthContext";
 import { AppLayout } from "./components/layout/AppLayout";
 import ThemeToggle from "./components/ui/ThemeToggle";
 import Landing from "./pages/Landing";
+import Auth from "./pages/Auth";
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import Messages from "./pages/Messages";
@@ -46,9 +48,11 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Landing />} />
-                <Route path="/niranx/*" element={
+              <AuthProvider>
+                <Routes>
+                  <Route path="/" element={<Landing />} />
+                  <Route path="/niranx/auth" element={<Auth />} />
+                  <Route path="/niranx/*" element={
                   <AppLayout>
                     <Routes>
                       <Route path="/dashboard" element={<Index />} />
@@ -79,8 +83,9 @@ const App = () => (
                     </Routes>
                   </AppLayout>
                 } />
-                <Route path="*" element={<Landing />} />
-              </Routes>
+                  <Route path="*" element={<Landing />} />
+                </Routes>
+              </AuthProvider>
             </BrowserRouter>
           </TooltipProvider>
         </XPProvider>

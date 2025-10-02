@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   Music, 
   FolderOpen, 
@@ -36,8 +37,8 @@ import AIStudyBuddy from "@/components/widgets/AIStudyBuddy";
 
 const Index = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isGuest, setIsGuest] = useState(false);
+  const { user } = useAuth();
+  const isLoggedIn = !!user;
   const [activeWidgets, setActiveWidgets] = useState({
     music: true,
     files: true,
@@ -57,13 +58,6 @@ const Index = () => {
     if (saved) {
       setIsDarkMode(JSON.parse(saved));
     }
-    
-    // Check login status
-    const loginStatus = localStorage.getItem("isLoggedIn");
-    const authMethod = localStorage.getItem("authMethod");
-    
-    setIsLoggedIn(loginStatus === "true");
-    setIsGuest(authMethod === "guest");
   }, []);
 
   useEffect(() => {
@@ -87,8 +81,8 @@ const Index = () => {
       console.log('Navigate to profile');
     } else {
       // Check if requires auth and redirect if needed
-      if (page !== 'pomodoro' && (!isLoggedIn || isGuest)) {
-        navigate('/niranx/login');
+      if (page !== 'pomodoro' && !isLoggedIn) {
+        navigate('/niranx/auth');
         return;
       }
       // Navigate to other pages using proper routing
@@ -145,7 +139,7 @@ const Index = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
           <Card 
             className={`glass-card cursor-pointer card-3d hover-lift animate-scale-in transform-3d ${
-              !isLoggedIn && isGuest ? 'opacity-60' : ''
+              !isLoggedIn ? 'opacity-60' : ''
             }`}
             style={{ animationDelay: '0.1s' }}
             onClick={() => handleNavigation('tasks')}
@@ -178,7 +172,7 @@ const Index = () => {
           
           <Card 
             className={`glass-card cursor-pointer card-3d hover-lift animate-scale-in transform-3d ${
-              !isLoggedIn && isGuest ? 'opacity-60' : ''
+              !isLoggedIn ? 'opacity-60' : ''
             }`}
             style={{ animationDelay: '0.3s' }}
             onClick={() => handleNavigation('music')}
@@ -198,7 +192,7 @@ const Index = () => {
           
           <Card 
             className={`glass-card cursor-pointer card-3d hover-lift animate-scale-in transform-3d ${
-              !isLoggedIn && isGuest ? 'opacity-60' : ''
+              !isLoggedIn ? 'opacity-60' : ''
             }`}
             style={{ animationDelay: '0.4s' }}
             onClick={() => handleNavigation('games')}
@@ -232,11 +226,11 @@ const Index = () => {
           <Button
             variant={isLoggedIn ? "default" : "outline"}
             size="default"
-            onClick={() => navigate('/niranx/login')}
+            onClick={() => navigate(isLoggedIn ? '/niranx/profile' : '/niranx/auth')}
             className="glass-button btn-3d"
           >
             <User className="w-4 h-4 mr-2 animate-bounce-gentle" />
-            {isLoggedIn ? (isGuest ? 'Guest Mode' : 'Logged In') : 'Login'}
+            {isLoggedIn ? 'Profile' : 'Login'}
           </Button>
           
           <div className="flex flex-wrap gap-3">
