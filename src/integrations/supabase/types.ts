@@ -1068,6 +1068,7 @@ export type Database = {
           category: string | null
           created_at: string
           flashcards: Json | null
+          folder_path: string
           id: string
           name: string
           notes: string | null
@@ -1083,6 +1084,7 @@ export type Database = {
           category?: string | null
           created_at?: string
           flashcards?: Json | null
+          folder_path?: string
           id?: string
           name: string
           notes?: string | null
@@ -1098,6 +1100,7 @@ export type Database = {
           category?: string | null
           created_at?: string
           flashcards?: Json | null
+          folder_path?: string
           id?: string
           name?: string
           notes?: string | null

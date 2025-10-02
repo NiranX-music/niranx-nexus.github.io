@@ -30,7 +30,8 @@ import {
   Brain,
   FileMusic,
   Link,
-  Upload
+  Upload,
+  Library
 } from "lucide-react";
 import {
   Sidebar,
@@ -67,6 +68,11 @@ const mainNavigation = [
     icon: Timer,
   },
   {
+    title: "Messages",
+    url: "/niranx/messages",
+    icon: MessageCircle,
+  },
+  {
     title: "Games",
     url: "/niranx/games",
     icon: Gamepad2,
@@ -77,6 +83,11 @@ const mainNavigation = [
     icon: Calendar,
   },
   {
+    title: "Scheduler",
+    url: "/niranx/scheduler",
+    icon: CalendarDays,
+  },
+  {
     title: "Analytics",
     url: "/niranx/analytics",
     icon: BarChart3,
@@ -85,6 +96,16 @@ const mainNavigation = [
     title: "Exams",
     url: "/niranx/exams",
     icon: GraduationCap,
+  },
+  {
+    title: "Library",
+    url: "/niranx/library",
+    icon: Library,
+  },
+  {
+    title: "Settings",
+    url: "/niranx/settings",
+    icon: Settings,
   },
 ];
 
@@ -98,6 +119,11 @@ const toolsNavigation = [
     title: "File Hub",
     url: "/niranx/file-hub",
     icon: FolderOpen,
+  },
+  {
+    title: "Music Player", 
+    url: "/niranx/music",
+    icon: Music,
   },
   {
     title: "Music Hub", 
