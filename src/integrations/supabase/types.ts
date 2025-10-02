@@ -546,7 +546,7 @@ export type Database = {
       }
       link_archive: {
         Row: {
-          added_by: string | null
+          added_by: string
           category: string | null
           created_at: string | null
           description: string | null
@@ -558,7 +558,7 @@ export type Database = {
           url: string
         }
         Insert: {
-          added_by?: string | null
+          added_by: string
           category?: string | null
           created_at?: string | null
           description?: string | null
@@ -570,7 +570,7 @@ export type Database = {
           url: string
         }
         Update: {
-          added_by?: string | null
+          added_by?: string
           category?: string | null
           created_at?: string | null
           description?: string | null
