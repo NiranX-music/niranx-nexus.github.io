@@ -1442,6 +1442,33 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      get_public_profile_info: {
+        Args: { target_user_id: string }
+        Returns: {
+          avatar_url: string
+          bio: string
+          class: string
+          display_name: string
+          id: string
+          is_verified: boolean
+          level: number
+          user_id: string
+          username: string
+          xp: number
+        }[]
+      }
+      get_public_user_info: {
+        Args: { target_user_id: string }
+        Returns: {
+          avatar_url: string
+          bio: string
+          display_name: string
+          id: string
+          is_artist: boolean
+          is_verified: boolean
+          username: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
