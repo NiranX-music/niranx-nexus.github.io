@@ -54,16 +54,23 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				success: {
-					DEFAULT: 'hsl(var(--success))',
-					foreground: 'hsl(var(--success-foreground))'
+					success: {
+						DEFAULT: 'hsl(var(--success))',
+						foreground: 'hsl(var(--success-foreground))'
+					},
+					warning: {
+						DEFAULT: 'hsl(var(--warning))',
+						foreground: 'hsl(var(--warning-foreground))'
+					},
+					// Sidebar semantic tokens
+					sidebar: 'hsl(var(--sidebar))',
+					'sidebar-foreground': 'hsl(var(--sidebar-foreground))',
+					'sidebar-accent': 'hsl(var(--sidebar-accent))',
+					'sidebar-accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
+					'sidebar-border': 'hsl(var(--sidebar-border))',
+					'sidebar-ring': 'hsl(var(--sidebar-ring))'
 				},
-				warning: {
-					DEFAULT: 'hsl(var(--warning))',
-					foreground: 'hsl(var(--warning-foreground))'
-				}
-			},
-			backgroundImage: {
+				backgroundImage: {
 				'gradient-primary': 'var(--gradient-primary)',
 				'gradient-accent': 'var(--gradient-accent)',
 				'gradient-bg': 'var(--gradient-bg)',
