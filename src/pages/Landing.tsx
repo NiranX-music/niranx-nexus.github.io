@@ -24,9 +24,16 @@ import {
   Twitter,
   Linkedin
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Landing = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    navigate(user ? '/niranx/dashboard' : '/niranx/auth');
+  };
   const features = [
     {
       icon: Calendar,
@@ -109,12 +116,10 @@ const Landing = () => {
               From smart scheduling to gamified learning, we've got everything you need to succeed.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/niranx/auth">
-                <Button size="lg" className="text-lg px-8 py-6">
-                  Get Started Free
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
+              <Button size="lg" className="text-lg px-8 py-6" onClick={handleGetStarted}>
+                Get Started Free
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
               <Button size="lg" variant="outline" className="text-lg px-8 py-6">
                 Watch Demo
               </Button>
@@ -317,12 +322,10 @@ const Landing = () => {
           <p className="text-xl mb-8 opacity-90">
             Join thousands of students who are already using StudyVerse to excel in their academics.
           </p>
-          <Link to="/niranx/auth">
-            <Button size="lg" variant="secondary" className="text-lg px-8 py-6">
-              Start Your Journey Today
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </Link>
+          <Button size="lg" variant="secondary" className="text-lg px-8 py-6" onClick={handleGetStarted}>
+            Start Your Journey Today
+            <ArrowRight className="ml-2 h-5 w-5" />
+          </Button>
         </div>
       </section>
 

@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Brain, Sparkles, Loader2, Shield } from "lucide-react";
 import { z } from "zod";
+import { useAuth } from "@/contexts/AuthContext";
 
 const GoogleIcon = () => (
   <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -34,6 +35,7 @@ interface Institute {
 const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const [institutes, setInstitutes] = useState<Institute[]>([]);
   const [captchaAnswer, setCaptchaAnswer] = useState('');
@@ -51,6 +53,13 @@ const Auth = () => {
     email: '',
     password: ''
   });
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!authLoading && user) {
+      navigate('/niranx/dashboard');
+    }
+  }, [user, authLoading, navigate]);
 
   useEffect(() => {
     fetchInstitutes();
@@ -127,7 +136,7 @@ const Auth = () => {
         email: signUpData.email,
         password: signUpData.password,
         options: {
-          emailRedirectTo: `${window.location.origin}/niranx`,
+          emailRedirectTo: `${window.location.origin}/niranx/dashboard`,
           data: {
             username: signUpData.username,
             display_name: signUpData.fullName,
@@ -155,7 +164,7 @@ const Auth = () => {
         });
         // Auto-navigate if email confirmation is disabled
         if (data.session) {
-          navigate('/niranx');
+          navigate('/niranx/dashboard');
         }
       }
     } catch (error: any) {
@@ -198,7 +207,7 @@ const Auth = () => {
           title: "Welcome back!",
           description: "Successfully logged in",
         });
-        navigate('/niranx');
+        navigate('/niranx/dashboard');
       }
     } catch (error: any) {
       toast({
@@ -217,7 +226,7 @@ const Auth = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/niranx`,
+          redirectTo: `${window.location.origin}/niranx/dashboard`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
