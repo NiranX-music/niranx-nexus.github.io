@@ -56,7 +56,7 @@ const App = () => (
                   <Route path="/niranx/*" element={
                   <AppLayout>
                     <Routes>
-                      <Route index element={<Navigate to="/niranx/dashboard" replace />} />
+                      <Route index element={<Index />} />
                       <Route path="/dashboard" element={<Index />} />
                       <Route path="/profile" element={<Profile />} />
                       <Route path="/messages" element={<Messages />} />
