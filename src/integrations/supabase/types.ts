@@ -948,6 +948,7 @@ export type Database = {
           task_type: string
           topic: string | null
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           class_duration?: number
@@ -967,6 +968,7 @@ export type Database = {
           task_type?: string
           topic?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           class_duration?: number
@@ -986,6 +988,7 @@ export type Database = {
           task_type?: string
           topic?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }

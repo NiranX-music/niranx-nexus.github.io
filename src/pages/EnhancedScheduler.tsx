@@ -93,9 +93,23 @@ const EnhancedScheduler = () => {
 
   const fetchTasks = async () => {
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Authentication Required",
+          description: "Please log in to view your schedule",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from('schedule_tasks')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -130,9 +144,17 @@ const EnhancedScheduler = () => {
 
   const saveTaskToSupabase = async (task: ScheduleTask) => {
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
       const { error } = await supabase
         .from('schedule_tasks')
         .insert({
+          user_id: user.id,
           task_name: task.taskName,
           subject: task.subject,
           topic: task.topic,
@@ -160,9 +182,17 @@ const EnhancedScheduler = () => {
     if (!task.recordingLink) return;
 
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
       const { error } = await supabase
         .from('study_materials')
         .insert({
+          user_id: user.id,
           name: `${task.taskName} - Recording`,
           type: 'video',
           size: 0,
