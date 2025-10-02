@@ -109,6 +109,18 @@ const StudyMaterialHub = () => {
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(event.target.files || []);
     
+    // Get authenticated user
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to upload and share study materials",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     for (const file of selectedFiles) {
       const fileId = Math.random().toString(36).substr(2, 9);
       setUploadingFiles(prev => new Set(prev).add(fileId));
@@ -138,7 +150,7 @@ const StudyMaterialHub = () => {
             url: publicUrl,
             category: 'Uncategorized',
             tags: [],
-            uploaded_by: 'Anonymous User',
+            user_id: user.id,
           })
           .select()
           .single();

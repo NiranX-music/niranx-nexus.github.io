@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
@@ -526,6 +526,45 @@ export type Database = {
           },
         ]
       }
+      link_archive: {
+        Row: {
+          added_by: string | null
+          category: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_public: boolean | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          url: string
+        }
+        Insert: {
+          added_by?: string | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+          url: string
+        }
+        Update: {
+          added_by?: string | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          url?: string
+        }
+        Relationships: []
+      }
       listening_history: {
         Row: {
           context: string | null
@@ -950,6 +989,45 @@ export type Database = {
         }
         Relationships: []
       }
+      school_timetable: {
+        Row: {
+          created_at: string | null
+          day_of_week: string
+          end_time: string
+          id: string
+          period_number: number
+          room: string | null
+          start_time: string
+          subject: string
+          teacher: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          day_of_week: string
+          end_time: string
+          id?: string
+          period_number: number
+          room?: string | null
+          start_time: string
+          subject: string
+          teacher?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          day_of_week?: string
+          end_time?: string
+          id?: string
+          period_number?: number
+          room?: string | null
+          start_time?: string
+          subject?: string
+          teacher?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       study_materials: {
         Row: {
           category: string | null
@@ -964,6 +1042,7 @@ export type Database = {
           type: string
           uploaded_by: string | null
           url: string
+          user_id: string | null
         }
         Insert: {
           category?: string | null
@@ -978,6 +1057,7 @@ export type Database = {
           type: string
           uploaded_by?: string | null
           url: string
+          user_id?: string | null
         }
         Update: {
           category?: string | null
@@ -992,6 +1072,49 @@ export type Database = {
           type?: string
           uploaded_by?: string | null
           url?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      tests: {
+        Row: {
+          created_at: string | null
+          end_time: string
+          id: string
+          institute: string
+          name: string
+          start_time: string
+          studied_topics: string[] | null
+          test_date: string
+          test_link: string | null
+          topics_covered: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          end_time: string
+          id?: string
+          institute: string
+          name: string
+          start_time: string
+          studied_topics?: string[] | null
+          test_date: string
+          test_link?: string | null
+          topics_covered?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          end_time?: string
+          id?: string
+          institute?: string
+          name?: string
+          start_time?: string
+          studied_topics?: string[] | null
+          test_date?: string
+          test_link?: string | null
+          topics_covered?: string[] | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -1249,9 +1372,9 @@ export type Database = {
       }
       check_rate_limit: {
         Args: {
-          user_uuid: string
           action_type_param: string
           limit_per_hour?: number
+          user_uuid: string
         }
         Returns: boolean
       }
@@ -1269,9 +1392,9 @@ export type Database = {
       }
       validate_profile_data: {
         Args: {
+          bio_input?: string
           display_name_input?: string
           username_input?: string
-          bio_input?: string
         }
         Returns: boolean
       }

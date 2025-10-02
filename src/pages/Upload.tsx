@@ -109,6 +109,19 @@ export default function Upload() {
     if (studyFiles.length === 0) return;
     
     setUploading(true);
+    
+    // Get authenticated user
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to upload study materials",
+        variant: "destructive",
+      });
+      setUploading(false);
+      return;
+    }
 
     for (const file of studyFiles) {
       try {
@@ -146,6 +159,7 @@ export default function Upload() {
             url: publicUrl,
             size: file.size,
             category: category,
+            user_id: user.id,
           });
 
         if (dbError) throw dbError;
