@@ -202,24 +202,24 @@ export function AppSidebar() {
             {item.external ? (
               <button
                 onClick={(e) => handleExternalLink(item.url, e)}
-                className="flex items-center gap-3 rounded-lg px-3 py-2 transition-all text-muted-foreground hover:text-foreground hover:bg-muted w-full text-left transform-3d hover:scale-105 hover:translate-x-1 group"
+                className="flex items-center gap-3 rounded-lg px-3 py-2 transition-all text-foreground hover:bg-accent/20 bg-card/50 w-full text-left transform-3d hover:scale-105 hover:translate-x-1 group border border-border/50"
               >
                 <item.icon className="h-4 w-4 group-hover:rotate-12 transition-transform duration-300" />
                 {!isCollapsed && (
                   <span className="flex-1">{item.title}</span>
                 )}
                 {!isCollapsed && showExternalIcon && (
-                  <ExternalLink className="h-3 w-3 ml-auto opacity-50 group-hover:opacity-100 transition-opacity" />
+                  <ExternalLink className="h-3 w-3 ml-auto opacity-70 group-hover:opacity-100 transition-opacity" />
                 )}
               </button>
             ) : (
               <NavLink
                 to={item.url}
                 className={({ isActive: navIsActive }) =>
-                  `flex items-center gap-3 rounded-lg px-3 py-2 transition-all transform-3d hover:scale-105 hover:translate-x-1 group ${
+                  `flex items-center gap-3 rounded-lg px-3 py-2 transition-all transform-3d hover:scale-105 hover:translate-x-1 group border ${
                     isActive(item.url) || navIsActive
-                      ? "bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-lg animate-glow-pulse"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                      ? "bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-lg animate-glow-pulse border-primary/50"
+                      : "text-foreground hover:bg-accent/20 bg-card/50 border-border/50"
                   }`
                 }
               >
@@ -234,8 +234,8 @@ export function AppSidebar() {
   );
 
   return (
-    <Sidebar collapsible="icon" className="border-r backdrop-blur-xl bg-background/95 animate-slide-in-right">
-      <SidebarHeader className="border-b backdrop-blur-sm">
+    <Sidebar collapsible="icon" className="border-r backdrop-blur-xl bg-background animate-slide-in-right">
+      <SidebarHeader className="border-b backdrop-blur-sm bg-card/80">
         <div className="flex items-center gap-3 px-3 py-2 group">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary-glow text-primary-foreground transform-3d group-hover:scale-110 transition-transform duration-300 animate-glow-pulse">
             <GraduationCap className="h-4 w-4" />
@@ -243,7 +243,7 @@ export function AppSidebar() {
           {!isCollapsed && (
             <div className="flex flex-col animate-fade-in">
               <span className="text-sm font-semibold gradient-text">StudyVerse</span>
-              <span className="text-xs text-muted-foreground">Study Platform</span>
+              <span className="text-xs text-foreground/70">Study Platform</span>
             </div>
           )}
         </div>
@@ -252,7 +252,7 @@ export function AppSidebar() {
       <SidebarContent className="overflow-y-auto">
         {/* Main Navigation */}
         <SidebarGroup className="animate-fade-in">
-          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-primary animate-slide-in-left">Main</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-foreground/90 bg-primary/10 px-3 py-1.5 rounded-md animate-slide-in-left">Main</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {renderNavItems(mainNavigation)}
@@ -262,7 +262,7 @@ export function AppSidebar() {
 
         {/* Tools & Utilities */}
         <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
-          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-accent animate-slide-in-left" style={{ animationDelay: '0.1s' }}>Tools</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-foreground/90 bg-accent/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.1s' }}>Tools</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {renderNavItems(toolsNavigation)}
@@ -272,7 +272,7 @@ export function AppSidebar() {
 
         {/* Study Platforms */}
         <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
-          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-success animate-slide-in-left" style={{ animationDelay: '0.2s' }}>Study Platforms</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-foreground/90 bg-success/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.2s' }}>Study Platforms</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {renderNavItems(studyPlatforms, true)}
@@ -282,7 +282,7 @@ export function AppSidebar() {
 
         {/* Media & External */}
         <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
-          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-warning animate-slide-in-left" style={{ animationDelay: '0.3s' }}>External Links</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-foreground/90 bg-warning/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.3s' }}>External Links</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {renderNavItems(mediaRedirects, true)}
@@ -291,13 +291,13 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t backdrop-blur-sm">
+      <SidebarFooter className="border-t backdrop-blur-sm bg-card/80">
         <SidebarMenu>
           <SidebarMenuItem className="animate-slide-up">
             <SidebarMenuButton asChild>
-              <NavLink to="/niranx/profile" className="flex items-center gap-3 px-3 py-2 group transform-3d hover:scale-105 transition-all duration-300">
+              <NavLink to="/niranx/profile" className="flex items-center gap-3 px-3 py-2 group transform-3d hover:scale-105 transition-all duration-300 hover:bg-accent/20 rounded-lg">
                 <Avatar className="h-6 w-6 ring-2 ring-primary/20 group-hover:ring-primary/50 transition-all duration-300">
-                  <AvatarFallback className="bg-gradient-to-br from-primary to-primary-glow">
+                  <AvatarFallback className="bg-gradient-to-br from-primary to-primary-glow text-primary-foreground">
                     U
                   </AvatarFallback>
                 </Avatar>
@@ -305,12 +305,12 @@ export function AppSidebar() {
                   <div className="flex-1 min-w-0 animate-fade-in">
                     <div className="flex items-center justify-between">
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
+                        <p className="text-sm font-medium truncate text-foreground group-hover:text-primary transition-colors">
                           User Profile
                         </p>
                         <XPDisplay className="mt-2" />
                       </div>
-                      <Settings className="h-4 w-4 ml-2 group-hover:rotate-90 transition-transform duration-300" />
+                      <Settings className="h-4 w-4 ml-2 text-foreground group-hover:rotate-90 transition-transform duration-300" />
                     </div>
                   </div>
                 )}
