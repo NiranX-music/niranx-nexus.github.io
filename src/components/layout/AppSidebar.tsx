@@ -105,6 +105,11 @@ const toolsNavigation = [
     icon: FileMusic,
   },
   {
+    title: "Website Manager",
+    url: "/niranx/website-manager",
+    icon: Link,
+  },
+  {
     title: "Upload Files",
     url: "/niranx/upload",
     icon: Upload,

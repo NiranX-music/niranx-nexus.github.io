@@ -490,6 +490,24 @@ export type Database = {
           },
         ]
       }
+      institutes: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       likes: {
         Row: {
           created_at: string | null
@@ -845,7 +863,9 @@ export type Database = {
           created_at: string
           date_of_birth: string | null
           display_name: string | null
+          full_name: string | null
           id: string
+          institute_id: string | null
           is_verified: boolean | null
           last_login_reward: string | null
           level: number | null
@@ -866,7 +886,9 @@ export type Database = {
           created_at?: string
           date_of_birth?: string | null
           display_name?: string | null
+          full_name?: string | null
           id?: string
+          institute_id?: string | null
           is_verified?: boolean | null
           last_login_reward?: string | null
           level?: number | null
@@ -887,7 +909,9 @@ export type Database = {
           created_at?: string
           date_of_birth?: string | null
           display_name?: string | null
+          full_name?: string | null
           id?: string
+          institute_id?: string | null
           is_verified?: boolean | null
           last_login_reward?: string | null
           level?: number | null
@@ -900,7 +924,15 @@ export type Database = {
           website?: string | null
           xp?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_institute_id_fkey"
+            columns: ["institute_id"]
+            isOneToOne: false
+            referencedRelation: "institutes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       rate_limits: {
         Row: {

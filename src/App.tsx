@@ -36,6 +36,7 @@ import Upload from "./pages/Upload";
 import PDFViewer from "./pages/PDFViewer";
 import VideoPlayer from "./pages/VideoPlayer";
 import StudyPlatforms from "./pages/StudyPlatforms";
+import WebsiteManager from "./pages/WebsiteManager";
 
 const queryClient = new QueryClient();
 
@@ -75,10 +76,11 @@ const App = () => (
                       <Route path="/website/study-platforms" element={<StudyPlatforms />} />
                       <Route path="/infinite-chain" element={<InfiniteChainManager />} />
                       <Route path="/file-hub" element={<FileHub />} />
-            <Route path="/music-hub" element={<MusicHub />} />
-            <Route path="/upload" element={<Upload />} />
-            <Route path="/pdf-viewer" element={<PDFViewer />} />
+                      <Route path="/music-hub" element={<MusicHub />} />
+                      <Route path="/upload" element={<Upload />} />
+                      <Route path="/pdf-viewer" element={<PDFViewer />} />
                       <Route path="/video-player" element={<VideoPlayer />} />
+                      <Route path="/website-manager" element={<WebsiteManager />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </AppLayout>
