@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, Plus, Calendar, User, FileText, Upload, Image } from 'lucide-react';
+import { BookOpen, Plus, Calendar, User, FileText, Upload, Image, Search } from 'lucide-react';
 
 interface Blog {
   id: string;
@@ -25,6 +25,7 @@ const Blogs = () => {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [newBlog, setNewBlog] = useState({
     title: '',
     content: '',
@@ -106,6 +107,14 @@ const Blogs = () => {
     }
   };
 
+  const filteredBlogs = blogs.filter(blog => {
+    const matchesSearch = 
+      blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      blog.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (blog.tags && blog.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())));
+    return matchesSearch;
+  });
+
   return (
     <div className="min-h-screen p-4 space-y-6">
       {/* Header */}
@@ -184,19 +193,36 @@ const Blogs = () => {
         </Dialog>
       </div>
 
+      {/* Search Bar */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search blogs by title, content, or tags..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Blogs Grid */}
       {loading ? (
         <div className="text-center py-8">Loading blogs...</div>
-      ) : blogs.length === 0 ? (
+      ) : filteredBlogs.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
             <FileText className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">No blogs yet. Create the first one!</p>
+            <p className="text-muted-foreground">
+              {searchTerm ? 'No blogs found matching your search.' : 'No blogs yet. Create the first one!'}
+            </p>
           </CardContent>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {blogs.map((blog) => (
+          {filteredBlogs.map((blog) => (
             <Card
               key={blog.id}
               className="cursor-pointer hover:shadow-lg transition-shadow"

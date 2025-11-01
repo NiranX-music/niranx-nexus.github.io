@@ -39,6 +39,7 @@ import StudyPlatforms from "./pages/StudyPlatforms";
 import WebsiteManager from "./pages/WebsiteManager";
 import Blogs from "./pages/Blogs";
 import BlogPost from "./pages/BlogPost";
+import GlobalSearch from "./pages/GlobalSearch";
 
 const queryClient = new QueryClient();
 
@@ -86,6 +87,7 @@ const App = () => (
                       <Route path="/website-manager" element={<WebsiteManager />} />
                       <Route path="/blogs" element={<Blogs />} />
                       <Route path="/blogs/:id" element={<BlogPost />} />
+                      <Route path="/search" element={<GlobalSearch />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </AppLayout>

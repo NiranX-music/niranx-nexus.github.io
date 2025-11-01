@@ -112,6 +112,11 @@ const mainNavigation = [
     url: "/niranx/blogs",
     icon: BookOpen,
   },
+  {
+    title: "Search",
+    url: "/niranx/search",
+    icon: Search,
+  },
 ];
 
 const toolsNavigation = [
