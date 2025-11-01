@@ -145,17 +145,24 @@ const Blogs = () => {
     }
   };
 
-  const filteredBlogs = blogs.filter(blog => {
-    const matchesView = view === "all" || blog.created_by === (async () => {
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getUserId = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      return user?.id;
-    })();
+      setCurrentUserId(user?.id || null);
+    };
+    getUserId();
+  }, []);
+
+  const filteredBlogs = blogs.filter(blog => {
+    const matchesView = view === "all" || (currentUserId && blog.created_by === currentUserId);
     
     const matchesSearch = 
       blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       blog.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (blog.tags && blog.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())));
-    return matchesSearch;
+    return matchesView && matchesSearch;
   });
 
   return (
@@ -241,6 +248,7 @@ const Blogs = () => {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {/* Search Bar */}
