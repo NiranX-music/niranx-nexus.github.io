@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Edit, Calendar, User, FileText, History, Upload } from 'lucide-react';
+import { ArrowLeft, Edit, Calendar, User, FileText, History, Upload, Trash2 } from 'lucide-react';
 
 interface Blog {
   id: string;
@@ -20,6 +20,8 @@ interface Blog {
   created_at: string;
   created_by: string;
   attachments?: any;
+  publisher_name?: string;
+  publisher_id?: string;
 }
 
 interface EditHistory {
@@ -45,6 +47,15 @@ const BlogPost = () => {
   });
   const [editHistory, setEditHistory] = useState<EditHistory[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getUserId = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUserId(user?.id || null);
+    };
+    getUserId();
+  }, []);
 
   useEffect(() => {
     if (id) {
@@ -146,6 +157,33 @@ const BlogPost = () => {
     }
   };
 
+  const handleDeleteBlog = async () => {
+    if (!blog) return;
+    if (!confirm("Are you sure you want to delete this blog?")) return;
+    
+    try {
+      const { error } = await supabase
+        .from('blogs')
+        .delete()
+        .eq('id', blog.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success!",
+        description: "Blog deleted successfully"
+      });
+
+      navigate('/niranx/blogs');
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete blog",
+        variant: "destructive"
+      });
+    }
+  };
+
   if (loading) {
     return <div className="min-h-screen p-4 flex items-center justify-center">Loading...</div>;
   }
@@ -153,6 +191,11 @@ const BlogPost = () => {
   if (!blog) {
     return <div className="min-h-screen p-4 flex items-center justify-center">Blog not found</div>;
   }
+
+  const isOwner = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    return user?.id === blog.created_by;
+  };
 
   return (
     <div className="min-h-screen p-4 space-y-6 max-w-4xl mx-auto">
@@ -164,6 +207,13 @@ const BlogPost = () => {
         </Button>
 
         <div className="flex gap-2">
+          {currentUserId === blog.created_by && (
+            <Button variant="destructive" onClick={handleDeleteBlog}>
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete
+            </Button>
+          )}
+          
           <Dialog open={showHistory} onOpenChange={setShowHistory}>
             <DialogTrigger asChild>
               <Button variant="outline">
@@ -312,6 +362,14 @@ const BlogPost = () => {
               </div>
             </div>
           )}
+
+          {/* Publisher Name at Bottom */}
+          <div className="pt-4 border-t">
+            <p className="text-sm text-muted-foreground flex items-center gap-2">
+              <User className="w-4 h-4" />
+              Published by: <span className="font-medium">{blog.publisher_name || 'Anonymous'}</span>
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>

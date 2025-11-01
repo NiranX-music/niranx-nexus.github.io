@@ -47,6 +47,7 @@ import PictureShare from "./pages/PictureShare";
 import StreamSphere from "./pages/StreamSphere";
 import WebSearch from "./pages/WebSearch";
 import Community from "./pages/Community";
+import BlogSettings from "./pages/settings/BlogSettings";
 
 const queryClient = new QueryClient();
 
@@ -95,6 +96,7 @@ const App = () => (
                       <Route path="/website-manager" element={<WebsiteManager />} />
                       <Route path="/blogs" element={<Blogs />} />
                       <Route path="/blogs/:id" element={<BlogPost />} />
+                      <Route path="/blogs/settings" element={<BlogSettings />} />
                       <Route path="/search" element={<GlobalSearch />} />
                       <Route path="/video-share" element={<VideoShare />} />
                       <Route path="/picture-share" element={<PictureShare />} />

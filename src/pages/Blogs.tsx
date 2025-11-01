@@ -184,6 +184,9 @@ const Blogs = () => {
           <Button variant={view === "my" ? "default" : "outline"} onClick={() => setView("my")}>
             My Blogs
           </Button>
+          <Button variant="outline" onClick={() => navigate('/niranx/blogs/settings')}>
+            Blog Settings
+          </Button>
           <Dialog>
             <DialogTrigger asChild>
               <Button className="flex items-center gap-2">

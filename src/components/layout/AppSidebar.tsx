@@ -293,8 +293,8 @@ export function AppSidebar() {
   );
 
   return (
-    <Sidebar collapsible="icon" className="border-r backdrop-blur-xl bg-sidebar sticky top-0 h-screen animate-slide-in-right">
-      <SidebarHeader className="border-b backdrop-blur-sm bg-sidebar border-sidebar-border sticky top-0 z-10">
+    <Sidebar collapsible="icon" className="border-r backdrop-blur-xl bg-sidebar fixed left-0 top-0 h-screen animate-slide-in-right z-40">
+      <SidebarHeader className="border-b backdrop-blur-sm bg-sidebar border-sidebar-border">
         <div className="flex items-center gap-3 px-3 py-2 group">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary-glow text-primary-foreground transform-3d group-hover:scale-110 transition-transform duration-300 animate-glow-pulse">
             <GraduationCap className="h-4 w-4" />
