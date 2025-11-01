@@ -19,6 +19,8 @@ interface Blog {
   tags: string[];
   created_at: string;
   created_by: string;
+  publisher_name?: string;
+  publisher_id?: string;
 }
 
 const Blogs = () => {
@@ -26,6 +28,7 @@ const Blogs = () => {
   const [loading, setLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [view, setView] = useState<"all" | "my">("all");
   const [newBlog, setNewBlog] = useState({
     title: '',
     content: '',
@@ -74,6 +77,13 @@ const Blogs = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
+      // Get publisher info
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('user_id', user.id)
+        .single();
+
       const { data, error } = await supabase
         .from('blogs')
         .insert({
@@ -81,7 +91,9 @@ const Blogs = () => {
           content: newBlog.content,
           cover_image_url: newBlog.cover_image_url || null,
           tags: newBlog.tags ? newBlog.tags.split(',').map(t => t.trim()) : [],
-          created_by: user.id
+          created_by: user.id,
+          publisher_id: user.id,
+          publisher_name: profile?.username || 'Anonymous',
         })
         .select()
         .single();
@@ -107,7 +119,38 @@ const Blogs = () => {
     }
   };
 
+  const handleDeleteBlog = async (blogId: string) => {
+    if (!confirm("Are you sure you want to delete this blog?")) return;
+    
+    try {
+      const { error } = await supabase
+        .from('blogs')
+        .delete()
+        .eq('id', blogId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success!",
+        description: "Blog deleted successfully"
+      });
+
+      fetchBlogs();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete blog",
+        variant: "destructive"
+      });
+    }
+  };
+
   const filteredBlogs = blogs.filter(blog => {
+    const matchesView = view === "all" || blog.created_by === (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      return user?.id;
+    })();
+    
     const matchesSearch = 
       blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       blog.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -127,13 +170,20 @@ const Blogs = () => {
           </div>
         </div>
 
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button className="flex items-center gap-2">
-              <Plus className="w-4 h-4" />
-              Create Blog
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <Button variant={view === "all" ? "default" : "outline"} onClick={() => setView("all")}>
+            All Blogs
+          </Button>
+          <Button variant={view === "my" ? "default" : "outline"} onClick={() => setView("my")}>
+            My Blogs
+          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                Create Blog
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Create New Blog</DialogTitle>
@@ -261,6 +311,12 @@ const Blogs = () => {
                     {new Date(blog.created_at).toLocaleDateString()}
                   </span>
                 </div>
+                
+                {blog.publisher_name && (
+                  <div className="text-xs text-muted-foreground mt-2">
+                    By: {blog.publisher_name}
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}

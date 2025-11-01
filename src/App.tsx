@@ -41,6 +41,12 @@ import Blogs from "./pages/Blogs";
 import BlogPost from "./pages/BlogPost";
 import GlobalSearch from "./pages/GlobalSearch";
 
+import VideoShare from "./pages/VideoShare";
+import PictureShare from "./pages/PictureShare";
+import StreamSphere from "./pages/StreamSphere";
+import WebSearch from "./pages/WebSearch";
+import Community from "./pages/Community";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -88,6 +94,11 @@ const App = () => (
                       <Route path="/blogs" element={<Blogs />} />
                       <Route path="/blogs/:id" element={<BlogPost />} />
                       <Route path="/search" element={<GlobalSearch />} />
+                      <Route path="/video-share" element={<VideoShare />} />
+                      <Route path="/picture-share" element={<PictureShare />} />
+                      <Route path="/stream-sphere" element={<StreamSphere />} />
+                      <Route path="/web-search" element={<WebSearch />} />
+                      <Route path="/community" element={<Community />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </AppLayout>

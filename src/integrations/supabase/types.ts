@@ -296,6 +296,8 @@ export type Database = {
           created_by: string
           id: string
           is_published: boolean | null
+          publisher_id: string | null
+          publisher_name: string | null
           tags: string[] | null
           title: string
           updated_at: string
@@ -308,6 +310,8 @@ export type Database = {
           created_by: string
           id?: string
           is_published?: boolean | null
+          publisher_id?: string | null
+          publisher_name?: string | null
           tags?: string[] | null
           title: string
           updated_at?: string
@@ -320,6 +324,8 @@ export type Database = {
           created_by?: string
           id?: string
           is_published?: boolean | null
+          publisher_id?: string | null
+          publisher_name?: string | null
           tags?: string[] | null
           title?: string
           updated_at?: string
@@ -791,6 +797,72 @@ export type Database = {
         }
         Relationships: []
       }
+      music_playlist_tracks: {
+        Row: {
+          created_at: string | null
+          id: string
+          playlist_id: string
+          position: number
+          track_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          playlist_id: string
+          position?: number
+          track_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          playlist_id?: string
+          position?: number
+          track_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "music_playlist_tracks_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "music_playlists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "music_playlist_tracks_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "study_materials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      music_playlists: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string | null
@@ -831,6 +903,68 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      picture_likes: {
+        Row: {
+          created_at: string | null
+          id: string
+          picture_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          picture_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          picture_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "picture_likes_picture_id_fkey"
+            columns: ["picture_id"]
+            isOneToOne: false
+            referencedRelation: "pictures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pictures: {
+        Row: {
+          caption: string | null
+          created_at: string | null
+          id: string
+          image_url: string
+          likes: number | null
+          title: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string | null
+          id?: string
+          image_url: string
+          likes?: number | null
+          title?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string | null
+          id?: string
+          image_url?: string
+          likes?: number | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       playlist_tracks: {
         Row: {
@@ -1053,6 +1187,7 @@ export type Database = {
           task_name: string
           task_type: string
           topic: string | null
+          unique_url_id: string | null
           updated_at: string
           user_id: string | null
         }
@@ -1073,6 +1208,7 @@ export type Database = {
           task_name: string
           task_type?: string
           topic?: string | null
+          unique_url_id?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -1093,6 +1229,7 @@ export type Database = {
           task_name?: string
           task_type?: string
           topic?: string | null
+          unique_url_id?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -1139,13 +1276,17 @@ export type Database = {
       }
       study_materials: {
         Row: {
+          album: string | null
+          artist: string | null
           category: string | null
           created_at: string
+          duration: number | null
           flashcards: Json | null
           folder_path: string
           id: string
           name: string
           notes: string | null
+          saved_for_later: boolean | null
           size: number
           summary: string | null
           tags: string[] | null
@@ -1155,13 +1296,17 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          album?: string | null
+          artist?: string | null
           category?: string | null
           created_at?: string
+          duration?: number | null
           flashcards?: Json | null
           folder_path?: string
           id?: string
           name: string
           notes?: string | null
+          saved_for_later?: boolean | null
           size: number
           summary?: string | null
           tags?: string[] | null
@@ -1171,13 +1316,17 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          album?: string | null
+          artist?: string | null
           category?: string | null
           created_at?: string
+          duration?: number | null
           flashcards?: Json | null
           folder_path?: string
           id?: string
           name?: string
           notes?: string | null
+          saved_for_later?: boolean | null
           size?: number
           summary?: string | null
           tags?: string[] | null
@@ -1456,6 +1605,77 @@ export type Database = {
           is_verified?: boolean | null
           updated_at?: string | null
           username?: string
+        }
+        Relationships: []
+      }
+      video_likes: {
+        Row: {
+          created_at: string | null
+          id: string
+          user_id: string
+          video_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          user_id: string
+          video_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          user_id?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_likes_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      videos: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          duration: number | null
+          id: string
+          likes: number | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+          video_url: string
+          views: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          duration?: number | null
+          id?: string
+          likes?: number | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+          video_url: string
+          views?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          duration?: number | null
+          id?: string
+          likes?: number | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+          video_url?: string
+          views?: number | null
         }
         Relationships: []
       }
