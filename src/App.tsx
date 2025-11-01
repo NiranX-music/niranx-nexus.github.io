@@ -37,6 +37,8 @@ import PDFViewer from "./pages/PDFViewer";
 import VideoPlayer from "./pages/VideoPlayer";
 import StudyPlatforms from "./pages/StudyPlatforms";
 import WebsiteManager from "./pages/WebsiteManager";
+import Blogs from "./pages/Blogs";
+import BlogPost from "./pages/BlogPost";
 
 const queryClient = new QueryClient();
 
@@ -82,6 +84,8 @@ const App = () => (
                       <Route path="/pdf-viewer" element={<PDFViewer />} />
                       <Route path="/video-player" element={<VideoPlayer />} />
                       <Route path="/website-manager" element={<WebsiteManager />} />
+                      <Route path="/blogs" element={<Blogs />} />
+                      <Route path="/blogs/:id" element={<BlogPost />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </AppLayout>

@@ -252,6 +252,80 @@ export type Database = {
           },
         ]
       }
+      blog_edits: {
+        Row: {
+          blog_id: string
+          edited_at: string
+          edited_by: string
+          id: string
+          new_content: string
+          previous_content: string
+        }
+        Insert: {
+          blog_id: string
+          edited_at?: string
+          edited_by: string
+          id?: string
+          new_content: string
+          previous_content: string
+        }
+        Update: {
+          blog_id?: string
+          edited_at?: string
+          edited_by?: string
+          id?: string
+          new_content?: string
+          previous_content?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_edits_blog_id_fkey"
+            columns: ["blog_id"]
+            isOneToOne: false
+            referencedRelation: "blogs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blogs: {
+        Row: {
+          attachments: Json | null
+          content: string
+          cover_image_url: string | null
+          created_at: string
+          created_by: string
+          id: string
+          is_published: boolean | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          attachments?: Json | null
+          content: string
+          cover_image_url?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          is_published?: boolean | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          attachments?: Json | null
+          content?: string
+          cover_image_url?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_published?: boolean | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       challenges: {
         Row: {
           created_at: string | null
@@ -1428,10 +1502,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      calculate_level: {
-        Args: { xp_amount: number }
-        Returns: number
-      }
+      calculate_level: { Args: { xp_amount: number }; Returns: number }
       check_rate_limit: {
         Args: {
           action_type_param: string
@@ -1440,14 +1511,8 @@ export type Database = {
         }
         Returns: boolean
       }
-      claim_daily_reward: {
-        Args: { user_uuid: string }
-        Returns: Json
-      }
-      cleanup_rate_limits: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      claim_daily_reward: { Args: { user_uuid: string }; Returns: Json }
+      cleanup_rate_limits: { Args: never; Returns: undefined }
       get_public_profile_info: {
         Args: { target_user_id: string }
         Returns: {
@@ -1482,10 +1547,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      validate_message_content: {
-        Args: { content: string }
-        Returns: boolean
-      }
+      validate_message_content: { Args: { content: string }; Returns: boolean }
       validate_profile_data: {
         Args: {
           bio_input?: string
@@ -1494,10 +1556,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      xp_for_next_level: {
-        Args: { current_level: number }
-        Returns: number
-      }
+      xp_for_next_level: { Args: { current_level: number }; Returns: number }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"

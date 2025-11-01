@@ -20,6 +20,13 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+interface SubSlot {
+  id: string;
+  name: string;
+  task: string;
+  completed: boolean;
+}
+
 interface TimeSlot {
   id: string;
   subject: string;
@@ -29,6 +36,7 @@ interface TimeSlot {
   type: 'study' | 'break' | 'exercise' | 'meals';
   priority: 'high' | 'medium' | 'low';
   color: string;
+  subSlots: SubSlot[];
 }
 
 interface Subject {
@@ -86,7 +94,14 @@ const SmartTimetable = () => {
           day,
           type: 'break',
           priority: 'medium',
-          color: 'bg-orange-500'
+          color: 'bg-orange-500',
+          subSlots: [
+            { id: '1', name: 'Slot 1', task: 'Wake up & freshen up', completed: false },
+            { id: '2', name: 'Slot 2', task: 'Exercise/Yoga', completed: false },
+            { id: '3', name: 'Slot 3', task: 'Breakfast', completed: false },
+            { id: '4', name: 'Slot 4', task: 'Review daily goals', completed: false },
+            { id: '5', name: 'Slot 5', task: 'Prepare materials', completed: false }
+          ]
         });
         
         currentHour = 7;
@@ -105,7 +120,14 @@ const SmartTimetable = () => {
               day,
               type: 'study',
               priority: subject.priority,
-              color: subject.color
+              color: subject.color,
+              subSlots: [
+                { id: '1', name: 'Slot 1', task: 'Review previous topics', completed: false },
+                { id: '2', name: 'Slot 2', task: 'Learn new concepts', completed: false },
+                { id: '3', name: 'Slot 3', task: 'Practice problems', completed: false },
+                { id: '4', name: 'Slot 4', task: 'Take notes', completed: false },
+                { id: '5', name: 'Slot 5', task: 'Quick revision', completed: false }
+              ]
             });
             
             // Add break after each study session
@@ -118,7 +140,14 @@ const SmartTimetable = () => {
                 day,
                 type: 'break',
                 priority: 'low',
-                color: 'bg-gray-500'
+                color: 'bg-gray-500',
+                subSlots: [
+                  { id: '1', name: 'Slot 1', task: 'Stretch & relax', completed: false },
+                  { id: '2', name: 'Slot 2', task: 'Hydrate', completed: false },
+                  { id: '3', name: 'Slot 3', task: 'Light snack', completed: false },
+                  { id: '4', name: 'Slot 4', task: 'Walk around', completed: false },
+                  { id: '5', name: 'Slot 5', task: 'Prepare for next session', completed: false }
+                ]
               });
             }
           }
@@ -133,7 +162,14 @@ const SmartTimetable = () => {
           day,
           type: 'meals',
           priority: 'high',
-          color: 'bg-green-600'
+          color: 'bg-green-600',
+          subSlots: [
+            { id: '1', name: 'Slot 1', task: 'Wash up', completed: false },
+            { id: '2', name: 'Slot 2', task: 'Have lunch', completed: false },
+            { id: '3', name: 'Slot 3', task: 'Relax', completed: false },
+            { id: '4', name: 'Slot 4', task: 'Light walk', completed: false },
+            { id: '5', name: 'Slot 5', task: 'Get ready for afternoon', completed: false }
+          ]
         });
         
         // Evening study (high priority subjects)
@@ -148,7 +184,14 @@ const SmartTimetable = () => {
               day,
               type: 'study',
               priority: 'high',
-              color: subject.color
+              color: subject.color,
+              subSlots: [
+                { id: '1', name: 'Slot 1', task: 'Review notes', completed: false },
+                { id: '2', name: 'Slot 2', task: 'Solve practice questions', completed: false },
+                { id: '3', name: 'Slot 3', task: 'Clarify doubts', completed: false },
+                { id: '4', name: 'Slot 4', task: 'Create flashcards', completed: false },
+                { id: '5', name: 'Slot 5', task: 'Summary writing', completed: false }
+              ]
             });
           });
         }
@@ -290,25 +333,44 @@ const SmartTimetable = () => {
                       slotsAtThisHour.map(slot => (
                         <div 
                           key={slot.id}
-                          className="flex items-center gap-3 p-3 rounded-lg bg-card border border-border/50 hover:border-border transition-colors"
+                          className="space-y-2"
                         >
-                          <div className={`w-1 h-12 rounded ${slot.color}`} />
-                          <div className="flex items-center gap-2">
-                            {getTypeIcon(slot.type)}
-                            <div>
-                              <p className="font-medium">{slot.subject}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {slot.startTime} - {slot.endTime}
-                              </p>
+                          <div className="flex items-center gap-3 p-3 rounded-lg bg-card border border-border/50 hover:border-border transition-colors">
+                            <div className={`w-1 h-12 rounded ${slot.color}`} />
+                            <div className="flex items-center gap-2">
+                              {getTypeIcon(slot.type)}
+                              <div>
+                                <p className="font-medium">{slot.subject}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {slot.startTime} - {slot.endTime}
+                                </p>
+                              </div>
                             </div>
+                            <Badge 
+                              variant={slot.priority === 'high' ? 'destructive' : 
+                                     slot.priority === 'medium' ? 'default' : 'secondary'}
+                              className="ml-auto"
+                            >
+                              {slot.priority}
+                            </Badge>
                           </div>
-                          <Badge 
-                            variant={slot.priority === 'high' ? 'destructive' : 
-                                   slot.priority === 'medium' ? 'default' : 'secondary'}
-                            className="ml-auto"
-                          >
-                            {slot.priority}
-                          </Badge>
+                          
+                          {/* Sub-slots */}
+                          <div className="ml-8 space-y-1">
+                            {slot.subSlots.map((subSlot) => (
+                              <div 
+                                key={subSlot.id}
+                                className="flex items-center gap-2 p-2 rounded bg-muted/30 text-sm"
+                              >
+                                <span className="text-xs font-medium text-muted-foreground w-12">
+                                  {subSlot.name}
+                                </span>
+                                <span className="flex-1 text-muted-foreground">
+                                  {subSlot.task}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       ))
                     ) : (

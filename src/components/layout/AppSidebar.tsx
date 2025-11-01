@@ -107,6 +107,11 @@ const mainNavigation = [
     url: "/niranx/settings",
     icon: Settings,
   },
+  {
+    title: "Blogs",
+    url: "/niranx/blogs",
+    icon: BookOpen,
+  },
 ];
 
 const toolsNavigation = [
