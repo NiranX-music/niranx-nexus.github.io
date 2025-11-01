@@ -322,26 +322,26 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t backdrop-blur-sm bg-sidebar border-sidebar-border">
+      <SidebarFooter className="border-t backdrop-blur-sm bg-sidebar border-sidebar-border p-2">
         <SidebarMenu>
           <SidebarMenuItem className="animate-slide-up">
-            <SidebarMenuButton asChild>
-              <NavLink to="/niranx/profile" className="flex items-center gap-3 px-3 py-2 group transform-3d hover:scale-105 transition-all duration-300 hover:bg-accent/20 rounded-lg">
-                <Avatar className="h-6 w-6 ring-2 ring-primary/20 group-hover:ring-primary/50 transition-all duration-300">
+            <SidebarMenuButton asChild className="h-auto">
+              <NavLink to="/niranx/profile" className="flex items-start gap-3 px-3 py-3 group hover:bg-accent/20 rounded-lg">
+                <Avatar className="h-8 w-8 ring-2 ring-primary/20 group-hover:ring-primary/50 transition-all duration-300 flex-shrink-0">
                   <AvatarFallback className="bg-gradient-to-br from-primary to-primary-glow text-primary-foreground">
                     U
                   </AvatarFallback>
                 </Avatar>
                 {!isCollapsed && (
-                  <div className="flex-1 min-w-0 animate-fade-in">
-                    <div className="flex items-center justify-between">
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium truncate text-sidebar-foreground group-hover:text-primary transition-colors">
-                          User Profile
-                        </p>
-                        <XPDisplay className="mt-2" />
-                      </div>
-                      <Settings className="h-4 w-4 ml-2 text-sidebar-foreground group-hover:rotate-90 transition-transform duration-300" />
+                  <div className="flex-1 min-w-0 animate-fade-in space-y-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm font-medium text-sidebar-foreground group-hover:text-primary transition-colors">
+                        User Profile
+                      </p>
+                      <Settings className="h-4 w-4 flex-shrink-0 text-sidebar-foreground group-hover:rotate-90 transition-transform duration-300" />
+                    </div>
+                    <div className="w-full">
+                      <XPDisplay />
                     </div>
                   </div>
                 )}
