@@ -1,6 +1,7 @@
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { RightSidebar } from "./RightSidebar";
+import { NowPlaying } from "./NowPlaying";
 import { Separator } from "@/components/ui/separator";
 import {
   Breadcrumb,
@@ -69,6 +70,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           </div>
         </SidebarInset>
         <RightSidebar />
+        <NowPlaying />
       </div>
     </SidebarProvider>
   );

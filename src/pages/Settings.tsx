@@ -15,15 +15,19 @@ import {
   Moon,
   Sun,
   Volume2,
-  VolumeX
+  VolumeX,
+  Music,
+  Video
 } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from 'react';
+import { useNowPlaying } from '@/contexts/NowPlayingContext';
 
 const Settings = () => {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
+  const { isVisible, setIsVisible } = useNowPlaying();
   
   const [settings, setSettings] = useState({
     notifications: true,
@@ -205,7 +209,7 @@ const Settings = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               {settings.soundEffects ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-              Audio
+              Audio & Media
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -219,6 +223,42 @@ const Settings = () => {
                 checked={settings.soundEffects}
                 onCheckedChange={(checked) => updateSetting('soundEffects', checked)}
               />
+            </div>
+
+            <Separator />
+
+            <div className="space-y-3">
+              <div>
+                <Label className="text-base font-medium">Now Playing View</Label>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Show a floating widget when music or video is playing across the site
+                </p>
+              </div>
+              <Button
+                onClick={() => {
+                  setIsVisible(!isVisible);
+                  toast({
+                    title: isVisible ? "Now Playing Hidden" : "Now Playing Visible",
+                    description: isVisible 
+                      ? "The now playing widget has been hidden" 
+                      : "The now playing widget will show when media is playing",
+                  });
+                }}
+                variant={isVisible ? "default" : "outline"}
+                className="w-full"
+              >
+                {isVisible ? (
+                  <>
+                    <Music className="w-4 h-4 mr-2" />
+                    Now Playing: Enabled
+                  </>
+                ) : (
+                  <>
+                    <Video className="w-4 h-4 mr-2" />
+                    Now Playing: Disabled
+                  </>
+                )}
+              </Button>
             </div>
           </CardContent>
         </Card>

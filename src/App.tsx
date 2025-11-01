@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { XPProvider } from "./contexts/XPContext";
 import { AuthProvider } from "./contexts/AuthContext";
+import { NowPlayingProvider } from "./contexts/NowPlayingContext";
 import { AppLayout } from "./components/layout/AppLayout";
 import ThemeToggle from "./components/ui/ThemeToggle";
 import Landing from "./pages/Landing";
@@ -53,6 +54,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <XPProvider>
+        <NowPlayingProvider>
           <TooltipProvider>
             <ThemeToggle />
             <Toaster />
@@ -108,8 +110,9 @@ const App = () => (
               </AuthProvider>
             </BrowserRouter>
           </TooltipProvider>
-        </XPProvider>
-      </ThemeProvider>
+        </NowPlayingProvider>
+      </XPProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
