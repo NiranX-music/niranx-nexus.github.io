@@ -104,7 +104,17 @@ const GamesPage = () => {
   useEffect(() => {
     const saved = localStorage.getItem('studyverse-game-stats');
     if (saved) {
-      setGameStats(JSON.parse(saved));
+      try {
+        const parsed = JSON.parse(saved);
+        setGameStats({
+          gamesPlayed: parsed.gamesPlayed || 0,
+          totalXP: parsed.totalXP || 0,
+          highScores: parsed.highScores || {},
+          achievements: parsed.achievements || []
+        });
+      } catch (e) {
+        console.error('Failed to parse game stats:', e);
+      }
     }
   }, []);
 
@@ -132,15 +142,16 @@ const GamesPage = () => {
     const game = miniGames.find(g => g.id === gameId);
     if (!game) return;
 
-    const isHighScore = !gameStats.highScores[gameId] || score > gameStats.highScores[gameId];
+    const currentHighScore = gameStats?.highScores?.[gameId] || 0;
+    const isHighScore = score > currentHighScore;
     
     setGameStats(prev => ({
       ...prev,
-      gamesPlayed: prev.gamesPlayed + 1,
-      totalXP: prev.totalXP + game.xpReward,
+      gamesPlayed: (prev.gamesPlayed || 0) + 1,
+      totalXP: (prev.totalXP || 0) + game.xpReward,
       highScores: {
-        ...prev.highScores,
-        [gameId]: Math.max(prev.highScores[gameId] || 0, score)
+        ...(prev.highScores || {}),
+        [gameId]: Math.max(currentHighScore, score)
       }
     }));
 
@@ -441,7 +452,7 @@ const GamesPage = () => {
           <Card className="glass-card">
             <CardContent className="p-4 text-center">
               <Trophy className="w-6 h-6 text-orange-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold">{Object.keys(gameStats.highScores).length}</div>
+              <div className="text-2xl font-bold">{Object.keys(gameStats?.highScores || {}).length}</div>
               <div className="text-sm text-muted-foreground">High Scores</div>
             </CardContent>
           </Card>
@@ -452,7 +463,7 @@ const GamesPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {miniGames.map((game) => {
           const Icon = game.icon;
-          const highScore = gameStats.highScores[game.id];
+          const highScore = gameStats?.highScores?.[game.id];
           
           return (
             <Card key={game.id} className="glass-card hover:scale-105 transition-transform">
