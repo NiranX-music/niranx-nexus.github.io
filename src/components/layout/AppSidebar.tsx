@@ -34,7 +34,8 @@ import {
   Library,
   Image,
   Play,
-  MessagesSquare
+  MessagesSquare,
+  Cloud
 } from "lucide-react";
 import {
   Sidebar,
@@ -137,6 +138,11 @@ const toolsNavigation = [
     title: "File Hub",
     url: "/niranx/file-hub",
     icon: FolderOpen,
+  },
+  {
+    title: "My Cloud",
+    url: "/niranx/my-cloud",
+    icon: Cloud,
   },
   {
     title: "Music Player", 
