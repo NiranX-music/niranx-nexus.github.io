@@ -66,6 +66,11 @@ const mainNavigation = [
     icon: CheckSquare,
   },
   {
+    title: "Focus Engine",
+    url: "/niranx/focus-engine",
+    icon: Timer,
+  },
+  {
     title: "Pomodoro",
     url: "/niranx/pomodoro",
     icon: Timer,

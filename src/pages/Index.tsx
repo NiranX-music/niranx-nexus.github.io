@@ -2,7 +2,10 @@ import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { useAuth } from '@/contexts/AuthContext';
+import { useXP } from '@/contexts/XPContext';
+import { useFocus } from '@/contexts/FocusContext';
 import { 
   Music, 
   FolderOpen, 
@@ -21,9 +24,14 @@ import {
   User,
   GraduationCap,
   Gamepad2,
-  Lock
+  Lock,
+  Target,
+  Flame
 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
+import MoodSelector from '@/components/MoodSelector';
+import AIMotivation from '@/components/AIMotivation';
+import DailyChallenge from '@/components/DailyChallenge';
 import MusicPlayer from "@/components/widgets/MusicPlayer";
 import FileExplorer from "@/components/widgets/FileExplorer";
 import ClassScheduler from "@/components/widgets/ClassScheduler";
@@ -36,8 +44,10 @@ import StudyMaterialHub from "@/components/widgets/StudyMaterialHub";
 import AIStudyBuddy from "@/components/widgets/AIStudyBuddy";
 
 const Index = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true); // Default to dark mode for neon cosmic theme
   const { user } = useAuth();
+  const { xp, level, getXPProgress } = useXP();
+  const { getTodayStats, getStreak } = useFocus();
   const isLoggedIn = !!user;
   const [activeWidgets, setActiveWidgets] = useState({
     music: true,
@@ -52,6 +62,10 @@ const Index = () => {
     aiChat: true,
   });
   const navigate = useNavigate();
+
+  const todayStats = getTodayStats();
+  const streak = getStreak();
+  const xpProgress = getXPProgress();
 
   useEffect(() => {
     const saved = localStorage.getItem('studyverse-dark-mode');
@@ -104,7 +118,26 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen p-4 md:p-6 lg:p-8 perspective-3d">
+    <div className="min-h-screen p-4 md:p-6 lg:p-8 perspective-3d relative overflow-hidden">
+      {/* Cosmic Background Effects */}
+      <div className="fixed inset-0 pointer-events-none -z-10">
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-primary/5 to-accent/5" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 bg-primary/30 rounded-full animate-float"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 5}s`,
+              animationDuration: `${5 + Math.random() * 5}s`,
+            }}
+          />
+        ))}
+      </div>
+
       {/* Header */}
       <div className="mb-8 animate-fade-in">
         {/* Top Toolbar */}
@@ -112,28 +145,73 @@ const Index = () => {
           <div className="flex-1"></div>
           <div className="flex items-center gap-3 card-3d hover-lift">
             <Brain className="w-8 h-8 text-primary animate-pulse-scale" />
-            <h1 className="text-2xl md:text-3xl font-bold gradient-text neon-glow">
+            <h1 className="text-2xl md:text-4xl font-bold gradient-text drop-shadow-lg">
               NiranX StudyVerse
             </h1>
             <Sparkles className="w-6 h-6 text-accent animate-float" />
           </div>
-          <div className="flex-1 flex justify-end">
+          <div className="flex-1 flex justify-end gap-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => handleNavigation('analytics')}
-              className="flex items-center gap-2 transform-3d hover:scale-110 hover:shadow-lg transition-all duration-300"
+              onClick={() => navigate('/niranx/focus-engine')}
+              className="glass-button flex items-center gap-2 transform-3d hover:scale-110 transition-all"
             >
-              <BarChart3 className="w-4 h-4 animate-bounce-gentle" />
-              Analytics
+              <Flame className="w-4 h-4 text-orange-500 animate-pulse" />
+              Focus Engine
             </Button>
           </div>
         </div>
         
         <div className="text-center animate-slide-up">
-          <p className="text-lg text-muted-foreground mb-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            Your all-in-one Gen-Z study ecosystem 🚀
+          <p className="text-lg text-muted-foreground mb-2 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            "Focus. Flow. Gamify. Grow." 🚀
           </p>
+          
+          {/* Welcome & Stats Banner */}
+          {isLoggedIn && (
+            <Card className="glass-card border-primary/20 mb-8 animate-scale-in bg-gradient-to-r from-primary/5 via-transparent to-accent/5">
+              <CardContent className="p-6">
+                <h2 className="text-2xl font-bold gradient-text mb-4">
+                  Welcome back, Legend!
+                </h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-primary">{todayStats.totalMinutes}</p>
+                    <p className="text-sm text-muted-foreground">Minutes Today</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-success">{streak}</p>
+                    <p className="text-sm text-muted-foreground">Day Streak</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-accent">L{level}</p>
+                    <p className="text-sm text-muted-foreground">Level</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-warning">{xp}</p>
+                    <p className="text-sm text-muted-foreground">XP</p>
+                  </div>
+                </div>
+                <div className="mt-4 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Level Progress</span>
+                    <span>{Math.round(xpProgress)}%</span>
+                  </div>
+                  <Progress value={xpProgress} className="h-2" />
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Mood & Challenges Grid */}
+          {isLoggedIn && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 animate-slide-up" style={{ animationDelay: '0.3s' }}>
+              <MoodSelector />
+              <AIMotivation />
+              <DailyChallenge />
+            </div>
+          )}
         
           {/* Quick Navigation Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
