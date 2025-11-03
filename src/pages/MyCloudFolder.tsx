@@ -2,17 +2,18 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Cloud, Upload, Trash2, Download, File, 
   Folder, FolderOpen, Loader2, FileText, 
   Music, Image as ImageIcon, Video, FolderPlus,
-  ArrowLeft, Edit, Save, X
+  ArrowLeft, Edit, Save, X, Home, ChevronRight,
+  MoreHorizontal, Search, Filter, LayoutGrid,
+  List, Clock, Star, Users, HardDrive, Plus
 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 
@@ -287,179 +288,337 @@ export default function MyCloudFolder() {
   const breadcrumbs = currentFolder.split("/").filter(Boolean);
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <Button variant="ghost" size="sm" onClick={handleGoBack}>
-            <ArrowLeft className="w-5 h-5" />
+    <div className="flex h-screen bg-background">
+      {/* Left Sidebar - Folder Navigation */}
+      <div className="w-64 border-r border-border bg-sidebar">
+        <div className="p-4 border-b border-border">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start gap-2 mb-4"
+            onClick={() => navigate("/niranx/my-cloud")}
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Drives
           </Button>
-          <Cloud className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold gradient-text">{driveName || "My Cloud"}</h1>
+          <div className="flex items-center gap-2 mb-4">
+            <HardDrive className="w-5 h-5 text-primary" />
+            <h2 className="font-semibold truncate">{driveName}</h2>
+          </div>
         </div>
-        
-        <div className="flex items-center gap-2 text-sm text-muted-foreground ml-14">
-          <span className="cursor-pointer hover:text-foreground" onClick={() => navigate("/niranx/my-cloud")}>
-            Drives
-          </span>
-          {breadcrumbs.map((crumb, index) => (
-            <span key={index} className="flex items-center gap-2">
-              <span>/</span>
-              <span>{crumb}</span>
-            </span>
-          ))}
-        </div>
-      </div>
 
-      <Card className="glass-panel mb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span>Upload & Organize</span>
-            <span className="text-sm font-normal text-muted-foreground">
-              Total: {formatFileSize(totalSize)} • {files.length} files
-            </span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex gap-2">
-              <Input
-                type="file"
-                onChange={handleFileUpload}
-                disabled={uploading}
-                className="flex-1"
-              />
-              <Dialog open={folderDialogOpen} onOpenChange={setFolderDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline">
-                    <FolderPlus className="w-4 h-4 mr-2" />
-                    New Folder
+        <ScrollArea className="h-[calc(100vh-140px)]">
+          <div className="p-2 space-y-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start gap-2"
+              onClick={() => navigate(`/niranx/my-cloud/${driveId}`)}
+            >
+              <Home className="w-4 h-4" />
+              Home
+            </Button>
+            <Button variant="ghost" size="sm" className="w-full justify-start gap-2">
+              <Folder className="w-4 h-4 text-primary" />
+              Desktop
+            </Button>
+            <Button variant="ghost" size="sm" className="w-full justify-start gap-2">
+              <Folder className="w-4 h-4 text-blue-500" />
+              Documents
+            </Button>
+            <Button variant="ghost" size="sm" className="w-full justify-start gap-2">
+              <Folder className="w-4 h-4 text-green-500" />
+              Downloads
+            </Button>
+            <Button variant="ghost" size="sm" className="w-full justify-start gap-2">
+              <Folder className="w-4 h-4 text-cyan-500" />
+              Pictures
+            </Button>
+            <Button variant="ghost" size="sm" className="w-full justify-start gap-2">
+              <Folder className="w-4 h-4 text-orange-500" />
+              Music
+            </Button>
+            <Button variant="ghost" size="sm" className="w-full justify-start gap-2">
+              <Folder className="w-4 h-4 text-purple-500" />
+              Videos
+            </Button>
+            
+            {folders.length > 0 && (
+              <>
+                <div className="pt-4 pb-2 px-2 text-xs font-semibold text-muted-foreground">
+                  Current Folder
+                </div>
+                {folders.map((folder) => (
+                  <Button
+                    key={folder}
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start gap-2"
+                    onClick={() => handleFolderClick(folder)}
+                  >
+                    <Folder className="w-4 h-4 text-yellow-500" />
+                    {folder}
                   </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Create New Folder</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4 pt-4">
-                    <Input
-                      placeholder="Folder name"
-                      value={newFolderName}
-                      onChange={(e) => setNewFolderName(e.target.value)}
-                      onKeyPress={(e) => e.key === "Enter" && handleCreateFolder()}
-                    />
-                    <Button onClick={handleCreateFolder} className="w-full" disabled={!newFolderName.trim()}>
-                      Create Folder
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-              <Button disabled={uploading} variant="outline">
-                {uploading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Upload className="w-4 h-4" />
-                )}
-              </Button>
-            </div>
-            {uploading && (
-              <Progress value={uploadProgress} className="h-2" />
+                ))}
+              </>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </ScrollArea>
+      </div>
 
-      <Card className="glass-panel">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FolderOpen className="w-5 h-5" />
-            Files & Folders
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Top Toolbar */}
+        <div className="h-14 border-b border-border px-4 flex items-center justify-between bg-card/50">
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm">
+              <Plus className="w-4 h-4 mr-2" />
+              New
+            </Button>
+            <div className="w-px h-6 bg-border" />
+            <Button variant="ghost" size="icon">
+              <Upload className="w-4 h-4" />
+            </Button>
+            <Button variant="ghost" size="icon">
+              <Trash2 className="w-4 h-4" />
+            </Button>
+            <div className="w-px h-6 bg-border" />
+            <Button variant="ghost" size="sm">
+              Sort
+            </Button>
+            <Button variant="ghost" size="sm">
+              <LayoutGrid className="w-4 h-4 mr-2" />
+              View
+            </Button>
+            <Button variant="ghost" size="sm">
+              <Filter className="w-4 h-4 mr-2" />
+              Filter
+            </Button>
+            <Button variant="ghost" size="icon">
+              <MoreHorizontal className="w-4 h-4" />
+            </Button>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search Home"
+                className="pl-9 w-64 h-8 bg-muted/50"
+              />
             </div>
-          ) : folders.length === 0 && files.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <Cloud className="w-16 h-16 mx-auto mb-4 opacity-50" />
-              <p>No files or folders yet. Upload your first file!</p>
+          </div>
+        </div>
+
+        {/* Breadcrumb */}
+        <div className="px-4 py-2 flex items-center gap-2 text-sm bg-muted/30">
+          <Home className="w-4 h-4" />
+          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          <span>Home</span>
+          {breadcrumbs.map((crumb, index) => (
+            <div key={index} className="flex items-center gap-2">
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              <span>{crumb}</span>
             </div>
-          ) : (
-            <div className="space-y-2">
-              {folders.map((folder) => (
-                <div
-                  key={folder}
-                  className="flex items-center justify-between p-4 rounded-lg border border-border/50 hover:bg-accent/10 transition-colors cursor-pointer"
-                  onClick={() => handleFolderClick(folder)}
-                >
-                  <div className="flex items-center gap-3">
-                    <Folder className="w-5 h-5 text-primary" />
-                    <span className="font-medium">{folder}</span>
+          ))}
+        </div>
+
+        {/* Content */}
+        <ScrollArea className="flex-1">
+          <div className="p-6 space-y-6">
+            {/* Quick Access Section */}
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold">Quick access</h3>
+                <Button variant="ghost" size="sm" onClick={() => setFolderDialogOpen(true)}>
+                  <FolderPlus className="w-4 h-4 mr-2" />
+                  New Folder
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                {/* Desktop folder */}
+                <div className="group cursor-pointer">
+                  <div className="aspect-square rounded-lg border border-border/50 bg-card/50 hover:bg-accent/10 transition-colors flex flex-col items-center justify-center gap-2 p-4">
+                    <Folder className="w-12 h-12 text-primary" />
+                    <span className="text-xs text-center">Desktop</span>
                   </div>
                 </div>
-              ))}
-
-              {files.map((file) => (
-                <div
-                  key={file.id}
-                  className="flex items-center justify-between p-4 rounded-lg border border-border/50 hover:bg-accent/10 transition-colors"
-                >
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="text-primary">
-                      {getFileIcon(file.file_type)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{file.file_name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {formatFileSize(file.file_size)} • {new Date(file.created_at).toLocaleDateString()}
-                      </p>
-                      {file.file_description && (
-                        <p className="text-xs text-muted-foreground mt-1">{file.file_description}</p>
-                      )}
-                      {file.tags && file.tags.length > 0 && (
-                        <div className="flex gap-1 mt-1">
-                          {file.tags.map((tag, i) => (
-                            <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
+                
+                {/* Dynamic folders */}
+                {folders.map((folder) => (
+                  <div
+                    key={folder}
+                    className="group cursor-pointer"
+                    onClick={() => handleFolderClick(folder)}
+                  >
+                    <div className="aspect-square rounded-lg border border-border/50 bg-card/50 hover:bg-accent/10 transition-colors flex flex-col items-center justify-center gap-2 p-4">
+                      <Folder className="w-12 h-12 text-yellow-500" />
+                      <span className="text-xs text-center truncate w-full">{folder}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setEditingFile(file);
-                        setEditDialogOpen(true);
-                      }}
-                    >
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => window.open(file.file_path, "_blank")}
-                    >
-                      <Download className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDelete(file.id, file.file_path)}
-                    >
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </Button>
+                ))}
+                
+                {/* Upload file card */}
+                <label className="group cursor-pointer">
+                  <input
+                    type="file"
+                    onChange={handleFileUpload}
+                    disabled={uploading}
+                    className="hidden"
+                  />
+                  <div className="aspect-square rounded-lg border-2 border-dashed border-border/50 bg-muted/30 hover:bg-accent/10 transition-colors flex flex-col items-center justify-center gap-2 p-4">
+                    {uploading ? (
+                      <Loader2 className="w-12 h-12 animate-spin text-primary" />
+                    ) : (
+                      <Upload className="w-12 h-12 text-muted-foreground" />
+                    )}
+                    <span className="text-xs text-center text-muted-foreground">
+                      {uploading ? "Uploading..." : "Upload file"}
+                    </span>
                   </div>
-                </div>
-              ))}
+                </label>
+              </div>
             </div>
-          )}
-        </CardContent>
-      </Card>
 
+            {/* Tabs Section */}
+            <div>
+              <div className="flex items-center gap-6 border-b border-border mb-4">
+                <button className="flex items-center gap-2 pb-3 border-b-2 border-primary text-primary">
+                  <Clock className="w-4 h-4" />
+                  <span className="text-sm font-medium">Recent</span>
+                </button>
+                <button className="flex items-center gap-2 pb-3 text-muted-foreground hover:text-foreground">
+                  <Star className="w-4 h-4" />
+                  <span className="text-sm font-medium">Favorites</span>
+                </button>
+                <button className="flex items-center gap-2 pb-3 text-muted-foreground hover:text-foreground">
+                  <Users className="w-4 h-4" />
+                  <span className="text-sm font-medium">Shared</span>
+                </button>
+              </div>
+
+              {/* Table View */}
+              {loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                </div>
+              ) : files.length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <Cloud className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                  <p>No files yet. Upload your first file!</p>
+                </div>
+              ) : (
+                <div className="border border-border rounded-lg overflow-hidden">
+                  <table className="w-full">
+                    <thead className="bg-muted/50">
+                      <tr className="text-left text-sm text-muted-foreground">
+                        <th className="px-4 py-3 font-medium">Name</th>
+                        <th className="px-4 py-3 font-medium">Date accessed</th>
+                        <th className="px-4 py-3 font-medium">Activity</th>
+                        <th className="px-4 py-3 font-medium w-32">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {files.map((file) => (
+                        <tr
+                          key={file.id}
+                          className="border-t border-border hover:bg-accent/10 transition-colors"
+                        >
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-3">
+                              <div className="text-primary">
+                                {getFileIcon(file.file_type)}
+                              </div>
+                              <div className="min-w-0">
+                                <p className="font-medium truncate">{file.file_name}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {formatFileSize(file.file_size)}
+                                  {file.file_description && ` • ${file.file_description}`}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-sm">
+                            {new Date(file.created_at).toLocaleDateString('en-US', {
+                              month: '2-digit',
+                              day: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </td>
+                          <td className="px-4 py-3">
+                            {file.tags && file.tags.length > 0 && (
+                              <div className="flex gap-1 flex-wrap">
+                                {file.tags.slice(0, 2).map((tag, i) => (
+                                  <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">
+                                    {tag}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => {
+                                  setEditingFile(file);
+                                  setEditDialogOpen(true);
+                                }}
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => window.open(file.file_path, "_blank")}
+                              >
+                                <Download className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleDelete(file.id, file.file_path)}
+                              >
+                                <Trash2 className="w-4 h-4 text-destructive" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        </ScrollArea>
+      </div>
+
+      {/* Create Folder Dialog */}
+      <Dialog open={folderDialogOpen} onOpenChange={setFolderDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Folder</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <Input
+              placeholder="Folder name"
+              value={newFolderName}
+              onChange={(e) => setNewFolderName(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && handleCreateFolder()}
+            />
+            <Button onClick={handleCreateFolder} className="w-full" disabled={!newFolderName.trim()}>
+              Create Folder
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit File Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
