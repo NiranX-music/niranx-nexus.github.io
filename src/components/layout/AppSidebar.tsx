@@ -35,7 +35,8 @@ import {
   Image,
   Play,
   MessagesSquare,
-  Cloud
+  Cloud,
+  HardDrive,
 } from "lucide-react";
 import {
   Sidebar,
@@ -145,6 +146,11 @@ const toolsNavigation = [
     icon: Cloud,
   },
   {
+    title: "Manage Drives",
+    url: "/niranx/manage-drives",
+    icon: HardDrive,
+  },
+  {
     title: "Music Player", 
     url: "/niranx/music",
     icon: Music,
@@ -153,6 +159,11 @@ const toolsNavigation = [
     title: "Music Hub", 
     url: "/niranx/music-hub",
     icon: FileMusic,
+  },
+  {
+    title: "Messages",
+    url: "/niranx/messages",
+    icon: MessagesSquare,
   },
   {
     title: "Website Manager",

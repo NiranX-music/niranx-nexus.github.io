@@ -13,7 +13,7 @@ import {
   Music, Image as ImageIcon, Video, FolderPlus,
   ArrowLeft, Edit, Save, X, Home, ChevronRight,
   MoreHorizontal, Search, Filter, LayoutGrid,
-  List, Clock, Star, Users, HardDrive, Plus
+  List, Clock, Star, Users, HardDrive, Plus, FolderUp
 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 
@@ -173,6 +173,64 @@ export default function MyCloudFolder() {
       setUploading(false);
       setUploadProgress(0);
       e.target.value = "";
+    }
+  };
+
+  const handleFolderUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || !user || !driveId) return;
+
+    setUploading(true);
+    let successCount = 0;
+
+    try {
+      for (const file of Array.from(files)) {
+        // Extract folder structure from file path
+        const relativePath = (file as any).webkitRelativePath || file.name;
+        const pathParts = relativePath.split("/");
+        const folderPath = currentFolder + pathParts.slice(0, -1).join("/") + "/";
+
+        const fileExt = file.name.split(".").pop() || "";
+        const fileName = `${Date.now()}_${file.name}`;
+        const filePath = `${user.id}/${driveId}${folderPath}${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("user-cloud")
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage.from("user-cloud").getPublicUrl(filePath);
+
+        const { error: dbError } = await supabase.from("user_cloud_files").insert({
+          user_id: user.id,
+          drive_id: driveId,
+          file_name: file.name,
+          file_type: fileExt,
+          file_size: file.size,
+          file_path: urlData.publicUrl,
+          folder_path: folderPath,
+        });
+
+        if (dbError) throw dbError;
+        successCount++;
+      }
+
+      toast({
+        title: "Success",
+        description: `${successCount} file(s) uploaded successfully`,
+      });
+
+      fetchFiles();
+    } catch (error) {
+      console.error("Error uploading folder:", error);
+      toast({
+        title: "Error",
+        description: "Failed to upload some files",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -475,6 +533,28 @@ export default function MyCloudFolder() {
                     )}
                     <span className="text-xs text-center text-muted-foreground">
                       {uploading ? "Uploading..." : "Upload file"}
+                    </span>
+                  </div>
+                </label>
+                
+                {/* Upload folder card */}
+                <label className="group cursor-pointer">
+                  <input
+                    type="file"
+                    onChange={handleFolderUpload}
+                    disabled={uploading}
+                    {...({ webkitdirectory: "", directory: "" } as any)}
+                    multiple
+                    className="hidden"
+                  />
+                  <div className="aspect-square rounded-lg border-2 border-dashed border-border/50 bg-muted/30 hover:bg-accent/10 transition-colors flex flex-col items-center justify-center gap-2 p-4">
+                    {uploading ? (
+                      <Loader2 className="w-12 h-12 animate-spin text-primary" />
+                    ) : (
+                      <FolderUp className="w-12 h-12 text-muted-foreground" />
+                    )}
+                    <span className="text-xs text-center text-muted-foreground">
+                      {uploading ? "Uploading..." : "Upload folder"}
                     </span>
                   </div>
                 </label>

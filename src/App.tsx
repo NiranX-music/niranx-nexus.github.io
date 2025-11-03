@@ -59,6 +59,8 @@ import ConfirmSignup from "./pages/ConfirmSignup";
 import InviteUser from "./pages/InviteUser";
 import Reauthentication from "./pages/Reauthentication";
 
+import ManageDrives from "./pages/ManageDrives";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -123,6 +125,7 @@ const App = () => (
                           <Route path="/community" element={<Community />} />
                           <Route path="/my-cloud" element={<MyCloudDrives />} />
                           <Route path="/my-cloud/:driveId/*" element={<MyCloudFolder />} />
+                          <Route path="/manage-drives" element={<ManageDrives />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </AppLayout>
