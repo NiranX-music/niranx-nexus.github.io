@@ -51,7 +51,8 @@ import WebSearch from "./pages/WebSearch";
 import Community from "./pages/Community";
 import BlogSettings from "./pages/settings/BlogSettings";
 import FocusEngine from "./pages/FocusEngine";
-import MyCloud from "./pages/MyCloud";
+import MyCloudDrives from "./pages/MyCloudDrives";
+import MyCloudFolder from "./pages/MyCloudFolder";
 
 const queryClient = new QueryClient();
 
@@ -110,7 +111,8 @@ const App = () => (
                           <Route path="/stream-sphere" element={<StreamSphere />} />
                           <Route path="/web-search" element={<WebSearch />} />
                           <Route path="/community" element={<Community />} />
-                          <Route path="/my-cloud" element={<MyCloud />} />
+                          <Route path="/my-cloud" element={<MyCloudDrives />} />
+                          <Route path="/my-cloud/:driveId/*" element={<MyCloudFolder />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </AppLayout>

@@ -1548,9 +1548,38 @@ export type Database = {
           },
         ]
       }
+      user_cloud_drives: {
+        Row: {
+          created_at: string | null
+          drive_description: string | null
+          drive_name: string
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          drive_description?: string | null
+          drive_name: string
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          drive_description?: string | null
+          drive_name?: string
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_cloud_files: {
         Row: {
           created_at: string | null
+          drive_id: string | null
+          file_description: string | null
           file_name: string
           file_path: string
           file_size: number
@@ -1558,11 +1587,14 @@ export type Database = {
           folder_path: string
           id: string
           is_public: boolean | null
+          tags: string[] | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
           created_at?: string | null
+          drive_id?: string | null
+          file_description?: string | null
           file_name: string
           file_path: string
           file_size: number
@@ -1570,11 +1602,14 @@ export type Database = {
           folder_path?: string
           id?: string
           is_public?: boolean | null
+          tags?: string[] | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
           created_at?: string | null
+          drive_id?: string | null
+          file_description?: string | null
           file_name?: string
           file_path?: string
           file_size?: number
@@ -1582,10 +1617,19 @@ export type Database = {
           folder_path?: string
           id?: string
           is_public?: boolean | null
+          tags?: string[] | null
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_cloud_files_drive_id_fkey"
+            columns: ["drive_id"]
+            isOneToOne: false
+            referencedRelation: "user_cloud_drives"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

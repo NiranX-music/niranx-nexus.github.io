@@ -26,15 +26,15 @@ export default function WebSearch() {
   };
 
   return (
-    <div className="container mx-auto p-6 h-[calc(100vh-8rem)]">
-      <div className="mb-6">
+    <div className="container mx-auto p-6 h-screen flex flex-col">
+      <div className="mb-4">
         <h1 className="text-3xl font-bold gradient-text mb-2">Search Anything on Web</h1>
         <p className="text-muted-foreground">
           Search across multiple search engines
         </p>
       </div>
 
-      <Card className="p-4 mb-6">
+      <Card className="p-4 mb-4 flex-shrink-0">
         <div className="flex gap-2 mb-4">
           <Input
             placeholder="Enter your search query..."
@@ -61,7 +61,7 @@ export default function WebSearch() {
       </Card>
 
       {searchUrl && (
-        <div className="relative h-[calc(100%-200px)] rounded-lg overflow-hidden border">
+        <div className="relative flex-1 rounded-lg overflow-hidden border min-h-0">
           <iframe
             src={searchUrl}
             className="w-full h-full"
@@ -72,7 +72,7 @@ export default function WebSearch() {
       )}
 
       {!searchUrl && (
-        <div className="flex items-center justify-center h-[calc(100%-200px)] text-muted-foreground">
+        <div className="flex items-center justify-center flex-1 text-muted-foreground">
           <div className="text-center">
             <Search className="w-16 h-16 mx-auto mb-4 opacity-50" />
             <p className="text-lg">Enter a search query to get started</p>
