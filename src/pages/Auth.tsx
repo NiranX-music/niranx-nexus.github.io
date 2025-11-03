@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Brain, Sparkles, Loader2, Shield } from "lucide-react";
+import { Brain, Sparkles, Loader2, Shield, KeyRound, UserPlus } from "lucide-react";
 import { z } from "zod";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -310,6 +310,17 @@ const Auth = () => {
                   Login
                 </Button>
 
+                <div className="flex items-center justify-between text-sm mt-2">
+                  <Link to="/niranx/reset-password" className="text-primary hover:underline flex items-center gap-1">
+                    <KeyRound className="w-3 h-3" />
+                    Forgot Password?
+                  </Link>
+                  <Link to="/niranx/magic-link" className="text-primary hover:underline flex items-center gap-1">
+                    <Sparkles className="w-3 h-3" />
+                    Magic Link
+                  </Link>
+                </div>
+
                 <div className="relative my-6">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-muted"></div>
@@ -496,14 +507,27 @@ const Auth = () => {
             </TabsContent>
           </Tabs>
 
-          <div className="mt-4 text-center text-sm text-muted-foreground">
-            <Button
-              variant="link"
-              onClick={() => navigate('/')}
-              className="text-primary"
-            >
-              Back to landing page
-            </Button>
+          <div className="mt-6 space-y-3">
+            <div className="text-center text-sm text-muted-foreground">
+              <Button
+                variant="link"
+                onClick={() => navigate('/')}
+                className="text-primary"
+              >
+                Back to landing page
+              </Button>
+            </div>
+            
+            <div className="flex flex-wrap justify-center gap-4 text-xs text-muted-foreground pt-2 border-t">
+              <Link to="/niranx/reauthentication" className="hover:text-primary flex items-center gap-1">
+                <Shield className="w-3 h-3" />
+                Reauthenticate
+              </Link>
+              <Link to="/niranx/invite-user" className="hover:text-primary flex items-center gap-1">
+                <UserPlus className="w-3 h-3" />
+                Invite User
+              </Link>
+            </div>
           </div>
         </CardContent>
       </Card>

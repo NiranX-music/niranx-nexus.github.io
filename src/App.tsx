@@ -53,6 +53,11 @@ import BlogSettings from "./pages/settings/BlogSettings";
 import FocusEngine from "./pages/FocusEngine";
 import MyCloudDrives from "./pages/MyCloudDrives";
 import MyCloudFolder from "./pages/MyCloudFolder";
+import ResetPassword from "./pages/ResetPassword";
+import MagicLink from "./pages/MagicLink";
+import ConfirmSignup from "./pages/ConfirmSignup";
+import InviteUser from "./pages/InviteUser";
+import Reauthentication from "./pages/Reauthentication";
 
 const queryClient = new QueryClient();
 
@@ -72,6 +77,11 @@ const App = () => (
                     <Routes>
                       <Route path="/" element={<Landing />} />
                       <Route path="/niranx/auth" element={<Auth />} />
+                      <Route path="/niranx/reset-password" element={<ResetPassword />} />
+                      <Route path="/niranx/magic-link" element={<MagicLink />} />
+                      <Route path="/niranx/confirm-signup" element={<ConfirmSignup />} />
+                      <Route path="/niranx/invite-user" element={<InviteUser />} />
+                      <Route path="/niranx/reauthentication" element={<Reauthentication />} />
                       <Route path="/niranx/*" element={
                       <AppLayout>
                         <Routes>
