@@ -597,6 +597,39 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_challenges: {
+        Row: {
+          challenge_date: string
+          challenge_type: string
+          created_at: string | null
+          description: string
+          id: string
+          target_value: number
+          title: string
+          xp_reward: number | null
+        }
+        Insert: {
+          challenge_date?: string
+          challenge_type: string
+          created_at?: string | null
+          description: string
+          id?: string
+          target_value: number
+          title: string
+          xp_reward?: number | null
+        }
+        Update: {
+          challenge_date?: string
+          challenge_type?: string
+          created_at?: string | null
+          description?: string
+          id?: string
+          target_value?: number
+          title?: string
+          xp_reward?: number | null
+        }
+        Relationships: []
+      }
       daily_rewards: {
         Row: {
           created_at: string | null
@@ -852,6 +885,44 @@ export type Database = {
           },
         ]
       }
+      goal_milestones: {
+        Row: {
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          goal_id: string
+          id: string
+          target_value: number
+          title: string
+        }
+        Insert: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          goal_id: string
+          id?: string
+          target_value: number
+          title: string
+        }
+        Update: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          goal_id?: string
+          id?: string
+          target_value?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goal_milestones_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "user_goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       institutes: {
         Row: {
           created_at: string | null
@@ -867,6 +938,42 @@ export type Database = {
           created_at?: string | null
           id?: string
           name?: string
+        }
+        Relationships: []
+      }
+      leaderboard_entries: {
+        Row: {
+          created_at: string | null
+          id: string
+          leaderboard_type: string
+          period_end: string
+          period_start: string
+          rank: number | null
+          score: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          leaderboard_type: string
+          period_end: string
+          period_start: string
+          rank?: number | null
+          score?: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          leaderboard_type?: string
+          period_end?: string
+          period_start?: string
+          rank?: number | null
+          score?: number
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -1612,6 +1719,110 @@ export type Database = {
         }
         Relationships: []
       }
+      store_items: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          is_available: boolean | null
+          item_type: string
+          name: string
+          xp_cost: number
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_available?: boolean | null
+          item_type: string
+          name: string
+          xp_cost: number
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_available?: boolean | null
+          item_type?: string
+          name?: string
+          xp_cost?: number
+        }
+        Relationships: []
+      }
+      study_group_members: {
+        Row: {
+          group_id: string
+          id: string
+          joined_at: string | null
+          role: string | null
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          id?: string
+          joined_at?: string | null
+          role?: string | null
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          id?: string
+          joined_at?: string | null
+          role?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "study_group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "study_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      study_groups: {
+        Row: {
+          cover_image_url: string | null
+          created_at: string | null
+          created_by: string
+          description: string | null
+          id: string
+          is_private: boolean | null
+          max_members: number | null
+          name: string
+          subject: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          cover_image_url?: string | null
+          created_at?: string | null
+          created_by: string
+          description?: string | null
+          id?: string
+          is_private?: boolean | null
+          max_members?: number | null
+          name: string
+          subject?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          cover_image_url?: string | null
+          created_at?: string | null
+          created_by?: string
+          description?: string | null
+          id?: string
+          is_private?: boolean | null
+          max_members?: number | null
+          name?: string
+          subject?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       study_materials: {
         Row: {
           album: string | null
@@ -1946,6 +2157,44 @@ export type Database = {
           },
         ]
       }
+      user_challenge_progress: {
+        Row: {
+          challenge_id: string
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          progress_value: number | null
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          progress_value?: number | null
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          progress_value?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_challenge_progress_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "daily_challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_cloud_drives: {
         Row: {
           created_at: string | null
@@ -2025,6 +2274,83 @@ export type Database = {
             columns: ["drive_id"]
             isOneToOne: false
             referencedRelation: "user_cloud_drives"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_goals: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          current_progress: number | null
+          deadline: string | null
+          description: string | null
+          goal_type: string
+          id: string
+          priority: string | null
+          status: string | null
+          target_value: number
+          title: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          current_progress?: number | null
+          deadline?: string | null
+          description?: string | null
+          goal_type: string
+          id?: string
+          priority?: string | null
+          status?: string | null
+          target_value: number
+          title: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          current_progress?: number | null
+          deadline?: string | null
+          description?: string | null
+          goal_type?: string
+          id?: string
+          priority?: string | null
+          status?: string | null
+          target_value?: number
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_purchases: {
+        Row: {
+          id: string
+          is_active: boolean | null
+          item_id: string
+          purchased_at: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          is_active?: boolean | null
+          item_id: string
+          purchased_at?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          is_active?: boolean | null
+          item_id?: string
+          purchased_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_purchases_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "store_items"
             referencedColumns: ["id"]
           },
         ]
@@ -2230,6 +2556,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      whiteboards: {
+        Row: {
+          canvas_data: Json
+          created_at: string | null
+          id: string
+          is_public: boolean | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          canvas_data?: Json
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          canvas_data?: Json
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {

@@ -39,6 +39,9 @@ import {
   HardDrive,
   Smartphone,
   Shield,
+  PenTool,
+  Trophy,
+  ShoppingBag,
 } from "lucide-react";
 import {
   Sidebar,
@@ -216,6 +219,39 @@ const toolsNavigation = [
     title: "Install App",
     url: "/niranx/pwa-download",
     icon: Smartphone,
+  },
+  {
+    title: "Whiteboard",
+    url: "/niranx/whiteboard",
+    icon: PenTool,
+  },
+];
+
+const gamificationNavigation = [
+  {
+    title: "Study Groups",
+    url: "/niranx/study-groups",
+    icon: Users,
+  },
+  {
+    title: "Daily Challenges",
+    url: "/niranx/daily-challenges",
+    icon: Target,
+  },
+  {
+    title: "Goals",
+    url: "/niranx/goals",
+    icon: Trophy,
+  },
+  {
+    title: "Leaderboard",
+    url: "/niranx/leaderboard",
+    icon: BarChart3,
+  },
+  {
+    title: "Reward Store",
+    url: "/niranx/reward-store",
+    icon: ShoppingBag,
   },
 ];
 
@@ -406,9 +442,19 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Security & Privacy */}
+        {/* Gamification */}
         <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
-          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-destructive/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.4s' }}>Security & Privacy</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-accent/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.4s' }}>Gamification</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {renderNavItems(gamificationNavigation)}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Security & Privacy */}
+        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.5s' }}>
+          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-destructive/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.5s' }}>Security & Privacy</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {renderNavItems(securityNavigation)}

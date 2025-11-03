@@ -66,6 +66,12 @@ import SessionManager from "./pages/security/SessionManager";
 import PrivacySettings from "./pages/security/PrivacySettings";
 import DataExport from "./pages/security/DataExport";
 import AuditLog from "./pages/security/AuditLog";
+import Whiteboard from "./pages/Whiteboard";
+import StudyGroups from "./pages/StudyGroups";
+import DailyChallenges from "./pages/DailyChallenges";
+import Goals from "./pages/Goals";
+import Leaderboard from "./pages/Leaderboard";
+import RewardStore from "./pages/RewardStore";
 
 const queryClient = new QueryClient();
 
@@ -139,6 +145,12 @@ const App = () => (
                           <Route path="/security/privacy" element={<PrivacySettings />} />
                           <Route path="/security/export" element={<DataExport />} />
                           <Route path="/security/audit" element={<AuditLog />} />
+                          <Route path="/whiteboard" element={<Whiteboard />} />
+                          <Route path="/study-groups" element={<StudyGroups />} />
+                          <Route path="/daily-challenges" element={<DailyChallenges />} />
+                          <Route path="/goals" element={<Goals />} />
+                          <Route path="/leaderboard" element={<Leaderboard />} />
+                          <Route path="/reward-store" element={<RewardStore />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </AppLayout>
