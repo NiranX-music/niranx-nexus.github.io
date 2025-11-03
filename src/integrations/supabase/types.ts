@@ -772,6 +772,7 @@ export type Database = {
           is_read: boolean | null
           message_type: string | null
           receiver_id: string
+          room_id: string | null
           sender_id: string
           updated_at: string
         }
@@ -782,6 +783,7 @@ export type Database = {
           is_read?: boolean | null
           message_type?: string | null
           receiver_id: string
+          room_id?: string | null
           sender_id: string
           updated_at?: string
         }
@@ -792,10 +794,19 @@ export type Database = {
           is_read?: boolean | null
           message_type?: string | null
           receiver_id?: string
+          room_id?: string | null
           sender_id?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "messages_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "chat_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       music_playlist_tracks: {
         Row: {

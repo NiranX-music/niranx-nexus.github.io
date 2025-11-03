@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { 
   MessageSquare, 
   Send, 
@@ -22,6 +20,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { formatDistance } from 'date-fns';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Profile {
   id: string;
@@ -36,7 +35,7 @@ interface Message {
   sender_id: string;
   receiver_id: string;
   content: string;
-  message_type: string;
+  message_type?: string;
   is_read: boolean;
   created_at: string;
   sender_profile?: Profile;
@@ -59,57 +58,187 @@ const Messages = () => {
   const [showUserList, setShowUserList] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-
-  // Mock user for demo purposes
-  const mockUser = { id: 'demo-user-1', email: 'demo@example.com' };
+  const { user } = useAuth();
 
   useEffect(() => {
-    fetchChats();
-    fetchAllUsers();
-    setupRealtimeSubscription();
-  }, []);
+    if (user) {
+      fetchChats();
+      fetchAllUsers();
+    }
+  }, [user]);
+
+  useEffect(() => {
+    const cleanup = setupRealtimeSubscription();
+    return cleanup;
+  }, [user]);
 
   const fetchAllUsers = async () => {
-    // Mock data for demo
-    setAllUsers([
-      { id: '1', user_id: 'user-1', username: 'john_doe', display_name: 'John Doe', avatar_url: '' },
-      { id: '2', user_id: 'user-2', username: 'jane_smith', display_name: 'Jane Smith', avatar_url: '' },
-    ]);
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, user_id, username, display_name, avatar_url')
+        .neq('user_id', user.id);
+
+      if (error) throw error;
+      setAllUsers(data || []);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
   };
 
   const fetchChats = async () => {
-    // Mock data for demo
-    setChats([]);
+    if (!user) return;
+    
+    try {
+      // Fetch messages where user is involved
+      const { data: messageData, error } = await supabase
+        .from('messages')
+        .select(`
+          id,
+          content,
+          sender_id,
+          receiver_id,
+          created_at,
+          is_read
+        `)
+        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Group by conversation partner
+      const conversationsMap = new Map<string, ChatPreview>();
+      
+      for (const msg of messageData || []) {
+        const partnerId = msg.sender_id === user.id ? msg.receiver_id : msg.sender_id;
+        
+        if (!conversationsMap.has(partnerId)) {
+          // Fetch partner profile
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('id, user_id, username, display_name, avatar_url')
+            .eq('user_id', partnerId)
+            .single();
+
+          if (profile) {
+            conversationsMap.set(partnerId, {
+              user: profile,
+              lastMessage: msg,
+              unreadCount: msg.receiver_id === user.id && !msg.is_read ? 1 : 0,
+            });
+          }
+        } else {
+          const existing = conversationsMap.get(partnerId)!;
+          if (msg.receiver_id === user.id && !msg.is_read) {
+            existing.unreadCount++;
+          }
+        }
+      }
+
+      setChats(Array.from(conversationsMap.values()));
+    } catch (error) {
+      console.error('Error fetching chats:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load conversations",
+        variant: "destructive",
+      });
+    }
   };
 
   const fetchMessages = async (partnerId: string) => {
-    // Mock implementation
-    setMessages([]);
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .or(`and(sender_id.eq.${user.id},receiver_id.eq.${partnerId}),and(sender_id.eq.${partnerId},receiver_id.eq.${user.id})`)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+      setMessages(data || []);
+
+      // Mark as read
+      await supabase
+        .from('messages')
+        .update({ is_read: true })
+        .eq('receiver_id', user.id)
+        .eq('sender_id', partnerId)
+        .eq('is_read', false);
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+    }
   };
 
   const sendMessage = async () => {
-    if (!selectedChat || !newMessage.trim()) return;
+    if (!selectedChat || !newMessage.trim() || !user) return;
 
     setLoading(true);
 
-    // Mock sending message
-    toast({
-      title: "Demo Mode",
-      description: "Message sending is not available in demo mode",
-    });
+    try {
+      const { error } = await supabase
+        .from('messages')
+        .insert({
+          content: newMessage.trim(),
+          sender_id: user.id,
+          receiver_id: selectedChat.user_id,
+        });
 
-    setNewMessage('');
-    setLoading(false);
+      if (error) throw error;
+
+      setNewMessage('');
+      await fetchMessages(selectedChat.user_id);
+      await fetchChats();
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send message",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const startNewChat = (userProfile: Profile) => {
+    setSelectedChat(userProfile);
     setShowUserList(false);
-    navigate(`/niranx/messages/${userProfile.user_id}`);
+    fetchMessages(userProfile.user_id);
   };
 
   const setupRealtimeSubscription = () => {
-    // Mock subscription for demo
-    return () => {};
+    if (!user) return () => {};
+
+    const channel = supabase
+      .channel('messages-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+        },
+        (payload) => {
+          const newMsg = payload.new as Message;
+          
+          // If viewing this conversation, add message
+          if (selectedChat && (newMsg.sender_id === selectedChat.user_id || newMsg.receiver_id === selectedChat.user_id)) {
+            setMessages((prev) => [...prev, newMsg]);
+          }
+          
+          // Refresh chat list
+          fetchChats();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   };
 
   const getInitials = (name: string) => {
@@ -189,7 +318,10 @@ const Messages = () => {
                         className={`p-4 border-b hover:bg-muted/50 cursor-pointer transition-colors ${
                           selectedChat?.user_id === chat.user.user_id ? 'bg-muted' : ''
                         }`}
-                        onClick={() => navigate(`/messages/${chat.user.user_id}`)}
+                        onClick={() => {
+                          setSelectedChat(chat.user);
+                          fetchMessages(chat.user.user_id);
+                        }}
                       >
                         <div className="flex items-center gap-3">
                           <Avatar>
@@ -277,11 +409,11 @@ const Messages = () => {
                         {messages.map((message) => (
                           <div
                             key={message.id}
-                            className={`flex ${message.sender_id === mockUser.id ? 'justify-end' : 'justify-start'}`}
+                            className={`flex ${message.sender_id === user?.id ? 'justify-end' : 'justify-start'}`}
                           >
                             <div
                               className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                                message.sender_id === mockUser.id
+                                message.sender_id === user?.id
                                   ? 'bg-primary text-primary-foreground'
                                   : 'bg-muted'
                               }`}

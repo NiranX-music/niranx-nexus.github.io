@@ -19,9 +19,8 @@ import {
   Info,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-
 import { toast } from "@/hooks/use-toast";
-import { validateMessageContent, sanitizeInput, checkClientRateLimit } from "@/lib/security";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Message {
   id: string;
@@ -42,8 +41,7 @@ interface Profile {
 export default function ChatRoom() {
   const { chatId } = useParams<{ chatId: string }>();
   const navigate = useNavigate();
-  // Mock user for demo purposes
-  const mockUser = { id: 'demo-user-1', email: 'demo@example.com' };
+  const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [chatPartner, setChatPartner] = useState<Profile | null>(null);
@@ -69,18 +67,36 @@ export default function ChatRoom() {
   }, [chatId, navigate]);
 
   const fetchChatData = async () => {
-    if (!chatId) return;
+    if (!chatId || !user) return;
 
     try {
-      // Mock implementation for demo
-      setChatPartner({
-        id: '1',
-        display_name: 'Demo User',
-        username: 'demo_user',
-        avatar_url: ''
-      });
-      
-      setMessages([]);
+      // Fetch partner profile
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, user_id, username, display_name, avatar_url')
+        .eq('user_id', chatId)
+        .single();
+
+      if (profileError) throw profileError;
+      setChatPartner(profileData);
+
+      // Fetch messages
+      const { data: messagesData, error: messagesError } = await supabase
+        .from('messages')
+        .select('*')
+        .or(`and(sender_id.eq.${user.id},receiver_id.eq.${chatId}),and(sender_id.eq.${chatId},receiver_id.eq.${user.id})`)
+        .order('created_at', { ascending: true });
+
+      if (messagesError) throw messagesError;
+      setMessages(messagesData || []);
+
+      // Mark as read
+      await supabase
+        .from('messages')
+        .update({ is_read: true })
+        .eq('receiver_id', user.id)
+        .eq('sender_id', chatId)
+        .eq('is_read', false);
     } catch (error) {
       console.error("Error fetching chat data:", error);
       toast({
@@ -94,20 +110,56 @@ export default function ChatRoom() {
   };
 
   const setupRealtimeSubscription = () => {
-    // Mock subscription for demo
-    return () => {};
+    if (!user || !chatId) return () => {};
+
+    const channel = supabase
+      .channel(`chat-${chatId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+        },
+        (payload) => {
+          const newMsg = payload.new as Message;
+          if (
+            (newMsg.sender_id === user.id && newMsg.receiver_id === chatId) ||
+            (newMsg.sender_id === chatId && newMsg.receiver_id === user.id)
+          ) {
+            setMessages((prev) => [...prev, newMsg]);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   };
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || !chatId) return;
+    if (!newMessage.trim() || !chatId || !user) return;
 
-    // Mock sending message
-    toast({
-      title: "Demo Mode",
-      description: "Message sending is not available in demo mode",
-    });
+    try {
+      const { error } = await supabase
+        .from('messages')
+        .insert({
+          content: newMessage.trim(),
+          sender_id: user.id,
+          receiver_id: chatId,
+        });
 
-    setNewMessage("");
+      if (error) throw error;
+      setNewMessage("");
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send message",
+        variant: "destructive",
+      });
+    }
   };
 
   const getInitials = (name: string) => {
@@ -205,12 +257,12 @@ export default function ChatRoom() {
             <div
               key={message.id}
               className={`flex ${
-                message.sender_id === mockUser?.id ? "justify-end" : "justify-start"
+                message.sender_id === user?.id ? "justify-end" : "justify-start"
               }`}
             >
               <div
                 className={`max-w-[70%] rounded-lg px-3 py-2 ${
-                  message.sender_id === mockUser?.id
+                  message.sender_id === user?.id
                     ? "bg-primary text-primary-foreground"
                     : "bg-muted"
                 }`}
