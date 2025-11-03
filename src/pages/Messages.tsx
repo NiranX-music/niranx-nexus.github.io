@@ -21,6 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { formatDistance } from 'date-fns';
 import { useAuth } from '@/contexts/AuthContext';
+import { NewChatDialog } from '@/components/NewChatDialog';
 
 interface Profile {
   id: string;
@@ -54,8 +55,7 @@ const Messages = () => {
   const [newMessage, setNewMessage] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
-  const [allUsers, setAllUsers] = useState<Profile[]>([]);
-  const [showUserList, setShowUserList] = useState(false);
+  const [showNewChatDialog, setShowNewChatDialog] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -63,7 +63,6 @@ const Messages = () => {
   useEffect(() => {
     if (user) {
       fetchChats();
-      fetchAllUsers();
     }
   }, [user]);
 
@@ -71,22 +70,6 @@ const Messages = () => {
     const cleanup = setupRealtimeSubscription();
     return cleanup;
   }, [user]);
-
-  const fetchAllUsers = async () => {
-    if (!user) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, user_id, username, display_name, avatar_url')
-        .neq('user_id', user.id);
-
-      if (error) throw error;
-      setAllUsers(data || []);
-    } catch (error) {
-      console.error('Error fetching users:', error);
-    }
-  };
 
   const fetchChats = async () => {
     if (!user) return;
@@ -204,10 +187,16 @@ const Messages = () => {
     }
   };
 
-  const startNewChat = (userProfile: Profile) => {
-    setSelectedChat(userProfile);
-    setShowUserList(false);
-    fetchMessages(userProfile.user_id);
+  const handleChatCreated = (chatId: string, isGroup: boolean) => {
+    if (isGroup) {
+      // Navigate to group chat room
+      navigate(`/niranx/chat-room/${chatId}`);
+    } else {
+      // Navigate to direct message
+      setSelectedChat(null);
+      fetchMessages(chatId);
+      fetchChats();
+    }
   };
 
   const setupRealtimeSubscription = () => {
@@ -269,7 +258,7 @@ const Messages = () => {
             </h1>
           </div>
           <Button 
-            onClick={() => setShowUserList(true)}
+            onClick={() => setShowNewChatDialog(true)}
             className="gap-2"
           >
             <Plus className="w-4 h-4" />
@@ -465,52 +454,12 @@ const Messages = () => {
           </Card>
         </div>
 
-        {/* New Chat Modal */}
-        {showUserList && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <Card className="w-full max-w-md">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="w-5 h-5" />
-                    Start New Chat
-                  </CardTitle>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => setShowUserList(false)}
-                  >
-                    ×
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-60">
-                  {allUsers.map((userProfile) => (
-                    <div
-                      key={userProfile.user_id}
-                      className="flex items-center gap-3 p-2 hover:bg-muted rounded-lg cursor-pointer"
-                      onClick={() => startNewChat(userProfile)}
-                    >
-                      <Avatar>
-                        <AvatarImage src={userProfile.avatar_url} />
-                        <AvatarFallback>
-                          {getInitials(userProfile.display_name || userProfile.username || 'U')}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">
-                          {userProfile.display_name || userProfile.username}
-                        </p>
-                        <p className="text-sm text-muted-foreground">@{userProfile.username}</p>
-                      </div>
-                    </div>
-                  ))}
-                </ScrollArea>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+        {/* New Chat Dialog */}
+        <NewChatDialog
+          open={showNewChatDialog}
+          onOpenChange={setShowNewChatDialog}
+          onChatCreated={handleChatCreated}
+        />
       </div>
     </div>
   );

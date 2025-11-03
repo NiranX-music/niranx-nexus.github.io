@@ -92,6 +92,7 @@ const App = () => (
                           <Route path="/profile" element={<Profile />} />
                           <Route path="/messages" element={<Messages />} />
                           <Route path="/messages/:chatId" element={<ChatRoom />} />
+                          <Route path="/chat-room/:chatId" element={<ChatRoom />} />
                           <Route path="/tasks" element={<TasksPage />} />
                           <Route path="/pomodoro" element={<PomodoroPage />} />
                           <Route path="/focus-engine" element={<FocusEngine />} />
