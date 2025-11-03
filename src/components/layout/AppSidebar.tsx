@@ -37,6 +37,8 @@ import {
   MessagesSquare,
   Cloud,
   HardDrive,
+  Smartphone,
+  Shield,
 } from "lucide-react";
 import {
   Sidebar,
@@ -210,6 +212,39 @@ const toolsNavigation = [
     url: "/niranx/website",
     icon: Globe,
   },
+  {
+    title: "Install App",
+    url: "/niranx/pwa-download",
+    icon: Smartphone,
+  },
+];
+
+const securityNavigation = [
+  {
+    title: "Two-Factor Auth",
+    url: "/niranx/security/2fa",
+    icon: Shield,
+  },
+  {
+    title: "Active Sessions",
+    url: "/niranx/security/sessions",
+    icon: Shield,
+  },
+  {
+    title: "Privacy Settings",
+    url: "/niranx/security/privacy",
+    icon: Shield,
+  },
+  {
+    title: "Export Data",
+    url: "/niranx/security/export",
+    icon: Shield,
+  },
+  {
+    title: "Audit Log",
+    url: "/niranx/security/audit",
+    icon: Shield,
+  },
 ];
 
 const studyPlatforms = [
@@ -367,6 +402,16 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {renderNavItems(mediaRedirects, true)}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Security & Privacy */}
+        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
+          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-destructive/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.4s' }}>Security & Privacy</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {renderNavItems(securityNavigation)}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

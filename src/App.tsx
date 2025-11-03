@@ -60,6 +60,12 @@ import InviteUser from "./pages/InviteUser";
 import Reauthentication from "./pages/Reauthentication";
 
 import ManageDrives from "./pages/ManageDrives";
+import PWADownload from "./pages/PWADownload";
+import TwoFactorAuth from "./pages/security/TwoFactorAuth";
+import SessionManager from "./pages/security/SessionManager";
+import PrivacySettings from "./pages/security/PrivacySettings";
+import DataExport from "./pages/security/DataExport";
+import AuditLog from "./pages/security/AuditLog";
 
 const queryClient = new QueryClient();
 
@@ -127,6 +133,12 @@ const App = () => (
                           <Route path="/my-cloud" element={<MyCloudDrives />} />
                           <Route path="/my-cloud/:driveId/*" element={<MyCloudFolder />} />
                           <Route path="/manage-drives" element={<ManageDrives />} />
+                          <Route path="/pwa-download" element={<PWADownload />} />
+                          <Route path="/security/2fa" element={<TwoFactorAuth />} />
+                          <Route path="/security/sessions" element={<SessionManager />} />
+                          <Route path="/security/privacy" element={<PrivacySettings />} />
+                          <Route path="/security/export" element={<DataExport />} />
+                          <Route path="/security/audit" element={<AuditLog />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </AppLayout>

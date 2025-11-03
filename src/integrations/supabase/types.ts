@@ -44,6 +44,74 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_conversations: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_archived: boolean | null
+          last_activity: string | null
+          subject: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_archived?: boolean | null
+          last_activity?: string | null
+          subject?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_archived?: boolean | null
+          last_activity?: string | null
+          subject?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ai_messages: {
+        Row: {
+          category: string | null
+          content: string
+          conversation_id: string
+          created_at: string | null
+          id: string
+          rating: string | null
+          role: string
+        }
+        Insert: {
+          category?: string | null
+          content: string
+          conversation_id: string
+          created_at?: string | null
+          id?: string
+          rating?: string | null
+          role: string
+        }
+        Update: {
+          category?: string | null
+          content?: string
+          conversation_id?: string
+          created_at?: string | null
+          id?: string
+          rating?: string | null
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "ai_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audio_samples: {
         Row: {
           audio_url: string
@@ -102,6 +170,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      audit_log: {
+        Row: {
+          action: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          ip_address: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       battle_entries: {
         Row: {
@@ -430,6 +528,75 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_messages: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          message: string
+          name: string
+          status: string | null
+          subject: string
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          message: string
+          name: string
+          status?: string | null
+          subject: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          status?: string | null
+          subject?: string
+        }
+        Relationships: []
+      }
+      content_reports: {
+        Row: {
+          content_id: string
+          content_type: string
+          created_at: string | null
+          description: string | null
+          id: string
+          reason: string
+          reporter_id: string
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string | null
+        }
+        Insert: {
+          content_id: string
+          content_type: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          reason: string
+          reporter_id: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string | null
+        }
+        Update: {
+          content_id?: string
+          content_type?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          reason?: string
+          reporter_id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string | null
+        }
+        Relationships: []
+      }
       daily_rewards: {
         Row: {
           created_at: string | null
@@ -530,6 +697,121 @@ export type Database = {
             columns: ["artist_id"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flashcard_decks: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_public: boolean | null
+          name: string
+          subject: string | null
+          tags: string[] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          name: string
+          subject?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          name?: string
+          subject?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      flashcard_progress: {
+        Row: {
+          card_id: string
+          ease_factor: number | null
+          id: string
+          interval_days: number | null
+          last_reviewed: string | null
+          next_review: string | null
+          repetitions: number | null
+          user_id: string
+        }
+        Insert: {
+          card_id: string
+          ease_factor?: number | null
+          id?: string
+          interval_days?: number | null
+          last_reviewed?: string | null
+          next_review?: string | null
+          repetitions?: number | null
+          user_id: string
+        }
+        Update: {
+          card_id?: string
+          ease_factor?: number | null
+          id?: string
+          interval_days?: number | null
+          last_reviewed?: string | null
+          next_review?: string | null
+          repetitions?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flashcard_progress_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "flashcards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flashcards: {
+        Row: {
+          back: string
+          created_at: string | null
+          deck_id: string
+          front: string
+          id: string
+          position: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          back: string
+          created_at?: string | null
+          deck_id: string
+          front: string
+          id?: string
+          position?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          back?: string
+          created_at?: string | null
+          deck_id?: string
+          front?: string
+          id?: string
+          position?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flashcards_deck_id_fkey"
+            columns: ["deck_id"]
+            isOneToOne: false
+            referencedRelation: "flashcard_decks"
             referencedColumns: ["id"]
           },
         ]
@@ -1073,6 +1355,45 @@ export type Database = {
           },
         ]
       }
+      privacy_settings: {
+        Row: {
+          allow_friend_requests: boolean | null
+          allow_messages: boolean | null
+          created_at: string | null
+          id: string
+          profile_visibility: string | null
+          show_achievements: boolean | null
+          show_activity: boolean | null
+          show_study_stats: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          allow_friend_requests?: boolean | null
+          allow_messages?: boolean | null
+          created_at?: string | null
+          id?: string
+          profile_visibility?: string | null
+          show_achievements?: boolean | null
+          show_activity?: boolean | null
+          show_study_stats?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          allow_friend_requests?: boolean | null
+          allow_messages?: boolean | null
+          created_at?: string | null
+          id?: string
+          profile_visibility?: string | null
+          show_achievements?: boolean | null
+          show_activity?: boolean | null
+          show_study_stats?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           ambition: string | null
@@ -1083,8 +1404,10 @@ export type Database = {
           date_of_birth: string | null
           display_name: string | null
           full_name: string | null
+          grade: string | null
           id: string
           institute_id: string | null
+          institutes: Json | null
           is_verified: boolean | null
           last_login_reward: string | null
           level: number | null
@@ -1106,8 +1429,10 @@ export type Database = {
           date_of_birth?: string | null
           display_name?: string | null
           full_name?: string | null
+          grade?: string | null
           id?: string
           institute_id?: string | null
+          institutes?: Json | null
           is_verified?: boolean | null
           last_login_reward?: string | null
           level?: number | null
@@ -1129,8 +1454,10 @@ export type Database = {
           date_of_birth?: string | null
           display_name?: string | null
           full_name?: string | null
+          grade?: string | null
           id?: string
           institute_id?: string | null
+          institutes?: Json | null
           is_verified?: boolean | null
           last_login_reward?: string | null
           level?: number | null
@@ -1348,6 +1675,36 @@ export type Database = {
         }
         Relationships: []
       }
+      study_streaks: {
+        Row: {
+          activities: Json | null
+          created_at: string | null
+          id: string
+          minutes_studied: number | null
+          study_date: string
+          user_id: string
+          xp_earned: number | null
+        }
+        Insert: {
+          activities?: Json | null
+          created_at?: string | null
+          id?: string
+          minutes_studied?: number | null
+          study_date: string
+          user_id: string
+          xp_earned?: number | null
+        }
+        Update: {
+          activities?: Json | null
+          created_at?: string | null
+          id?: string
+          minutes_studied?: number | null
+          study_date?: string
+          user_id?: string
+          xp_earned?: number | null
+        }
+        Relationships: []
+      }
       tests: {
         Row: {
           created_at: string | null
@@ -1523,6 +1880,36 @@ export type Database = {
           },
         ]
       }
+      user_2fa: {
+        Row: {
+          backup_codes: string[] | null
+          created_at: string | null
+          id: string
+          is_enabled: boolean | null
+          secret: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          backup_codes?: string[] | null
+          created_at?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          secret?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          backup_codes?: string[] | null
+          created_at?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          secret?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_achievements: {
         Row: {
           achievement_id: string | null
@@ -1659,6 +2046,39 @@ export type Database = {
           created_at?: string | null
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_sessions: {
+        Row: {
+          created_at: string | null
+          device_info: string | null
+          expires_at: string
+          id: string
+          ip_address: string | null
+          last_activity: string | null
+          session_token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          device_info?: string | null
+          expires_at: string
+          id?: string
+          ip_address?: string | null
+          last_activity?: string | null
+          session_token: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          device_info?: string | null
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          last_activity?: string | null
+          session_token?: string
           user_id?: string
         }
         Relationships: []
@@ -1826,6 +2246,7 @@ export type Database = {
         Returns: boolean
       }
       claim_daily_reward: { Args: { user_uuid: string }; Returns: Json }
+      cleanup_expired_sessions: { Args: never; Returns: undefined }
       cleanup_rate_limits: { Args: never; Returns: undefined }
       get_public_profile_info: {
         Args: { target_user_id: string }
@@ -1860,6 +2281,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      record_study_session: {
+        Args: { activity: string; minutes: number }
+        Returns: Json
       }
       validate_message_content: { Args: { content: string }; Returns: boolean }
       validate_profile_data: {
