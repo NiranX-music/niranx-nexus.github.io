@@ -72,6 +72,7 @@ import DailyChallenges from "./pages/DailyChallenges";
 import Goals from "./pages/Goals";
 import Leaderboard from "./pages/Leaderboard";
 import RewardStore from "./pages/RewardStore";
+import ListeningLibrary from "./pages/ListeningLibrary";
 
 const queryClient = new QueryClient();
 
@@ -151,6 +152,7 @@ const App = () => (
                           <Route path="/goals" element={<Goals />} />
                           <Route path="/leaderboard" element={<Leaderboard />} />
                           <Route path="/reward-store" element={<RewardStore />} />
+                          <Route path="/listening-library" element={<ListeningLibrary />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </AppLayout>

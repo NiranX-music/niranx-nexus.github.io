@@ -68,6 +68,14 @@ const mainNavigation = [
     icon: Home,
   },
   {
+    title: "Search",
+    url: "/niranx/search",
+    icon: Search,
+  },
+];
+
+const studyNavigation = [
+  {
     title: "Tasks",
     url: "/niranx/tasks",
     icon: CheckSquare,
@@ -83,16 +91,6 @@ const mainNavigation = [
     icon: Timer,
   },
   {
-    title: "Community",
-    url: "/niranx/community",
-    icon: MessagesSquare,
-  },
-  {
-    title: "Games",
-    url: "/niranx/games",
-    icon: Gamepad2,
-  },
-  {
     title: "Timetable",
     url: "/niranx/timetable",
     icon: Calendar,
@@ -101,11 +99,6 @@ const mainNavigation = [
     title: "Scheduler",
     url: "/niranx/scheduler",
     icon: CalendarDays,
-  },
-  {
-    title: "Analytics",
-    url: "/niranx/analytics",
-    icon: BarChart3,
   },
   {
     title: "Exams",
@@ -117,20 +110,64 @@ const mainNavigation = [
     url: "/niranx/library",
     icon: Library,
   },
-  {
-    title: "Settings",
-    url: "/niranx/settings",
-    icon: Settings,
-  },
+];
+
+const contentNavigation = [
   {
     title: "Blogs",
     url: "/niranx/blogs",
     icon: BookOpen,
   },
   {
-    title: "Search",
-    url: "/niranx/search",
-    icon: Search,
+    title: "Community",
+    url: "/niranx/community",
+    icon: MessagesSquare,
+  },
+];
+
+const analyticsNavigation = [
+  {
+    title: "Analytics",
+    url: "/niranx/analytics",
+    icon: BarChart3,
+  },
+];
+
+const mediaNavigation = [
+  {
+    title: "Music Player", 
+    url: "/niranx/music",
+    icon: Music,
+  },
+  {
+    title: "Music Hub", 
+    url: "/niranx/music-hub",
+    icon: FileMusic,
+  },
+  {
+    title: "Listening Library",
+    url: "/niranx/listening-library",
+    icon: Headphones,
+  },
+  {
+    title: "Video Player",
+    url: "/niranx/video-player",
+    icon: Video,
+  },
+  {
+    title: "Video Share",
+    url: "/niranx/video-share",
+    icon: Play,
+  },
+  {
+    title: "Picture Share",
+    url: "/niranx/picture-share",
+    icon: Image,
+  },
+  {
+    title: "StreamSphere",
+    url: "/niranx/stream-sphere",
+    icon: Youtube,
   },
 ];
 
@@ -156,16 +193,6 @@ const toolsNavigation = [
     icon: HardDrive,
   },
   {
-    title: "Music Player", 
-    url: "/niranx/music",
-    icon: Music,
-  },
-  {
-    title: "Music Hub", 
-    url: "/niranx/music-hub",
-    icon: FileMusic,
-  },
-  {
     title: "Messages",
     url: "/niranx/messages",
     icon: MessagesSquare,
@@ -186,26 +213,6 @@ const toolsNavigation = [
     icon: FileText,
   },
   {
-    title: "Video Player",
-    url: "/niranx/video-player",
-    icon: Video,
-  },
-  {
-    title: "Video Share",
-    url: "/niranx/video-share",
-    icon: Play,
-  },
-  {
-    title: "Picture Share",
-    url: "/niranx/picture-share",
-    icon: Image,
-  },
-  {
-    title: "StreamSphere",
-    url: "/niranx/stream-sphere",
-    icon: Youtube,
-  },
-  {
     title: "Web Search",
     url: "/niranx/web-search",
     icon: Search,
@@ -216,14 +223,30 @@ const toolsNavigation = [
     icon: Globe,
   },
   {
+    title: "Whiteboard",
+    url: "/niranx/whiteboard",
+    icon: PenTool,
+  },
+];
+
+const gameNavigation = [
+  {
+    title: "Games",
+    url: "/niranx/games",
+    icon: Gamepad2,
+  },
+];
+
+const systemNavigation = [
+  {
     title: "Install App",
     url: "/niranx/pwa-download",
     icon: Smartphone,
   },
   {
-    title: "Whiteboard",
-    url: "/niranx/whiteboard",
-    icon: PenTool,
+    title: "Settings",
+    url: "/niranx/settings",
+    icon: Settings,
   },
 ];
 
@@ -412,9 +435,69 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Tools & Utilities */}
+        {/* Study Tools */}
+        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.05s' }}>
+          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-accent/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.05s' }}>Study Tools</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {renderNavItems(studyNavigation)}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Content & Social */}
         <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
-          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-accent/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.1s' }}>Tools</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-success/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.1s' }}>Content</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {renderNavItems(contentNavigation)}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Media */}
+        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.15s' }}>
+          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-warning/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.15s' }}>Media</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {renderNavItems(mediaNavigation)}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Analytics */}
+        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-primary/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.2s' }}>Analytics</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {renderNavItems(analyticsNavigation)}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Gamification */}
+        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.25s' }}>
+          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-accent/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.25s' }}>Gamification</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {renderNavItems(gamificationNavigation)}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Games */}
+        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
+          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-warning/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.3s' }}>Entertainment</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {renderNavItems(gameNavigation)}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Tools & Utilities */}
+        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.35s' }}>
+          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-accent/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.35s' }}>Tools</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {renderNavItems(toolsNavigation)}
@@ -423,8 +506,8 @@ export function AppSidebar() {
         </SidebarGroup>
 
         {/* Study Platforms */}
-        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
-          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-success/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.2s' }}>Study Platforms</SidebarGroupLabel>
+        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
+          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-success/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.4s' }}>Study Platforms</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {renderNavItems(studyPlatforms, true)}
@@ -432,9 +515,9 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Media & External */}
-        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
-          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-warning/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.3s' }}>External Links</SidebarGroupLabel>
+        {/* External Links */}
+        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.45s' }}>
+          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-warning/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.45s' }}>External Links</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {renderNavItems(mediaRedirects, true)}
@@ -442,22 +525,22 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Gamification */}
-        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
-          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-accent/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.4s' }}>Gamification</SidebarGroupLabel>
+        {/* Security & Privacy */}
+        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.5s' }}>
+          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-destructive/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.5s' }}>Security</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {renderNavItems(gamificationNavigation)}
+              {renderNavItems(securityNavigation)}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Security & Privacy */}
-        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.5s' }}>
-          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-destructive/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.5s' }}>Security & Privacy</SidebarGroupLabel>
+        {/* System */}
+        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.55s' }}>
+          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-primary/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.55s' }}>System</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {renderNavItems(securityNavigation)}
+              {renderNavItems(systemNavigation)}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

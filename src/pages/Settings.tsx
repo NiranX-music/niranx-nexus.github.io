@@ -17,17 +17,22 @@ import {
   Volume2,
   VolumeX,
   Music,
-  Video
+  Video,
+  LogOut
 } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from 'react';
 import { useNowPlaying } from '@/contexts/NowPlayingContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Settings = () => {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
   const { isVisible, setIsVisible } = useNowPlaying();
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
   
   const [settings, setSettings] = useState({
     notifications: true,
@@ -91,6 +96,23 @@ const Settings = () => {
       title: "Data Exported",
       description: "Your data has been downloaded as JSON file",
     });
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully logged out",
+      });
+      navigate('/');
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to log out. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -321,6 +343,29 @@ const Settings = () => {
             
             <p className="text-sm text-muted-foreground">
               Export your data as a backup or clear all local data to start fresh. This action cannot be undone.
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Account Management */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="w-5 h-5" />
+              Account Management
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              onClick={handleLogout} 
+              variant="destructive" 
+              className="w-full"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Log Out
+            </Button>
+            <p className="text-sm text-muted-foreground mt-3">
+              Sign out of your account and return to the login page.
             </p>
           </CardContent>
         </Card>
