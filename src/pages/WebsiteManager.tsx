@@ -135,9 +135,9 @@ const WebsiteManager = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6 animate-fade-in">
+    <div className="container mx-auto p-6 pb-24 animate-fade-in">
       {/* Header with 3D effect */}
-      <div className="card-3d">
+      <div className="card-3d mb-6">
         <Card className="glass-card border-2 border-primary/20 shadow-2xl">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
@@ -150,22 +150,26 @@ const WebsiteManager = () => {
                   Share useful websites with the entire community
                 </CardDescription>
               </div>
-              <Button
-                onClick={() => setShowForm(!showForm)}
-                className="btn-3d hover-lift"
-                size="lg"
-              >
-                <Plus className="w-5 h-5 mr-2" />
-                Add Website
-              </Button>
             </div>
           </CardHeader>
         </Card>
       </div>
 
+      {/* Sticky Add Website Button */}
+      <div className="sticky top-4 z-20 mb-6">
+        <Button
+          onClick={() => setShowForm(!showForm)}
+          className="w-full h-16 text-lg btn-3d hover-lift shadow-xl"
+          size="lg"
+        >
+          <Plus className="w-6 h-6 mr-2" />
+          {showForm ? 'Hide Form' : 'Add New Website'}
+        </Button>
+      </div>
+
       {/* Add Website Form */}
       {showForm && (
-        <Card className="glass-card border-primary/30 transform-3d animate-scale-in">
+        <Card className="glass-card border-primary/30 transform-3d animate-scale-in mb-6 shadow-xl">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Plus className="w-5 h-5 text-primary" />
@@ -241,76 +245,72 @@ const WebsiteManager = () => {
       )}
 
       {/* Websites Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {websites.map((website) => (
-          <Card 
-            key={website.id} 
-            className="widget hover-lift card-3d group relative overflow-hidden"
-          >
-            {/* 3D Background effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            
-            <CardHeader className="relative z-10">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <CardTitle className="text-xl mb-2 gradient-text">
-                    {website.title}
-                  </CardTitle>
-                  {website.category && (
-                    <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary border border-primary/20">
-                      {website.category}
-                    </span>
-                  )}
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleDelete(website.id)}
-                  className="hover:bg-destructive/20 hover:text-destructive transform hover:scale-110 transition-all"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-            </CardHeader>
-            
-            <CardContent className="relative z-10 space-y-4">
-              {website.description && (
-                <p className="text-sm text-muted-foreground line-clamp-2">
-                  {website.description}
-                </p>
-              )}
-              
-              <Button
-                asChild
-                className="w-full btn-3d group/btn"
-              >
-                <a
-                  href={website.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2"
-                >
-                  Visit Website
-                  <ExternalLink className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                </a>
-              </Button>
-              
-              <p className="text-xs text-muted-foreground text-center">
-                Added {new Date(website.created_at).toLocaleDateString()}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {websites.length === 0 && (
-        <Card className="glass-card">
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <Globe className="w-16 h-16 text-muted-foreground mb-4 opacity-50" />
-            <p className="text-lg text-muted-foreground">No websites added yet</p>
-            <p className="text-sm text-muted-foreground">Be the first to share a useful website!</p>
-          </CardContent>
+      {websites.length === 0 ? (
+        <Card className="glass-card text-center p-12">
+          <Globe className="w-16 h-16 mx-auto mb-4 text-muted-foreground animate-float" />
+          <p className="text-xl text-muted-foreground">No websites added yet</p>
+          <p className="text-sm text-muted-foreground mt-2">Click the button above to add your first website</p>
         </Card>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {websites.map((website, index) => (
+            <Card 
+              key={website.id} 
+              className="glass-card border-primary/20 hover-lift transform-3d group overflow-hidden"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="text-lg gradient-text truncate">
+                      {website.title}
+                    </CardTitle>
+                    {website.category && (
+                      <span className="inline-block mt-2 px-3 py-1 text-xs font-medium rounded-full bg-primary/20 text-primary">
+                        {website.category}
+                      </span>
+                    )}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDelete(website.id)}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {website.description && (
+                  <p className="text-sm text-muted-foreground line-clamp-2">
+                    {website.description}
+                  </p>
+                )}
+                <div className="flex items-center gap-2 pt-2">
+                  <Button
+                    asChild
+                    size="sm"
+                    className="btn-3d flex-1"
+                  >
+                    <a 
+                      href={website.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2"
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                      Visit Website
+                    </a>
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Added on {new Date(website.created_at).toLocaleDateString()}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       )}
     </div>
   );
