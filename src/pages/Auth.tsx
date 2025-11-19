@@ -8,9 +8,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Brain, Sparkles, Loader2, Shield, KeyRound, UserPlus } from "lucide-react";
+import { Brain, Sparkles, Loader2, Shield, KeyRound, UserPlus, Users } from "lucide-react";
 import { z } from "zod";
 import { useAuth } from "@/contexts/AuthContext";
+import { useGuestMode } from "@/contexts/GuestModeContext";
 
 const GoogleIcon = () => (
   <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -42,6 +43,7 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, loading: authLoading } = useAuth();
+  const { enableGuestMode } = useGuestMode();
   const [loading, setLoading] = useState(false);
   const [institutes, setInstitutes] = useState<Institute[]>([]);
   const [captchaAnswer, setCaptchaAnswer] = useState('');
@@ -575,6 +577,28 @@ const Auth = () => {
               </form>
             </TabsContent>
           </Tabs>
+
+          {/* Guest Mode Button */}
+          <div className="mt-6 pt-6 border-t border-border/50">
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                enableGuestMode();
+                navigate('/niranx/focus-engine');
+                toast({
+                  title: "Guest Mode Enabled",
+                  description: "You can now access the Focus Engine without signing in.",
+                });
+              }}
+            >
+              <Users className="w-4 h-4 mr-2" />
+              Continue as Guest
+            </Button>
+            <p className="text-xs text-muted-foreground text-center mt-2">
+              Guest mode gives you limited access to the Focus Engine
+            </p>
+          </div>
 
           <div className="mt-6 space-y-3">
             <div className="text-center text-sm text-muted-foreground">

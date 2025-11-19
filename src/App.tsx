@@ -22,6 +22,9 @@ import TaskScheduler from "./pages/TaskScheduler";
 import Analytics from "./pages/Analytics";
 import ExamHub from "./pages/ExamHub";
 import TasksPage from "./pages/TasksPage";
+import PomodoroPage from "./pages/PomodoroPage";
+import SmartTimetable from "./pages/SmartTimetable";
+import Library from "./pages/Library";
 import MusicPage from "./pages/MusicPage";
 import GamesPage from "./pages/GamesPage";
 import Allen from "./pages/Allen";
@@ -77,6 +80,7 @@ import FeatureSuggestions from "./pages/FeatureSuggestions";
 import DistractionBlocker from "./pages/DistractionBlocker";
 import AdvancedDashboard from "./pages/AdvancedDashboard";
 import StudyStreakChallenges from "./pages/StudyStreakChallenges";
+import OldPageArchive from "./pages/OldPageArchive";
 
 const queryClient = new QueryClient();
 
@@ -115,6 +119,13 @@ const App = () => (
                           <Route path="/focus-engine" element={<FocusEngine />} />
                           <Route path="/music" element={<MusicPage />} />
                           <Route path="/games" element={<GamesPage />} />
+                          
+                          {/* Old Pages Archive */}
+                          <Route path="/old-pages" element={<OldPageArchive />} />
+                          <Route path="/pomodoro" element={<PomodoroPage />} />
+                          <Route path="/timetable" element={<SmartTimetable />} />
+                          <Route path="/library" element={<Library />} />
+                          
                           <Route path="/scheduler" element={<EnhancedScheduler />} />
                           <Route path="/allen" element={<Allen />} />
                           <Route path="/pw" element={<PW />} />
