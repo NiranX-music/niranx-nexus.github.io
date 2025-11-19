@@ -42,6 +42,9 @@ import {
   PenTool,
   Trophy,
   ShoppingBag,
+  Lock,
+  Map,
+  Sparkles,
 } from "lucide-react";
 import {
   Sidebar,
@@ -242,6 +245,21 @@ const systemNavigation = [
     title: "Install App",
     url: "/niranx/pwa-download",
     icon: Smartphone,
+  },
+  {
+    title: "Kiosk Mode",
+    url: "/niranx/kiosk-mode",
+    icon: Lock,
+  },
+  {
+    title: "Site Map",
+    url: "/niranx/sitemap",
+    icon: Map,
+  },
+  {
+    title: "Feature Ideas",
+    url: "/niranx/feature-suggestions",
+    icon: Sparkles,
   },
   {
     title: "Settings",
