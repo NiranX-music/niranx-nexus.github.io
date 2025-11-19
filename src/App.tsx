@@ -18,15 +18,12 @@ import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import Messages from "./pages/Messages";
 import ChatRoom from "./pages/ChatRoom";
-import SmartTimetable from "./pages/SmartTimetable";
 import TaskScheduler from "./pages/TaskScheduler";
 import Analytics from "./pages/Analytics";
 import ExamHub from "./pages/ExamHub";
 import TasksPage from "./pages/TasksPage";
-import PomodoroPage from "./pages/PomodoroPage";
 import MusicPage from "./pages/MusicPage";
 import GamesPage from "./pages/GamesPage";
-import Library from "./pages/Library";
 import Allen from "./pages/Allen";
 import PW from "./pages/PW";
 import Settings from "./pages/Settings";
@@ -77,6 +74,9 @@ import ListeningLibrary from "./pages/ListeningLibrary";
 import Sitemap from "./pages/Sitemap";
 import KioskMode from "./pages/KioskMode";
 import FeatureSuggestions from "./pages/FeatureSuggestions";
+import DistractionBlocker from "./pages/DistractionBlocker";
+import AdvancedDashboard from "./pages/AdvancedDashboard";
+import StudyStreakChallenges from "./pages/StudyStreakChallenges";
 
 const queryClient = new QueryClient();
 
@@ -112,13 +112,10 @@ const App = () => (
                           <Route path="/messages/:chatId" element={<ChatRoom />} />
                           <Route path="/chat-room/:chatId" element={<ChatRoom />} />
                           <Route path="/tasks" element={<TasksPage />} />
-                          <Route path="/pomodoro" element={<PomodoroPage />} />
                           <Route path="/focus-engine" element={<FocusEngine />} />
                           <Route path="/music" element={<MusicPage />} />
                           <Route path="/games" element={<GamesPage />} />
-                          <Route path="/timetable" element={<SmartTimetable />} />
                           <Route path="/scheduler" element={<EnhancedScheduler />} />
-                          <Route path="/library" element={<Library />} />
                           <Route path="/allen" element={<Allen />} />
                           <Route path="/pw" element={<PW />} />
                           <Route path="/settings" element={<Settings />} />
