@@ -186,7 +186,7 @@ export function AppSidebar() {
             {item.external ? (
               <button
                 onClick={(e) => handleExternalLink(item.url, e)}
-                className="flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:bg-sidebar-accent w-full text-left group"
+                className="flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:bg-sidebar-accent w-full text-left group text-sidebar-foreground"
               >
                 <item.icon className="h-4 w-4" />
                 {!isCollapsed && <span className="flex-1">{item.title}</span>}
@@ -201,7 +201,7 @@ export function AppSidebar() {
                   `flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
                     isActive(item.url) || navIsActive
                       ? "bg-primary text-primary-foreground font-semibold"
-                      : "hover:bg-sidebar-accent"
+                      : "hover:bg-sidebar-accent text-sidebar-foreground"
                   }`
                 }
               >
@@ -388,7 +388,7 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <NavLink to="/niranx/settings" className="flex items-center gap-3 hover:bg-sidebar-accent rounded-lg px-3 py-2">
+              <NavLink to="/niranx/settings" className="flex items-center gap-3 hover:bg-sidebar-accent rounded-lg px-3 py-2 text-sidebar-foreground">
                 <Settings className="h-4 w-4" />
                 {!isCollapsed && <span>Settings</span>}
               </NavLink>
