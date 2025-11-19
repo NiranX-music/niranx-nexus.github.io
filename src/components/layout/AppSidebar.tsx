@@ -48,6 +48,7 @@ import {
   Sparkles,
   Flame,
   Zap,
+  Archive,
 } from "lucide-react";
 import {
   Sidebar,
@@ -248,6 +249,11 @@ const systemNavigation = [
     title: "Kiosk Mode",
     url: "/niranx/kiosk-mode",
     icon: Lock,
+  },
+  {
+    title: "Old Pages",
+    url: "/niranx/old-pages",
+    icon: Archive,
   },
   {
     title: "Site Map",
