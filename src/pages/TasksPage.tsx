@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,127 +11,175 @@ import {
   Trash2, 
   Check, 
   Star, 
-  Calendar,
   Target,
   Trophy,
   Flame,
-  Zap
+  Zap,
+  Loader2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useXP } from '@/contexts/XPContext';
 
 interface Task {
   id: string;
+  user_id: string;
   title: string;
   completed: boolean;
-  priority: 'low' | 'medium' | 'high';
+  priority: string;
   category: string;
-  dueDate?: string;
-  xp: number;
-  createdAt: string;
-}
-
-interface UserStats {
-  totalXP: number;
-  level: number;
-  streak: number;
-  tasksCompleted: number;
-  badges: string[];
+  due_date: string | null;
+  xp_reward: number;
+  created_at: string;
+  description: string | null;
+  completed_at: string | null;
+  updated_at: string;
+  recurring_type: string | null;
+  subtasks: any;
+  tags: string[] | null;
 }
 
 const TasksPage = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const { addXP, xp, level } = useXP();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState('');
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
   const [category, setCategory] = useState('');
-  const [userStats, setUserStats] = useState<UserStats>({
-    totalXP: 0,
-    level: 1,
-    streak: 0,
-    tasksCompleted: 0,
-    badges: []
-  });
+  const [loading, setLoading] = useState(true);
+  const [tasksCompleted, setTasksCompleted] = useState(0);
 
   useEffect(() => {
-    const savedTasks = localStorage.getItem('studyverse-tasks');
-    const savedStats = localStorage.getItem('studyverse-user-stats');
-    
-    if (savedTasks) {
-      setTasks(JSON.parse(savedTasks));
+    if (user) {
+      loadTasks();
     }
-    if (savedStats) {
-      setUserStats(JSON.parse(savedStats));
+  }, [user]);
+
+  const loadTasks = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setTasks(data || []);
+      setTasksCompleted((data || []).filter(t => t.completed).length);
+    } catch (error) {
+      console.error('Error loading tasks:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load tasks",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    localStorage.setItem('studyverse-tasks', JSON.stringify(tasks));
-  }, [tasks]);
-
-  useEffect(() => {
-    localStorage.setItem('studyverse-user-stats', JSON.stringify(userStats));
-  }, [userStats]);
-
-  const addTask = () => {
-    if (!newTask.trim()) return;
+  const addTask = async () => {
+    if (!newTask.trim() || !user) return;
 
     const xpValue = priority === 'high' ? 30 : priority === 'medium' ? 20 : 10;
     
-    const task: Task = {
-      id: Date.now().toString(),
-      title: newTask,
-      completed: false,
-      priority,
-      category: category || 'General',
-      xp: xpValue,
-      createdAt: new Date().toISOString()
-    };
+    try {
+      const { data, error } = await supabase
+        .from('tasks')
+        .insert({
+          user_id: user.id,
+          title: newTask,
+          priority,
+          category: category || 'General',
+          xp_reward: xpValue,
+          completed: false
+        })
+        .select()
+        .single();
 
-    setTasks(prev => [...prev, task]);
-    setNewTask('');
-    setCategory('');
+      if (error) throw error;
 
-    toast({
-      title: "Task Added! 🎯",
-      description: `+${xpValue} XP when completed`
-    });
+      setTasks(prev => [data, ...prev]);
+      setNewTask('');
+      setCategory('');
+
+      toast({
+        title: "Task Added! 🎯",
+        description: `+${xpValue} XP when completed`
+      });
+    } catch (error) {
+      console.error('Error adding task:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add task",
+        variant: "destructive"
+      });
+    }
   };
 
-  const toggleTask = (id: string) => {
-    setTasks(prev => prev.map(task => {
-      if (task.id === id) {
-        const newCompleted = !task.completed;
-        
-        if (newCompleted) {
-          // Award XP and update stats
-          setUserStats(prevStats => {
-            const newXP = prevStats.totalXP + task.xp;
-            const newLevel = Math.floor(newXP / 100) + 1;
-            const newTasksCompleted = prevStats.tasksCompleted + 1;
-            
-            return {
-              ...prevStats,
-              totalXP: newXP,
-              level: newLevel,
-              tasksCompleted: newTasksCompleted,
-              streak: prevStats.streak + 1
-            };
-          });
+  const toggleTask = async (taskId: string) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task || !user) return;
 
-          toast({
-            title: "Task Complete! 🎉",
-            description: `+${task.xp} XP earned!`
-          });
-        }
-        
-        return { ...task, completed: newCompleted };
+    const newCompleted = !task.completed;
+    
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ 
+          completed: newCompleted,
+          completed_at: newCompleted ? new Date().toISOString() : null
+        })
+        .eq('id', taskId);
+
+      if (error) throw error;
+
+      setTasks(prev => prev.map(t => 
+        t.id === taskId ? { ...t, completed: newCompleted } : t
+      ));
+
+      if (newCompleted) {
+        addXP(task.xp_reward);
+        setTasksCompleted(prev => prev + 1);
+        toast({
+          title: "Task Complete! 🎉",
+          description: `+${task.xp_reward} XP earned!`
+        });
+      } else {
+        setTasksCompleted(prev => Math.max(0, prev - 1));
       }
-      return task;
-    }));
+    } catch (error) {
+      console.error('Error toggling task:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update task",
+        variant: "destructive"
+      });
+    }
   };
 
-  const deleteTask = (id: string) => {
-    setTasks(prev => prev.filter(task => task.id !== id));
+  const deleteTask = async (taskId: string) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('id', taskId);
+
+      if (error) throw error;
+
+      setTasks(prev => prev.filter(t => t.id !== taskId));
+      toast({
+        title: "Task Deleted",
+        description: "Task removed successfully"
+      });
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete task",
+        variant: "destructive"
+      });
+    }
   };
 
   const getPriorityColor = (priority: string) => {
@@ -141,181 +191,179 @@ const TasksPage = () => {
     }
   };
 
-  const completedTasks = tasks.filter(task => task.completed).length;
-  const progressPercentage = tasks.length > 0 ? (completedTasks / tasks.length) * 100 : 0;
+  const completedTasksCount = tasks.filter(t => t.completed).length;
+  const progressPercentage = tasks.length > 0 ? (completedTasksCount / tasks.length) * 100 : 0;
+
+  if (loading) {
+    return (
+      <div className="container mx-auto p-6 flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen p-6 pb-20">
-      {/* Header Stats */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-4">
-          <Target className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-            Task Manager
-          </h1>
-        </div>
-        
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <Card className="glass-card">
-            <CardContent className="p-4 text-center">
-              <Trophy className="w-6 h-6 text-primary mx-auto mb-2" />
-              <div className="text-2xl font-bold">{userStats.level}</div>
-              <div className="text-sm text-muted-foreground">Level</div>
-            </CardContent>
-          </Card>
-          
-          <Card className="glass-card">
-            <CardContent className="p-4 text-center">
-              <Zap className="w-6 h-6 text-yellow-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold">{userStats.totalXP}</div>
-              <div className="text-sm text-muted-foreground">Total XP</div>
-            </CardContent>
-          </Card>
-          
-          <Card className="glass-card">
-            <CardContent className="p-4 text-center">
-              <Flame className="w-6 h-6 text-orange-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold">{userStats.streak}</div>
-              <div className="text-sm text-muted-foreground">Streak</div>
-            </CardContent>
-          </Card>
-          
-          <Card className="glass-card">
-            <CardContent className="p-4 text-center">
-              <Check className="w-6 h-6 text-green-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold">{userStats.tasksCompleted}</div>
-              <div className="text-sm text-muted-foreground">Completed</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Card className="glass-card mb-6">
-          <CardContent className="p-4">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium">Daily Progress</span>
-              <span className="text-sm text-muted-foreground">
-                {completedTasks}/{tasks.length} tasks
-              </span>
+    <div className="container mx-auto p-6 space-y-6">
+      {/* Stats Header */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm opacity-90">Level</p>
+                <p className="text-3xl font-bold">{level}</p>
+              </div>
+              <Star className="w-12 h-12 opacity-80" />
             </div>
-            <Progress value={progressPercentage} className="h-2" />
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm opacity-90">Total XP</p>
+                <p className="text-3xl font-bold">{xp}</p>
+              </div>
+              <Zap className="w-12 h-12 opacity-80" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm opacity-90">Streak</p>
+                <p className="text-3xl font-bold">0</p>
+              </div>
+              <Flame className="w-12 h-12 opacity-80" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm opacity-90">Completed</p>
+                <p className="text-3xl font-bold">{tasksCompleted}</p>
+              </div>
+              <Trophy className="w-12 h-12 opacity-80" />
+            </div>
           </CardContent>
         </Card>
       </div>
 
+      {/* Progress Bar */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium">Today's Progress</span>
+              <span className="text-sm text-muted-foreground">
+                {completedTasksCount} / {tasks.length} tasks
+              </span>
+            </div>
+            <Progress value={progressPercentage} className="h-3" />
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Add Task Form */}
-      <Card className="glass-card mb-6">
+      <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Plus className="w-5 h-5" />
-            Add New Task
-          </CardTitle>
+          <CardTitle>Add New Task</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col gap-4">
-            <div className="flex gap-2">
-              <Input
-                placeholder="What needs to be done?"
-                value={newTask}
-                onChange={(e) => setNewTask(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && addTask()}
-                className="flex-1"
-              />
-              <Button onClick={addTask} className="glass-button">
-                <Plus className="w-4 h-4" />
-              </Button>
-            </div>
-            
-            <div className="flex gap-2 flex-wrap">
-              <Input
-                placeholder="Category (optional)"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="flex-1 min-w-32"
-              />
-              
-              <div className="flex gap-1">
-                {(['low', 'medium', 'high'] as const).map((p) => (
-                  <Button
-                    key={p}
-                    variant={priority === p ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setPriority(p)}
-                    className="capitalize"
-                  >
-                    {p}
-                  </Button>
-                ))}
-              </div>
-            </div>
+          <div className="flex gap-4 flex-wrap">
+            <Input
+              placeholder="Task title..."
+              value={newTask}
+              onChange={(e) => setNewTask(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && addTask()}
+              className="flex-1 min-w-[200px]"
+            />
+            <Input
+              placeholder="Category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-32"
+            />
+            <select
+              value={priority}
+              onChange={(e) => setPriority(e.target.value as 'low' | 'medium' | 'high')}
+              className="px-3 py-2 border border-input rounded-md bg-background"
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+            <Button onClick={addTask}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add
+            </Button>
           </div>
         </CardContent>
       </Card>
 
       {/* Tasks List */}
-      <div className="space-y-3">
-        {tasks.length === 0 ? (
-          <Card className="glass-card">
-            <CardContent className="p-8 text-center">
-              <Target className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No tasks yet</h3>
-              <p className="text-muted-foreground">Add your first task to get started!</p>
-            </CardContent>
-          </Card>
-        ) : (
-          tasks.map((task) => (
-            <Card 
-              key={task.id} 
-              className={`glass-card transition-all duration-200 ${
-                task.completed ? 'opacity-75 bg-green-500/10' : ''
-              }`}
-            >
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
+      <Card>
+        <CardHeader>
+          <CardTitle>Tasks</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {tasks.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <Target className="w-16 h-16 mx-auto mb-4 opacity-50" />
+              <p>No tasks yet. Add your first task to get started!</p>
+            </div>
+          ) : (
+            tasks.map((task) => (
+              <div
+                key={task.id}
+                className={`flex items-center justify-between p-4 border rounded-lg transition-all ${
+                  task.completed ? 'opacity-50 bg-muted' : 'hover:shadow-md'
+                }`}
+              >
+                <div className="flex items-center gap-4 flex-1">
                   <Button
                     variant="ghost"
-                    size="sm"
+                    size="icon"
                     onClick={() => toggleTask(task.id)}
-                    className={`rounded-full w-8 h-8 p-0 ${
-                      task.completed ? 'bg-green-500 text-white' : ''
-                    }`}
+                    className={task.completed ? 'text-green-500' : ''}
                   >
-                    {task.completed && <Check className="w-4 h-4" />}
+                    <Check className="w-5 h-5" />
                   </Button>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className={`font-medium ${
-                        task.completed ? 'line-through text-muted-foreground' : ''
-                      }`}>
-                        {task.title}
-                      </h3>
-                      <div className={`w-2 h-2 rounded-full ${getPriorityColor(task.priority)}`} />
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="text-xs">
-                        {task.category}
+                  <div className="flex-1">
+                    <p className={`font-medium ${task.completed ? 'line-through' : ''}`}>
+                      {task.title}
+                    </p>
+                    <div className="flex gap-2 mt-1">
+                      <Badge variant="secondary">{task.category}</Badge>
+                      <Badge className={getPriorityColor(task.priority)}>
+                        {task.priority}
                       </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        {task.xp} XP
+                      <Badge variant="outline">
+                        <Zap className="w-3 h-3 mr-1" />
+                        {task.xp_reward} XP
                       </Badge>
                     </div>
                   </div>
-                  
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => deleteTask(task.id)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
                 </div>
-              </CardContent>
-            </Card>
-          ))
-        )}
-      </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => deleteTask(task.id)}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="w-5 h-5" />
+                </Button>
+              </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

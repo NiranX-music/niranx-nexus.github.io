@@ -112,6 +112,45 @@ export type Database = {
           },
         ]
       }
+      analytics_snapshots: {
+        Row: {
+          created_at: string | null
+          focus_score: number | null
+          id: string
+          pomodoro_sessions: number | null
+          snapshot_date: string
+          subject_breakdown: Json | null
+          tasks_completed: number | null
+          total_study_hours: number | null
+          user_id: string
+          weekly_hours: number[] | null
+        }
+        Insert: {
+          created_at?: string | null
+          focus_score?: number | null
+          id?: string
+          pomodoro_sessions?: number | null
+          snapshot_date?: string
+          subject_breakdown?: Json | null
+          tasks_completed?: number | null
+          total_study_hours?: number | null
+          user_id: string
+          weekly_hours?: number[] | null
+        }
+        Update: {
+          created_at?: string | null
+          focus_score?: number | null
+          id?: string
+          pomodoro_sessions?: number | null
+          snapshot_date?: string
+          subject_breakdown?: Json | null
+          tasks_completed?: number | null
+          total_study_hours?: number | null
+          user_id?: string
+          weekly_hours?: number[] | null
+        }
+        Relationships: []
+      }
       audio_samples: {
         Row: {
           audio_url: string
@@ -849,6 +888,51 @@ export type Database = {
           },
         ]
       }
+      focus_sessions: {
+        Row: {
+          completed: boolean | null
+          completed_at: string | null
+          duration_minutes: number
+          id: string
+          interruptions: number | null
+          mood: string | null
+          notes: string | null
+          session_type: string | null
+          started_at: string | null
+          subject: string | null
+          user_id: string
+          xp_earned: number | null
+        }
+        Insert: {
+          completed?: boolean | null
+          completed_at?: string | null
+          duration_minutes: number
+          id?: string
+          interruptions?: number | null
+          mood?: string | null
+          notes?: string | null
+          session_type?: string | null
+          started_at?: string | null
+          subject?: string | null
+          user_id: string
+          xp_earned?: number | null
+        }
+        Update: {
+          completed?: boolean | null
+          completed_at?: string | null
+          duration_minutes?: number
+          id?: string
+          interruptions?: number | null
+          mood?: string | null
+          notes?: string | null
+          session_type?: string | null
+          started_at?: string | null
+          subject?: string | null
+          user_id?: string
+          xp_earned?: number | null
+        }
+        Relationships: []
+      }
       follows: {
         Row: {
           created_at: string | null
@@ -884,6 +968,69 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      game_sessions: {
+        Row: {
+          difficulty: string | null
+          duration: number | null
+          game_type: string
+          id: string
+          played_at: string | null
+          score: number
+          stats: Json | null
+          user_id: string
+          xp_earned: number | null
+        }
+        Insert: {
+          difficulty?: string | null
+          duration?: number | null
+          game_type: string
+          id?: string
+          played_at?: string | null
+          score: number
+          stats?: Json | null
+          user_id: string
+          xp_earned?: number | null
+        }
+        Update: {
+          difficulty?: string | null
+          duration?: number | null
+          game_type?: string
+          id?: string
+          played_at?: string | null
+          score?: number
+          stats?: Json | null
+          user_id?: string
+          xp_earned?: number | null
+        }
+        Relationships: []
+      }
+      game_statistics: {
+        Row: {
+          achievements: string[] | null
+          high_scores: Json | null
+          total_games_played: number | null
+          total_xp_earned: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          achievements?: string[] | null
+          high_scores?: Json | null
+          total_games_played?: number | null
+          total_xp_earned?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          achievements?: string[] | null
+          high_scores?: Json | null
+          total_games_played?: number | null
+          total_xp_earned?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       goal_milestones: {
         Row: {
@@ -1719,6 +1866,33 @@ export type Database = {
         }
         Relationships: []
       }
+      search_history: {
+        Row: {
+          id: string
+          query: string
+          results_count: number | null
+          search_type: string | null
+          searched_at: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          query: string
+          results_count?: number | null
+          search_type?: string | null
+          searched_at?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          query?: string
+          results_count?: number | null
+          search_type?: string | null
+          searched_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       store_items: {
         Row: {
           created_at: string | null
@@ -1916,6 +2090,104 @@ export type Database = {
         }
         Relationships: []
       }
+      task_chains: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_expanded: boolean | null
+          level: number
+          parent_id: string | null
+          position: number | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_expanded?: boolean | null
+          level?: number
+          parent_id?: string | null
+          position?: number | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_expanded?: boolean | null
+          level?: number
+          parent_id?: string | null
+          position?: number | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_chains_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "task_chains"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          category: string | null
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          priority: string | null
+          recurring_type: string | null
+          subtasks: Json | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          user_id: string
+          xp_reward: number
+        }
+        Insert: {
+          category?: string | null
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string | null
+          recurring_type?: string | null
+          subtasks?: Json | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+          xp_reward?: number
+        }
+        Update: {
+          category?: string | null
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string | null
+          recurring_type?: string | null
+          subtasks?: Json | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+          xp_reward?: number
+        }
+        Relationships: []
+      }
       tests: {
         Row: {
           created_at: string | null
@@ -1958,6 +2230,51 @@ export type Database = {
           topics_covered?: string[] | null
           updated_at?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      timetable_slots: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          day_of_week: string
+          end_time: string
+          id: string
+          priority: string | null
+          slot_type: string | null
+          start_time: string
+          sub_slots: Json | null
+          subject: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          day_of_week: string
+          end_time: string
+          id?: string
+          priority?: string | null
+          slot_type?: string | null
+          start_time: string
+          sub_slots?: Json | null
+          subject: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          day_of_week?: string
+          end_time?: string
+          id?: string
+          priority?: string | null
+          slot_type?: string | null
+          start_time?: string
+          sub_slots?: Json | null
+          subject?: string
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -2592,9 +2909,116 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      pg_stat_monitor: {
+        Row: {
+          application_name: string | null
+          blk_read_time: number | null
+          blk_write_time: number | null
+          bucket: number | null
+          bucket_done: boolean | null
+          bucket_start_time: string | null
+          calls: number | null
+          client_ip: unknown
+          cmd_type: number | null
+          cmd_type_text: string | null
+          comments: string | null
+          cpu_sys_time: number | null
+          cpu_user_time: number | null
+          datname: string | null
+          dbid: unknown
+          elevel: number | null
+          jit_emission_count: number | null
+          jit_emission_time: number | null
+          jit_functions: number | null
+          jit_generation_time: number | null
+          jit_inlining_count: number | null
+          jit_inlining_time: number | null
+          jit_optimization_count: number | null
+          jit_optimization_time: number | null
+          local_blks_dirtied: number | null
+          local_blks_hit: number | null
+          local_blks_read: number | null
+          local_blks_written: number | null
+          max_exec_time: number | null
+          max_plan_time: number | null
+          mean_exec_time: number | null
+          mean_plan_time: number | null
+          message: string | null
+          min_exec_time: number | null
+          min_plan_time: number | null
+          pgsm_query_id: number | null
+          planid: number | null
+          plans: number | null
+          query: string | null
+          query_plan: string | null
+          queryid: number | null
+          relations: string[] | null
+          resp_calls: string[] | null
+          rows: number | null
+          shared_blks_dirtied: number | null
+          shared_blks_hit: number | null
+          shared_blks_read: number | null
+          shared_blks_written: number | null
+          sqlcode: string | null
+          stddev_exec_time: number | null
+          stddev_plan_time: number | null
+          temp_blk_read_time: number | null
+          temp_blk_write_time: number | null
+          temp_blks_read: number | null
+          temp_blks_written: number | null
+          top_query: string | null
+          top_queryid: number | null
+          toplevel: boolean | null
+          total_exec_time: number | null
+          total_plan_time: number | null
+          userid: unknown
+          username: string | null
+          wal_bytes: number | null
+          wal_fpi: number | null
+          wal_records: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      __plpgsql_show_dependency_tb:
+        | {
+            Args: {
+              anycompatiblerangetype?: unknown
+              anycompatibletype?: unknown
+              anyelememttype?: unknown
+              anyenumtype?: unknown
+              anyrangetype?: unknown
+              name: string
+              relid?: unknown
+            }
+            Returns: {
+              name: string
+              oid: unknown
+              params: string
+              schema: string
+              type: string
+            }[]
+          }
+        | {
+            Args: {
+              anycompatiblerangetype?: unknown
+              anycompatibletype?: unknown
+              anyelememttype?: unknown
+              anyenumtype?: unknown
+              anyrangetype?: unknown
+              funcoid: unknown
+              relid?: unknown
+            }
+            Returns: {
+              name: string
+              oid: unknown
+              params: string
+              schema: string
+              type: string
+            }[]
+          }
+      bytea_to_text: { Args: { data: string }; Returns: string }
       calculate_level: { Args: { xp_amount: number }; Returns: number }
       check_rate_limit: {
         Args: {
@@ -2607,6 +3031,9 @@ export type Database = {
       claim_daily_reward: { Args: { user_uuid: string }; Returns: Json }
       cleanup_expired_sessions: { Args: never; Returns: undefined }
       cleanup_rate_limits: { Args: never; Returns: undefined }
+      decode_error_level: { Args: { elevel: number }; Returns: string }
+      get_cmd_type: { Args: { cmd_type: number }; Returns: string }
+      get_histogram_timings: { Args: never; Returns: string }
       get_public_profile_info: {
         Args: { target_user_id: string }
         Returns: {
@@ -2641,10 +3068,438 @@ export type Database = {
         }
         Returns: boolean
       }
+      histogram: {
+        Args: { _bucket: number; _quryid: number }
+        Returns: Record<string, unknown>[]
+      }
+      http: {
+        Args: { request: Database["public"]["CompositeTypes"]["http_request"] }
+        Returns: Database["public"]["CompositeTypes"]["http_response"]
+        SetofOptions: {
+          from: "http_request"
+          to: "http_response"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      http_delete:
+        | {
+            Args: { uri: string }
+            Returns: Database["public"]["CompositeTypes"]["http_response"]
+            SetofOptions: {
+              from: "*"
+              to: "http_response"
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
+        | {
+            Args: { content: string; content_type: string; uri: string }
+            Returns: Database["public"]["CompositeTypes"]["http_response"]
+            SetofOptions: {
+              from: "*"
+              to: "http_response"
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
+      http_get:
+        | {
+            Args: { uri: string }
+            Returns: Database["public"]["CompositeTypes"]["http_response"]
+            SetofOptions: {
+              from: "*"
+              to: "http_response"
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
+        | {
+            Args: { data: Json; uri: string }
+            Returns: Database["public"]["CompositeTypes"]["http_response"]
+            SetofOptions: {
+              from: "*"
+              to: "http_response"
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
+      http_head: {
+        Args: { uri: string }
+        Returns: Database["public"]["CompositeTypes"]["http_response"]
+        SetofOptions: {
+          from: "*"
+          to: "http_response"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      http_header: {
+        Args: { field: string; value: string }
+        Returns: Database["public"]["CompositeTypes"]["http_header"]
+        SetofOptions: {
+          from: "*"
+          to: "http_header"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      http_list_curlopt: {
+        Args: never
+        Returns: {
+          curlopt: string
+          value: string
+        }[]
+      }
+      http_patch: {
+        Args: { content: string; content_type: string; uri: string }
+        Returns: Database["public"]["CompositeTypes"]["http_response"]
+        SetofOptions: {
+          from: "*"
+          to: "http_response"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      http_post:
+        | {
+            Args: { content: string; content_type: string; uri: string }
+            Returns: Database["public"]["CompositeTypes"]["http_response"]
+            SetofOptions: {
+              from: "*"
+              to: "http_response"
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
+        | {
+            Args: { data: Json; uri: string }
+            Returns: Database["public"]["CompositeTypes"]["http_response"]
+            SetofOptions: {
+              from: "*"
+              to: "http_response"
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
+      http_put: {
+        Args: { content: string; content_type: string; uri: string }
+        Returns: Database["public"]["CompositeTypes"]["http_response"]
+        SetofOptions: {
+          from: "*"
+          to: "http_response"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      http_reset_curlopt: { Args: never; Returns: boolean }
+      http_set_curlopt: {
+        Args: { curlopt: string; value: string }
+        Returns: boolean
+      }
+      pg_stat_monitor_internal: {
+        Args: { showtext: boolean }
+        Returns: Record<string, unknown>[]
+      }
+      pg_stat_monitor_reset: { Args: never; Returns: undefined }
+      pg_stat_monitor_version: { Args: never; Returns: string }
+      pgsm_create_11_view: { Args: never; Returns: number }
+      pgsm_create_13_view: { Args: never; Returns: number }
+      pgsm_create_14_view: { Args: never; Returns: number }
+      pgsm_create_15_view: { Args: never; Returns: number }
+      pgsm_create_17_view: { Args: never; Returns: number }
+      pgsm_create_view: { Args: never; Returns: number }
+      plpgsql_check_function:
+        | {
+            Args: {
+              all_warnings?: boolean
+              anycompatiblerangetype?: unknown
+              anycompatibletype?: unknown
+              anyelememttype?: unknown
+              anyenumtype?: unknown
+              anyrangetype?: unknown
+              compatibility_warnings?: boolean
+              constant_tracing?: boolean
+              extra_warnings?: boolean
+              fatal_errors?: boolean
+              format?: string
+              incomment_options_usage_warning?: boolean
+              name: string
+              newtable?: unknown
+              oldtable?: unknown
+              other_warnings?: boolean
+              performance_warnings?: boolean
+              relid?: unknown
+              security_warnings?: boolean
+              use_incomment_options?: boolean
+              without_warnings?: boolean
+            }
+            Returns: string[]
+          }
+        | {
+            Args: {
+              all_warnings?: boolean
+              anycompatiblerangetype?: unknown
+              anycompatibletype?: unknown
+              anyelememttype?: unknown
+              anyenumtype?: unknown
+              anyrangetype?: unknown
+              compatibility_warnings?: boolean
+              constant_tracing?: boolean
+              extra_warnings?: boolean
+              fatal_errors?: boolean
+              format?: string
+              funcoid: unknown
+              incomment_options_usage_warning?: boolean
+              newtable?: unknown
+              oldtable?: unknown
+              other_warnings?: boolean
+              performance_warnings?: boolean
+              relid?: unknown
+              security_warnings?: boolean
+              use_incomment_options?: boolean
+              without_warnings?: boolean
+            }
+            Returns: string[]
+          }
+      plpgsql_check_function_tb:
+        | {
+            Args: {
+              all_warnings?: boolean
+              anycompatiblerangetype?: unknown
+              anycompatibletype?: unknown
+              anyelememttype?: unknown
+              anyenumtype?: unknown
+              anyrangetype?: unknown
+              compatibility_warnings?: boolean
+              constant_tracing?: boolean
+              extra_warnings?: boolean
+              fatal_errors?: boolean
+              incomment_options_usage_warning?: boolean
+              name: string
+              newtable?: unknown
+              oldtable?: unknown
+              other_warnings?: boolean
+              performance_warnings?: boolean
+              relid?: unknown
+              security_warnings?: boolean
+              use_incomment_options?: boolean
+              without_warnings?: boolean
+            }
+            Returns: {
+              context: string
+              detail: string
+              functionid: unknown
+              hint: string
+              level: string
+              lineno: number
+              message: string
+              position: number
+              query: string
+              sqlstate: string
+              statement: string
+            }[]
+          }
+        | {
+            Args: {
+              all_warnings?: boolean
+              anycompatiblerangetype?: unknown
+              anycompatibletype?: unknown
+              anyelememttype?: unknown
+              anyenumtype?: unknown
+              anyrangetype?: unknown
+              compatibility_warnings?: boolean
+              constant_tracing?: boolean
+              extra_warnings?: boolean
+              fatal_errors?: boolean
+              funcoid: unknown
+              incomment_options_usage_warning?: boolean
+              newtable?: unknown
+              oldtable?: unknown
+              other_warnings?: boolean
+              performance_warnings?: boolean
+              relid?: unknown
+              security_warnings?: boolean
+              use_incomment_options?: boolean
+              without_warnings?: boolean
+            }
+            Returns: {
+              context: string
+              detail: string
+              functionid: unknown
+              hint: string
+              level: string
+              lineno: number
+              message: string
+              position: number
+              query: string
+              sqlstate: string
+              statement: string
+            }[]
+          }
+      plpgsql_check_pragma: { Args: { name: string[] }; Returns: number }
+      plpgsql_check_profiler: { Args: { enable?: boolean }; Returns: boolean }
+      plpgsql_check_tracer: {
+        Args: { enable?: boolean; verbosity?: string }
+        Returns: boolean
+      }
+      plpgsql_coverage_branches:
+        | { Args: { name: string }; Returns: number }
+        | { Args: { funcoid: unknown }; Returns: number }
+      plpgsql_coverage_statements:
+        | { Args: { name: string }; Returns: number }
+        | { Args: { funcoid: unknown }; Returns: number }
+      plpgsql_profiler_function_statements_tb:
+        | {
+            Args: { name: string }
+            Returns: {
+              avg_time: number
+              block_num: number
+              exec_stmts: number
+              exec_stmts_err: number
+              lineno: number
+              max_time: number
+              parent_note: string
+              parent_stmtid: number
+              processed_rows: number
+              queryid: number
+              stmtid: number
+              stmtname: string
+              total_time: number
+            }[]
+          }
+        | {
+            Args: { funcoid: unknown }
+            Returns: {
+              avg_time: number
+              block_num: number
+              exec_stmts: number
+              exec_stmts_err: number
+              lineno: number
+              max_time: number
+              parent_note: string
+              parent_stmtid: number
+              processed_rows: number
+              queryid: number
+              stmtid: number
+              stmtname: string
+              total_time: number
+            }[]
+          }
+      plpgsql_profiler_function_tb:
+        | {
+            Args: { name: string }
+            Returns: {
+              avg_time: number
+              cmds_on_row: number
+              exec_stmts: number
+              exec_stmts_err: number
+              lineno: number
+              max_time: number[]
+              processed_rows: number[]
+              queryids: number[]
+              source: string
+              stmt_lineno: number
+              total_time: number
+            }[]
+          }
+        | {
+            Args: { funcoid: unknown }
+            Returns: {
+              avg_time: number
+              cmds_on_row: number
+              exec_stmts: number
+              exec_stmts_err: number
+              lineno: number
+              max_time: number[]
+              processed_rows: number[]
+              queryids: number[]
+              source: string
+              stmt_lineno: number
+              total_time: number
+            }[]
+          }
+      plpgsql_profiler_functions_all: {
+        Args: never
+        Returns: {
+          avg_time: number
+          exec_count: number
+          exec_stmts_err: number
+          funcoid: unknown
+          max_time: number
+          min_time: number
+          stddev_time: number
+          total_time: number
+        }[]
+      }
+      plpgsql_profiler_install_fake_queryid_hook: {
+        Args: never
+        Returns: undefined
+      }
+      plpgsql_profiler_remove_fake_queryid_hook: {
+        Args: never
+        Returns: undefined
+      }
+      plpgsql_profiler_reset: { Args: { funcoid: unknown }; Returns: undefined }
+      plpgsql_profiler_reset_all: { Args: never; Returns: undefined }
+      plpgsql_show_dependency_tb:
+        | {
+            Args: {
+              anycompatiblerangetype?: unknown
+              anycompatibletype?: unknown
+              anyelememttype?: unknown
+              anyenumtype?: unknown
+              anyrangetype?: unknown
+              funcoid: unknown
+              relid?: unknown
+            }
+            Returns: {
+              name: string
+              oid: unknown
+              params: string
+              schema: string
+              type: string
+            }[]
+          }
+        | {
+            Args: {
+              anycompatiblerangetype?: unknown
+              anycompatibletype?: unknown
+              anyelememttype?: unknown
+              anyenumtype?: unknown
+              anyrangetype?: unknown
+              fnname: string
+              relid?: unknown
+            }
+            Returns: {
+              name: string
+              oid: unknown
+              params: string
+              schema: string
+              type: string
+            }[]
+          }
+      range: { Args: never; Returns: string[] }
       record_study_session: {
         Args: { activity: string; minutes: number }
         Returns: Json
       }
+      text_to_bytea: { Args: { data: string }; Returns: string }
+      text2ltree: { Args: { "": string }; Returns: unknown }
+      urlencode:
+        | { Args: { data: Json }; Returns: string }
+        | {
+            Args: { string: string }
+            Returns: {
+              error: true
+            } & "Could not choose the best candidate function between: public.urlencode(string => bytea), public.urlencode(string => varchar). Try renaming the parameters or the function itself in the database so function overloading can be resolved"
+          }
+        | {
+            Args: { string: string }
+            Returns: {
+              error: true
+            } & "Could not choose the best candidate function between: public.urlencode(string => bytea), public.urlencode(string => varchar). Try renaming the parameters or the function itself in the database so function overloading can be resolved"
+          }
       validate_message_content: { Args: { content: string }; Returns: boolean }
       validate_profile_data: {
         Args: {
@@ -2660,7 +3515,23 @@ export type Database = {
       app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
-      [_ in never]: never
+      http_header: {
+        field: string | null
+        value: string | null
+      }
+      http_request: {
+        method: unknown
+        uri: string | null
+        headers: Database["public"]["CompositeTypes"]["http_header"][] | null
+        content_type: string | null
+        content: string | null
+      }
+      http_response: {
+        status: number | null
+        content_type: string | null
+        headers: Database["public"]["CompositeTypes"]["http_header"][] | null
+        content: string | null
+      }
     }
   }
 }
