@@ -7,7 +7,6 @@ import {
   Music,
   Gamepad2,
   Calendar,
-  CalendarDays,
   BarChart3,
   TrendingUp,
   GraduationCap,
@@ -20,19 +19,14 @@ import {
   Globe,
   ExternalLink,
   FolderOpen,
-  FileText,
   Video,
   Infinity,
   Headphones,
   Youtube,
-  Chrome,
   Search,
-  Laptop,
   Brain,
   FileMusic,
-  Link,
   Upload,
-  Library,
   Image,
   Play,
   MessagesSquare,
@@ -49,6 +43,7 @@ import {
   Flame,
   Zap,
   Archive,
+  ChevronDown,
 } from "lucide-react";
 import {
   Sidebar,
@@ -67,322 +62,89 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import XPDisplay from "@/components/ui/XPDisplay";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useState } from "react";
 
-const mainNavigation = [
-  {
-    title: "Dashboard",
-    url: "/niranx/dashboard",
-    icon: Home,
-  },
-  {
-    title: "Search",
-    url: "/niranx/search",
-    icon: Search,
-  },
+// Core Navigation
+const coreNavigation = [
+  { title: "Dashboard", url: "/niranx/dashboard", icon: Home },
+  { title: "Search", url: "/niranx/search", icon: Search },
+  { title: "Profile", url: "/niranx/profile", icon: User },
 ];
 
+// Study & Focus
 const studyNavigation = [
-  {
-    title: "Tasks",
-    url: "/niranx/tasks",
-    icon: CheckSquare,
-  },
-  {
-    title: "Focus Engine",
-    url: "/niranx/focus-engine",
-    icon: Timer,
-  },
-  {
-    title: "Distraction Blocker",
-    url: "/niranx/distraction-blocker",
-    icon: Shield,
-  },
-  {
-    title: "Scheduler",
-    url: "/niranx/scheduler",
-    icon: CalendarDays,
-  },
-  {
-    title: "Exams",
-    url: "/niranx/exams",
-    icon: GraduationCap,
-  },
+  { title: "Tasks", url: "/niranx/tasks", icon: CheckSquare },
+  { title: "Focus Engine", url: "/niranx/focus-engine", icon: Timer },
+  { title: "Distraction Blocker", url: "/niranx/distraction-blocker", icon: Shield },
+  { title: "Scheduler", url: "/niranx/scheduler", icon: Calendar },
+  { title: "Exams", url: "/niranx/exams", icon: GraduationCap },
+  { title: "Whiteboard", url: "/niranx/whiteboard", icon: PenTool },
+  { title: "Study Groups", url: "/niranx/study-groups", icon: Users },
 ];
 
-const contentNavigation = [
-  {
-    title: "Blogs",
-    url: "/niranx/blogs",
-    icon: BookOpen,
-  },
-  {
-    title: "Community",
-    url: "/niranx/community",
-    icon: MessagesSquare,
-  },
+// Progress & Gamification
+const progressNavigation = [
+  { title: "Advanced Dashboard", url: "/niranx/advanced-dashboard", icon: BarChart3 },
+  { title: "Analytics", url: "/niranx/analytics", icon: TrendingUp },
+  { title: "Goals", url: "/niranx/goals", icon: Target },
+  { title: "Daily Challenges", url: "/niranx/daily-challenges", icon: Star },
+  { title: "Study Streaks", url: "/niranx/study-streak-challenges", icon: Flame },
+  { title: "Leaderboard", url: "/niranx/leaderboard", icon: Trophy },
+  { title: "Reward Store", url: "/niranx/reward-store", icon: ShoppingBag },
+  { title: "Games", url: "/niranx/games", icon: Gamepad2 },
 ];
 
-const analyticsNavigation = [
-  {
-    title: "Advanced Dashboard",
-    url: "/niranx/dashboard",
-    icon: BarChart3,
-  },
-  {
-    title: "Analytics",
-    url: "/niranx/analytics",
-    icon: TrendingUp,
-  },
-];
-
+// Media & Entertainment
 const mediaNavigation = [
-  {
-    title: "Music Player", 
-    url: "/niranx/music",
-    icon: Music,
-  },
-  {
-    title: "Music Hub", 
-    url: "/niranx/music-hub",
-    icon: FileMusic,
-  },
-  {
-    title: "Listening Library",
-    url: "/niranx/listening-library",
-    icon: Headphones,
-  },
-  {
-    title: "Video Player",
-    url: "/niranx/video-player",
-    icon: Video,
-  },
-  {
-    title: "Video Library",
-    url: "/niranx/video-library",
-    icon: Video,
-  },
-  {
-    title: "Video Share",
-    url: "/niranx/video-share",
-    icon: Play,
-  },
-  {
-    title: "Picture Share",
-    url: "/niranx/picture-share",
-    icon: Image,
-  },
-  {
-    title: "StreamSphere",
-    url: "/niranx/stream-sphere",
-    icon: Youtube,
-  },
+  { title: "Music Player", url: "/niranx/music", icon: Music },
+  { title: "Music Hub", url: "/niranx/music-hub", icon: FileMusic },
+  { title: "Listening Library", url: "/niranx/listening-library", icon: Headphones },
+  { title: "Video Player", url: "/niranx/video-player", icon: Video },
+  { title: "Video Library", url: "/niranx/video-library", icon: Video },
+  { title: "StreamSphere", url: "/niranx/stream-sphere", icon: Youtube },
 ];
 
+// Files & Cloud
+const filesNavigation = [
+  { title: "File Hub", url: "/niranx/file-hub", icon: FolderOpen },
+  { title: "My Cloud", url: "/niranx/my-cloud", icon: Cloud },
+  { title: "Manage Drives", url: "/niranx/manage-drives", icon: HardDrive },
+  { title: "Upload", url: "/niranx/upload", icon: Upload },
+];
+
+// Communication & Social
+const socialNavigation = [
+  { title: "Messages", url: "/niranx/messages", icon: MessageCircle },
+  { title: "Community", url: "/niranx/community", icon: MessagesSquare },
+  { title: "Blogs", url: "/niranx/blogs", icon: BookOpen },
+  { title: "Picture Share", url: "/niranx/picture-share", icon: Image },
+  { title: "Video Share", url: "/niranx/video-share", icon: Play },
+];
+
+// Tools & Utilities
 const toolsNavigation = [
-  {
-    title: "Infinite Chain Manager",
-    url: "/niranx/infinite-chain",
-    icon: Infinity,
-  },
-  {
-    title: "File Hub",
-    url: "/niranx/file-hub",
-    icon: FolderOpen,
-  },
-  {
-    title: "My Cloud",
-    url: "/niranx/my-cloud",
-    icon: Cloud,
-  },
-  {
-    title: "Manage Drives",
-    url: "/niranx/manage-drives",
-    icon: HardDrive,
-  },
-  {
-    title: "Messages",
-    url: "/niranx/messages",
-    icon: MessagesSquare,
-  },
-  {
-    title: "Website Manager",
-    url: "/niranx/website-manager",
-    icon: Link,
-  },
-  {
-    title: "Upload Files",
-    url: "/niranx/upload",
-    icon: Upload,
-  },
-  {
-    title: "PDF Viewer",
-    url: "/niranx/pdf-viewer",
-    icon: FileText,
-  },
-  {
-    title: "Web Search",
-    url: "/niranx/web-search",
-    icon: Search,
-  },
-  {
-    title: "Website Embed",
-    url: "/niranx/website",
-    icon: Globe,
-  },
-  {
-    title: "Whiteboard",
-    url: "/niranx/whiteboard",
-    icon: PenTool,
-  },
+  { title: "Infinite Chain", url: "/niranx/infinite-chain", icon: Infinity },
+  { title: "Website Manager", url: "/niranx/website-manager", icon: Globe },
+  { title: "Web Search", url: "/niranx/web-search", icon: Search },
+  { title: "PWA Download", url: "/niranx/pwa-download", icon: Smartphone },
+  { title: "Kiosk Mode", url: "/niranx/kiosk-mode", icon: Lock },
 ];
 
-const gameNavigation = [
-  {
-    title: "Games",
-    url: "/niranx/games",
-    icon: Gamepad2,
-  },
+// External Study Platforms
+const externalPlatforms = [
+  { title: "Allen Digital", url: "https://allen.ac.in/", icon: Target, external: true },
+  { title: "Physics Wallah", url: "https://www.pw.live/", icon: Users, external: true },
+  { title: "Spotify", url: "https://open.spotify.com/", icon: Music, external: true },
+  { title: "YouTube", url: "https://youtube.com/", icon: Youtube, external: true },
+  { title: "ChatGPT", url: "https://chat.openai.com/", icon: Brain, external: true },
 ];
 
-const systemNavigation = [
-  {
-    title: "Install App",
-    url: "/niranx/pwa-download",
-    icon: Smartphone,
-  },
-  {
-    title: "Kiosk Mode",
-    url: "/niranx/kiosk-mode",
-    icon: Lock,
-  },
-  {
-    title: "Old Pages",
-    url: "/niranx/old-pages",
-    icon: Archive,
-  },
-  {
-    title: "Site Map",
-    url: "/niranx/sitemap",
-    icon: Map,
-  },
-  {
-    title: "Feature Ideas",
-    url: "/niranx/feature-suggestions",
-    icon: Sparkles,
-  },
-  {
-    title: "Settings",
-    url: "/niranx/settings",
-    icon: Settings,
-  },
-];
-
-const gamificationNavigation = [
-  {
-    title: "Study Groups",
-    url: "/niranx/study-groups",
-    icon: Users,
-  },
-  {
-    title: "Daily Challenges",
-    url: "/niranx/daily-challenges",
-    icon: Target,
-  },
-  {
-    title: "Study Streaks",
-    url: "/niranx/study-streaks",
-    icon: Flame,
-  },
-  {
-    title: "Goals",
-    url: "/niranx/goals",
-    icon: Trophy,
-  },
-  {
-    title: "Leaderboard",
-    url: "/niranx/leaderboard",
-    icon: BarChart3,
-  },
-  {
-    title: "Reward Store",
-    url: "/niranx/reward-store",
-    icon: ShoppingBag,
-  },
-];
-
-const securityNavigation = [
-  {
-    title: "Two-Factor Auth",
-    url: "/niranx/security/2fa",
-    icon: Shield,
-  },
-  {
-    title: "Active Sessions",
-    url: "/niranx/security/sessions",
-    icon: Shield,
-  },
-  {
-    title: "Privacy Settings",
-    url: "/niranx/security/privacy",
-    icon: Shield,
-  },
-  {
-    title: "Export Data",
-    url: "/niranx/security/export",
-    icon: Shield,
-  },
-  {
-    title: "Audit Log",
-    url: "/niranx/security/audit",
-    icon: Shield,
-  },
-];
-
-const studyPlatforms = [
-  {
-    title: "Study Platforms",
-    url: "/niranx/website/study-platforms",
-    icon: Brain,
-  },
-  {
-    title: "Allen Digital",
-    url: "https://allen.ac.in/",
-    icon: Target,
-    external: true,
-  },
-  {
-    title: "Physics Wallah",
-    url: "https://www.pw.live/",
-    icon: Users,
-    external: true,
-  },
-];
-
-const mediaRedirects = [
-  {
-    title: "Spotify Music",
-    url: "https://open.spotify.com/",
-    icon: Music,
-    external: true,
-  },
-  {
-    title: "YouTube",
-    url: "https://youtube.com/",
-    icon: Youtube,
-    external: true,
-  },
-  {
-    title: "Google",
-    url: "https://google.com/",
-    icon: Search,
-    external: true,
-  },
-  {
-    title: "ChatGPT",
-    url: "https://chat.openai.com/",
-    icon: Brain,
-    external: true,
-  },
+// More Pages
+const morePages = [
+  { title: "Sitemap", url: "/niranx/sitemap", icon: Map },
+  { title: "Old Pages", url: "/niranx/old-pages", icon: Archive },
+  { title: "Feature Ideas", url: "/niranx/feature-suggestions", icon: Sparkles },
 ];
 
 export function AppSidebar() {
@@ -390,6 +152,21 @@ export function AppSidebar() {
   const location = useLocation();
   const currentPath = location.pathname;
   const isCollapsed = state === "collapsed";
+  
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    study: true,
+    progress: false,
+    media: false,
+    files: false,
+    social: false,
+    tools: false,
+    external: false,
+    more: false,
+  });
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
 
   const isActive = (path: string) => {
     if (path === "/niranx/dashboard") return currentPath === "/niranx/dashboard";
@@ -404,33 +181,31 @@ export function AppSidebar() {
   const renderNavItems = (items: any[], showExternalIcon = false) => (
     <>
       {items.map((item, index) => (
-        <SidebarMenuItem key={item.title} style={{ animationDelay: `${index * 0.05}s` }} className="animate-slide-in-left">
+        <SidebarMenuItem key={item.title}>
           <SidebarMenuButton asChild>
             {item.external ? (
               <button
                 onClick={(e) => handleExternalLink(item.url, e)}
-                className="flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all bg-sidebar-accent/50 hover:bg-sidebar-accent w-full text-left transform-3d hover:scale-105 hover:translate-x-1 group border border-sidebar-border"
+                className="flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:bg-sidebar-accent w-full text-left group"
               >
-                <item.icon className="h-4 w-4 text-sidebar-foreground group-hover:rotate-12 transition-transform duration-300" />
-                {!isCollapsed && (
-                  <span className="flex-1 text-sidebar-foreground font-medium">{item.title}</span>
-                )}
+                <item.icon className="h-4 w-4" />
+                {!isCollapsed && <span className="flex-1">{item.title}</span>}
                 {!isCollapsed && showExternalIcon && (
-                  <ExternalLink className="h-3 w-3 ml-auto text-sidebar-foreground/70 group-hover:text-sidebar-foreground transition-colors" />
+                  <ExternalLink className="h-3 w-3 ml-auto opacity-50" />
                 )}
               </button>
             ) : (
               <NavLink
                 to={item.url}
                 className={({ isActive: navIsActive }) =>
-                  `flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all transform-3d hover:scale-105 hover:translate-x-1 group border ${
+                  `flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
                     isActive(item.url) || navIsActive
-                      ? "bg-gradient-to-r from-primary to-primary-glow text-primary-foreground font-semibold shadow-lg animate-glow-pulse border-primary/50"
-                      : "bg-sidebar-accent/50 hover:bg-sidebar-accent text-sidebar-foreground font-medium border-sidebar-border"
+                      ? "bg-primary text-primary-foreground font-semibold"
+                      : "hover:bg-sidebar-accent"
                   }`
                 }
               >
-                <item.icon className="h-4 w-4 group-hover:rotate-12 transition-transform duration-300" />
+                <item.icon className="h-4 w-4" />
                 {!isCollapsed && <span>{item.title}</span>}
               </NavLink>
             )}
@@ -441,166 +216,181 @@ export function AppSidebar() {
   );
 
   return (
-    <Sidebar collapsible="icon" className="border-r backdrop-blur-xl bg-sidebar fixed left-0 top-0 h-screen animate-slide-in-right z-40">
-      <SidebarHeader className="border-b backdrop-blur-sm bg-sidebar border-sidebar-border">
-        <div className="flex items-center gap-3 px-3 py-2 group">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary-glow text-primary-foreground transform-3d group-hover:scale-110 transition-transform duration-300 animate-glow-pulse">
-            <GraduationCap className="h-4 w-4" />
+    <Sidebar className="border-r border-sidebar-border">
+      <SidebarHeader className="border-b border-sidebar-border p-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-purple-600">
+            <Zap className="h-5 w-5 text-white" />
           </div>
           {!isCollapsed && (
-            <div className="flex flex-col animate-fade-in">
-              <span className="text-sm font-semibold gradient-text">StudyVerse</span>
-              <span className="text-xs text-sidebar-foreground/70">Study Platform</span>
+            <div className="flex-1">
+              <h1 className="font-bold text-lg bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+                NiranX
+              </h1>
+              <p className="text-xs text-muted-foreground">StudyVerse</p>
             </div>
           )}
         </div>
+        {!isCollapsed && (
+          <div className="mt-3">
+            <XPDisplay />
+          </div>
+        )}
       </SidebarHeader>
 
-      <SidebarContent className="overflow-y-auto">
-        {/* Main Navigation */}
-        <SidebarGroup className="animate-fade-in">
-          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-primary/10 px-3 py-1.5 rounded-md animate-slide-in-left">Main</SidebarGroupLabel>
+      <SidebarContent>
+        {/* Core */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Core</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {renderNavItems(mainNavigation)}
-            </SidebarMenu>
+            <SidebarMenu>{renderNavItems(coreNavigation)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Study Tools */}
-        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.05s' }}>
-          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-accent/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.05s' }}>Study Tools</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {renderNavItems(studyNavigation)}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {/* Study & Focus */}
+        <Collapsible open={expandedSections.study} onOpenChange={() => toggleSection('study')}>
+          <SidebarGroup>
+            <CollapsibleTrigger asChild>
+              <SidebarGroupLabel className="cursor-pointer hover:bg-sidebar-accent/50 rounded px-2 -mx-2 flex items-center justify-between">
+                <span>Study & Focus</span>
+                <ChevronDown className={`h-4 w-4 transition-transform ${expandedSections.study ? '' : '-rotate-90'}`} />
+              </SidebarGroupLabel>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>{renderNavItems(studyNavigation)}</SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
 
-        {/* Content & Social */}
-        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
-          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-success/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.1s' }}>Content</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {renderNavItems(contentNavigation)}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {/* Progress & Gamification */}
+        <Collapsible open={expandedSections.progress} onOpenChange={() => toggleSection('progress')}>
+          <SidebarGroup>
+            <CollapsibleTrigger asChild>
+              <SidebarGroupLabel className="cursor-pointer hover:bg-sidebar-accent/50 rounded px-2 -mx-2 flex items-center justify-between">
+                <span>Progress & Rewards</span>
+                <ChevronDown className={`h-4 w-4 transition-transform ${expandedSections.progress ? '' : '-rotate-90'}`} />
+              </SidebarGroupLabel>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>{renderNavItems(progressNavigation)}</SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
 
         {/* Media */}
-        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.15s' }}>
-          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-warning/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.15s' }}>Media</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {renderNavItems(mediaNavigation)}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <Collapsible open={expandedSections.media} onOpenChange={() => toggleSection('media')}>
+          <SidebarGroup>
+            <CollapsibleTrigger asChild>
+              <SidebarGroupLabel className="cursor-pointer hover:bg-sidebar-accent/50 rounded px-2 -mx-2 flex items-center justify-between">
+                <span>Media</span>
+                <ChevronDown className={`h-4 w-4 transition-transform ${expandedSections.media ? '' : '-rotate-90'}`} />
+              </SidebarGroupLabel>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>{renderNavItems(mediaNavigation)}</SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
 
-        {/* Analytics */}
-        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
-          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-primary/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.2s' }}>Analytics</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {renderNavItems(analyticsNavigation)}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {/* Files & Cloud */}
+        <Collapsible open={expandedSections.files} onOpenChange={() => toggleSection('files')}>
+          <SidebarGroup>
+            <CollapsibleTrigger asChild>
+              <SidebarGroupLabel className="cursor-pointer hover:bg-sidebar-accent/50 rounded px-2 -mx-2 flex items-center justify-between">
+                <span>Files & Cloud</span>
+                <ChevronDown className={`h-4 w-4 transition-transform ${expandedSections.files ? '' : '-rotate-90'}`} />
+              </SidebarGroupLabel>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>{renderNavItems(filesNavigation)}</SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
 
-        {/* Gamification */}
-        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.25s' }}>
-          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-accent/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.25s' }}>Gamification</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {renderNavItems(gamificationNavigation)}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {/* Social */}
+        <Collapsible open={expandedSections.social} onOpenChange={() => toggleSection('social')}>
+          <SidebarGroup>
+            <CollapsibleTrigger asChild>
+              <SidebarGroupLabel className="cursor-pointer hover:bg-sidebar-accent/50 rounded px-2 -mx-2 flex items-center justify-between">
+                <span>Social & Community</span>
+                <ChevronDown className={`h-4 w-4 transition-transform ${expandedSections.social ? '' : '-rotate-90'}`} />
+              </SidebarGroupLabel>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>{renderNavItems(socialNavigation)}</SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
 
-        {/* Games */}
-        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
-          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-warning/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.3s' }}>Entertainment</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {renderNavItems(gameNavigation)}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Tools & Utilities */}
-        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.35s' }}>
-          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-accent/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.35s' }}>Tools</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {renderNavItems(toolsNavigation)}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Study Platforms */}
-        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
-          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-success/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.4s' }}>Study Platforms</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {renderNavItems(studyPlatforms, true)}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {/* Tools */}
+        <Collapsible open={expandedSections.tools} onOpenChange={() => toggleSection('tools')}>
+          <SidebarGroup>
+            <CollapsibleTrigger asChild>
+              <SidebarGroupLabel className="cursor-pointer hover:bg-sidebar-accent/50 rounded px-2 -mx-2 flex items-center justify-between">
+                <span>Tools & Utilities</span>
+                <ChevronDown className={`h-4 w-4 transition-transform ${expandedSections.tools ? '' : '-rotate-90'}`} />
+              </SidebarGroupLabel>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>{renderNavItems(toolsNavigation)}</SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
 
         {/* External Links */}
-        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.45s' }}>
-          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-warning/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.45s' }}>External Links</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {renderNavItems(mediaRedirects, true)}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <Collapsible open={expandedSections.external} onOpenChange={() => toggleSection('external')}>
+          <SidebarGroup>
+            <CollapsibleTrigger asChild>
+              <SidebarGroupLabel className="cursor-pointer hover:bg-sidebar-accent/50 rounded px-2 -mx-2 flex items-center justify-between">
+                <span>Quick Links</span>
+                <ChevronDown className={`h-4 w-4 transition-transform ${expandedSections.external ? '' : '-rotate-90'}`} />
+              </SidebarGroupLabel>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>{renderNavItems(externalPlatforms, true)}</SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
 
-        {/* Security & Privacy */}
-        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.5s' }}>
-          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-destructive/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.5s' }}>Security</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {renderNavItems(securityNavigation)}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* System */}
-        <SidebarGroup className="animate-fade-in" style={{ animationDelay: '0.55s' }}>
-          <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/90 bg-primary/10 px-3 py-1.5 rounded-md animate-slide-in-left" style={{ animationDelay: '0.55s' }}>System</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {renderNavItems(systemNavigation)}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {/* More */}
+        <Collapsible open={expandedSections.more} onOpenChange={() => toggleSection('more')}>
+          <SidebarGroup>
+            <CollapsibleTrigger asChild>
+              <SidebarGroupLabel className="cursor-pointer hover:bg-sidebar-accent/50 rounded px-2 -mx-2 flex items-center justify-between">
+                <span>More</span>
+                <ChevronDown className={`h-4 w-4 transition-transform ${expandedSections.more ? '' : '-rotate-90'}`} />
+              </SidebarGroupLabel>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>{renderNavItems(morePages)}</SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
       </SidebarContent>
 
-      <SidebarFooter className="border-t backdrop-blur-sm bg-sidebar border-sidebar-border p-2">
+      <SidebarFooter className="border-t border-sidebar-border p-4">
         <SidebarMenu>
-          <SidebarMenuItem className="animate-slide-up">
-            <SidebarMenuButton asChild className="h-auto">
-              <NavLink to="/niranx/profile" className="flex items-start gap-3 px-3 py-3 group hover:bg-accent/20 rounded-lg">
-                <Avatar className="h-8 w-8 ring-2 ring-primary/20 group-hover:ring-primary/50 transition-all duration-300 flex-shrink-0">
-                  <AvatarFallback className="bg-gradient-to-br from-primary to-primary-glow text-primary-foreground">
-                    U
-                  </AvatarFallback>
-                </Avatar>
-                {!isCollapsed && (
-                  <div className="flex-1 min-w-0 animate-fade-in space-y-2">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-sm font-medium text-sidebar-foreground group-hover:text-primary transition-colors">
-                        User Profile
-                      </p>
-                      <Settings className="h-4 w-4 flex-shrink-0 text-sidebar-foreground group-hover:rotate-90 transition-transform duration-300" />
-                    </div>
-                    <div className="w-full">
-                      <XPDisplay />
-                    </div>
-                  </div>
-                )}
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <NavLink to="/niranx/settings" className="flex items-center gap-3 hover:bg-sidebar-accent rounded-lg px-3 py-2">
+                <Settings className="h-4 w-4" />
+                {!isCollapsed && <span>Settings</span>}
               </NavLink>
             </SidebarMenuButton>
           </SidebarMenuItem>
