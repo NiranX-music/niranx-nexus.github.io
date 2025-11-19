@@ -389,6 +389,30 @@ export type Database = {
           },
         ]
       }
+      blocked_sites: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          url: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          url: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       blog_edits: {
         Row: {
           blog_id: string

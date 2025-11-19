@@ -9,6 +9,7 @@ import {
   Calendar,
   CalendarDays,
   BarChart3,
+  TrendingUp,
   GraduationCap,
   User,
   Users,
@@ -45,6 +46,8 @@ import {
   Lock,
   Map,
   Sparkles,
+  Flame,
+  Zap,
 } from "lucide-react";
 import {
   Sidebar,
@@ -89,14 +92,9 @@ const studyNavigation = [
     icon: Timer,
   },
   {
-    title: "Pomodoro",
-    url: "/niranx/pomodoro",
-    icon: Timer,
-  },
-  {
-    title: "Timetable",
-    url: "/niranx/timetable",
-    icon: Calendar,
+    title: "Distraction Blocker",
+    url: "/niranx/distraction-blocker",
+    icon: Shield,
   },
   {
     title: "Scheduler",
@@ -107,11 +105,6 @@ const studyNavigation = [
     title: "Exams",
     url: "/niranx/exams",
     icon: GraduationCap,
-  },
-  {
-    title: "Library",
-    url: "/niranx/library",
-    icon: Library,
   },
 ];
 
@@ -130,9 +123,14 @@ const contentNavigation = [
 
 const analyticsNavigation = [
   {
+    title: "Advanced Dashboard",
+    url: "/niranx/dashboard",
+    icon: BarChart3,
+  },
+  {
     title: "Analytics",
     url: "/niranx/analytics",
-    icon: BarChart3,
+    icon: TrendingUp,
   },
 ];
 
@@ -278,6 +276,11 @@ const gamificationNavigation = [
     title: "Daily Challenges",
     url: "/niranx/daily-challenges",
     icon: Target,
+  },
+  {
+    title: "Study Streaks",
+    url: "/niranx/study-streaks",
+    icon: Flame,
   },
   {
     title: "Goals",
