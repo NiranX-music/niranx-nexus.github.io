@@ -46,6 +46,7 @@ import BlogPost from "./pages/BlogPost";
 import GlobalSearch from "./pages/GlobalSearch";
 
 import VideoShare from "./pages/VideoShare";
+import VideoLibrary from "./pages/VideoLibrary";
 import PictureShare from "./pages/PictureShare";
 import StreamSphere from "./pages/StreamSphere";
 import WebSearch from "./pages/WebSearch";
@@ -146,6 +147,7 @@ const App = () => (
                           <Route path="/blogs/settings" element={<BlogSettings />} />
                           <Route path="/search" element={<GlobalSearch />} />
                           <Route path="/video-share" element={<VideoShare />} />
+                          <Route path="/video-library" element={<VideoLibrary />} />
                           <Route path="/picture-share" element={<PictureShare />} />
                           <Route path="/stream-sphere" element={<StreamSphere />} />
                           <Route path="/web-search" element={<WebSearch />} />

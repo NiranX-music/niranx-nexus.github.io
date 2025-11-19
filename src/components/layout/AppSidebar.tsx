@@ -157,6 +157,11 @@ const mediaNavigation = [
     icon: Video,
   },
   {
+    title: "Video Library",
+    url: "/niranx/video-library",
+    icon: Video,
+  },
+  {
     title: "Video Share",
     url: "/niranx/video-share",
     icon: Play,

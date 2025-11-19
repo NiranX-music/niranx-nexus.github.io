@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   Upload, 
   Play, 
@@ -39,6 +41,7 @@ export default function VideoPlayer() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   // Load saved videos from localStorage
   useEffect(() => {
@@ -77,7 +80,10 @@ export default function VideoPlayer() {
 
     // Event listeners
     player.on('play', () => setIsPlaying(true));
-    player.on('pause', () => setIsPlaying(false));
+    player.on('pause', () => {
+      setIsPlaying(false);
+      saveWatchProgress();
+    });
     player.on('timeupdate', () => {
       setCurrentTime(player.currentTime());
     });
@@ -87,6 +93,9 @@ export default function VideoPlayer() {
     player.on('volumechange', () => {
       setVolume(Math.round(player.volume() * 100));
     });
+    player.on('ended', () => {
+      markAsCompleted();
+    });
 
     return () => {
       if (playerRef.current) {
@@ -94,6 +103,61 @@ export default function VideoPlayer() {
       }
     };
   }, []);
+
+  // Save watch progress to database
+  const saveWatchProgress = async () => {
+    if (!user || !currentVideo || !playerRef.current) return;
+
+    try {
+      const currentPosition = Math.floor(playerRef.current.currentTime());
+      const videoDuration = Math.floor(playerRef.current.duration());
+
+      await supabase
+        .from('video_watch_history')
+        .upsert({
+          user_id: user.id,
+          video_name: currentVideo.name,
+          video_url: currentVideo.url,
+          duration_seconds: videoDuration,
+          last_position_seconds: currentPosition,
+          last_watched_at: new Date().toISOString(),
+        }, {
+          onConflict: 'user_id,video_url',
+          ignoreDuplicates: false
+        });
+    } catch (error) {
+      console.error('Error saving watch progress:', error);
+    }
+  };
+
+  // Mark video as completed
+  const markAsCompleted = async () => {
+    if (!user || !currentVideo) return;
+
+    try {
+      await supabase
+        .from('video_watch_history')
+        .upsert({
+          user_id: user.id,
+          video_name: currentVideo.name,
+          video_url: currentVideo.url,
+          duration_seconds: Math.floor(playerRef.current?.duration() || 0),
+          last_position_seconds: Math.floor(playerRef.current?.duration() || 0),
+          completed: true,
+          last_watched_at: new Date().toISOString(),
+        }, {
+          onConflict: 'user_id,video_url',
+          ignoreDuplicates: false
+        });
+
+      toast({
+        title: "Video completed! 🎉",
+        description: "Progress saved to your library"
+      });
+    } catch (error) {
+      console.error('Error marking as completed:', error);
+    }
+  };
 
   // Save video history to localStorage
   const saveVideoHistory = (history: VideoFile[]) => {
@@ -147,16 +211,32 @@ export default function VideoPlayer() {
         saveVideoHistory(updatedHistory);
       }
 
+      // Save to database if user is logged in
+      if (user) {
+        await supabase
+          .from('video_watch_history')
+          .upsert({
+            user_id: user.id,
+            video_name: fileName,
+            video_url: videoUrl,
+            first_watched_at: new Date().toISOString(),
+            last_watched_at: new Date().toISOString(),
+          }, {
+            onConflict: 'user_id,video_url',
+            ignoreDuplicates: false
+          });
+      }
+
       toast({
-        title: "Video Loaded Successfully",
-        description: `${fileName}`,
+        title: "Video loaded! 🎬",
+        description: `Now playing: ${fileName}`
       });
     } catch (error) {
       console.error('Error loading video:', error);
       toast({
-        title: "Error Loading Video",
-        description: "Please check if the file is a valid video format",
-        variant: "destructive",
+        title: "Error",
+        description: "Failed to load video",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);

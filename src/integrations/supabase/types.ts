@@ -717,6 +717,54 @@ export type Database = {
         }
         Relationships: []
       }
+      exams: {
+        Row: {
+          created_at: string | null
+          duration: string
+          exam_date: string
+          exam_time: string
+          id: string
+          name: string
+          notes: string | null
+          preparation_progress: number | null
+          priority: string | null
+          subject: string
+          syllabus: string[] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          duration: string
+          exam_date: string
+          exam_time: string
+          id?: string
+          name: string
+          notes?: string | null
+          preparation_progress?: number | null
+          priority?: string | null
+          subject: string
+          syllabus?: string[] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          duration?: string
+          exam_date?: string
+          exam_time?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          preparation_progress?: number | null
+          priority?: string | null
+          subject?: string
+          syllabus?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       fan_club_members: {
         Row: {
           fan_club_id: string | null
@@ -2817,6 +2865,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      video_watch_history: {
+        Row: {
+          completed: boolean | null
+          created_at: string | null
+          duration_seconds: number | null
+          first_watched_at: string | null
+          id: string
+          last_position_seconds: number | null
+          last_watched_at: string | null
+          user_id: string
+          video_name: string
+          video_url: string
+          watch_count: number | null
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          first_watched_at?: string | null
+          id?: string
+          last_position_seconds?: number | null
+          last_watched_at?: string | null
+          user_id: string
+          video_name: string
+          video_url: string
+          watch_count?: number | null
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          first_watched_at?: string | null
+          id?: string
+          last_position_seconds?: number | null
+          last_watched_at?: string | null
+          user_id?: string
+          video_name?: string
+          video_url?: string
+          watch_count?: number | null
+        }
+        Relationships: []
       }
       videos: {
         Row: {
