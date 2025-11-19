@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { GuestModeButton } from "@/components/GuestModeButton";
 
 const Landing = () => {
   const { user } = useAuth();
@@ -120,9 +121,7 @@ const Landing = () => {
                 Get Started Free
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button size="lg" variant="outline" className="text-lg px-8 py-6">
-                Watch Demo
-              </Button>
+              <GuestModeButton />
             </div>
           </div>
         </div>

@@ -9,6 +9,7 @@ import { MoodProvider } from "./contexts/MoodContext";
 import { FocusProvider } from "./contexts/FocusContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { NowPlayingProvider } from "./contexts/NowPlayingContext";
+import { GuestModeProvider } from "./contexts/GuestModeContext";
 import { AppLayout } from "./components/layout/AppLayout";
 import ThemeToggle from "./components/ui/ThemeToggle";
 import Landing from "./pages/Landing";
@@ -74,24 +75,27 @@ import Leaderboard from "./pages/Leaderboard";
 import RewardStore from "./pages/RewardStore";
 import ListeningLibrary from "./pages/ListeningLibrary";
 import Sitemap from "./pages/Sitemap";
+import KioskMode from "./pages/KioskMode";
+import FeatureSuggestions from "./pages/FeatureSuggestions";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
-      <XPProvider>
-        <MoodProvider>
-          <FocusProvider>
-            <NowPlayingProvider>
-              <TooltipProvider>
-                <ThemeToggle />
-                <Toaster />
-                <Sonner />
-                <BrowserRouter>
-                  <AuthProvider>
-                    <Routes>
-                      <Route path="/" element={<Landing />} />
+      <GuestModeProvider>
+        <XPProvider>
+          <MoodProvider>
+            <FocusProvider>
+              <NowPlayingProvider>
+                <TooltipProvider>
+                  <ThemeToggle />
+                  <Toaster />
+                  <Sonner />
+                  <BrowserRouter>
+                    <AuthProvider>
+                      <Routes>
+                        <Route path="/" element={<Landing />} />
                       <Route path="/niranx/auth" element={<Auth />} />
                       <Route path="/niranx/reset-password" element={<ResetPassword />} />
                       <Route path="/niranx/magic-link" element={<MagicLink />} />
@@ -155,6 +159,8 @@ const App = () => (
                           <Route path="/reward-store" element={<RewardStore />} />
                           <Route path="/listening-library" element={<ListeningLibrary />} />
                           <Route path="/sitemap" element={<Sitemap />} />
+                          <Route path="/kiosk-mode" element={<KioskMode />} />
+                          <Route path="/feature-suggestions" element={<FeatureSuggestions />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </AppLayout>
@@ -168,8 +174,9 @@ const App = () => (
           </FocusProvider>
         </MoodProvider>
       </XPProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
+    </GuestModeProvider>
+  </ThemeProvider>
+</QueryClientProvider>
 );
 
 export default App;
