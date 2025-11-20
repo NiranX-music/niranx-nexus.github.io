@@ -662,7 +662,15 @@ export type Database = {
           track_id?: string | null
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "listening_history_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "tracks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       messages: {
         Row: {
@@ -1615,24 +1623,45 @@ export type Database = {
       }
       video_watch_history: {
         Row: {
+          completed: boolean | null
+          duration_seconds: number | null
           duration_watched: number | null
+          first_watched_at: string | null
           id: string
+          last_position_seconds: number | null
+          last_watched_at: string | null
           user_id: string
-          video_id: string
+          video_name: string
+          video_url: string
+          watch_count: number | null
           watched_at: string | null
         }
         Insert: {
+          completed?: boolean | null
+          duration_seconds?: number | null
           duration_watched?: number | null
+          first_watched_at?: string | null
           id?: string
+          last_position_seconds?: number | null
+          last_watched_at?: string | null
           user_id: string
-          video_id: string
+          video_name?: string
+          video_url?: string
+          watch_count?: number | null
           watched_at?: string | null
         }
         Update: {
+          completed?: boolean | null
+          duration_seconds?: number | null
           duration_watched?: number | null
+          first_watched_at?: string | null
           id?: string
+          last_position_seconds?: number | null
+          last_watched_at?: string | null
           user_id?: string
-          video_id?: string
+          video_name?: string
+          video_url?: string
+          watch_count?: number | null
           watched_at?: string | null
         }
         Relationships: []
