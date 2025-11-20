@@ -4,8 +4,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Trophy, Medal, Award, TrendingUp, Zap, Clock, CheckCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Trophy, Medal, Award, TrendingUp, Zap, Clock, CheckCircle, RefreshCw } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { toast } from 'sonner';
 
 interface LeaderboardEntry {
   id: string;
@@ -25,6 +27,7 @@ export default function Leaderboard() {
   const [tasksCompleted, setTasksCompleted] = useState<LeaderboardEntry[]>([]);
   const [streaks, setStreaks] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -37,6 +40,13 @@ export default function Leaderboard() {
       const today = new Date();
       const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
       const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+      // Refresh leaderboard data first (silently)
+      try {
+        await supabase.rpc('refresh_current_month_leaderboard');
+      } catch (error) {
+        console.log('Could not refresh leaderboard:', error);
+      }
 
       // Fetch different leaderboard types
       const [xpData, timeData, taskData, streakData] = await Promise.all([
@@ -52,8 +62,23 @@ export default function Leaderboard() {
       setStreaks(streakData || []);
     } catch (error) {
       console.error('Error fetching leaderboards:', error);
+      toast.error('Failed to load leaderboard data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await supabase.rpc('refresh_current_month_leaderboard');
+      await fetchLeaderboards();
+      toast.success('Leaderboard refreshed!');
+    } catch (error) {
+      console.error('Error refreshing leaderboard:', error);
+      toast.error('Failed to refresh leaderboard');
+    } finally {
+      setRefreshing(false);
     }
   };
 
@@ -149,12 +174,23 @@ export default function Leaderboard() {
 
   return (
     <div className="container max-w-6xl mx-auto p-6 space-y-6">
-      <div className="flex items-center gap-3">
-        <Trophy className="w-8 h-8 text-primary" />
-        <div>
-          <h1 className="text-3xl font-bold gradient-text">Leaderboard</h1>
-          <p className="text-muted-foreground">See how you rank against other students</p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Trophy className="w-8 h-8 text-primary" />
+          <div>
+            <h1 className="text-3xl font-bold gradient-text">Leaderboard</h1>
+            <p className="text-muted-foreground">Compete with other students</p>
+          </div>
         </div>
+        <Button 
+          onClick={handleRefresh} 
+          disabled={refreshing}
+          variant="outline"
+          size="sm"
+        >
+          <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+          Refresh
+        </Button>
       </div>
 
       <Tabs defaultValue="xp" className="w-full">
