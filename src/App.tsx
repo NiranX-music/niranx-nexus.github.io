@@ -86,6 +86,7 @@ import StudyStreakChallenges from "./pages/StudyStreakChallenges";
 import SharedResource from "./pages/SharedResource";
 import OldPageArchive from "./pages/OldPageArchive";
 import NotificationSettings from "./pages/NotificationSettings";
+import BecomeAdmin from "./pages/BecomeAdmin";
 import AdminDashboard from "./pages/AdminDashboard";
 import { AdminRoute } from "./components/AdminRoute";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -159,6 +160,7 @@ const App = () => (
                           <Route path="/ai-chat" element={<AIChat />} />
                           <Route path="/notifications" element={<Notifications />} />
                           <Route path="/notification-settings" element={<NotificationSettings />} />
+                          <Route path="/become-admin" element={<BecomeAdmin />} />
                           <Route path="/video-share" element={<VideoShare />} />
                           <Route path="/video-library" element={<VideoLibrary />} />
                           <Route path="/picture-share" element={<PictureShare />} />
