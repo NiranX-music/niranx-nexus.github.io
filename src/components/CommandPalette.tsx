@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
 import { 
   Home, CheckSquare, Timer, User, Search, MessageCircle,
   BarChart3, TrendingUp, Target, Star, Trophy, ShoppingBag,
@@ -13,7 +14,7 @@ import {
   GraduationCap, PenTool, Shield, Flame, Gamepad2, FileMusic,
   Headphones, Youtube, Upload, Image, HardDrive, MessagesSquare,
   Smartphone, Lock, Map, Sparkles, Archive, Brain, Bell, UserCog,
-  Clock, Heart, Zap, Settings, Play, Plus, FileText, File
+  Clock, Heart, Zap, Settings, Play, Plus, FileText, File, Layers
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,6 +22,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { QuickNoteDialog } from "./QuickNoteDialog";
+import { useWorkspaces } from "@/hooks/useWorkspaces";
 
 interface Page {
   title: string;
@@ -109,12 +111,27 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const [recentPages, setRecentPages] = useState<Page[]>([]);
   const [recentResources, setRecentResources] = useState<RecentResource[]>([]);
   const [quickNoteOpen, setQuickNoteOpen] = useState(false);
+  const [showWorkspaces, setShowWorkspaces] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
+  const { workspaces, activeWorkspace, switchWorkspace, createWorkspace } = useWorkspaces();
 
   // Define quick actions
   const quickActions: QuickAction[] = [
+    {
+      title: "Focus Mode (All-in-One)",
+      icon: Zap,
+      description: "Start Pomodoro + Block Distractions + DND",
+      category: "Actions",
+      action: () => {
+        navigate("/niranx/focus-engine");
+        onOpenChange(false);
+        toast.success("Focus Mode activated! 🎯");
+        // Store focus mode state
+        localStorage.setItem("focusModeActive", "true");
+      },
+    },
     {
       title: "Start Pomodoro",
       icon: Play,
@@ -406,12 +423,59 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             <span>↑↓ Navigate</span>
             <span>↵ Select</span>
             <span>ESC Close</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowWorkspaces(!showWorkspaces)}
+              className="h-6 text-xs"
+            >
+              <Layers className="h-3 w-3 mr-1" />
+              Workspaces
+            </Button>
           </div>
           <div className="flex items-center gap-1">
             <Clock className="h-3 w-3" />
             <span>{allItems.length} results</span>
           </div>
         </div>
+
+        {/* Workspace Panel */}
+        {showWorkspaces && (
+          <div className="border-t p-3 space-y-2">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-semibold">Workspaces</span>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  const name = prompt("Workspace name:");
+                  if (name) createWorkspace(name);
+                }}
+              >
+                <Plus className="h-3 w-3 mr-1" />
+                New
+              </Button>
+            </div>
+            {workspaces.map((workspace) => (
+              <Button
+                key={workspace.id}
+                variant={activeWorkspace?.id === workspace.id ? "default" : "ghost"}
+                className="w-full justify-start"
+                size="sm"
+                onClick={() => {
+                  switchWorkspace(workspace.id);
+                  setShowWorkspaces(false);
+                }}
+              >
+                <Layers className="h-3 w-3 mr-2" />
+                {workspace.name}
+                {activeWorkspace?.id === workspace.id && (
+                  <Badge variant="secondary" className="ml-auto">Active</Badge>
+                )}
+              </Button>
+            ))}
+          </div>
+        )}
       </DialogContent>
 
       <QuickNoteDialog open={quickNoteOpen} onOpenChange={setQuickNoteOpen} />

@@ -19,6 +19,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, X } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Favorite } from "@/hooks/useFavorites";
 import { cn } from "@/lib/utils";
 import * as LucideIcons from "lucide-react";
@@ -34,9 +35,10 @@ interface SortableFavoriteItemProps {
   navItem?: NavItem;
   onRemove: (id: string) => void;
   isActive: boolean;
+  index: number;
 }
 
-function SortableFavoriteItem({ favorite, navItem, onRemove, isActive }: SortableFavoriteItemProps) {
+function SortableFavoriteItem({ favorite, navItem, onRemove, isActive, index }: SortableFavoriteItemProps) {
   const {
     attributes,
     listeners,
@@ -86,6 +88,13 @@ function SortableFavoriteItem({ favorite, navItem, onRemove, isActive }: Sortabl
       >
         <IconComponent className="h-4 w-4" />
         <span>{favorite.page_title}</span>
+        <div className="ml-auto flex items-center gap-1">
+          {index < 9 && (
+            <Badge variant="secondary" className="text-xs">
+              ⌘{index + 1}
+            </Badge>
+          )}
+        </div>
       </NavLink>
 
       <Button
@@ -152,7 +161,7 @@ export function DraggableFavorites({
     >
       <SortableContext items={items} strategy={verticalListSortingStrategy}>
         <div className="space-y-1">
-          {items.map((favorite) => {
+          {items.map((favorite, index) => {
             const navItem = navItems.find(item => item.url === favorite.page_url);
             return (
               <SortableFavoriteItem
@@ -161,6 +170,7 @@ export function DraggableFavorites({
                 navItem={navItem}
                 onRemove={onRemove}
                 isActive={currentPath === favorite.page_url}
+                index={index}
               />
             );
           })}

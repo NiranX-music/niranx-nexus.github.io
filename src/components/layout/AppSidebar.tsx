@@ -76,7 +76,7 @@ import { DraggableFavorites } from "@/components/DraggableFavorites";
 // Core Navigation
 const coreNavigation = [
   { title: "Dashboard", url: "/niranx/dashboard", icon: Home },
-  { title: "Search", url: "/niranx/search", icon: Search },
+  { title: "Web Search", url: "/niranx/web-search", icon: Search },
   { title: "Profile", url: "/niranx/profile", icon: User },
   { title: "Feedback & Suggestions", url: "/niranx/feedback", icon: MessagesSquare },
 ];
@@ -158,6 +158,14 @@ const systemNavigation = [
   { title: "Notification Settings", url: "/niranx/notification-settings", icon: Bell },
 ];
 
+// Archive - Old Pages
+const archiveNavigation = [
+  { title: "Global Search", url: "/niranx/search", icon: Search },
+  { title: "Pomodoro", url: "/niranx/pomodoro", icon: Timer },
+  { title: "Smart Timetable", url: "/niranx/smart-timetable", icon: Calendar },
+  { title: "Library", url: "/niranx/library", icon: BookOpen },
+];
+
 // More Pages
 const morePages = [
   { title: "Sitemap", url: "/niranx/sitemap", icon: Map },
@@ -185,6 +193,7 @@ export function AppSidebar() {
     external: false,
     admin: true,
     system: false,
+    archive: false,
     more: false,
   });
 
@@ -532,6 +541,23 @@ export function AppSidebar() {
             <CollapsibleContent>
               <SidebarGroupContent>
                 <SidebarMenu>{renderNavItems(systemNavigation)}</SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
+
+        {/* Archive */}
+        <Collapsible open={expandedSections.archive} onOpenChange={() => toggleSection('archive')}>
+          <SidebarGroup>
+            <CollapsibleTrigger asChild>
+              <SidebarGroupLabel className="cursor-pointer hover:bg-sidebar-accent/60 rounded px-2 -mx-2 flex items-center justify-between text-white font-semibold">
+                <span>Archive</span>
+                <ChevronDown className={`h-4 w-4 transition-transform text-white ${expandedSections.archive ? '' : '-rotate-90'}`} />
+              </SidebarGroupLabel>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>{renderNavItems(archiveNavigation)}</SidebarMenu>
               </SidebarGroupContent>
             </CollapsibleContent>
           </SidebarGroup>
