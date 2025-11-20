@@ -10,6 +10,7 @@ import { KeyboardShortcutsHelp } from "@/components/KeyboardShortcutsHelp";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { useFavorites } from "@/hooks/useFavorites";
 import { useNavigate } from "react-router-dom";
 import { Keyboard } from "lucide-react";
 import {
@@ -46,6 +47,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const breadcrumbs = getBreadcrumbs(location.pathname);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [shortcutsHelpOpen, setShortcutsHelpOpen] = useState(false);
+  const { favorites } = useFavorites();
 
   // Keyboard shortcuts
   useKeyboardShortcuts([
@@ -91,6 +93,13 @@ export function AppLayout({ children }: AppLayoutProps) {
       callback: () => setShortcutsHelpOpen(true),
       description: "Show keyboard shortcuts",
     },
+    // Favorites shortcuts (⌘1-9)
+    ...favorites.slice(0, 9).map((fav, index) => ({
+      key: String(index + 1),
+      metaKey: true,
+      callback: () => navigate(fav.page_url),
+      description: `Go to ${fav.page_title}`,
+    })),
   ]);
 
 

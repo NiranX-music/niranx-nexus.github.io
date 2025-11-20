@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { 
   BarChart3, TrendingUp, Calendar, Clock, Target, 
   Flame, Award, BookOpen, Brain, Zap 
@@ -24,6 +25,8 @@ export default function AdvancedDashboard() {
     avgFocusTime: 0,
     productivity: 0,
   });
+  const [recentSessions, setRecentSessions] = useState<any[]>([]);
+  const [recentTasks, setRecentTasks] = useState<any[]>([]);
 
   useEffect(() => {
     if (user) {
@@ -121,6 +124,10 @@ export default function AdvancedDashboard() {
         avgFocusTime,
         productivity,
       });
+
+      // Set recent sessions and tasks for tables
+      setRecentSessions(sessions?.slice(0, 10) || []);
+      setRecentTasks(tasks?.slice(0, 10) || []);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     }
