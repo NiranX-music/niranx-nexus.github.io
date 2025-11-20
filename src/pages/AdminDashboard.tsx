@@ -43,6 +43,7 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<any[]>([]);
   const [resources, setResources] = useState<any[]>([]);
   const [userRoles, setUserRoles] = useState<any[]>([]);
+  const [adminRequests, setAdminRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -61,6 +62,7 @@ export default function AdminDashboard() {
         loadUsers(),
         loadResources(),
         loadUserRoles(),
+        loadAdminRequests(),
       ]);
     } catch (error) {
       console.error('Error loading dashboard data:', error);
@@ -191,6 +193,71 @@ export default function AdminDashboard() {
     }
   };
 
+  };
+
+  const loadAdminRequests = async () => {
+    const { data, error } = await supabase
+      .from('admin_requests')
+      .select(`
+        *,
+        profiles:user_id (username, display_name, avatar_url)
+      `)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error loading admin requests:', error);
+    } else {
+      setAdminRequests(data || []);
+    }
+  };
+
+  const updateRequestStatus = async (requestId: string, status: 'approved' | 'rejected', userId: string) => {
+    const currentUser = await supabase.auth.getUser();
+    
+    // Update the request status
+    const { error: updateError } = await supabase
+      .from('admin_requests')
+      .update({
+        status,
+        reviewed_by: currentUser.data.user?.id,
+        reviewed_at: new Date().toISOString(),
+      })
+      .eq('id', requestId);
+
+    if (updateError) {
+      toast({
+        title: "Error",
+        description: "Failed to update request status",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // If approved, add admin role
+    if (status === 'approved') {
+      const { error: roleError } = await supabase
+        .from('user_roles')
+        .insert([{ user_id: userId, role: 'admin' }]);
+
+      if (roleError) {
+        toast({
+          title: "Error",
+          description: "Failed to assign admin role",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    toast({
+      title: "Success",
+      description: `Request ${status} successfully`,
+    });
+
+    loadAdminRequests();
+    loadUserRoles();
+  };
+
   const updateFeedbackStatus = async (id: string, status: string) => {
     const { error } = await supabase
       .from('feedback_suggestions')
@@ -260,11 +327,19 @@ export default function AdminDashboard() {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6 lg:w-auto">
+        <TabsList className="grid w-full grid-cols-7 lg:w-auto">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="feedback">Feedback</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="roles">Roles</TabsTrigger>
+          <TabsTrigger value="requests">
+            Admin Requests
+            {adminRequests.filter(r => r.status === 'pending').length > 0 && (
+              <Badge variant="destructive" className="ml-2">
+                {adminRequests.filter(r => r.status === 'pending').length}
+              </Badge>
+            )}
+          </TabsTrigger>
           <TabsTrigger value="resources">Resources</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
@@ -601,6 +676,88 @@ export default function AdminDashboard() {
                         </TableCell>
                       </TableRow>
                     ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="requests" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Admin Access Requests</CardTitle>
+              <CardDescription>Review and manage user requests for admin access</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>User</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Reason</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {adminRequests.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center text-muted-foreground">
+                          No admin requests found
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      adminRequests.map((request) => (
+                        <TableRow key={request.id}>
+                          <TableCell className="font-medium">
+                            {request.profiles?.display_name || request.full_name}
+                          </TableCell>
+                          <TableCell>{request.email}</TableCell>
+                          <TableCell className="max-w-md">
+                            <p className="line-clamp-2 text-sm">{request.reason}</p>
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant={
+                                request.status === 'approved'
+                                  ? 'default'
+                                  : request.status === 'rejected'
+                                  ? 'destructive'
+                                  : 'secondary'
+                              }
+                            >
+                              {request.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {new Date(request.created_at).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>
+                            {request.status === 'pending' && (
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="default"
+                                  onClick={() => updateRequestStatus(request.id, 'approved', request.user_id)}
+                                >
+                                  Approve
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => updateRequestStatus(request.id, 'rejected', request.user_id)}
+                                >
+                                  Reject
+                                </Button>
+                              </div>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </div>
