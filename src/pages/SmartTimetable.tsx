@@ -5,6 +5,9 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AIContextualSuggestions } from '@/components/AIContextualSuggestions';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   Calendar, 
   Clock, 
@@ -16,9 +19,12 @@ import {
   Coffee,
   Sunrise,
   Sun,
-  Moon
+  Moon,
+  Sparkles,
+  Loader2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { toast as sonnerToast } from 'sonner';
 
 interface SubSlot {
   id: string;
@@ -56,6 +62,9 @@ const SmartTimetable = () => {
   ]);
   const [selectedDay, setSelectedDay] = useState('monday');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [aiDialogOpen, setAiDialogOpen] = useState(false);
+  const [aiTiming, setAiTiming] = useState('');
+  const [aiPriority, setAiPriority] = useState<'high' | 'medium' | 'low'>('medium');
   const { toast } = useToast();
 
   const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
@@ -206,6 +215,51 @@ const SmartTimetable = () => {
     }, 2000);
   };
 
+  const generateWithAI = async () => {
+    if (!aiTiming || subjects.length === 0) {
+      sonnerToast.error('Please provide timing information');
+      return;
+    }
+    setIsGenerating(true);
+    setAiDialogOpen(false);
+    try {
+      const { data, error } = await supabase.functions.invoke('timetable-ai', {
+        body: { subjects, timing: aiTiming, priority: aiPriority }
+      });
+      if (error) throw error;
+      if (data.timetable && Array.isArray(data.timetable)) {
+        const convertedSlots: TimeSlot[] = [];
+        data.timetable.forEach((dayData: any) => {
+          dayData.slots?.forEach((slot: any, index: number) => {
+            convertedSlots.push({
+              id: `${dayData.day}-${index}`,
+              subject: slot.subject,
+              startTime: slot.time.split(' - ')[0],
+              endTime: slot.time.split(' - ')[1],
+              day: dayData.day.toLowerCase(),
+              type: slot.activity === 'Study' ? 'study' : 'break',
+              priority: slot.priority as 'high' | 'medium' | 'low',
+              color: subjects.find(s => s.name === slot.subject)?.color || 'bg-gray-500',
+              subSlots: [
+                { id: '1', name: 'Slot 1', task: slot.activity, completed: false },
+                { id: '2', name: 'Slot 2', task: 'Practice', completed: false },
+                { id: '3', name: 'Slot 3', task: 'Review', completed: false },
+                { id: '4', name: 'Slot 4', task: 'Notes', completed: false },
+                { id: '5', name: 'Slot 5', task: 'Summary', completed: false }
+              ]
+            });
+          });
+        });
+        setTimeSlots(convertedSlots);
+        sonnerToast.success('AI Timetable generated!');
+      }
+    } catch (error: any) {
+      sonnerToast.error(error.message || 'Failed to generate timetable');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const getTodaySlots = () => {
     return timeSlots.filter(slot => slot.day === selectedDay);
   };
@@ -268,7 +322,7 @@ const SmartTimetable = () => {
               </Select>
             </div>
             
-            <div className="flex items-end">
+            <div className="flex items-end gap-2">
               <Button 
                 onClick={generateSmartTimetable}
                 disabled={isGenerating}
@@ -277,6 +331,53 @@ const SmartTimetable = () => {
                 <Brain className="w-4 h-4" />
                 {isGenerating ? 'Generating...' : 'Generate Smart Schedule'}
               </Button>
+              
+              <Dialog open={aiDialogOpen} onOpenChange={setAiDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4" />
+                    AI Generate
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>AI Timetable Generator</DialogTitle>
+                    <DialogDescription>
+                      Let AI create a personalized timetable based on your subjects, timing, and priorities
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label>Available Time</Label>
+                      <Input
+                        placeholder="e.g., 9 AM to 5 PM weekdays"
+                        value={aiTiming}
+                        onChange={(e) => setAiTiming(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Overall Priority</Label>
+                      <Select value={aiPriority} onValueChange={(v: any) => setAiPriority(v)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="high">High - Intensive Study</SelectItem>
+                          <SelectItem value="medium">Medium - Balanced</SelectItem>
+                          <SelectItem value="low">Low - Relaxed Pace</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <Button onClick={generateWithAI} disabled={isGenerating} className="w-full">
+                    {isGenerating ? (
+                      <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Generating...</>
+                    ) : (
+                      <><Sparkles className="w-4 h-4 mr-2" />Generate with AI</>
+                    )}
+                  </Button>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
 
