@@ -1,10 +1,17 @@
+import { useState } from "react";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { RightSidebar } from "./RightSidebar";
 import { NowPlaying } from "./NowPlaying";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { NotificationCenter } from "@/components/NotificationCenter";
+import { CommandPalette } from "@/components/CommandPalette";
+import { KeyboardShortcutsHelp } from "@/components/KeyboardShortcutsHelp";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { useNavigate } from "react-router-dom";
+import { Keyboard } from "lucide-react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -35,7 +42,56 @@ const getBreadcrumbs = (pathname: string) => {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const location = useLocation();
+  const navigate = useNavigate();
   const breadcrumbs = getBreadcrumbs(location.pathname);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [shortcutsHelpOpen, setShortcutsHelpOpen] = useState(false);
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts([
+    {
+      key: "k",
+      metaKey: true,
+      callback: () => setCommandPaletteOpen(true),
+      description: "Open command palette",
+    },
+    {
+      key: "k",
+      ctrlKey: true,
+      callback: () => setCommandPaletteOpen(true),
+      description: "Open command palette",
+    },
+    {
+      key: "1",
+      metaKey: true,
+      callback: () => navigate("/niranx/dashboard"),
+      description: "Go to Dashboard",
+    },
+    {
+      key: "2",
+      metaKey: true,
+      callback: () => navigate("/niranx/tasks"),
+      description: "Go to Tasks",
+    },
+    {
+      key: "3",
+      metaKey: true,
+      callback: () => navigate("/niranx/focus-engine"),
+      description: "Go to Focus Engine",
+    },
+    {
+      key: "4",
+      metaKey: true,
+      callback: () => navigate("/niranx/profile"),
+      description: "Go to Profile",
+    },
+    {
+      key: "?",
+      shiftKey: true,
+      callback: () => setShortcutsHelpOpen(true),
+      description: "Show keyboard shortcuts",
+    },
+  ]);
 
 
   return (
@@ -66,7 +122,16 @@ export function AppLayout({ children }: AppLayoutProps) {
                 ))}
               </BreadcrumbList>
             </Breadcrumb>
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShortcutsHelpOpen(true)}
+                className="hover:bg-accent"
+                title="Keyboard shortcuts (Shift + ?)"
+              >
+                <Keyboard className="h-4 w-4" />
+              </Button>
               <NotificationCenter />
             </div>
           </header>
@@ -77,6 +142,8 @@ export function AppLayout({ children }: AppLayoutProps) {
         <RightSidebar />
         <NowPlaying />
         <MobileBottomNav />
+        <CommandPalette open={commandPaletteOpen} onOpenChange={setCommandPaletteOpen} />
+        <KeyboardShortcutsHelp open={shortcutsHelpOpen} onOpenChange={setShortcutsHelpOpen} />
       </div>
     </SidebarProvider>
   );
