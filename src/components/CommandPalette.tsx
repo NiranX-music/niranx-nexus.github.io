@@ -13,12 +13,14 @@ import {
   GraduationCap, PenTool, Shield, Flame, Gamepad2, FileMusic,
   Headphones, Youtube, Upload, Image, HardDrive, MessagesSquare,
   Smartphone, Lock, Map, Sparkles, Archive, Brain, Bell, UserCog,
-  Clock, Heart, Zap, Settings
+  Clock, Heart, Zap, Settings, Play, Plus, FileText, File
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { QuickNoteDialog } from "./QuickNoteDialog";
 
 interface Page {
   title: string;
@@ -26,6 +28,22 @@ interface Page {
   icon: any;
   category: string;
   keywords?: string[];
+}
+
+interface QuickAction {
+  title: string;
+  icon: any;
+  action: () => void;
+  category: "Actions";
+  description: string;
+}
+
+interface RecentResource {
+  title: string;
+  url: string;
+  icon: any;
+  category: "Recent Resources";
+  type: string;
 }
 
 const allPages: Page[] = [
@@ -89,15 +107,54 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const [search, setSearch] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [recentPages, setRecentPages] = useState<Page[]>([]);
+  const [recentResources, setRecentResources] = useState<RecentResource[]>([]);
+  const [quickNoteOpen, setQuickNoteOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
+
+  // Define quick actions
+  const quickActions: QuickAction[] = [
+    {
+      title: "Start Pomodoro",
+      icon: Play,
+      description: "Start a focus session",
+      category: "Actions",
+      action: () => {
+        navigate("/niranx/focus-engine");
+        onOpenChange(false);
+        toast.success("Opening Focus Engine");
+      },
+    },
+    {
+      title: "Create New Task",
+      icon: Plus,
+      description: "Add a new task",
+      category: "Actions",
+      action: () => {
+        navigate("/niranx/tasks");
+        onOpenChange(false);
+        toast.success("Opening Tasks");
+      },
+    },
+    {
+      title: "Quick Note",
+      icon: FileText,
+      description: "Create a quick note",
+      category: "Actions",
+      action: () => {
+        setQuickNoteOpen(true);
+        onOpenChange(false);
+      },
+    },
+  ];
 
   useEffect(() => {
     if (open) {
       setSearch("");
       setSelectedIndex(0);
       fetchRecentPages();
+      fetchRecentResources();
     }
   }, [open]);
 
@@ -129,33 +186,79 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     }
   }
 
-  const filteredPages = useMemo(() => {
+  async function fetchRecentResources() {
+    if (!user) return;
+
+    try {
+      // Fetch recent study materials
+      const { data, error } = await supabase
+        .from("study_materials")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+      if (error) throw error;
+
+      const resources: RecentResource[] = data.map(material => ({
+        title: material.name,
+        url: material.url || `/niranx/file-hub?file=${material.id}`,
+        icon: material.type === "video" ? Video : material.type === "audio" ? Music : File,
+        category: "Recent Resources",
+        type: material.type,
+      }));
+
+      setRecentResources(resources);
+    } catch (error) {
+      console.error("Error fetching recent resources:", error);
+    }
+  }
+
+  const allItems = useMemo(() => {
+    const items: Array<Page | QuickAction | RecentResource> = [];
+    
     if (!search.trim()) {
-      return recentPages;
+      // When not searching, show quick actions, recent pages, and recent resources
+      items.push(...quickActions, ...recentPages, ...recentResources);
+    } else {
+      // When searching, filter pages and actions
+      const query = search.toLowerCase();
+      
+      const matchedPages = allPages.filter(page => {
+        const titleMatch = page.title.toLowerCase().includes(query);
+        const categoryMatch = page.category.toLowerCase().includes(query);
+        const keywordsMatch = page.keywords?.some(k => k.toLowerCase().includes(query));
+        return titleMatch || categoryMatch || keywordsMatch;
+      });
+
+      const matchedActions = quickActions.filter(action =>
+        action.title.toLowerCase().includes(query) ||
+        action.description.toLowerCase().includes(query)
+      );
+
+      const matchedResources = recentResources.filter(resource =>
+        resource.title.toLowerCase().includes(query)
+      );
+
+      items.push(...matchedActions, ...matchedPages, ...matchedResources);
     }
 
-    const query = search.toLowerCase();
-    return allPages.filter(page => {
-      const titleMatch = page.title.toLowerCase().includes(query);
-      const categoryMatch = page.category.toLowerCase().includes(query);
-      const keywordsMatch = page.keywords?.some(k => k.toLowerCase().includes(query));
-      return titleMatch || categoryMatch || keywordsMatch;
-    });
-  }, [search, recentPages]);
+    return items;
+  }, [search, recentPages, recentResources, quickActions]);
 
-  const groupedPages = useMemo(() => {
-    const groups: Record<string, Page[]> = {};
+  const groupedItems = useMemo(() => {
+    const groups: Record<string, Array<Page | QuickAction | RecentResource>> = {};
     
-    filteredPages.forEach(page => {
-      const category = search.trim() ? page.category : "Recent";
+    allItems.forEach(item => {
+      const category = item.category;
       if (!groups[category]) {
         groups[category] = [];
       }
-      groups[category].push(page);
+      groups[category].push(item);
     });
 
     return groups;
-  }, [filteredPages, search]);
+  }, [allItems]);
 
   async function trackPageVisit(pageUrl: string, pageTitle: string) {
     if (!user) return;
@@ -171,10 +274,23 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     }
   }
 
-  function handleNavigate(page: Page) {
-    trackPageVisit(page.url, page.title);
-    navigate(page.url);
-    onOpenChange(false);
+  function handleSelect(item: Page | QuickAction | RecentResource) {
+    if ("action" in item) {
+      // It's a QuickAction
+      item.action();
+    } else if ("url" in item) {
+      // It's a Page or RecentResource
+      if (item.category === "Recent Resources") {
+        // Handle resource opening
+        window.open(item.url, "_blank");
+        onOpenChange(false);
+      } else {
+        // It's a page navigation
+        trackPageVisit(item.url, item.title);
+        navigate(item.url);
+        onOpenChange(false);
+      }
+    }
   }
 
   useEffect(() => {
@@ -183,22 +299,22 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
 
       if (e.key === "ArrowDown") {
         e.preventDefault();
-        setSelectedIndex(prev => Math.min(prev + 1, filteredPages.length - 1));
+        setSelectedIndex(prev => Math.min(prev + 1, allItems.length - 1));
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
         setSelectedIndex(prev => Math.max(prev - 1, 0));
       } else if (e.key === "Enter") {
         e.preventDefault();
-        const page = filteredPages[selectedIndex];
-        if (page) {
-          handleNavigate(page);
+        const item = allItems[selectedIndex];
+        if (item) {
+          handleSelect(item);
         }
       }
     }
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [open, selectedIndex, filteredPages]);
+  }, [open, selectedIndex, allItems]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -223,19 +339,22 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
 
         <ScrollArea className="max-h-[400px]">
           <div className="p-2">
-            {Object.entries(groupedPages).map(([category, pages]) => (
+            {Object.entries(groupedItems).map(([category, items]) => (
               <div key={category} className="mb-4">
                 <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
                   {category}
                 </div>
-                {pages.map((page, idx) => {
-                  const globalIndex = filteredPages.indexOf(page);
-                  const Icon = page.icon;
+                {items.map((item) => {
+                  const globalIndex = allItems.indexOf(item);
+                  const Icon = item.icon;
+                  const isAction = "action" in item;
+                  const isResource = item.category === "Recent Resources";
+                  const isCurrentPage = "url" in item && item.url === location.pathname;
                   
                   return (
                     <button
-                      key={page.url}
-                      onClick={() => handleNavigate(page)}
+                      key={item.title}
+                      onClick={() => handleSelect(item)}
                       className={cn(
                         "flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm transition-colors",
                         globalIndex === selectedIndex
@@ -244,10 +363,27 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                       )}
                     >
                       <Icon className="h-4 w-4 flex-shrink-0" />
-                      <span className="flex-1 text-left">{page.title}</span>
-                      {page.url === location.pathname && (
+                      <div className="flex-1 text-left">
+                        <div>{item.title}</div>
+                        {isAction && "description" in item && (
+                          <div className="text-xs text-muted-foreground">
+                            {item.description}
+                          </div>
+                        )}
+                        {isResource && "type" in item && (
+                          <div className="text-xs text-muted-foreground capitalize">
+                            {item.type}
+                          </div>
+                        )}
+                      </div>
+                      {isCurrentPage && (
                         <Badge variant="outline" className="text-xs">
                           Current
+                        </Badge>
+                      )}
+                      {isAction && (
+                        <Badge variant="secondary" className="text-xs">
+                          Action
                         </Badge>
                       )}
                     </button>
@@ -256,10 +392,10 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
               </div>
             ))}
 
-            {filteredPages.length === 0 && (
+            {allItems.length === 0 && (
               <div className="text-center py-8 text-muted-foreground">
                 <Search className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p>No pages found</p>
+                <p>No results found</p>
               </div>
             )}
           </div>
@@ -273,10 +409,12 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
           </div>
           <div className="flex items-center gap-1">
             <Clock className="h-3 w-3" />
-            <span>{filteredPages.length} results</span>
+            <span>{allItems.length} results</span>
           </div>
         </div>
       </DialogContent>
+
+      <QuickNoteDialog open={quickNoteOpen} onOpenChange={setQuickNoteOpen} />
     </Dialog>
   );
 }

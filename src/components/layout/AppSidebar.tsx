@@ -71,6 +71,7 @@ import { Input } from "@/components/ui/input";
 import { useState, useMemo } from "react";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useFavorites } from "@/hooks/useFavorites";
+import { DraggableFavorites } from "@/components/DraggableFavorites";
 
 // Core Navigation
 const coreNavigation = [
@@ -170,7 +171,7 @@ export function AppSidebar() {
   const currentPath = location.pathname;
   const isCollapsed = state === "collapsed";
   const { isAdmin, isLoading: adminLoading } = useAdminCheck();
-  const { favorites, addFavorite, removeFavorite, isFavorite } = useFavorites();
+  const { favorites, addFavorite, removeFavorite, isFavorite, reorderFavorites } = useFavorites();
   
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
@@ -267,7 +268,9 @@ export function AppSidebar() {
                         const fav = favorites.find(f => f.page_url === item.url);
                         if (fav) removeFavorite(fav.id);
                       } else {
-                        addFavorite(item.url, item.title);
+                        // Get icon name from the item
+                        const iconName = item.icon.displayName || item.icon.name;
+                        addFavorite(item.url, item.title, iconName);
                       }
                     }}
                   >
@@ -358,13 +361,13 @@ export function AppSidebar() {
               </CollapsibleTrigger>
               <CollapsibleContent>
                 <SidebarGroupContent>
-                  <SidebarMenu>
-                    {favorites.map((fav) => {
-                      const navItem = allNavItems.find(item => item.url === fav.page_url);
-                      if (!navItem) return null;
-                      return renderNavItems([navItem], false, true);
-                    })}
-                  </SidebarMenu>
+                  <DraggableFavorites
+                    favorites={favorites}
+                    navItems={allNavItems}
+                    onReorder={reorderFavorites}
+                    onRemove={removeFavorite}
+                    currentPath={currentPath}
+                  />
                 </SidebarGroupContent>
               </CollapsibleContent>
             </SidebarGroup>
