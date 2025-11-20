@@ -48,6 +48,7 @@ export default function AdminDashboard() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [roleSearchQuery, setRoleSearchQuery] = useState("");
+  const [requestStatusFilter, setRequestStatusFilter] = useState<string>("all");
 
   useEffect(() => {
     loadDashboardData();
@@ -212,6 +213,13 @@ export default function AdminDashboard() {
   const updateRequestStatus = async (requestId: string, status: 'approved' | 'rejected', userId: string) => {
     const currentUser = await supabase.auth.getUser();
     
+    // Get the request details for email notification
+    const { data: requestData } = await supabase
+      .from('admin_requests')
+      .select('email, full_name')
+      .eq('id', requestId)
+      .single();
+    
     // Update the request status
     const { error: updateError } = await supabase
       .from('admin_requests')
@@ -247,9 +255,25 @@ export default function AdminDashboard() {
       }
     }
 
+    // Send email notification
+    if (requestData) {
+      try {
+        await supabase.functions.invoke('send-admin-decision-email', {
+          body: {
+            email: requestData.email,
+            fullName: requestData.full_name,
+            status,
+          },
+        });
+      } catch (emailError) {
+        console.error('Failed to send email notification:', emailError);
+        // Don't fail the whole operation if email fails
+      }
+    }
+
     toast({
       title: "Success",
-      description: `Request ${status} successfully`,
+      description: `Request ${status} successfully. User will be notified via email.`,
     });
 
     loadAdminRequests();
@@ -290,6 +314,10 @@ export default function AdminDashboard() {
       item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesStatus && matchesSearch;
+  });
+
+  const filteredAdminRequests = adminRequests.filter(request => {
+    return requestStatusFilter === "all" || request.status === requestStatusFilter;
   });
 
   if (loading) {
@@ -684,10 +712,27 @@ export default function AdminDashboard() {
         <TabsContent value="requests" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Admin Access Requests</CardTitle>
+              <CardTitle>Admin Access Requests - History & Audit Log</CardTitle>
               <CardDescription>Review and manage user requests for admin access</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
+              <div className="flex items-center gap-4">
+                <Select value={requestStatusFilter} onValueChange={setRequestStatusFilter}>
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Filter by status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Requests</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="approved">Approved</SelectItem>
+                    <SelectItem value="rejected">Rejected</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Badge variant="outline" className="ml-auto">
+                  Total: {filteredAdminRequests.length}
+                </Badge>
+              </div>
+
               <div className="rounded-md border">
                 <Table>
                   <TableHeader>
@@ -696,19 +741,20 @@ export default function AdminDashboard() {
                       <TableHead>Email</TableHead>
                       <TableHead>Reason</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead>Date</TableHead>
+                      <TableHead>Requested</TableHead>
+                      <TableHead>Reviewed</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {adminRequests.length === 0 ? (
+                    {filteredAdminRequests.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center text-muted-foreground">
+                        <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
                           No admin requests found
                         </TableCell>
                       </TableRow>
                     ) : (
-                      adminRequests.map((request) => (
+                      filteredAdminRequests.map((request) => (
                         <TableRow key={request.id}>
                           <TableCell className="font-medium">
                             {request.profiles?.display_name || request.full_name}
@@ -731,10 +777,27 @@ export default function AdminDashboard() {
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            {new Date(request.created_at).toLocaleDateString()}
+                            <div className="text-sm">
+                              {new Date(request.created_at).toLocaleDateString()}
+                              <div className="text-xs text-muted-foreground">
+                                {new Date(request.created_at).toLocaleTimeString()}
+                              </div>
+                            </div>
                           </TableCell>
                           <TableCell>
-                            {request.status === 'pending' && (
+                            {request.reviewed_at ? (
+                              <div className="text-sm">
+                                {new Date(request.reviewed_at).toLocaleDateString()}
+                                <div className="text-xs text-muted-foreground">
+                                  {new Date(request.reviewed_at).toLocaleTimeString()}
+                                </div>
+                              </div>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">Pending</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {request.status === 'pending' ? (
                               <div className="flex gap-2">
                                 <Button
                                   size="sm"
@@ -751,6 +814,10 @@ export default function AdminDashboard() {
                                   Reject
                                 </Button>
                               </div>
+                            ) : (
+                              <Badge variant="outline" className="text-xs">
+                                {request.status === 'approved' ? 'Role Granted' : 'Request Declined'}
+                              </Badge>
                             )}
                           </TableCell>
                         </TableRow>
