@@ -158,6 +158,7 @@ const App = () => (
                           <Route path="/search" element={<GlobalSearch />} />
                           <Route path="/ai-chat" element={<AIChat />} />
                           <Route path="/notifications" element={<Notifications />} />
+                          <Route path="/notification-settings" element={<NotificationSettings />} />
                           <Route path="/video-share" element={<VideoShare />} />
                           <Route path="/video-library" element={<VideoLibrary />} />
                           <Route path="/picture-share" element={<PictureShare />} />
