@@ -51,7 +51,8 @@ interface RecentResource {
 const allPages: Page[] = [
   // Core
   { title: "Dashboard", url: "/niranx/dashboard", icon: Home, category: "Core" },
-  { title: "Search", url: "/niranx/search", icon: Search, category: "Core" },
+  { title: "AI Chat", url: "/niranx/ai-chat", icon: Brain, category: "Core", keywords: ["assistant", "help", "study"] },
+  { title: "Web Search", url: "/niranx/web-search", icon: Search, category: "Core" },
   { title: "Profile", url: "/niranx/profile", icon: User, category: "Core" },
   { title: "Feedback & Suggestions", url: "/niranx/feedback", icon: MessagesSquare, category: "Core" },
   

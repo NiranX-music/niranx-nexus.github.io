@@ -76,6 +76,7 @@ import { DraggableFavorites } from "@/components/DraggableFavorites";
 // Core Navigation
 const coreNavigation = [
   { title: "Dashboard", url: "/niranx/dashboard", icon: Home },
+  { title: "AI Chat", url: "/niranx/ai-chat", icon: Brain },
   { title: "Web Search", url: "/niranx/web-search", icon: Search },
   { title: "Profile", url: "/niranx/profile", icon: User },
   { title: "Feedback & Suggestions", url: "/niranx/feedback", icon: MessagesSquare },
