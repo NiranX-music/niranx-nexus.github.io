@@ -242,7 +242,7 @@ export function AppSidebar() {
         )}
       </SidebarHeader>
 
-      <SidebarContent className="relative z-10">
+      <SidebarContent className="relative z-10 overflow-y-auto">
         {/* Core */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-white font-semibold drop-shadow-[0_0_6px_rgba(168,85,247,0.6)]">Core</SidebarGroupLabel>
