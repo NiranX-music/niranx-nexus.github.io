@@ -519,7 +519,18 @@
 
   /* Ensure main content doesn't overlap with fixed sidebar */
   [data-sidebar="inset"] {
-    margin-left: 0 !important;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Adjust margin based on sidebar state */
+  .group[data-state="expanded"] [data-sidebar="inset"],
+  [data-state="expanded"] ~ [data-sidebar="inset"] {
+    margin-left: var(--sidebar-width);
+  }
+
+  .group[data-state="collapsed"] [data-sidebar="inset"],
+  [data-state="collapsed"] ~ [data-sidebar="inset"] {
+    margin-left: var(--sidebar-width-icon);
   }
 
   /* Sidebar scrollbar styling */
