@@ -138,8 +138,6 @@ const Index = () => {
         ))}
       </div>
 
-      {/* Dashboard Content */}
-
       {/* Header */}
       <div className="mb-8 animate-fade-in">
         {/* Top Toolbar */}

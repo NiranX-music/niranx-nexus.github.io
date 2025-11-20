@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Home,
@@ -64,6 +63,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import XPDisplay from "@/components/ui/XPDisplay";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useState } from "react";
 
 // Core Navigation
 const coreNavigation = [
@@ -153,56 +153,16 @@ export function AppSidebar() {
   const currentPath = location.pathname;
   const isCollapsed = state === "collapsed";
   
-  // Load expanded sections from localStorage
-  const getInitialExpandedState = () => {
-    if (typeof window === 'undefined') return {
-      study: true,
-      progress: false,
-      media: false,
-      files: false,
-      social: false,
-      tools: false,
-      external: false,
-      more: false,
-    };
-    
-    const saved = localStorage.getItem('sidebar-expanded-sections');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return {
-          study: true,
-          progress: false,
-          media: false,
-          files: false,
-          social: false,
-          tools: false,
-          external: false,
-          more: false,
-        };
-      }
-    }
-    return {
-      study: true,
-      progress: false,
-      media: false,
-      files: false,
-      social: false,
-      tools: false,
-      external: false,
-      more: false,
-    };
-  };
-
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>(getInitialExpandedState);
-
-  // Save expanded sections to localStorage whenever they change
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('sidebar-expanded-sections', JSON.stringify(expandedSections));
-    }
-  }, [expandedSections]);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    study: true,
+    progress: false,
+    media: false,
+    files: false,
+    social: false,
+    tools: false,
+    external: false,
+    more: false,
+  });
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));

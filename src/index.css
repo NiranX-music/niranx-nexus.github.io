@@ -476,7 +476,7 @@
     will-change: transform;
   }
 
-  /* Floating Sidebar - Overlays content */
+  /* Fixed Sidebar - Never scrolls with content */
   [data-sidebar="sidebar"] {
     position: fixed !important;
     top: 0 !important;
@@ -484,56 +484,12 @@
     bottom: 0 !important;
     height: 100vh !important;
     overflow-y: auto !important;
-    z-index: 50 !important;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
-                width 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    border-right: 1px solid hsl(var(--border) / 0.5);
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
-    backdrop-filter: blur(10px);
-  }
-  
-  /* Slide out when collapsed */
-  [data-state="collapsed"] [data-sidebar="sidebar"] {
-    transform: translateX(-100%);
-  }
-  
-  /* Slide in when expanded */
-  [data-state="expanded"] [data-sidebar="sidebar"] {
-    transform: translateX(0);
+    z-index: 40 !important;
   }
 
-  /* Smooth width transition for sidebar content */
-  [data-sidebar="sidebar"] * {
-    transition: opacity 0.2s ease-in-out, 
-                transform 0.2s ease-in-out;
-  }
-
-  /* Collapsed state animations */
-  [data-state="collapsed"] [data-sidebar="sidebar"] {
-    width: var(--sidebar-width-icon) !important;
-  }
-
-  /* Expanded state animations */
-  [data-state="expanded"] [data-sidebar="sidebar"] {
-    width: var(--sidebar-width) !important;
-  }
-
-  /* Hide text smoothly when collapsing */
-  [data-state="collapsed"] [data-sidebar="sidebar"] span {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-
-  /* Show text smoothly when expanding */
-  [data-state="expanded"] [data-sidebar="sidebar"] span {
-    opacity: 1;
-    transform: translateX(0);
-  }
-
-  /* Main content takes full width - sidebar floats over it */
+  /* Ensure main content doesn't overlap with fixed sidebar */
   [data-sidebar="inset"] {
     margin-left: 0 !important;
-    width: 100%;
   }
 
   /* Sidebar scrollbar styling */
@@ -548,47 +504,9 @@
   [data-sidebar="sidebar"]::-webkit-scrollbar-thumb {
     background: hsl(var(--primary) / 0.2);
     border-radius: 3px;
-    transition: background 0.2s ease;
   }
 
   [data-sidebar="sidebar"]::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--primary) / 0.4);
-  }
-
-  /* Smooth hover effects */
-  [data-sidebar="sidebar"] button,
-  [data-sidebar="sidebar"] a {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  /* Collapsible group animations */
-  [data-sidebar="sidebar"] [data-state="open"] {
-    animation: slideDown 0.2s ease-out;
-  }
-
-  [data-sidebar="sidebar"] [data-state="closed"] {
-    animation: slideUp 0.2s ease-out;
-  }
-
-  @keyframes slideDown {
-    from {
-      height: 0;
-      opacity: 0;
-    }
-    to {
-      height: var(--radix-collapsible-content-height);
-      opacity: 1;
-    }
-  }
-
-  @keyframes slideUp {
-    from {
-      height: var(--radix-collapsible-content-height);
-      opacity: 1;
-    }
-    to {
-      height: 0;
-      opacity: 0;
-    }
   }
 }
