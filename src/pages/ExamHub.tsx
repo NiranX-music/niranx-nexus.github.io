@@ -8,6 +8,9 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   GraduationCap, 
   Upload, 
@@ -55,7 +58,20 @@ const ExamHub = () => {
   const [exams, setExams] = useState<Exam[]>([]);
   const [selectedExam, setSelectedExam] = useState<string>('');
   const [uploadingFile, setUploadingFile] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [completedTopics, setCompletedTopics] = useState<{ [examId: string]: Set<string> }>({});
   const { toast } = useToast();
+
+  // New exam form state
+  const [newExam, setNewExam] = useState({
+    name: '',
+    subject: '',
+    date: '',
+    time: '',
+    duration: '',
+    priority: 'medium' as 'high' | 'medium' | 'low',
+    syllabus: ['']
+  });
 
   useEffect(() => {
     if (user) {
@@ -71,6 +87,14 @@ const ExamHub = () => {
       .order('exam_date', { ascending: true });
 
     if (data && data.length > 0) {
+      const examIds = data.map(e => e.id);
+      
+      // Fetch resources for all exams
+      const { data: resourcesData } = await supabase
+        .from('exam_resources')
+        .select('*')
+        .in('exam_id', examIds);
+
       const formattedExams: Exam[] = data.map(exam => ({
         id: exam.id,
         name: exam.name,
@@ -79,47 +103,167 @@ const ExamHub = () => {
         time: exam.exam_time,
         duration: exam.duration,
         syllabus: exam.syllabus || [],
-        resources: [],
+        resources: resourcesData?.filter(r => r.exam_id === exam.id).map(r => ({
+          id: r.id,
+          title: r.title,
+          type: r.type as 'video' | 'notes' | 'practice' | 'solution',
+          subject: exam.subject,
+          uploadDate: new Date(r.upload_date).toISOString().split('T')[0],
+          size: r.file_size ? `${(r.file_size / 1024 / 1024).toFixed(1)} MB` : undefined,
+          duration: r.duration,
+          url: r.file_path
+        })) || [],
         preparation: exam.preparation_progress || 0,
         priority: (exam.priority as 'high' | 'medium' | 'low') || 'medium'
       }));
+      
       setExams(formattedExams);
-      if (!selectedExam) {
+      if (!selectedExam && formattedExams.length > 0) {
         setSelectedExam(formattedExams[0].id);
       }
     }
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>, type: 'video' | 'notes') => {
+  const createExam = async () => {
+    if (!newExam.name || !newExam.subject || !newExam.date || !newExam.time) {
+      toast({
+        title: "Missing Fields",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from('exams')
+      .insert({
+        user_id: user?.id,
+        name: newExam.name,
+        subject: newExam.subject,
+        exam_date: newExam.date,
+        exam_time: newExam.time,
+        duration: newExam.duration || '2 hours',
+        priority: newExam.priority,
+        syllabus: newExam.syllabus.filter(s => s.trim() !== ''),
+        preparation_progress: 0
+      })
+      .select()
+      .single();
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    toast({
+      title: "Exam Created! 📚",
+      description: `${newExam.name} has been added to your exam schedule`
+    });
+
+    setIsCreateDialogOpen(false);
+    setNewExam({
+      name: '',
+      subject: '',
+      date: '',
+      time: '',
+      duration: '',
+      priority: 'medium',
+      syllabus: ['']
+    });
+    fetchExams();
+  };
+
+  const toggleTopicCompletion = async (examId: string, topic: string) => {
+    const exam = exams.find(e => e.id === examId);
+    if (!exam) return;
+
+    const currentCompleted = completedTopics[examId] || new Set();
+    const newCompleted = new Set(currentCompleted);
+    
+    if (newCompleted.has(topic)) {
+      newCompleted.delete(topic);
+    } else {
+      newCompleted.add(topic);
+    }
+    
+    setCompletedTopics({ ...completedTopics, [examId]: newCompleted });
+    
+    // Calculate new progress percentage
+    const progress = Math.round((newCompleted.size / exam.syllabus.length) * 100);
+    
+    // Update in database
+    const { error } = await supabase
+      .from('exams')
+      .update({ preparation_progress: progress })
+      .eq('id', examId);
+
+    if (!error) {
+      setExams(exams.map(e => e.id === examId ? { ...e, preparation: progress } : e));
+      toast({
+        title: "Progress Updated! 📈",
+        description: `Preparation progress: ${progress}%`
+      });
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: 'video' | 'notes') => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     setUploadingFile(true);
     
-    // Simulate file upload
-    setTimeout(() => {
-      const newResource: ExamResource = {
-        id: Date.now().toString(),
-        title: file.name,
-        type: type,
-        subject: getCurrentExam()?.subject || 'General',
-        uploadDate: new Date().toISOString().split('T')[0],
-        size: `${(file.size / 1024 / 1024).toFixed(1)} MB`,
-        duration: type === 'video' ? '30 min' : undefined
-      };
+    try {
+      // Upload file to Supabase Storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user?.id}/${selectedExam}/${Date.now()}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('exam-resources')
+        .upload(fileName, file);
 
-      setExams(prev => prev.map(exam => 
-        exam.id === selectedExam 
-          ? { ...exam, resources: [...exam.resources, newResource] }
-          : exam
-      ));
+      if (uploadError) throw uploadError;
 
-      setUploadingFile(false);
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('exam-resources')
+        .getPublicUrl(fileName);
+
+      // Save metadata to database
+      const { data: resourceData, error: dbError } = await supabase
+        .from('exam_resources')
+        .insert({
+          exam_id: selectedExam,
+          user_id: user?.id,
+          title: file.name,
+          type: type,
+          file_path: publicUrl,
+          file_size: file.size,
+          duration: type === 'video' ? '30 min' : undefined
+        })
+        .select()
+        .single();
+
+      if (dbError) throw dbError;
+
       toast({
         title: "File Uploaded! 📁",
         description: `${file.name} has been added to your exam resources`
       });
-    }, 2000);
+
+      fetchExams();
+    } catch (error: any) {
+      toast({
+        title: "Upload Failed",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setUploadingFile(false);
+    }
   };
 
   const getCurrentExam = () => {
@@ -181,10 +325,114 @@ const ExamHub = () => {
               <Calendar className="w-5 h-5" />
               Upcoming Exams
             </span>
-            <Button size="sm" className="flex items-center gap-2">
-              <PlusCircle className="w-4 h-4" />
-              Add Exam
-            </Button>
+            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm" className="flex items-center gap-2">
+                  <PlusCircle className="w-4 h-4" />
+                  Add Exam
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Create New Exam</DialogTitle>
+                  <DialogDescription>
+                    Add a new exam to your schedule with syllabus topics
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Exam Name *</Label>
+                      <Input
+                        id="name"
+                        placeholder="e.g., Mathematics Final"
+                        value={newExam.name}
+                        onChange={(e) => setNewExam({ ...newExam, name: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="subject">Subject *</Label>
+                      <Input
+                        id="subject"
+                        placeholder="e.g., Mathematics"
+                        value={newExam.subject}
+                        onChange={(e) => setNewExam({ ...newExam, subject: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="date">Date *</Label>
+                      <Input
+                        id="date"
+                        type="date"
+                        value={newExam.date}
+                        onChange={(e) => setNewExam({ ...newExam, date: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="time">Time *</Label>
+                      <Input
+                        id="time"
+                        type="time"
+                        value={newExam.time}
+                        onChange={(e) => setNewExam({ ...newExam, time: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="duration">Duration</Label>
+                      <Input
+                        id="duration"
+                        placeholder="e.g., 3 hours"
+                        value={newExam.duration}
+                        onChange={(e) => setNewExam({ ...newExam, duration: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="priority">Priority</Label>
+                    <select
+                      id="priority"
+                      className="w-full p-2 rounded-md border border-input bg-background"
+                      value={newExam.priority}
+                      onChange={(e) => setNewExam({ ...newExam, priority: e.target.value as 'high' | 'medium' | 'low' })}
+                    >
+                      <option value="low">Low</option>
+                      <option value="medium">Medium</option>
+                      <option value="high">High</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Syllabus Topics</Label>
+                    {newExam.syllabus.map((topic, index) => (
+                      <div key={index} className="flex gap-2">
+                        <Input
+                          placeholder={`Topic ${index + 1}`}
+                          value={topic}
+                          onChange={(e) => {
+                            const updated = [...newExam.syllabus];
+                            updated[index] = e.target.value;
+                            setNewExam({ ...newExam, syllabus: updated });
+                          }}
+                        />
+                        {index === newExam.syllabus.length - 1 && (
+                          <Button
+                            type="button"
+                            size="icon"
+                            onClick={() => setNewExam({ ...newExam, syllabus: [...newExam.syllabus, ''] })}
+                          >
+                            <PlusCircle className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <Button onClick={createExam} className="w-full">
+                    Create Exam
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -311,29 +559,58 @@ const ExamHub = () => {
           <TabsContent value="syllabus">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="w-5 h-5" />
-                  Syllabus Coverage
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <Target className="w-5 h-5" />
+                    Syllabus Coverage
+                  </span>
+                  <div className="text-sm text-muted-foreground">
+                    {completedTopics[currentExam.id]?.size || 0} / {currentExam.syllabus.length} completed
+                  </div>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {currentExam.syllabus.map((topic, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium">
-                          {index + 1}
-                        </div>
-                        <span className="font-medium">{topic}</span>
+                <div className="space-y-3">
+                  {currentExam.syllabus.map((topic, index) => {
+                    const isCompleted = completedTopics[currentExam.id]?.has(topic);
+                    return (
+                      <div 
+                        key={index} 
+                        className={`flex items-center gap-3 p-4 border rounded-lg transition-all ${
+                          isCompleted ? 'bg-primary/5 border-primary/20' : 'hover:bg-accent/50'
+                        }`}
+                      >
+                        <Checkbox
+                          id={`topic-${index}`}
+                          checked={isCompleted}
+                          onCheckedChange={() => toggleTopicCompletion(currentExam.id, topic)}
+                        />
+                        <label
+                          htmlFor={`topic-${index}`}
+                          className={`flex-1 cursor-pointer flex items-center gap-3 ${
+                            isCompleted ? 'line-through opacity-60' : ''
+                          }`}
+                        >
+                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium">
+                            {index + 1}
+                          </div>
+                          <span className="font-medium">{topic}</span>
+                        </label>
+                        {isCompleted && (
+                          <Badge variant="default" className="bg-green-500">
+                            ✓ Done
+                          </Badge>
+                        )}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline">
-                          {Math.floor(Math.random() * 30) + 70}% covered
-                        </Badge>
-                        <Star className="w-4 h-4 text-yellow-500" />
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
+                </div>
+                <div className="mt-6 pt-6 border-t">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium">Overall Progress</span>
+                    <span className="text-sm font-medium">{currentExam.preparation}%</span>
+                  </div>
+                  <Progress value={currentExam.preparation} className="h-3" />
                 </div>
               </CardContent>
             </Card>
