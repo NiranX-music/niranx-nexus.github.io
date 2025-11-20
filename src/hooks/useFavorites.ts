@@ -88,11 +88,30 @@ export function useFavorites() {
     return favorites.some(fav => fav.page_url === pageUrl);
   }
 
+  async function reorderFavorites(newOrder: Favorite[]) {
+    try {
+      // Update display_order for all favorites
+      const updates = newOrder.map((fav, index) => 
+        supabase
+          .from("user_favorites")
+          .update({ display_order: index })
+          .eq("id", fav.id)
+      );
+
+      await Promise.all(updates);
+      setFavorites(newOrder);
+    } catch (error) {
+      console.error("Error reordering favorites:", error);
+      toast.error("Failed to reorder favorites");
+    }
+  }
+
   return {
     favorites,
     isLoading,
     addFavorite,
     removeFavorite,
     isFavorite,
+    reorderFavorites,
   };
 }
