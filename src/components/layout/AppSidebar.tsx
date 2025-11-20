@@ -217,46 +217,6 @@ export function AppSidebar() {
   );
 
   return (
-    <Sidebar
-      className={cn(
-        "relative overflow-hidden",
-        isCollapsed ? "w-16" : "w-64"
-      )}
-      collapsible="icon"
-    >
-      {/* Purple Lighting Effect */}
-      <div className="absolute top-1/4 right-0 w-full h-1/2 bg-gradient-radial from-purple-500/20 via-purple-500/10 to-transparent blur-3xl animate-pulse pointer-events-none" />
-      
-       <SidebarHeader className="relative z-10">
-        <div className="flex items-center gap-3 px-3 py-4">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src="/placeholder-user.jpg" />
-            <AvatarFallback>U</AvatarFallback>
-          </Avatar>
-          {!isCollapsed && (
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold truncate">User</p>
-              <Badge variant="secondary" className="text-xs">
-                Premium
-              </Badge>
-            </div>
-          )}
-        </div>
-        {!isCollapsed && <XPDisplay />}
-      </SidebarHeader>
-
-      <SidebarContent className="relative z-10">
-        {/* Core Navigation */}
-        <SidebarGroup>
-          {!isCollapsed && <SidebarGroupLabel>Core</SidebarGroupLabel>}
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {renderNavItems(coreNavigation)}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-  return (
     <Sidebar className="border-r border-sidebar-border bg-gradient-to-b from-sidebar/95 via-sidebar/90 to-background/80 backdrop-blur-xl">
       <SidebarHeader className="border-b border-sidebar-border/80 p-4">
         <div className="flex items-center gap-3">

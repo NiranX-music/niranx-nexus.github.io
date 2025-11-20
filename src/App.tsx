@@ -82,7 +82,7 @@ import DistractionBlocker from "./pages/DistractionBlocker";
 import AdvancedDashboard from "./pages/AdvancedDashboard";
 import StudyStreakChallenges from "./pages/StudyStreakChallenges";
 import SharedResource from "./pages/SharedResource";
-import FeatureSuggestions from "./pages/FeatureSuggestions";
+import OldPageArchive from "./pages/OldPageArchive";
 
 const queryClient = new QueryClient();
 
