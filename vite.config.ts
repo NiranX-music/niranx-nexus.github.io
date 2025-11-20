@@ -20,10 +20,11 @@ export default defineConfig(({ mode }) => ({
       manifest: {
         name: 'NiranX StudyVerse',
         short_name: 'NiranX',
-        description: 'Dive into the Quantum verse of NiranX',
-        theme_color: '#1a1a1a',
-        background_color: '#ffffff',
+        description: 'Your Ultimate Study Companion',
+        theme_color: '#7c3aed',
+        background_color: '#0a0a0a',
         display: 'standalone',
+        orientation: 'portrait',
         scope: '/',
         start_url: '/',
         icons: [
@@ -43,20 +44,60 @@ export default defineConfig(({ mode }) => ({
             type: 'image/png',
             purpose: 'any maskable'
           }
+        ],
+        shortcuts: [
+          {
+            name: 'Focus Engine',
+            url: '/niranx/focus-engine',
+            description: 'Start a focus session'
+          },
+          {
+            name: 'Tasks',
+            url: '/niranx/tasks',
+            description: 'View your tasks'
+          }
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,mp3}'],
+        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10 MB
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/ppmggnprfchrwfqjhwpp\.supabase\.co\/.*/i,
+            urlPattern: /^https:\/\/.*\.supabase\.co\/rest\/.*/i,
             handler: 'NetworkFirst',
             options: {
-              cacheName: 'supabase-cache',
+              cacheName: 'supabase-api',
               expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 7 // 1 week
+                maxEntries: 200,
+                maxAgeSeconds: 60 * 60 * 24 // 1 day
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            urlPattern: /^https:\/\/.*\.supabase\.co\/storage\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'supabase-storage',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            urlPattern: /\.(pdf|mp4|mp3)$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'study-materials',
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 60 * 24 * 7 // 7 days
               }
             }
           }

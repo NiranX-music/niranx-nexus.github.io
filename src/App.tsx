@@ -83,6 +83,10 @@ import AdvancedDashboard from "./pages/AdvancedDashboard";
 import StudyStreakChallenges from "./pages/StudyStreakChallenges";
 import SharedResource from "./pages/SharedResource";
 import OldPageArchive from "./pages/OldPageArchive";
+import NotificationSettings from "./pages/NotificationSettings";
+import AdminDashboard from "./pages/AdminDashboard";
+import { AdminRoute } from "./components/AdminRoute";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -176,6 +180,12 @@ const App = () => (
                           <Route path="/kiosk-mode" element={<KioskMode />} />
                           <Route path="/feature-suggestions" element={<FeatureSuggestions />} />
                           <Route path="/feedback" element={<FeatureSuggestions />} />
+                          <Route path="/notification-settings" element={<NotificationSettings />} />
+                          <Route path="/admin" element={
+                            <AdminRoute>
+                              <AdminDashboard />
+                            </AdminRoute>
+                          } />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </AppLayout>
