@@ -65,7 +65,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import XPDisplay from "@/components/ui/XPDisplay";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { useState, useMemo } from "react";
+import { useAdminCheck } from "@/hooks/useAdminCheck";
 
 // Core Navigation
 const coreNavigation = [
@@ -164,7 +166,9 @@ export function AppSidebar() {
   const location = useLocation();
   const currentPath = location.pathname;
   const isCollapsed = state === "collapsed";
+  const { isAdmin, isLoading: adminLoading } = useAdminCheck();
   
+  const [searchQuery, setSearchQuery] = useState("");
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     study: true,
     progress: false,
@@ -177,6 +181,30 @@ export function AppSidebar() {
     system: false,
     more: false,
   });
+
+  // Combine all navigation items for search
+  const allNavItems = useMemo(() => [
+    ...coreNavigation,
+    ...studyNavigation,
+    ...progressNavigation,
+    ...mediaNavigation,
+    ...filesNavigation,
+    ...socialNavigation,
+    ...toolsNavigation,
+    ...externalPlatforms,
+    ...(isAdmin ? adminNavigation : []),
+    ...systemNavigation,
+    ...morePages,
+  ], [isAdmin]);
+
+  // Filter navigation items based on search query
+  const filteredNavItems = useMemo(() => {
+    if (!searchQuery.trim()) return null;
+    
+    return allNavItems.filter(item =>
+      item.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery, allNavItems]);
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
@@ -230,7 +258,7 @@ export function AppSidebar() {
   );
 
   return (
-    <Sidebar className="border-r border-sidebar-border bg-gradient-to-b from-sidebar/95 via-sidebar/90 to-background/80 backdrop-blur-xl">
+    <Sidebar className="border-r border-sidebar-border bg-gradient-to-b from-sidebar/95 via-sidebar/90 to-background/80 backdrop-blur-xl hidden md:flex">
       <SidebarHeader className="border-b border-sidebar-border/80 p-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-purple-600">
@@ -246,13 +274,42 @@ export function AppSidebar() {
           )}
         </div>
         {!isCollapsed && (
-          <div className="mt-3">
-            <XPDisplay />
-          </div>
+          <>
+            <div className="mt-3">
+              <XPDisplay />
+            </div>
+            <div className="mt-3">
+              <Input
+                type="search"
+                placeholder="Search pages..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-background/50 border-border/50 text-white placeholder:text-white/50"
+              />
+            </div>
+          </>
         )}
       </SidebarHeader>
 
       <SidebarContent>
+        {/* Show search results when searching */}
+        {filteredNavItems && filteredNavItems.length > 0 ? (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-white font-semibold">
+              Search Results ({filteredNavItems.length})
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>{renderNavItems(filteredNavItems)}</SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ) : filteredNavItems && filteredNavItems.length === 0 ? (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-white font-semibold">
+              No results found
+            </SidebarGroupLabel>
+          </SidebarGroup>
+        ) : (
+          <>
         {/* Core */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-white font-semibold">Core</SidebarGroupLabel>
@@ -380,22 +437,24 @@ export function AppSidebar() {
           </SidebarGroup>
         </Collapsible>
 
-        {/* Admin */}
-        <Collapsible open={expandedSections.admin} onOpenChange={() => toggleSection('admin')}>
-          <SidebarGroup>
-            <CollapsibleTrigger asChild>
-              <SidebarGroupLabel className="cursor-pointer hover:bg-sidebar-accent/60 rounded px-2 -mx-2 flex items-center justify-between text-white font-semibold">
-                <span>Admin</span>
-                <ChevronDown className={`h-4 w-4 transition-transform text-white ${expandedSections.admin ? '' : '-rotate-90'}`} />
-              </SidebarGroupLabel>
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              <SidebarGroupContent>
-                <SidebarMenu>{renderNavItems(adminNavigation)}</SidebarMenu>
-              </SidebarGroupContent>
-            </CollapsibleContent>
-          </SidebarGroup>
-        </Collapsible>
+        {/* Admin - Conditionally rendered */}
+        {!adminLoading && isAdmin && (
+          <Collapsible open={expandedSections.admin} onOpenChange={() => toggleSection('admin')}>
+            <SidebarGroup>
+              <CollapsibleTrigger asChild>
+                <SidebarGroupLabel className="cursor-pointer hover:bg-sidebar-accent/60 rounded px-2 -mx-2 flex items-center justify-between text-white font-semibold">
+                  <span>Admin</span>
+                  <ChevronDown className={`h-4 w-4 transition-transform text-white ${expandedSections.admin ? '' : '-rotate-90'}`} />
+                </SidebarGroupLabel>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <SidebarGroupContent>
+                  <SidebarMenu>{renderNavItems(adminNavigation)}</SidebarMenu>
+                </SidebarGroupContent>
+              </CollapsibleContent>
+            </SidebarGroup>
+          </Collapsible>
+        )}
 
         {/* System */}
         <Collapsible open={expandedSections.system} onOpenChange={() => toggleSection('system')}>
@@ -430,6 +489,8 @@ export function AppSidebar() {
             </CollapsibleContent>
           </SidebarGroup>
         </Collapsible>
+          </>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="border-t border-white/10 p-4">

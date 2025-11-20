@@ -2,6 +2,7 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/s
 import { AppSidebar } from "./AppSidebar";
 import { RightSidebar } from "./RightSidebar";
 import { NowPlaying } from "./NowPlaying";
+import { MobileBottomNav } from "./MobileBottomNav";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -69,12 +70,13 @@ export function AppLayout({ children }: AppLayoutProps) {
               <NotificationCenter />
             </div>
           </header>
-          <div className="flex flex-1 flex-col gap-4 p-4 animate-fade-in">
+          <div className="flex flex-1 flex-col gap-4 p-4 pb-20 md:pb-4 animate-fade-in">
             {children}
           </div>
         </SidebarInset>
         <RightSidebar />
         <NowPlaying />
+        <MobileBottomNav />
       </div>
     </SidebarProvider>
   );

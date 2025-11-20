@@ -153,6 +153,17 @@
   --sidebar-accent-foreground: 240 5% 96%;
   --sidebar-border: 240 15% 20%;
   --sidebar-ring: 264 83% 58%;
+  
+  /* Mobile-specific utilities */
+  @media (max-width: 768px) {
+    .mobile-hidden {
+      display: none !important;
+    }
+    
+    .mobile-pb-safe {
+      padding-bottom: 5rem;
+    }
+  }
 }
 
 /* Theme variants */
