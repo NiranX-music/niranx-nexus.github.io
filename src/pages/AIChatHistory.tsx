@@ -7,7 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { History, MessageCircle, Search, Calendar, Archive, Trash2, Clock, Plus } from "lucide-react";
+import { ScrollText, MessageCircle, Search, Calendar, Archive, Trash2, Clock, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -128,7 +128,7 @@ export default function AIChatHistory() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-primary/10 rounded-lg">
-              <History className="h-6 w-6 text-primary" />
+              <ScrollText className="h-6 w-6 text-primary" />
             </div>
             <div>
               <h1 className="text-3xl font-bold gradient-text">AI Chat History</h1>
