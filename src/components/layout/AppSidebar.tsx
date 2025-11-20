@@ -49,6 +49,7 @@ import {
   Star as StarIcon,
   StarOff,
   UserPlus,
+  ScrollText,
 } from "lucide-react";
 import {
   Sidebar,
@@ -78,7 +79,7 @@ import { DraggableFavorites } from "@/components/DraggableFavorites";
 const coreNavigation = [
   { title: "Dashboard", url: "/niranx/dashboard", icon: Home },
   { title: "AI Chat", url: "/niranx/ai-chat", icon: Brain },
-  { title: "AI Chat History", url: "/niranx/ai-chat-history", icon: History },
+  { title: "AI Chat History", url: "/niranx/ai-chat-history", icon: ScrollText },
   { title: "AI Scheduler", url: "/niranx/ai-scheduler", icon: Calendar },
   { title: "Web Search", url: "/niranx/web-search", icon: Search },
   { title: "Profile", url: "/niranx/profile", icon: User },
