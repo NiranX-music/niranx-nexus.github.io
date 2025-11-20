@@ -485,11 +485,51 @@
     height: 100vh !important;
     overflow-y: auto !important;
     z-index: 40 !important;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+
+  /* Smooth width transition for sidebar content */
+  [data-sidebar="sidebar"] * {
+    transition: opacity 0.2s ease-in-out, 
+                transform 0.2s ease-in-out;
+  }
+
+  /* Collapsed state animations */
+  [data-state="collapsed"] [data-sidebar="sidebar"] {
+    width: var(--sidebar-width-icon) !important;
+  }
+
+  /* Expanded state animations */
+  [data-state="expanded"] [data-sidebar="sidebar"] {
+    width: var(--sidebar-width) !important;
+  }
+
+  /* Hide text smoothly when collapsing */
+  [data-state="collapsed"] [data-sidebar="sidebar"] span {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+
+  /* Show text smoothly when expanding */
+  [data-state="expanded"] [data-sidebar="sidebar"] span {
+    opacity: 1;
+    transform: translateX(0);
   }
 
   /* Ensure main content doesn't overlap with fixed sidebar */
   [data-sidebar="inset"] {
     margin-left: 0 !important;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Adjust margin based on sidebar state */
+  [data-state="expanded"] ~ [data-sidebar="inset"] {
+    margin-left: var(--sidebar-width) !important;
+  }
+
+  [data-state="collapsed"] ~ [data-sidebar="inset"] {
+    margin-left: var(--sidebar-width-icon) !important;
   }
 
   /* Sidebar scrollbar styling */
@@ -504,9 +544,47 @@
   [data-sidebar="sidebar"]::-webkit-scrollbar-thumb {
     background: hsl(var(--primary) / 0.2);
     border-radius: 3px;
+    transition: background 0.2s ease;
   }
 
   [data-sidebar="sidebar"]::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--primary) / 0.4);
+  }
+
+  /* Smooth hover effects */
+  [data-sidebar="sidebar"] button,
+  [data-sidebar="sidebar"] a {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Collapsible group animations */
+  [data-sidebar="sidebar"] [data-state="open"] {
+    animation: slideDown 0.2s ease-out;
+  }
+
+  [data-sidebar="sidebar"] [data-state="closed"] {
+    animation: slideUp 0.2s ease-out;
+  }
+
+  @keyframes slideDown {
+    from {
+      height: 0;
+      opacity: 0;
+    }
+    to {
+      height: var(--radix-collapsible-content-height);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      height: var(--radix-collapsible-content-height);
+      opacity: 1;
+    }
+    to {
+      height: 0;
+      opacity: 0;
+    }
   }
 }
