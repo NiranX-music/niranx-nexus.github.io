@@ -1765,6 +1765,11 @@ export type Database = {
         }
         Returns: boolean
       }
+      refresh_current_month_leaderboard: { Args: never; Returns: undefined }
+      update_leaderboard_entries: {
+        Args: { p_end_date: string; p_start_date: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
