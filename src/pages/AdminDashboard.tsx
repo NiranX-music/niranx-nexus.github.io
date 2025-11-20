@@ -193,8 +193,6 @@ export default function AdminDashboard() {
     }
   };
 
-  };
-
   const loadAdminRequests = async () => {
     const { data, error } = await supabase
       .from('admin_requests')
