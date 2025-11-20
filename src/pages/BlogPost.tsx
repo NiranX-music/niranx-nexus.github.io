@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Edit, Calendar, User, FileText, History, Upload, Trash2 } from 'lucide-react';
+import { z } from 'zod';
 
 interface Blog {
   id: string;
@@ -31,6 +32,29 @@ interface EditHistory {
   previous_content: string;
   new_content: string;
 }
+
+const blogSchema = z.object({
+  title: z.string().trim().min(1, "Title is required").max(200, "Title must be less than 200 characters"),
+  content: z.string().trim().min(1, "Content is required").max(50000, "Content must be less than 50,000 characters"),
+  cover_image_url: z.string().trim().url("Must be a valid URL").or(z.literal('')).optional(),
+  tags: z.string().refine(
+    (val) => {
+      if (!val.trim()) return true;
+      const tags = val.split(',').map(t => t.trim()).filter(Boolean);
+      return tags.length <= 10 && tags.every(t => t.length <= 30);
+    },
+    { message: "Maximum 10 tags, each up to 30 characters" }
+  )
+});
+
+const sanitizeContent = (content: string): string => {
+  const dangerous = [/<script[^>]*>.*?<\/script>/gi, /javascript:/gi, /onerror\s*=/gi, /onclick\s*=/gi, /onload\s*=/gi];
+  let sanitized = content;
+  dangerous.forEach(pattern => {
+    sanitized = sanitized.replace(pattern, '');
+  });
+  return sanitized;
+};
 
 const BlogPost = () => {
   const { id } = useParams();
@@ -116,6 +140,27 @@ const BlogPost = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
+      // Validate input
+      const validation = blogSchema.safeParse({
+        title: editedBlog.title,
+        content: editedBlog.content,
+        cover_image_url: editedBlog.cover_image_url,
+        tags: editedBlog.tags
+      });
+
+      if (!validation.success) {
+        toast({
+          title: "Validation Error",
+          description: validation.error.errors[0].message,
+          variant: "destructive"
+        });
+        setIsEditing(false);
+        return;
+      }
+
+      // Sanitize content
+      const sanitizedContent = sanitizeContent(editedBlog.content);
+
       // Save to edit history
       await supabase
         .from('blog_edits')
@@ -123,17 +168,17 @@ const BlogPost = () => {
           blog_id: blog.id,
           edited_by: user.id,
           previous_content: blog.content,
-          new_content: editedBlog.content
+          new_content: sanitizedContent
         });
 
       // Update blog
       const { error } = await supabase
         .from('blogs')
         .update({
-          title: editedBlog.title,
-          content: editedBlog.content,
-          cover_image_url: editedBlog.cover_image_url || null,
-          tags: editedBlog.tags ? editedBlog.tags.split(',').map(t => t.trim()) : []
+          title: editedBlog.title.trim(),
+          content: sanitizedContent,
+          cover_image_url: editedBlog.cover_image_url?.trim() || null,
+          tags: editedBlog.tags ? editedBlog.tags.split(',').map(t => t.trim()).filter(Boolean) : []
         })
         .eq('id', blog.id);
 

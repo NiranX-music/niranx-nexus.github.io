@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { UserPlus, Loader2, ArrowLeft, Mail, CheckCircle2 } from "lucide-react";
 import { z } from "zod";
 import { useAuth } from "@/contexts/AuthContext";
+import { AdminRoute } from "@/components/AdminRoute";
 
 const emailSchema = z.string().email("Invalid email address");
 
@@ -46,13 +47,13 @@ export default function InviteUser() {
         return;
       }
 
-      // Note: This uses Supabase's admin API which requires proper permissions
-      // For production, you should create an edge function to handle invitations
-      const { error } = await supabase.auth.admin.inviteUserByEmail(email, {
-        redirectTo: `${window.location.origin}/niranx/auth`,
+      // Call secure edge function to send invitation
+      const { data, error } = await supabase.functions.invoke('invite-user', {
+        body: { email }
       });
 
       if (error) throw error;
+      if (!data?.success) throw new Error('Failed to send invitation');
 
       setInviteSent(true);
       toast({
@@ -70,22 +71,8 @@ export default function InviteUser() {
     }
   };
 
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardContent className="text-center py-12">
-            <p className="text-muted-foreground mb-4">You must be logged in to invite users</p>
-            <Button onClick={() => navigate('/niranx/auth')}>
-              Go to Login
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
+    <AdminRoute>
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-primary/5">
       <div className="absolute inset-0 bg-grid-white/10 bg-[size:20px_20px]" />
       
@@ -180,5 +167,6 @@ export default function InviteUser() {
         </CardContent>
       </Card>
     </div>
+    </AdminRoute>
   );
 }
