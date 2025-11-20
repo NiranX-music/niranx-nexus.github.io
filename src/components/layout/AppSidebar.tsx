@@ -46,6 +46,8 @@ import {
   ChevronDown,
   Bell,
   UserCog,
+  Star as StarIcon,
+  StarOff,
 } from "lucide-react";
 import {
   Sidebar,
@@ -68,6 +70,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Input } from "@/components/ui/input";
 import { useState, useMemo } from "react";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
+import { useFavorites } from "@/hooks/useFavorites";
 
 // Core Navigation
 const coreNavigation = [
@@ -167,9 +170,11 @@ export function AppSidebar() {
   const currentPath = location.pathname;
   const isCollapsed = state === "collapsed";
   const { isAdmin, isLoading: adminLoading } = useAdminCheck();
+  const { favorites, addFavorite, removeFavorite, isFavorite } = useFavorites();
   
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    favorites: true,
     study: true,
     progress: false,
     media: false,
@@ -220,7 +225,7 @@ export function AppSidebar() {
     window.open(url, '_blank');
   };
 
-  const renderNavItems = (items: any[], showExternalIcon = false) => (
+  const renderNavItems = (items: any[], showExternalIcon = false, showFavoriteButton = true) => (
     <>
       {items.map((item) => (
         <SidebarMenuItem key={item.title}>
@@ -237,19 +242,43 @@ export function AppSidebar() {
                 )}
               </button>
             ) : (
-              <NavLink
-                to={item.url}
-                className={({ isActive: navIsActive }) =>
-                  `flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
-                    isActive(item.url) || navIsActive
-                      ? "bg-primary text-primary-foreground font-semibold"
-                      : "text-white hover:bg-white/10"
-                  }`
-                }
-              >
-                <item.icon className="h-4 w-4" />
-                {!isCollapsed && <span>{item.title}</span>}
-              </NavLink>
+              <div className="flex items-center w-full gap-1">
+                <NavLink
+                  to={item.url}
+                  className={({ isActive: navIsActive }) =>
+                    `flex items-center gap-3 rounded-lg px-3 py-2 transition-all flex-1 ${
+                      isActive(item.url) || navIsActive
+                        ? "bg-primary text-primary-foreground font-semibold"
+                        : "text-white hover:bg-white/10"
+                    }`
+                  }
+                >
+                  <item.icon className="h-4 w-4" />
+                  {!isCollapsed && <span>{item.title}</span>}
+                </NavLink>
+                {!isCollapsed && showFavoriteButton && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-white hover:bg-white/10"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (isFavorite(item.url)) {
+                        const fav = favorites.find(f => f.page_url === item.url);
+                        if (fav) removeFavorite(fav.id);
+                      } else {
+                        addFavorite(item.url, item.title);
+                      }
+                    }}
+                  >
+                    {isFavorite(item.url) ? (
+                      <StarIcon className="h-3.5 w-3.5 fill-yellow-500 text-yellow-500" />
+                    ) : (
+                      <StarOff className="h-3.5 w-3.5" />
+                    )}
+                  </Button>
+                )}
+              </div>
             )}
           </SidebarMenuButton>
         </SidebarMenuItem>
@@ -310,6 +339,38 @@ export function AppSidebar() {
           </SidebarGroup>
         ) : (
           <>
+        {/* Favorites */}
+        {favorites.length > 0 && (
+          <Collapsible
+            open={expandedSections.favorites}
+            onOpenChange={() => toggleSection("favorites")}
+          >
+            <SidebarGroup>
+              <CollapsibleTrigger asChild>
+                <SidebarGroupLabel className="cursor-pointer hover:bg-sidebar-accent/60 rounded px-2 -mx-2 flex items-center justify-between text-white font-semibold">
+                  <span>⭐ Favorites</span>
+                  <ChevronDown
+                    className={`h-4 w-4 transition-transform text-white ${
+                      expandedSections.favorites ? "" : "-rotate-90"
+                    }`}
+                  />
+                </SidebarGroupLabel>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {favorites.map((fav) => {
+                      const navItem = allNavItems.find(item => item.url === fav.page_url);
+                      if (!navItem) return null;
+                      return renderNavItems([navItem], false, true);
+                    })}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </CollapsibleContent>
+            </SidebarGroup>
+          </Collapsible>
+        )}
+
         {/* Core */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-white font-semibold">Core</SidebarGroupLabel>

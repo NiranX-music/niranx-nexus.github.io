@@ -1099,6 +1099,33 @@ export type Database = {
         }
         Relationships: []
       }
+      recent_pages: {
+        Row: {
+          id: string
+          page_title: string
+          page_url: string
+          user_id: string
+          visit_count: number | null
+          visited_at: string | null
+        }
+        Insert: {
+          id?: string
+          page_title: string
+          page_url: string
+          user_id: string
+          visit_count?: number | null
+          visited_at?: string | null
+        }
+        Update: {
+          id?: string
+          page_title?: string
+          page_url?: string
+          user_id?: string
+          visit_count?: number | null
+          visited_at?: string | null
+        }
+        Relationships: []
+      }
       schedule_tasks: {
         Row: {
           class_duration: number | null
@@ -1641,6 +1668,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_favorites: {
+        Row: {
+          created_at: string | null
+          display_order: number | null
+          icon_name: string | null
+          id: string
+          page_title: string
+          page_url: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          display_order?: number | null
+          icon_name?: string | null
+          id?: string
+          page_title: string
+          page_url: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          display_order?: number | null
+          icon_name?: string | null
+          id?: string
+          page_title?: string
+          page_url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_goals: {
         Row: {
           created_at: string | null
@@ -1971,6 +2028,10 @@ export type Database = {
       send_exam_reminders: { Args: never; Returns: undefined }
       update_leaderboard_entries: {
         Args: { p_end_date: string; p_start_date: string }
+        Returns: undefined
+      }
+      update_recent_page: {
+        Args: { p_page_title: string; p_page_url: string; p_user_id: string }
         Returns: undefined
       }
     }
