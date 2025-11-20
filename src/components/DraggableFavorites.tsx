@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Favorite } from "@/hooks/useFavorites";
 import { cn } from "@/lib/utils";
 import * as LucideIcons from "lucide-react";
+import { getLucideIcon } from "@/lib/iconValidator";
 
 interface NavItem {
   title: string;
@@ -53,18 +54,8 @@ function SortableFavoriteItem({ favorite, navItem, onRemove, isActive, index }: 
     transition,
   };
 
-  // Use navItem icon if available, otherwise try to get from lucide with fallback
-  let IconComponent = LucideIcons.Star;
-  
-  if (navItem) {
-    IconComponent = navItem.icon;
-  } else if (favorite.icon_name) {
-    // Try to get icon from lucide, fallback to Star if not found
-    const LucideIcon = (LucideIcons as any)[favorite.icon_name];
-    if (LucideIcon && typeof LucideIcon === 'function') {
-      IconComponent = LucideIcon;
-    }
-  }
+  // Use navItem icon if available, otherwise get validated icon from lucide
+  const IconComponent = navItem ? navItem.icon : getLucideIcon(favorite.icon_name);
 
   return (
     <div

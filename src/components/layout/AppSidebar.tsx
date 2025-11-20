@@ -74,6 +74,7 @@ import { useState, useMemo } from "react";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useFavorites } from "@/hooks/useFavorites";
 import { DraggableFavorites } from "@/components/DraggableFavorites";
+import { getValidIconOrFallback } from "@/lib/iconValidator";
 
 // Core Navigation
 const coreNavigation = [
@@ -283,9 +284,10 @@ export function AppSidebar() {
                         const fav = favorites.find(f => f.page_url === item.url);
                         if (fav) removeFavorite(fav.id);
                       } else {
-                        // Get icon name from the item
-                        const iconName = item.icon.displayName || item.icon.name;
-                        addFavorite(item.url, item.title, iconName);
+                        // Get and validate icon name from the item
+                        const rawIconName = item.icon.displayName || item.icon.name || 'Star';
+                        const validIconName = getValidIconOrFallback(rawIconName);
+                        addFavorite(item.url, item.title, validIconName);
                       }
                     }}
                   >

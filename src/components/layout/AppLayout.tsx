@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { RightSidebar } from "./RightSidebar";
@@ -22,6 +22,8 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { cleanupInvalidFavoriteIcons } from "@/utils/cleanupFavorites";
 interface AppLayoutProps {
   children: React.ReactNode;
 }
@@ -48,6 +50,14 @@ export function AppLayout({ children }: AppLayoutProps) {
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [shortcutsHelpOpen, setShortcutsHelpOpen] = useState(false);
   const { favorites } = useFavorites();
+  const { user } = useAuth();
+
+  // Run cleanup on mount to fix any invalid favorite icons
+  useEffect(() => {
+    if (user) {
+      cleanupInvalidFavoriteIcons(user.id);
+    }
+  }, [user]);
 
   // Keyboard shortcuts
   useKeyboardShortcuts([
