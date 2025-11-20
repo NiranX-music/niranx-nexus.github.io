@@ -182,7 +182,7 @@ export function AppSidebar() {
     <>
       {items.map((item, index) => (
         <SidebarMenuItem key={item.title}>
-          <SidebarMenuButton asChild>
+          <SidebarMenuButton asChild className="text-white [&_svg]:text-white">
             {item.external ? (
               <button
                 onClick={(e) => handleExternalLink(item.url, e)}
@@ -387,7 +387,7 @@ export function AppSidebar() {
       <SidebarFooter className="border-t border-white/10 p-4">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton asChild className="text-white [&_svg]:text-white">
               <NavLink
                 to="/niranx/settings"
                 className="flex items-center gap-3 rounded-lg px-3 py-2 text-white hover:bg-white/10"
