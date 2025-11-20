@@ -42,6 +42,7 @@ export default function AdminDashboard() {
   const [feedback, setFeedback] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [resources, setResources] = useState<any[]>([]);
+  const [userRoles, setUserRoles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -58,6 +59,7 @@ export default function AdminDashboard() {
         loadFeedback(),
         loadUsers(),
         loadResources(),
+        loadUserRoles(),
       ]);
     } catch (error) {
       console.error('Error loading dashboard data:', error);
@@ -130,6 +132,64 @@ export default function AdminDashboard() {
     }
   };
 
+  const loadUserRoles = async () => {
+    const { data: profilesData, error: profilesError } = await supabase
+      .from('profiles')
+      .select('user_id, username, display_name')
+      .order('created_at', { ascending: false });
+
+    if (profilesError || !profilesData) return;
+
+    const { data: rolesData, error: rolesError } = await supabase
+      .from('user_roles')
+      .select('*');
+
+    if (rolesError) return;
+
+    const usersWithRoles = profilesData.map(profile => {
+      const roles = rolesData?.filter(r => r.user_id === profile.user_id).map(r => r.role) || [];
+      return {
+        ...profile,
+        roles: roles.length > 0 ? roles : ['user']
+      };
+    });
+
+    setUserRoles(usersWithRoles);
+  };
+
+  const updateUserRole = async (userId: string, role: 'admin' | 'moderator' | 'user', action: 'add' | 'remove') => {
+    try {
+      if (action === 'add') {
+        const { error } = await supabase
+          .from('user_roles')
+          .insert({ user_id: userId, role });
+        
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('user_roles')
+          .delete()
+          .eq('user_id', userId)
+          .eq('role', role);
+        
+        if (error) throw error;
+      }
+
+      toast({
+        title: "Success",
+        description: `Role ${action === 'add' ? 'added' : 'removed'} successfully`,
+      });
+
+      loadUserRoles();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update role",
+        variant: "destructive",
+      });
+    }
+  };
+
   const updateFeedbackStatus = async (id: string, status: string) => {
     const { error } = await supabase
       .from('feedback_suggestions')
@@ -199,10 +259,11 @@ export default function AdminDashboard() {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5 lg:w-auto">
+        <TabsList className="grid w-full grid-cols-6 lg:w-auto">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="feedback">Feedback</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
+          <TabsTrigger value="roles">Roles</TabsTrigger>
           <TabsTrigger value="resources">Resources</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
@@ -438,6 +499,89 @@ export default function AdminDashboard() {
                         <TableCell>{user.xp || 0}</TableCell>
                         <TableCell>
                           {new Date(user.created_at).toLocaleDateString()}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="roles" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>User Role Management</CardTitle>
+              <CardDescription>Assign or revoke admin, moderator, and user roles</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Username</TableHead>
+                      <TableHead>Display Name</TableHead>
+                      <TableHead>Current Roles</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {userRoles.map((user) => (
+                      <TableRow key={user.user_id}>
+                        <TableCell className="font-medium">{user.username || 'N/A'}</TableCell>
+                        <TableCell>{user.display_name || 'N/A'}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-1 flex-wrap">
+                            {user.roles.map((role: string) => (
+                              <Badge 
+                                key={role} 
+                                variant={role === 'admin' ? 'destructive' : role === 'moderator' ? 'default' : 'secondary'}
+                              >
+                                {role}
+                              </Badge>
+                            ))}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            {!user.roles.includes('admin') && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => updateUserRole(user.user_id, 'admin', 'add')}
+                              >
+                                Make Admin
+                              </Button>
+                            )}
+                            {user.roles.includes('admin') && (
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => updateUserRole(user.user_id, 'admin', 'remove')}
+                              >
+                                Remove Admin
+                              </Button>
+                            )}
+                            {!user.roles.includes('moderator') && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => updateUserRole(user.user_id, 'moderator', 'add')}
+                              >
+                                Make Moderator
+                              </Button>
+                            )}
+                            {user.roles.includes('moderator') && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => updateUserRole(user.user_id, 'moderator', 'remove')}
+                              >
+                                Remove Moderator
+                              </Button>
+                            )}
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
