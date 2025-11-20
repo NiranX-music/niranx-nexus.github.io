@@ -118,7 +118,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen p-4 md:p-6 lg:p-8 perspective-3d relative overflow-hidden">
+    <div className="relative p-4 md:p-6 lg:p-8">
       {/* Cosmic Background Effects */}
       <div className="fixed inset-0 pointer-events-none -z-10">
         <div className="absolute inset-0 bg-gradient-to-br from-background via-primary/5 to-accent/5" />
