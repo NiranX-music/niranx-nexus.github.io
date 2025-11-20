@@ -118,6 +118,7 @@ const App = () => (
                           <Route path="/chat-room/:chatId" element={<ChatRoom />} />
                           <Route path="/tasks" element={<TasksPage />} />
                           <Route path="/focus-engine" element={<FocusEngine />} />
+                          <Route path="/distraction-blocker" element={<DistractionBlocker />} />
                           <Route path="/music" element={<MusicPage />} />
                           <Route path="/games" element={<GamesPage />} />
                           
@@ -132,6 +133,8 @@ const App = () => (
                           <Route path="/pw" element={<PW />} />
                           <Route path="/settings" element={<Settings />} />
                           <Route path="/analytics" element={<Analytics />} />
+                          <Route path="/advanced-dashboard" element={<AdvancedDashboard />} />
+                          <Route path="/study-streak-challenges" element={<StudyStreakChallenges />} />
                           <Route path="/exams" element={<ExamHub />} />
                           <Route path="/website" element={<WebsiteEmbed />} />
                           <Route path="/website/study-platforms" element={<StudyPlatforms />} />
