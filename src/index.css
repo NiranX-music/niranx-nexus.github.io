@@ -519,16 +519,7 @@
 
   /* Ensure main content doesn't overlap with fixed sidebar */
   [data-sidebar="inset"] {
-    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  }
-
-  /* Adjust margin based on sidebar state - using parent wrapper */
-  .group\/sidebar-wrapper[data-state="expanded"] [data-sidebar="inset"] {
-    margin-left: var(--sidebar-width) !important;
-  }
-
-  .group\/sidebar-wrapper[data-state="collapsed"] [data-sidebar="inset"] {
-    margin-left: var(--sidebar-width-icon) !important;
+    margin-left: 0 !important;
   }
 
   /* Sidebar scrollbar styling */
