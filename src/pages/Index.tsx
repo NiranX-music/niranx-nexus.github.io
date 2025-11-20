@@ -118,7 +118,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="relative p-4 md:p-6 lg:p-8">
+    <div className="relative">
       {/* Cosmic Background Effects */}
       <div className="fixed inset-0 pointer-events-none -z-10">
         <div className="absolute inset-0 bg-gradient-to-br from-background via-primary/5 to-accent/5" />
@@ -137,6 +137,9 @@ const Index = () => {
           />
         ))}
       </div>
+
+      {/* Dashboard Content */}
+      <div className="p-4 md:p-6 lg:p-8">
 
       {/* Header */}
       <div className="mb-8 animate-fade-in">
@@ -357,6 +360,7 @@ const Index = () => {
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/5 rounded-full blur-3xl animate-float"></div>
         <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-accent/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '1s' }}></div>
         <div className="absolute top-1/2 right-1/3 w-48 h-48 bg-success/5 rounded-full blur-3xl animate-pulse-scale" style={{ animationDelay: '2s' }}></div>
+      </div>
       </div>
     </div>
   );
