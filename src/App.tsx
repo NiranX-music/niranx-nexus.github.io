@@ -45,6 +45,8 @@ import Blogs from "./pages/Blogs";
 import BlogPost from "./pages/BlogPost";
 import GlobalSearch from "./pages/GlobalSearch";
 import AIChat from "./pages/AIChat";
+import AIChatHistory from "./pages/AIChatHistory";
+import AIScheduler from "./pages/AIScheduler";
 import Notifications from "./pages/Notifications";
 
 import VideoShare from "./pages/VideoShare";
@@ -158,6 +160,8 @@ const App = () => (
                           <Route path="/blogs/settings" element={<BlogSettings />} />
                           <Route path="/search" element={<GlobalSearch />} />
                           <Route path="/ai-chat" element={<AIChat />} />
+                          <Route path="/ai-chat-history" element={<AIChatHistory />} />
+                          <Route path="/ai-scheduler" element={<AIScheduler />} />
                           <Route path="/notifications" element={<Notifications />} />
                           <Route path="/notification-settings" element={<NotificationSettings />} />
                           <Route path="/become-admin" element={<BecomeAdmin />} />
