@@ -487,6 +487,8 @@
     z-index: 40 !important;
     transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
                 transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border-right: 1px solid hsl(var(--border) / 0.5);
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08);
   }
 
   /* Smooth width transition for sidebar content */
