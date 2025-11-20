@@ -2,6 +2,7 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/s
 import { AppSidebar } from "./AppSidebar";
 import { RightSidebar } from "./RightSidebar";
 import { NowPlaying } from "./NowPlaying";
+import { NotificationCenter } from "@/components/NotificationCenter";
 import { Separator } from "@/components/ui/separator";
 import {
   Breadcrumb,
@@ -64,6 +65,9 @@ export function AppLayout({ children }: AppLayoutProps) {
                 ))}
               </BreadcrumbList>
             </Breadcrumb>
+            <div className="ml-auto">
+              <NotificationCenter />
+            </div>
           </header>
           <div className="flex flex-1 flex-col gap-4 p-4 animate-fade-in">
             {children}

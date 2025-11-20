@@ -859,6 +859,42 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_preferences: {
+        Row: {
+          created_at: string | null
+          email_notifications: boolean | null
+          exam_reminders: boolean | null
+          feedback_responses: boolean | null
+          id: string
+          push_notifications: boolean | null
+          resource_access: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email_notifications?: boolean | null
+          exam_reminders?: boolean | null
+          feedback_responses?: boolean | null
+          id?: string
+          push_notifications?: boolean | null
+          resource_access?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email_notifications?: boolean | null
+          exam_reminders?: boolean | null
+          feedback_responses?: boolean | null
+          id?: string
+          push_notifications?: boolean | null
+          resource_access?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string | null
@@ -1859,7 +1895,46 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      admin_feedback_stats: {
+        Row: {
+          avg_upvotes: number | null
+          completed: number | null
+          in_progress: number | null
+          pending: number | null
+          total_feedback: number | null
+          unique_submitters: number | null
+        }
+        Relationships: []
+      }
+      admin_resource_stats: {
+        Row: {
+          active_uploaders: number | null
+          shared_resources: number | null
+          total_downloads: number | null
+          total_resources: number | null
+          total_views: number | null
+        }
+        Relationships: []
+      }
+      admin_study_stats: {
+        Row: {
+          active_students: number | null
+          avg_session_duration: number | null
+          total_minutes: number | null
+          total_sessions: number | null
+        }
+        Relationships: []
+      }
+      admin_user_stats: {
+        Row: {
+          active_users_week: number | null
+          avg_level: number | null
+          avg_xp: number | null
+          new_users_month: number | null
+          total_users: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       calculate_level: { Args: { xp_amount: number }; Returns: number }
@@ -1882,7 +1957,18 @@ export type Database = {
         }
         Returns: boolean
       }
+      notify_user: {
+        Args: {
+          p_data?: Json
+          p_message: string
+          p_title: string
+          p_type: string
+          p_user_id: string
+        }
+        Returns: string
+      }
       refresh_current_month_leaderboard: { Args: never; Returns: undefined }
+      send_exam_reminders: { Args: never; Returns: undefined }
       update_leaderboard_entries: {
         Args: { p_end_date: string; p_start_date: string }
         Returns: undefined
