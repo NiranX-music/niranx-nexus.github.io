@@ -186,12 +186,12 @@ export function AppSidebar() {
             {item.external ? (
               <button
                 onClick={(e) => handleExternalLink(item.url, e)}
-                className="flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:bg-sidebar-accent/70 w-full text-left group text-sidebar-foreground"
+                className="flex items-center gap-3 rounded-lg px-3 py-2 transition-all w-full text-left group bg-card text-card-foreground border border-sidebar-border/60 hover:bg-card/90 hover:border-sidebar-ring/60"
               >
-                <item.icon className="h-4 w-4 text-sidebar-foreground" />
+                <item.icon className="h-4 w-4 text-card-foreground" />
                 {!isCollapsed && <span className="flex-1">{item.title}</span>}
                 {!isCollapsed && showExternalIcon && (
-                  <ExternalLink className="h-3 w-3 ml-auto opacity-70 text-sidebar-foreground/70" />
+                  <ExternalLink className="h-3 w-3 ml-auto opacity-70 text-card-foreground/70" />
                 )}
               </button>
             ) : (
@@ -200,8 +200,8 @@ export function AppSidebar() {
                 className={({ isActive: navIsActive }) =>
                   `flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
                     isActive(item.url) || navIsActive
-                      ? "bg-primary text-primary-foreground font-semibold"
-                      : "hover:bg-sidebar-accent/70 text-sidebar-foreground"
+                      ? "bg-primary text-primary-foreground font-semibold border border-primary/80"
+                      : "bg-card text-card-foreground border border-sidebar-border/60 hover:bg-card/90 hover:border-sidebar-ring/60"
                   }`
                 }
               >
@@ -388,8 +388,11 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <NavLink to="/niranx/settings" className="flex items-center gap-3 hover:bg-sidebar-accent/70 rounded-lg px-3 py-2 text-sidebar-foreground">
-                <Settings className="h-4 w-4 text-sidebar-foreground" />
+              <NavLink
+                to="/niranx/settings"
+                className="flex items-center gap-3 rounded-lg px-3 py-2 bg-card text-card-foreground border border-sidebar-border/60 hover:bg-card/90 hover:border-sidebar-ring/60"
+              >
+                <Settings className="h-4 w-4 text-card-foreground" />
                 {!isCollapsed && <span>Settings</span>}
               </NavLink>
             </SidebarMenuButton>
