@@ -71,14 +71,14 @@ export default function Leaderboard() {
     if (data && data.length > 0) {
       const userIds = data.map(entry => entry.user_id);
       const { data: profilesData } = await supabase
-        .from('users')
-        .select('id, display_name, avatar_url')
-        .in('id', userIds);
+        .from('profiles')
+        .select('user_id, display_name, avatar_url')
+        .in('user_id', userIds);
 
       // Map profiles to entries
       return data.map(entry => ({
         ...entry,
-        profiles: profilesData?.find(p => p.id === entry.user_id) || { display_name: 'Anonymous', avatar_url: '' }
+        profiles: profilesData?.find(p => p.user_id === entry.user_id) || { display_name: 'Anonymous', avatar_url: '' }
       }));
     }
 
