@@ -35,6 +35,31 @@ export default function Leaderboard() {
     }
   }, [user]);
 
+  // Real-time subscription for leaderboard updates
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('leaderboard-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'leaderboard_entries'
+        },
+        () => {
+          // Refetch leaderboards when any change occurs
+          fetchLeaderboards();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
   const fetchLeaderboards = async () => {
     try {
       const today = new Date();

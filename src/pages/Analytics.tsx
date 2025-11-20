@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -12,38 +14,228 @@ import {
   Brain,
   Zap,
   Calendar,
-  BookOpen
+  BookOpen,
+  CheckCircle
 } from 'lucide-react';
+import { toast } from 'sonner';
+
+interface AnalyticsData {
+  totalStudyHours: number;
+  weeklyGoal: number;
+  currentStreak: number;
+  tasksCompleted: number;
+  xpEarned: number;
+  level: number;
+  focusScore: number;
+  subjectProgress: SubjectProgress[];
+  weeklyHours: number[];
+  pomodoroSessions: number[];
+  totalFocusSessions: number;
+  completedTasks: number;
+  totalExams: number;
+  upcomingExams: number;
+}
+
+interface SubjectProgress {
+  name: string;
+  hours: number;
+  progress: number;
+  color: string;
+}
 
 const Analytics = () => {
-  const [stats, setStats] = useState({
-    totalStudyHours: 142,
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<AnalyticsData>({
+    totalStudyHours: 0,
     weeklyGoal: 40,
-    currentStreak: 12,
-    tasksCompleted: 89,
-    xpEarned: 2450,
-    level: 8,
-    focusScore: 85,
-    subjectProgress: [
-      { name: 'Mathematics', hours: 35, progress: 87, color: 'bg-blue-500' },
-      { name: 'Physics', hours: 28, progress: 75, color: 'bg-green-500' },
-      { name: 'Chemistry', hours: 22, progress: 68, color: 'bg-purple-500' },
-      { name: 'English', hours: 18, progress: 60, color: 'bg-yellow-500' },
-    ],
-    weeklyHours: [8, 12, 10, 15, 9, 14, 16],
-    pomodoroSessions: [5, 8, 6, 10, 7, 9, 11],
+    currentStreak: 0,
+    tasksCompleted: 0,
+    xpEarned: 0,
+    level: 1,
+    focusScore: 0,
+    subjectProgress: [],
+    weeklyHours: [0, 0, 0, 0, 0, 0, 0],
+    pomodoroSessions: [0, 0, 0, 0, 0, 0, 0],
+    totalFocusSessions: 0,
+    completedTasks: 0,
+    totalExams: 0,
+    upcomingExams: 0,
   });
 
-  const [achievements, setAchievements] = useState([
-    { id: 1, title: 'Study Streak Master', description: '7 days continuous study', earned: true, icon: Flame },
-    { id: 2, title: 'Pomodoro Pro', description: '100 focus sessions completed', earned: true, icon: Clock },
-    { id: 3, title: 'Task Terminator', description: '50 tasks completed', earned: true, icon: Target },
-    { id: 4, title: 'Knowledge Hunter', description: 'Upload 25 study materials', earned: false, icon: BookOpen },
-    { id: 5, title: 'Level Up Legend', description: 'Reach level 10', earned: false, icon: Trophy },
-  ]);
+  const [achievements, setAchievements] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (user) {
+      fetchAnalytics();
+    }
+  }, [user]);
+
+  const fetchAnalytics = async () => {
+    try {
+      setLoading(true);
+
+      // Fetch profile data
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('xp, level')
+        .eq('user_id', user?.id)
+        .maybeSingle();
+
+      // Fetch study streaks
+      const { data: streaks } = await supabase
+        .from('study_streaks')
+        .select('study_date, minutes_studied')
+        .eq('user_id', user?.id)
+        .order('study_date', { ascending: false });
+
+      // Calculate current streak
+      let currentStreak = 0;
+      if (streaks && streaks.length > 0) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        for (const streak of streaks) {
+          const streakDate = new Date(streak.study_date);
+          streakDate.setHours(0, 0, 0, 0);
+          const daysDiff = Math.floor((today.getTime() - streakDate.getTime()) / (1000 * 60 * 60 * 24));
+          
+          if (daysDiff === currentStreak) {
+            currentStreak++;
+          } else {
+            break;
+          }
+        }
+      }
+
+      // Fetch focus sessions
+      const { data: focusSessions } = await supabase
+        .from('focus_sessions')
+        .select('duration_minutes, completed, completed_at, subject')
+        .eq('user_id', user?.id)
+        .eq('completed', true);
+
+      // Calculate total study hours
+      const totalStudyMinutes = focusSessions?.reduce((sum, session) => sum + session.duration_minutes, 0) || 0;
+      const totalStudyHours = Math.round(totalStudyMinutes / 60);
+
+      // Calculate weekly data
+      const last7Days = Array.from({ length: 7 }, (_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() - (6 - i));
+        return date.toISOString().split('T')[0];
+      });
+
+      const weeklyHours = last7Days.map(date => {
+        const daysSessions = focusSessions?.filter(s => 
+          s.completed_at?.startsWith(date)
+        ) || [];
+        return Math.round(daysSessions.reduce((sum, s) => sum + s.duration_minutes, 0) / 60);
+      });
+
+      const pomodoroSessions = last7Days.map(date => {
+        return focusSessions?.filter(s => 
+          s.completed_at?.startsWith(date)
+        )?.length || 0;
+      });
+
+      // Calculate subject progress
+      const subjectMap = new Map<string, number>();
+      focusSessions?.forEach(session => {
+        if (session.subject) {
+          subjectMap.set(session.subject, (subjectMap.get(session.subject) || 0) + session.duration_minutes);
+        }
+      });
+
+      const colors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-yellow-500', 'bg-pink-500', 'bg-orange-500'];
+      const subjectProgress = Array.from(subjectMap.entries())
+        .map(([name, minutes], index) => ({
+          name,
+          hours: Math.round(minutes / 60),
+          progress: Math.min(100, Math.round((minutes / 60 / (totalStudyHours || 1)) * 100)),
+          color: colors[index % colors.length]
+        }))
+        .sort((a, b) => b.hours - a.hours)
+        .slice(0, 6);
+
+      // Fetch tasks
+      const { data: tasks } = await supabase
+        .from('tasks')
+        .select('completed')
+        .eq('user_id', user?.id);
+
+      const completedTasks = tasks?.filter(t => t.completed).length || 0;
+
+      // Fetch exams
+      const { data: exams } = await supabase
+        .from('exams')
+        .select('exam_date')
+        .eq('user_id', user?.id);
+
+      const today = new Date();
+      const upcomingExams = exams?.filter(e => new Date(e.exam_date) >= today).length || 0;
+
+      // Fetch achievements
+      const { data: userAchievements } = await supabase
+        .from('user_achievements')
+        .select('achievement_id, achievements(*)')
+        .eq('user_id', user?.id);
+
+      const { data: allAchievements } = await supabase
+        .from('achievements')
+        .select('*');
+
+      const achievementsList = allAchievements?.map(ach => ({
+        ...ach,
+        earned: userAchievements?.some((ua: any) => ua.achievement_id === ach.id) || false,
+        icon: Trophy
+      })) || [];
+
+      // Calculate focus score
+      const avgSessionLength = focusSessions && focusSessions.length > 0 
+        ? focusSessions.reduce((sum, s) => sum + s.duration_minutes, 0) / focusSessions.length 
+        : 0;
+      const focusScore = Math.min(100, Math.round((avgSessionLength / 25) * 100));
+
+      setStats({
+        totalStudyHours,
+        weeklyGoal: 40,
+        currentStreak,
+        tasksCompleted: completedTasks,
+        xpEarned: profile?.xp || 0,
+        level: profile?.level || 1,
+        focusScore,
+        subjectProgress,
+        weeklyHours,
+        pomodoroSessions,
+        totalFocusSessions: focusSessions?.length || 0,
+        completedTasks,
+        totalExams: exams?.length || 0,
+        upcomingExams,
+      });
+
+      setAchievements(achievementsList);
+    } catch (error) {
+      console.error('Error fetching analytics:', error);
+      toast.error('Failed to load analytics data');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  const maxHours = Math.max(...stats.weeklyHours);
+  const maxHours = Math.max(...stats.weeklyHours, 1);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen p-4 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Brain className="w-16 h-16 text-primary mx-auto animate-pulse" />
+          <p className="text-muted-foreground">Loading analytics...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen p-4 space-y-6">
@@ -102,8 +294,35 @@ const Analytics = () => {
               <Target className="w-5 h-5 text-green-500" />
               <span className="text-sm text-muted-foreground">Tasks Done</span>
             </div>
-            <div className="text-2xl font-bold text-green-500">{stats.tasksCompleted}</div>
+            <div className="text-2xl font-bold text-green-500">{stats.completedTasks}</div>
             <div className="text-xs text-muted-foreground">Completed</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Additional Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <Card className="text-center">
+          <CardContent className="p-4">
+            <Clock className="w-5 h-5 text-primary mx-auto mb-2" />
+            <div className="text-xl font-bold">{stats.totalFocusSessions}</div>
+            <div className="text-xs text-muted-foreground">Focus Sessions</div>
+          </CardContent>
+        </Card>
+
+        <Card className="text-center">
+          <CardContent className="p-4">
+            <BookOpen className="w-5 h-5 text-blue-500 mx-auto mb-2" />
+            <div className="text-xl font-bold">{stats.totalExams}</div>
+            <div className="text-xs text-muted-foreground">Total Exams</div>
+          </CardContent>
+        </Card>
+
+        <Card className="text-center">
+          <CardContent className="p-4">
+            <Calendar className="w-5 h-5 text-purple-500 mx-auto mb-2" />
+            <div className="text-xl font-bold">{stats.upcomingExams}</div>
+            <div className="text-xs text-muted-foreground">Upcoming Exams</div>
           </CardContent>
         </Card>
       </div>
