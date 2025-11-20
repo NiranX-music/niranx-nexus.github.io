@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, Plus, Calendar, User, FileText, Upload, Image, Search } from 'lucide-react';
+import { z } from 'zod';
 
 interface Blog {
   id: string;
@@ -22,6 +23,29 @@ interface Blog {
   publisher_name?: string;
   publisher_id?: string;
 }
+
+const blogSchema = z.object({
+  title: z.string().trim().min(1, "Title is required").max(200, "Title must be less than 200 characters"),
+  content: z.string().trim().min(1, "Content is required").max(50000, "Content must be less than 50,000 characters"),
+  cover_image_url: z.string().trim().url("Must be a valid URL").or(z.literal('')).optional(),
+  tags: z.string().refine(
+    (val) => {
+      if (!val.trim()) return true;
+      const tags = val.split(',').map(t => t.trim()).filter(Boolean);
+      return tags.length <= 10 && tags.every(t => t.length <= 30);
+    },
+    { message: "Maximum 10 tags, each up to 30 characters" }
+  )
+});
+
+const sanitizeContent = (content: string): string => {
+  const dangerous = [/<script[^>]*>.*?<\/script>/gi, /javascript:/gi, /onerror\s*=/gi, /onclick\s*=/gi, /onload\s*=/gi];
+  let sanitized = content;
+  dangerous.forEach(pattern => {
+    sanitized = sanitized.replace(pattern, '');
+  });
+  return sanitized;
+};
 
 const Blogs = () => {
   const [blogs, setBlogs] = useState<Blog[]>([]);
@@ -63,19 +87,29 @@ const Blogs = () => {
   };
 
   const handleCreateBlog = async () => {
-    if (!newBlog.title || !newBlog.content) {
-      toast({
-        title: "Error",
-        description: "Title and content are required",
-        variant: "destructive"
-      });
-      return;
-    }
-
     setIsCreating(true);
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
+
+      // Validate input
+      const validation = blogSchema.safeParse({
+        title: newBlog.title,
+        content: newBlog.content,
+        cover_image_url: newBlog.cover_image_url,
+        tags: newBlog.tags
+      });
+
+      if (!validation.success) {
+        toast({
+          title: "Validation Error",
+          description: validation.error.errors[0].message,
+          variant: "destructive"
+        });
+        setIsCreating(false);
+        return;
+      }
 
       // Get publisher info
       const { data: profile } = await supabase
@@ -84,13 +118,16 @@ const Blogs = () => {
         .eq('user_id', user.id)
         .single();
 
+      // Sanitize content
+      const sanitizedContent = sanitizeContent(newBlog.content);
+
       const { data, error } = await supabase
         .from('blogs')
         .insert({
-          title: newBlog.title,
-          content: newBlog.content,
-          cover_image_url: newBlog.cover_image_url || null,
-          tags: newBlog.tags ? newBlog.tags.split(',').map(t => t.trim()) : [],
+          title: newBlog.title.trim(),
+          content: sanitizedContent,
+          cover_image_url: newBlog.cover_image_url?.trim() || null,
+          tags: newBlog.tags ? newBlog.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
           created_by: user.id,
           publisher_id: user.id,
           publisher_name: profile?.username || 'Anonymous',
