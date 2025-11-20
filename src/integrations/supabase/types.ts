@@ -388,6 +388,53 @@ export type Database = {
         }
         Relationships: []
       }
+      exam_resources: {
+        Row: {
+          created_at: string | null
+          duration: string | null
+          exam_id: string
+          file_path: string
+          file_size: number | null
+          id: string
+          title: string
+          type: string
+          upload_date: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          duration?: string | null
+          exam_id: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          title: string
+          type: string
+          upload_date?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          duration?: string | null
+          exam_id?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          title?: string
+          type?: string
+          upload_date?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_resources_exam_id_fkey"
+            columns: ["exam_id"]
+            isOneToOne: false
+            referencedRelation: "exams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exams: {
         Row: {
           created_at: string | null
