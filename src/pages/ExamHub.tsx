@@ -76,6 +76,9 @@ const ExamHub = () => {
   const [selectedResource, setSelectedResource] = useState<ExamResource | null>(null);
   const [shareLink, setShareLink] = useState("");
   const [copied, setCopied] = useState(false);
+  const [shareExpiration, setShareExpiration] = useState("7");
+  const [sharePermission, setSharePermission] = useState<"view-only" | "download-allowed">("view-only");
+  const [sharePassword, setSharePassword] = useState("");
   const { toast } = useToast();
 
   // New exam form state
@@ -350,13 +353,20 @@ const ExamHub = () => {
 
       if (tokenError) throw tokenError;
 
-      // Update resource with share token
+      // Calculate expiration date
+      const expirationDate = shareExpiration !== "never" 
+        ? new Date(Date.now() + parseInt(shareExpiration) * 24 * 60 * 60 * 1000).toISOString()
+        : null;
+
+      // Update resource with share token and settings
       const { error: updateError } = await supabase
         .from('exam_resources')
         .update({
           share_token: tokenData,
           is_shared: true,
-          shared_until: null
+          shared_until: expirationDate,
+          permission_level: sharePermission,
+          password_hash: sharePassword || null,
         })
         .eq('id', resource.id);
 
@@ -1049,25 +1059,72 @@ const ExamHub = () => {
           <DialogHeader>
             <DialogTitle>Share Resource 🔗</DialogTitle>
             <DialogDescription>
-              Anyone with this link can view and download this resource.
+              Configure sharing settings for this resource.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <Input
-                value={shareLink}
-                readOnly
-                className="flex-1"
-              />
-              <Button
-                type="button"
-                size="icon"
-                onClick={copyShareLink}
-                className="shrink-0"
+            {/* Expiration Date */}
+            <div className="space-y-2">
+              <Label htmlFor="expiration">Link Expiration</Label>
+              <select
+                id="expiration"
+                value={shareExpiration}
+                onChange={(e) => setShareExpiration(e.target.value)}
+                className="w-full p-2 border rounded-md bg-background"
               >
-                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-              </Button>
+                <option value="7">7 days</option>
+                <option value="30">30 days</option>
+                <option value="90">90 days</option>
+                <option value="never">Never expires</option>
+              </select>
             </div>
+
+            {/* Permission Level */}
+            <div className="space-y-2">
+              <Label htmlFor="permission">Permission Level</Label>
+              <select
+                id="permission"
+                value={sharePermission}
+                onChange={(e) => setSharePermission(e.target.value as "view-only" | "download-allowed")}
+                className="w-full p-2 border rounded-md bg-background"
+              >
+                <option value="view-only">View Only</option>
+                <option value="download-allowed">Download Allowed</option>
+              </select>
+            </div>
+
+            {/* Password Protection */}
+            <div className="space-y-2">
+              <Label htmlFor="password">Password Protection (Optional)</Label>
+              <Input
+                id="password"
+                type="password"
+                value={sharePassword}
+                onChange={(e) => setSharePassword(e.target.value)}
+                placeholder="Leave empty for no password"
+              />
+            </div>
+
+            {/* Share Link */}
+            {shareLink && (
+              <div className="flex items-center space-x-2">
+                <Input
+                  value={shareLink}
+                  readOnly
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  size="icon"
+                  onClick={copyShareLink}
+                  className="shrink-0"
+                >
+                  {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                </Button>
+              </div>
+            )}
+
+            {/* Sharing Status */}
             <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
               <div className="flex items-center gap-2">
                 <div className={`w-2 h-2 rounded-full ${selectedResource?.is_shared ? 'bg-green-500' : 'bg-gray-400'}`} />
@@ -1080,19 +1137,22 @@ const ExamHub = () => {
                 size="sm"
                 onClick={() => {
                   if (selectedResource) {
-                    toggleSharing(selectedResource, !selectedResource.is_shared);
-                    if (selectedResource.is_shared) {
+                    if (!selectedResource.is_shared) {
+                      generateShareLink(selectedResource);
+                    } else {
+                      toggleSharing(selectedResource, false);
                       setShareDialogOpen(false);
                     }
                   }
                 }}
               >
-                {selectedResource?.is_shared ? 'Disable sharing' : 'Enable sharing'}
+                {selectedResource?.is_shared ? 'Disable sharing' : 'Generate link'}
               </Button>
             </div>
+
             {selectedResource?.is_shared && (
               <div className="text-xs text-muted-foreground p-3 bg-muted/50 rounded-lg">
-                <p>💡 <strong>Tip:</strong> This link will remain active until you disable sharing. Share it with your study group or classmates!</p>
+                <p>💡 <strong>Tip:</strong> This link will remain active until you disable sharing or it expires. Share it with your study group or classmates!</p>
               </div>
             )}
           </div>

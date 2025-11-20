@@ -391,48 +391,63 @@ export type Database = {
       exam_resources: {
         Row: {
           created_at: string | null
+          download_count: number | null
           duration: string | null
           exam_id: string
           file_path: string
           file_size: number | null
           id: string
           is_shared: boolean | null
+          last_accessed_at: string | null
+          password_hash: string | null
+          permission_level: string | null
           share_token: string | null
           shared_until: string | null
           title: string
           type: string
           upload_date: string | null
           user_id: string
+          view_count: number | null
         }
         Insert: {
           created_at?: string | null
+          download_count?: number | null
           duration?: string | null
           exam_id: string
           file_path: string
           file_size?: number | null
           id?: string
           is_shared?: boolean | null
+          last_accessed_at?: string | null
+          password_hash?: string | null
+          permission_level?: string | null
           share_token?: string | null
           shared_until?: string | null
           title: string
           type: string
           upload_date?: string | null
           user_id: string
+          view_count?: number | null
         }
         Update: {
           created_at?: string | null
+          download_count?: number | null
           duration?: string | null
           exam_id?: string
           file_path?: string
           file_size?: number | null
           id?: string
           is_shared?: boolean | null
+          last_accessed_at?: string | null
+          password_hash?: string | null
+          permission_level?: string | null
           share_token?: string | null
           shared_until?: string | null
           title?: string
           type?: string
           upload_date?: string | null
           user_id?: string
+          view_count?: number | null
         }
         Relationships: [
           {
@@ -489,6 +504,51 @@ export type Database = {
           syllabus?: string[] | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      feedback_suggestions: {
+        Row: {
+          attachments: Json | null
+          category: string | null
+          created_at: string | null
+          description: string
+          id: string
+          priority: string | null
+          status: string | null
+          title: string
+          type: string
+          updated_at: string | null
+          upvotes: number | null
+          user_id: string | null
+        }
+        Insert: {
+          attachments?: Json | null
+          category?: string | null
+          created_at?: string | null
+          description: string
+          id?: string
+          priority?: string | null
+          status?: string | null
+          title: string
+          type: string
+          updated_at?: string | null
+          upvotes?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          attachments?: Json | null
+          category?: string | null
+          created_at?: string | null
+          description?: string
+          id?: string
+          priority?: string | null
+          status?: string | null
+          title?: string
+          type?: string
+          updated_at?: string | null
+          upvotes?: number | null
+          user_id?: string | null
         }
         Relationships: []
       }
