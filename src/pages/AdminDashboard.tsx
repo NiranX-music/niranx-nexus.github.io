@@ -46,6 +46,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [roleSearchQuery, setRoleSearchQuery] = useState("");
 
   useEffect(() => {
     loadDashboardData();
@@ -177,7 +178,7 @@ export default function AdminDashboard() {
 
       toast({
         title: "Success",
-        description: `Role ${action === 'add' ? 'added' : 'removed'} successfully`,
+        description: `Role ${action === 'add' ? 'added' : 'removed'} successfully. User has been notified.`,
       });
 
       loadUserRoles();
@@ -514,6 +515,14 @@ export default function AdminDashboard() {
             <CardHeader>
               <CardTitle>User Role Management</CardTitle>
               <CardDescription>Assign or revoke admin, moderator, and user roles</CardDescription>
+              <div className="mt-4">
+                <Input
+                  placeholder="Search by username, display name, or email..."
+                  value={roleSearchQuery}
+                  onChange={(e) => setRoleSearchQuery(e.target.value)}
+                  className="max-w-sm"
+                />
+              </div>
             </CardHeader>
             <CardContent>
               <div className="rounded-md border">
@@ -527,7 +536,14 @@ export default function AdminDashboard() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {userRoles.map((user) => (
+                    {userRoles
+                      .filter(user => 
+                        roleSearchQuery === '' || 
+                        user.username?.toLowerCase().includes(roleSearchQuery.toLowerCase()) ||
+                        user.display_name?.toLowerCase().includes(roleSearchQuery.toLowerCase()) ||
+                        user.user_id?.toLowerCase().includes(roleSearchQuery.toLowerCase())
+                      )
+                      .map((user) => (
                       <TableRow key={user.user_id}>
                         <TableCell className="font-medium">{user.username || 'N/A'}</TableCell>
                         <TableCell>{user.display_name || 'N/A'}</TableCell>

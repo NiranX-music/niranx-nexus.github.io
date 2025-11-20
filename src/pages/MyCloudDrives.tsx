@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AIContextualSuggestions } from "@/components/AIContextualSuggestions";
 import { HardDrive, Plus, Loader2, Trash2, FolderOpen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -220,6 +221,12 @@ export default function MyCloudDrives() {
           ))}
         </div>
       )}
+
+      <AIContextualSuggestions 
+        context="cloud storage and file organization" 
+        title="Organization Tips"
+        description="AI-powered suggestions for managing your cloud drives"
+      />
     </div>
   );
 }

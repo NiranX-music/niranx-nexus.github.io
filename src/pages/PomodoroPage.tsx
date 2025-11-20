@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { AIContextualSuggestions } from "@/components/AIContextualSuggestions";
 import { 
   Play, 
   Pause, 
@@ -365,6 +366,12 @@ const PomodoroPage = () => {
           )}
         </CardContent>
       </Card>
+
+      <AIContextualSuggestions 
+        context="Pomodoro timer and focus sessions" 
+        title="Focus Tips"
+        description="AI-powered suggestions to improve your focus sessions"
+      />
     </div>
   );
 };

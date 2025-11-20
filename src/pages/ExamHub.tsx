@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { AIContextualSuggestions } from '@/components/AIContextualSuggestions';
 import { 
   GraduationCap, 
   Upload, 
@@ -1158,6 +1159,12 @@ const ExamHub = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <AIContextualSuggestions 
+        context="exam preparation and study resources" 
+        title="Study Recommendations"
+        description="AI-powered tips for effective exam preparation"
+      />
     </div>
   );
 };
