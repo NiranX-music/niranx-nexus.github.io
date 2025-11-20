@@ -44,6 +44,8 @@ import {
   Zap,
   Archive,
   ChevronDown,
+  Bell,
+  UserCog,
 } from "lucide-react";
 import {
   Sidebar,
@@ -141,6 +143,15 @@ const externalPlatforms = [
   { title: "ChatGPT", url: "https://chat.openai.com/", icon: Brain, external: true },
 ];
 
+// Admin & System
+const adminNavigation = [
+  { title: "Admin Dashboard", url: "/niranx/admin", icon: UserCog },
+];
+
+const systemNavigation = [
+  { title: "Notification Settings", url: "/niranx/notification-settings", icon: Bell },
+];
+
 // More Pages
 const morePages = [
   { title: "Sitemap", url: "/niranx/sitemap", icon: Map },
@@ -162,6 +173,8 @@ export function AppSidebar() {
     social: false,
     tools: false,
     external: false,
+    admin: true,
+    system: false,
     more: false,
   });
 
@@ -362,6 +375,40 @@ export function AppSidebar() {
             <CollapsibleContent>
               <SidebarGroupContent>
                 <SidebarMenu>{renderNavItems(externalPlatforms, true)}</SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
+
+        {/* Admin */}
+        <Collapsible open={expandedSections.admin} onOpenChange={() => toggleSection('admin')}>
+          <SidebarGroup>
+            <CollapsibleTrigger asChild>
+              <SidebarGroupLabel className="cursor-pointer hover:bg-sidebar-accent/60 rounded px-2 -mx-2 flex items-center justify-between text-white font-semibold">
+                <span>Admin</span>
+                <ChevronDown className={`h-4 w-4 transition-transform text-white ${expandedSections.admin ? '' : '-rotate-90'}`} />
+              </SidebarGroupLabel>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>{renderNavItems(adminNavigation)}</SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
+
+        {/* System */}
+        <Collapsible open={expandedSections.system} onOpenChange={() => toggleSection('system')}>
+          <SidebarGroup>
+            <CollapsibleTrigger asChild>
+              <SidebarGroupLabel className="cursor-pointer hover:bg-sidebar-accent/60 rounded px-2 -mx-2 flex items-center justify-between text-white font-semibold">
+                <span>System</span>
+                <ChevronDown className={`h-4 w-4 transition-transform text-white ${expandedSections.system ? '' : '-rotate-90'}`} />
+              </SidebarGroupLabel>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>{renderNavItems(systemNavigation)}</SidebarMenu>
               </SidebarGroupContent>
             </CollapsibleContent>
           </SidebarGroup>
