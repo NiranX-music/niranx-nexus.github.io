@@ -38,39 +38,44 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="flex h-screen w-full overflow-hidden perspective-3d">
+      <div className="flex h-screen w-full overflow-hidden">
+        {/* Sidebar - Fixed in place */}
         <AppSidebar />
-        <SidebarInset className="flex flex-1 min-w-0">
-          <div className="flex flex-1 flex-col">
-            <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center gap-2 border-b backdrop-blur-xl bg-background/80 px-4 transition-all duration-300 hover:bg-background/90 animate-fade-in">
-              <SidebarTrigger className="-ml-1 hover:scale-110 transition-transform duration-200" />
-              <Separator orientation="vertical" className="mr-2 h-4" />
-              <Breadcrumb>
-                <BreadcrumbList>
-                  {breadcrumbs.map((breadcrumb, index) => (
-                    <div key={`${breadcrumb.href}-${index}`} className="flex items-center gap-2">
-                      <BreadcrumbItem className="hidden md:block">
-                        {index === breadcrumbs.length - 1 ? (
-                          <BreadcrumbPage>{breadcrumb.title}</BreadcrumbPage>
-                        ) : (
-                          <BreadcrumbLink href={breadcrumb.href}>
-                            {breadcrumb.title}
-                          </BreadcrumbLink>
-                        )}
-                      </BreadcrumbItem>
-                      {index < breadcrumbs.length - 1 && (
-                        <BreadcrumbSeparator className="hidden md:block" />
+        
+        {/* Main Content Area */}
+        <SidebarInset className="flex flex-1 flex-col min-w-0 overflow-hidden">
+          {/* Fixed Header */}
+          <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center gap-2 border-b backdrop-blur-xl bg-background/95 px-4">
+            <SidebarTrigger className="-ml-1 hover:scale-110 transition-transform duration-200" />
+            <Separator orientation="vertical" className="mr-2 h-4" />
+            <Breadcrumb>
+              <BreadcrumbList>
+                {breadcrumbs.map((breadcrumb, index) => (
+                  <div key={`${breadcrumb.href}-${index}`} className="flex items-center gap-2">
+                    <BreadcrumbItem className="hidden md:block">
+                      {index === breadcrumbs.length - 1 ? (
+                        <BreadcrumbPage>{breadcrumb.title}</BreadcrumbPage>
+                      ) : (
+                        <BreadcrumbLink href={breadcrumb.href}>
+                          {breadcrumb.title}
+                        </BreadcrumbLink>
                       )}
-                    </div>
-                  ))}
-                </BreadcrumbList>
-              </Breadcrumb>
-            </header>
-            <div className="flex-1 overflow-y-auto p-4 animate-fade-in">
-              {children}
-            </div>
-          </div>
+                    </BreadcrumbItem>
+                    {index < breadcrumbs.length - 1 && (
+                      <BreadcrumbSeparator className="hidden md:block" />
+                    )}
+                  </div>
+                ))}
+              </BreadcrumbList>
+            </Breadcrumb>
+          </header>
+          
+          {/* Scrollable Content Area - Only this scrolls */}
+          <main className="flex-1 overflow-y-auto overflow-x-hidden bg-background">
+            {children}
+          </main>
         </SidebarInset>
+        
         <RightSidebar />
         <NowPlaying />
       </div>
