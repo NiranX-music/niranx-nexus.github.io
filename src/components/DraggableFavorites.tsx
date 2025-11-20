@@ -53,12 +53,18 @@ function SortableFavoriteItem({ favorite, navItem, onRemove, isActive, index }: 
     transition,
   };
 
-  // Use navItem icon if available, otherwise try to get from lucide
-  const IconComponent = navItem
-    ? navItem.icon
-    : favorite.icon_name
-    ? (LucideIcons as any)[favorite.icon_name]
-    : LucideIcons.Star;
+  // Use navItem icon if available, otherwise try to get from lucide with fallback
+  let IconComponent = LucideIcons.Star;
+  
+  if (navItem) {
+    IconComponent = navItem.icon;
+  } else if (favorite.icon_name) {
+    // Try to get icon from lucide, fallback to Star if not found
+    const LucideIcon = (LucideIcons as any)[favorite.icon_name];
+    if (LucideIcon && typeof LucideIcon === 'function') {
+      IconComponent = LucideIcon;
+    }
+  }
 
   return (
     <div

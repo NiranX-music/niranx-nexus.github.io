@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Edit, Calendar, User, FileText, History, Upload, Trash2 } from 'lucide-react';
+import { ArrowLeft, Edit, Calendar, User, FileText, ScrollText, Upload, Trash2 } from 'lucide-react';
 import { z } from 'zod';
 
 interface Blog {
@@ -262,7 +262,7 @@ const BlogPost = () => {
           <Dialog open={showHistory} onOpenChange={setShowHistory}>
             <DialogTrigger asChild>
               <Button variant="outline">
-                <History className="w-4 h-4 mr-2" />
+                <ScrollText className="w-4 h-4 mr-2" />
                 History ({editHistory.length})
               </Button>
             </DialogTrigger>
