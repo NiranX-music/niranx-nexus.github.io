@@ -48,6 +48,7 @@ import {
   UserCog,
   Star as StarIcon,
   StarOff,
+  UserPlus,
 } from "lucide-react";
 import {
   Sidebar,
@@ -157,6 +158,7 @@ const adminNavigation = [
 
 const systemNavigation = [
   { title: "Notification Settings", url: "/niranx/notification-settings", icon: Bell },
+  { title: "Become an Admin", url: "/niranx/become-admin", icon: UserPlus },
 ];
 
 // Archive - Old Pages
