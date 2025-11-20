@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -49,41 +51,44 @@ interface Exam {
 }
 
 const ExamHub = () => {
-  const [exams, setExams] = useState<Exam[]>([
-    {
-      id: '1',
-      name: 'Mid-term Mathematics',
-      subject: 'Mathematics',
-      date: '2024-02-15',
-      time: '10:00',
-      duration: '3 hours',
-      syllabus: ['Calculus', 'Linear Algebra', 'Differential Equations'],
-      resources: [
-        {
-          id: 'res1',
-          title: 'Allen Calculus Video Lecture',
-          type: 'video',
-          subject: 'Mathematics',
-          uploadDate: '2024-01-20',
-          duration: '45 min'
-        },
-        {
-          id: 'res2',
-          title: 'Linear Algebra Notes',
-          type: 'notes',
-          subject: 'Mathematics',
-          uploadDate: '2024-01-18',
-          size: '2.5 MB'
-        }
-      ],
-      preparation: 75,
-      priority: 'high'
-    }
-  ]);
-
-  const [selectedExam, setSelectedExam] = useState<string>('1');
+  const { user } = useAuth();
+  const [exams, setExams] = useState<Exam[]>([]);
+  const [selectedExam, setSelectedExam] = useState<string>('');
   const [uploadingFile, setUploadingFile] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (user) {
+      fetchExams();
+    }
+  }, [user]);
+
+  const fetchExams = async () => {
+    const { data, error } = await supabase
+      .from('exams')
+      .select('*')
+      .eq('user_id', user?.id)
+      .order('exam_date', { ascending: true });
+
+    if (data && data.length > 0) {
+      const formattedExams: Exam[] = data.map(exam => ({
+        id: exam.id,
+        name: exam.name,
+        subject: exam.subject,
+        date: exam.exam_date,
+        time: exam.exam_time,
+        duration: exam.duration,
+        syllabus: exam.syllabus || [],
+        resources: [],
+        preparation: exam.preparation_progress || 0,
+        priority: (exam.priority as 'high' | 'medium' | 'low') || 'medium'
+      }));
+      setExams(formattedExams);
+      if (!selectedExam) {
+        setSelectedExam(formattedExams[0].id);
+      }
+    }
+  };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>, type: 'video' | 'notes') => {
     const file = event.target.files?.[0];
