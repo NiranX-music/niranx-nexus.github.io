@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { 
   GraduationCap, 
   Upload, 
@@ -24,7 +25,12 @@ import {
   Download,
   Star,
   BookOpen,
-  PlusCircle
+  PlusCircle,
+  Trash2,
+  AlertCircle,
+  CalendarDays,
+  TrendingUp,
+  Lightbulb
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -60,6 +66,7 @@ const ExamHub = () => {
   const [uploadingFile, setUploadingFile] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [completedTopics, setCompletedTopics] = useState<{ [examId: string]: Set<string> }>({});
+  const [studyPlan, setStudyPlan] = useState<Array<{ exam: string; topic: string; priority: string; daysLeft: number }>>([]);
   const { toast } = useToast();
 
   // New exam form state
@@ -78,6 +85,12 @@ const ExamHub = () => {
       fetchExams();
     }
   }, [user]);
+
+  useEffect(() => {
+    if (exams.length > 0) {
+      generateStudyPlan();
+    }
+  }, [exams, completedTopics]);
 
   const fetchExams = async () => {
     const { data, error } = await supabase
@@ -210,6 +223,114 @@ const ExamHub = () => {
     }
   };
 
+  const deleteExam = async (examId: string) => {
+    try {
+      // Get all resources for this exam
+      const { data: resources } = await supabase
+        .from('exam_resources')
+        .select('file_path')
+        .eq('exam_id', examId);
+
+      // Delete files from storage
+      if (resources && resources.length > 0) {
+        for (const resource of resources) {
+          const fileName = resource.file_path.split('/').pop();
+          if (fileName) {
+            await supabase.storage
+              .from('exam-resources')
+              .remove([`${user?.id}/${examId}/${fileName}`]);
+          }
+        }
+      }
+
+      // Delete resources from database
+      await supabase
+        .from('exam_resources')
+        .delete()
+        .eq('exam_id', examId);
+
+      // Delete exam
+      const { error } = await supabase
+        .from('exams')
+        .delete()
+        .eq('id', examId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Exam Deleted! 🗑️",
+        description: "Exam and all associated resources have been removed"
+      });
+
+      fetchExams();
+      if (selectedExam === examId) {
+        setSelectedExam('');
+      }
+    } catch (error: any) {
+      toast({
+        title: "Delete Failed",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const generateStudyPlan = () => {
+    const today = new Date();
+    const plan: Array<{ exam: string; topic: string; priority: string; daysLeft: number }> = [];
+
+    exams.forEach(exam => {
+      const examDate = new Date(exam.date);
+      const daysLeft = Math.ceil((examDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      
+      if (daysLeft > 0 && exam.preparation < 100) {
+        const completed = completedTopics[exam.id] || new Set();
+        const incompleteTopic = exam.syllabus.find(topic => !completed.has(topic));
+        
+        if (incompleteTopic) {
+          let priority = 'medium';
+          if (daysLeft <= 7) priority = 'high';
+          else if (daysLeft > 30) priority = 'low';
+          
+          // Adjust priority based on exam priority
+          if (exam.priority === 'high' && priority === 'medium') priority = 'high';
+          
+          plan.push({
+            exam: exam.name,
+            topic: incompleteTopic,
+            priority,
+            daysLeft
+          });
+        }
+      }
+    });
+
+    // Sort by priority and days left
+    plan.sort((a, b) => {
+      const priorityWeight = { high: 3, medium: 2, low: 1 };
+      if (priorityWeight[a.priority as keyof typeof priorityWeight] !== priorityWeight[b.priority as keyof typeof priorityWeight]) {
+        return priorityWeight[b.priority as keyof typeof priorityWeight] - priorityWeight[a.priority as keyof typeof priorityWeight];
+      }
+      return a.daysLeft - b.daysLeft;
+    });
+
+    setStudyPlan(plan.slice(0, 5));
+  };
+
+  const getDaysUntilExam = (examDate: string) => {
+    const today = new Date();
+    const exam = new Date(examDate);
+    const days = Math.ceil((exam.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    return days;
+  };
+
+  const getCountdownColor = (days: number) => {
+    if (days <= 3) return 'text-red-500';
+    if (days <= 7) return 'text-orange-500';
+    if (days <= 14) return 'text-yellow-500';
+    return 'text-green-500';
+  };
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: 'video' | 'notes') => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -315,6 +436,98 @@ const ExamHub = () => {
         <p className="text-muted-foreground">
           Organize videos, notes & practice materials by exam 📚
         </p>
+      </div>
+
+      {/* Study Plan Generator & Calendar View */}
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* Study Plan */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Lightbulb className="w-5 h-5 text-yellow-500" />
+              AI Study Plan
+            </CardTitle>
+            <CardDescription>
+              Prioritized topics based on exam dates and progress
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {studyPlan.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Brain className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>Complete your profile to get personalized study suggestions</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {studyPlan.map((item, index) => (
+                  <div key={index} className="p-4 border rounded-lg space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Badge variant={item.priority === 'high' ? 'destructive' : item.priority === 'medium' ? 'default' : 'secondary'}>
+                        {item.priority} priority
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">
+                        {item.daysLeft} days left
+                      </span>
+                    </div>
+                    <div className="font-medium">{item.topic}</div>
+                    <div className="text-sm text-muted-foreground flex items-center gap-2">
+                      <BookOpen className="w-4 h-4" />
+                      {item.exam}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Calendar View */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CalendarDays className="w-5 h-5" />
+              Exam Calendar
+            </CardTitle>
+            <CardDescription>
+              Countdown to upcoming exams
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {exams.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Calendar className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>No exams scheduled yet</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {exams.map((exam) => {
+                  const daysLeft = getDaysUntilExam(exam.date);
+                  return (
+                    <div key={exam.id} className="p-4 border rounded-lg space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="font-medium">{exam.name}</div>
+                        <Badge variant="outline">{exam.subject}</Badge>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">{exam.date}</span>
+                        <span className={`font-bold ${getCountdownColor(daysLeft)}`}>
+                          {daysLeft > 0 ? `${daysLeft} days` : daysLeft === 0 ? 'TODAY!' : 'Past'}
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span>Preparation</span>
+                          <span>{exam.preparation}%</span>
+                        </div>
+                        <Progress value={exam.preparation} className="h-2" />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Exam Selection */}
@@ -449,9 +662,40 @@ const ExamHub = () => {
                   <div className="space-y-3">
                     <div className="flex items-start justify-between">
                       <h3 className="font-semibold text-sm">{exam.name}</h3>
-                      <Badge variant={getPriorityColor(exam.priority)}>
-                        {exam.priority}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={getPriorityColor(exam.priority)}>
+                          {exam.priority}
+                        </Badge>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 hover:bg-destructive/10 hover:text-destructive"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Exam?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This will permanently delete "{exam.name}" and all associated resources including uploaded files. This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteExam(exam.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </div>
                     
                     <div className="space-y-1 text-xs text-muted-foreground">
