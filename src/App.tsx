@@ -44,6 +44,7 @@ import WebsiteManager from "./pages/WebsiteManager";
 import Blogs from "./pages/Blogs";
 import BlogPost from "./pages/BlogPost";
 import GlobalSearch from "./pages/GlobalSearch";
+import AIChat from "./pages/AIChat";
 
 import VideoShare from "./pages/VideoShare";
 import VideoLibrary from "./pages/VideoLibrary";
@@ -154,6 +155,7 @@ const App = () => (
                           <Route path="/blogs/:id" element={<BlogPost />} />
                           <Route path="/blogs/settings" element={<BlogSettings />} />
                           <Route path="/search" element={<GlobalSearch />} />
+                          <Route path="/ai-chat" element={<AIChat />} />
                           <Route path="/video-share" element={<VideoShare />} />
                           <Route path="/video-library" element={<VideoLibrary />} />
                           <Route path="/picture-share" element={<PictureShare />} />
