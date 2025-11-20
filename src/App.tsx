@@ -81,7 +81,8 @@ import FeatureSuggestions from "./pages/FeatureSuggestions";
 import DistractionBlocker from "./pages/DistractionBlocker";
 import AdvancedDashboard from "./pages/AdvancedDashboard";
 import StudyStreakChallenges from "./pages/StudyStreakChallenges";
-import OldPageArchive from "./pages/OldPageArchive";
+import SharedResource from "./pages/SharedResource";
+import FeatureSuggestions from "./pages/FeatureSuggestions";
 
 const queryClient = new QueryClient();
 
@@ -174,11 +175,13 @@ const App = () => (
                           <Route path="/sitemap" element={<Sitemap />} />
                           <Route path="/kiosk-mode" element={<KioskMode />} />
                           <Route path="/feature-suggestions" element={<FeatureSuggestions />} />
+                          <Route path="/feedback" element={<FeatureSuggestions />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </AppLayout>
                     } />
-                      <Route path="*" element={<Landing />} />
+                    <Route path="/shared/resource/:token" element={<SharedResource />} />
+                    <Route path="*" element={<Landing />} />
                     </Routes>
                   </AuthProvider>
                 </BrowserRouter>
