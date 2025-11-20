@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
+import { AIContextualSuggestions } from '@/components/AIContextualSuggestions';
 import { Flame, Timer, BarChart3, Calendar, Trophy } from 'lucide-react';
 import PomodoroFocus from '@/components/focus/PomodoroFocus';
 import HavocMode from '@/components/focus/HavocMode';
