@@ -396,6 +396,9 @@ export type Database = {
           file_path: string
           file_size: number | null
           id: string
+          is_shared: boolean | null
+          share_token: string | null
+          shared_until: string | null
           title: string
           type: string
           upload_date: string | null
@@ -408,6 +411,9 @@ export type Database = {
           file_path: string
           file_size?: number | null
           id?: string
+          is_shared?: boolean | null
+          share_token?: string | null
+          shared_until?: string | null
           title: string
           type: string
           upload_date?: string | null
@@ -420,6 +426,9 @@ export type Database = {
           file_path?: string
           file_size?: number | null
           id?: string
+          is_shared?: boolean | null
+          share_token?: string | null
+          shared_until?: string | null
           title?: string
           type?: string
           upload_date?: string | null
@@ -1794,6 +1803,7 @@ export type Database = {
     }
     Functions: {
       calculate_level: { Args: { xp_amount: number }; Returns: number }
+      generate_share_token: { Args: never; Returns: string }
       get_public_user_info: {
         Args: { target_user_id: string }
         Returns: {

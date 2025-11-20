@@ -30,7 +30,10 @@ import {
   AlertCircle,
   CalendarDays,
   TrendingUp,
-  Lightbulb
+  Lightbulb,
+  Share2,
+  Copy,
+  Check
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -44,6 +47,8 @@ interface ExamResource {
   duration?: string;
   progress?: number;
   url?: string;
+  share_token?: string;
+  is_shared?: boolean;
 }
 
 interface Exam {
@@ -67,6 +72,10 @@ const ExamHub = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [completedTopics, setCompletedTopics] = useState<{ [examId: string]: Set<string> }>({});
   const [studyPlan, setStudyPlan] = useState<Array<{ exam: string; topic: string; priority: string; daysLeft: number }>>([]);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [selectedResource, setSelectedResource] = useState<ExamResource | null>(null);
+  const [shareLink, setShareLink] = useState("");
+  const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
   // New exam form state
@@ -124,7 +133,9 @@ const ExamHub = () => {
           uploadDate: new Date(r.upload_date).toISOString().split('T')[0],
           size: r.file_size ? `${(r.file_size / 1024 / 1024).toFixed(1)} MB` : undefined,
           duration: r.duration,
-          url: r.file_path
+          url: r.file_path,
+          share_token: r.share_token,
+          is_shared: r.is_shared
         })) || [],
         preparation: exam.preparation_progress || 0,
         priority: (exam.priority as 'high' | 'medium' | 'low') || 'medium'
@@ -329,6 +340,85 @@ const ExamHub = () => {
     if (days <= 7) return 'text-orange-500';
     if (days <= 14) return 'text-yellow-500';
     return 'text-green-500';
+  };
+
+  const generateShareLink = async (resource: ExamResource) => {
+    try {
+      // Generate share token using database function
+      const { data: tokenData, error: tokenError } = await supabase
+        .rpc('generate_share_token');
+
+      if (tokenError) throw tokenError;
+
+      // Update resource with share token
+      const { error: updateError } = await supabase
+        .from('exam_resources')
+        .update({
+          share_token: tokenData,
+          is_shared: true,
+          shared_until: null
+        })
+        .eq('id', resource.id);
+
+      if (updateError) throw updateError;
+
+      const link = `${window.location.origin}/shared/resource/${tokenData}`;
+      setShareLink(link);
+      setSelectedResource({ ...resource, share_token: tokenData, is_shared: true });
+      setShareDialogOpen(true);
+
+      // Refresh exams to update share status
+      await fetchExams();
+
+      toast({
+        title: "Share link generated! 🔗",
+        description: "Resource can now be shared with others",
+      });
+    } catch (error: any) {
+      console.error('Error generating share link:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to generate share link",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const toggleSharing = async (resource: ExamResource, enable: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('exam_resources')
+        .update({ is_shared: enable })
+        .eq('id', resource.id);
+
+      if (error) throw error;
+
+      toast({
+        title: enable ? "Sharing enabled ✅" : "Sharing disabled 🔒",
+        description: enable 
+          ? "Resource is now accessible via share link" 
+          : "Share link has been deactivated",
+      });
+
+      await fetchExams();
+    } catch (error: any) {
+      console.error('Error toggling sharing:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update sharing settings",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const copyShareLink = () => {
+    navigator.clipboard.writeText(shareLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+    toast({
+      title: "Link copied! 📋",
+      description: "Share link copied to clipboard",
+    });
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: 'video' | 'notes') => {
@@ -777,6 +867,24 @@ const ExamHub = () => {
 
                             <div className="flex items-center gap-2">
                               <Badge variant="outline">{resource.type}</Badge>
+                              <Button
+                                size="sm"
+                                variant={resource.is_shared ? "default" : "outline"}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (resource.is_shared && resource.share_token) {
+                                    const link = `${window.location.origin}/shared/resource/${resource.share_token}`;
+                                    setShareLink(link);
+                                    setSelectedResource(resource);
+                                    setShareDialogOpen(true);
+                                  } else {
+                                    generateShareLink(resource);
+                                  }
+                                }}
+                              >
+                                <Share2 className="w-4 h-4 mr-2" />
+                                {resource.is_shared ? 'Shared' : 'Share'}
+                              </Button>
                               {resource.type === 'video' ? (
                                 <Button size="sm" variant="outline">
                                   <Play className="w-4 h-4 mr-2" />
@@ -934,6 +1042,62 @@ const ExamHub = () => {
           </TabsContent>
         </Tabs>
       )}
+
+      {/* Share Resource Dialog */}
+      <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Share Resource 🔗</DialogTitle>
+            <DialogDescription>
+              Anyone with this link can view and download this resource.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <Input
+                value={shareLink}
+                readOnly
+                className="flex-1"
+              />
+              <Button
+                type="button"
+                size="icon"
+                onClick={copyShareLink}
+                className="shrink-0"
+              >
+                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              </Button>
+            </div>
+            <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${selectedResource?.is_shared ? 'bg-green-500' : 'bg-gray-400'}`} />
+                <span className="text-sm font-medium">
+                  {selectedResource?.is_shared ? 'Sharing enabled' : 'Sharing disabled'}
+                </span>
+              </div>
+              <Button
+                variant={selectedResource?.is_shared ? "destructive" : "default"}
+                size="sm"
+                onClick={() => {
+                  if (selectedResource) {
+                    toggleSharing(selectedResource, !selectedResource.is_shared);
+                    if (selectedResource.is_shared) {
+                      setShareDialogOpen(false);
+                    }
+                  }
+                }}
+              >
+                {selectedResource?.is_shared ? 'Disable sharing' : 'Enable sharing'}
+              </Button>
+            </div>
+            {selectedResource?.is_shared && (
+              <div className="text-xs text-muted-foreground p-3 bg-muted/50 rounded-lg">
+                <p>💡 <strong>Tip:</strong> This link will remain active until you disable sharing. Share it with your study group or classmates!</p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
