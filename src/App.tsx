@@ -98,6 +98,7 @@ import Labs from "./pages/Labs";
 import Chemistry from "./pages/labs/Chemistry";
 import Biology from "./pages/labs/Biology";
 import Physics from "./pages/labs/Physics";
+import Math from "./pages/labs/Math";
 import { AdminRoute } from "./components/AdminRoute";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -206,6 +207,7 @@ const App = () => (
                           <Route path="/labs/chemistry" element={<Chemistry />} />
                           <Route path="/labs/biology" element={<Biology />} />
                           <Route path="/labs/physics" element={<Physics />} />
+                          <Route path="/labs/math" element={<Math />} />
                           <Route path="/admin" element={
                             <AdminRoute>
                               <AdminDashboard />

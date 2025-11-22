@@ -32,12 +32,12 @@ export default function Labs() {
       available: true,
     },
     {
-      id: 'advanced',
-      title: 'Advanced Lab',
-      description: 'Interdisciplinary experiments and research projects',
-      icon: Microscope,
+      id: 'math',
+      title: 'Math Lab',
+      description: 'Practice calculations, trigonometry, and mathematical formulas',
+      icon: Calculator,
       color: 'from-orange-500 to-red-500',
-      available: false,
+      available: true,
     },
   ];
 
