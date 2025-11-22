@@ -7,6 +7,7 @@ import { MobileBottomNav } from "./MobileBottomNav";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { CommandPalette } from "@/components/CommandPalette";
 import { KeyboardShortcutsHelp } from "@/components/KeyboardShortcutsHelp";
+import { NewLaunchesPopover } from "@/components/NewLaunchesPopover";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
@@ -142,6 +143,7 @@ export function AppLayout({ children }: AppLayoutProps) {
               </BreadcrumbList>
             </Breadcrumb>
             <div className="ml-auto flex items-center gap-2">
+              <NewLaunchesPopover />
               <Button
                 variant="ghost"
                 size="icon"
