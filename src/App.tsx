@@ -90,6 +90,7 @@ import OldPageArchive from "./pages/OldPageArchive";
 import NotificationSettings from "./pages/NotificationSettings";
 import BecomeAdmin from "./pages/BecomeAdmin";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminRequestAnalytics from "./pages/AdminRequestAnalytics";
 import OAuthSettings from "./pages/OAuthSettings";
 import { AdminRoute } from "./components/AdminRoute";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -197,6 +198,11 @@ const App = () => (
                           <Route path="/admin" element={
                             <AdminRoute>
                               <AdminDashboard />
+                            </AdminRoute>
+                          } />
+                          <Route path="/admin-request-analytics" element={
+                            <AdminRoute>
+                              <AdminRequestAnalytics />
                             </AdminRoute>
                           } />
                           <Route path="*" element={<NotFound />} />

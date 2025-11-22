@@ -9,8 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Users, FileText, MessageSquare, Activity, TrendingUp, Clock, Award } from "lucide-react";
+import { Users, FileText, MessageSquare, Activity, TrendingUp, Clock, Award, BarChart3 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface Stats {
   totalUsers: number;
@@ -27,6 +28,7 @@ interface Stats {
 }
 
 export default function AdminDashboard() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState<Stats>({
     totalUsers: 0,
     activeUsersWeek: 0,
@@ -713,8 +715,20 @@ export default function AdminDashboard() {
         <TabsContent value="requests" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Admin Access Requests - History & Audit Log</CardTitle>
-              <CardDescription>Review and manage user requests for admin access</CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Admin Access Requests - History & Audit Log</CardTitle>
+                  <CardDescription>Review and manage user requests for admin access</CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate('/niranx/admin-request-analytics')}
+                  className="gap-2"
+                >
+                  <BarChart3 className="w-4 h-4" />
+                  View Analytics
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-4">
