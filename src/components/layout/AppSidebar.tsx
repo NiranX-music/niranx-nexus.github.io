@@ -164,10 +164,12 @@ const externalPlatforms = [
 // Admin & System
 const adminNavigation = [
   { title: "Admin Dashboard", url: "/niranx/admin", icon: UserCog },
+  { title: "Guardian Dashboard", url: "/niranx/guardian-dashboard", icon: Users },
 ];
 
 const systemNavigation = [
   { title: "Notification Settings", url: "/niranx/notification-settings", icon: Bell },
+  { title: "Guardian Settings", url: "/niranx/guardian-settings", icon: ShieldCheck },
   { title: "OAuth Settings", url: "/niranx/oauth-settings", icon: Link2 },
   { title: "Become an Admin", url: "/niranx/become-admin", icon: UserPlus },
 ];
