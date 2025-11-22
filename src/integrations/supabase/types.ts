@@ -408,6 +408,42 @@ export type Database = {
           },
         ]
       }
+      collaborative_experiments: {
+        Row: {
+          created_at: string | null
+          data: Json | null
+          description: string | null
+          experiment_name: string
+          id: string
+          is_public: boolean | null
+          lab_type: string
+          owner_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          data?: Json | null
+          description?: string | null
+          experiment_name: string
+          id?: string
+          is_public?: boolean | null
+          lab_type: string
+          owner_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json | null
+          description?: string | null
+          experiment_name?: string
+          id?: string
+          is_public?: boolean | null
+          lab_type?: string
+          owner_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       daily_challenges: {
         Row: {
           challenge_date: string | null
@@ -583,6 +619,38 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      experiment_collaborators: {
+        Row: {
+          experiment_id: string
+          id: string
+          joined_at: string | null
+          role: string | null
+          user_id: string
+        }
+        Insert: {
+          experiment_id: string
+          id?: string
+          joined_at?: string | null
+          role?: string | null
+          user_id: string
+        }
+        Update: {
+          experiment_id?: string
+          id?: string
+          joined_at?: string | null
+          role?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "experiment_collaborators_experiment_id_fkey"
+            columns: ["experiment_id"]
+            isOneToOne: false
+            referencedRelation: "collaborative_experiments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       feedback_suggestions: {
         Row: {
