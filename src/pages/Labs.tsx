@@ -70,12 +70,12 @@ export default function Labs() {
               {subject.available ? (
                   <Button
                     onClick={() => navigate(`/niranx/labs/${subject.id}`)}
-                    className="w-full"
+                    className={`w-full bg-gradient-to-r ${subject.color} text-white hover:opacity-90 transition-all duration-300 hover:shadow-lg`}
                   >
                     Enter Lab
                   </Button>
                 ) : (
-                  <Button disabled className="w-full">
+                  <Button disabled className="w-full bg-muted text-muted-foreground">
                     Coming Soon
                   </Button>
                 )}
