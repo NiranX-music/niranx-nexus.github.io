@@ -26,6 +26,12 @@ import {
   FileImage,
   File,
   Download,
+  Mic,
+  Play,
+  Pause,
+  X,
+  Check,
+  CheckCheck,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -36,6 +42,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { VoiceRecorder, formatDuration } from "@/utils/VoiceRecorder";
+import { Progress } from "@/components/ui/progress";
 
 interface Attachment {
   path: string;
@@ -51,7 +59,9 @@ interface Message {
   receiver_id: string;
   created_at: string;
   is_read: boolean;
+  read_at?: string;
   attachments?: Attachment[];
+  voice_duration?: number;
 }
 
 interface MessageReaction {
@@ -80,8 +90,16 @@ export default function ChatRoom() {
   const [reactions, setReactions] = useState<Record<string, MessageReaction[]>>({});
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingDuration, setRecordingDuration] = useState(0);
+  const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
+  const [isOnline, setIsOnline] = useState(false);
+  const [lastSeen, setLastSeen] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const voiceRecorderRef = useRef<VoiceRecorder | null>(null);
+  const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -100,6 +118,7 @@ export default function ChatRoom() {
     fetchChatData();
     setupRealtimeSubscription();
     fetchReactions();
+    setupPresenceTracking();
   }, [chatId, navigate]);
 
   const fetchChatData = async () => {
@@ -132,7 +151,7 @@ export default function ChatRoom() {
       // Mark as read
       await supabase
         .from('messages')
-        .update({ is_read: true })
+        .update({ is_read: true, read_at: new Date().toISOString() })
         .eq('receiver_id', user.id)
         .eq('sender_id', chatId)
         .eq('is_read', false);
@@ -184,7 +203,7 @@ export default function ChatRoom() {
       const { data, error } = await supabase
         .from('message_reactions')
         .select('*')
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: true});
 
       if (error) throw error;
 
@@ -199,6 +218,177 @@ export default function ChatRoom() {
       setReactions(grouped);
     } catch (error) {
       console.error("Error fetching reactions:", error);
+    }
+  };
+
+  const setupPresenceTracking = () => {
+    if (!chatId || !user) return;
+
+    // Subscribe to partner's presence
+    const presenceChannel = supabase
+      .channel(`presence-${chatId}`)
+      .on('presence', { event: 'sync' }, () => {
+        const state = presenceChannel.presenceState();
+        const partnerPresence = Object.values(state).flat()[0] as any;
+        if (partnerPresence) {
+          setIsOnline(partnerPresence.is_online || false);
+          setLastSeen(partnerPresence.last_seen);
+        }
+      })
+      .subscribe();
+
+    // Fetch initial presence
+    supabase
+      .from('user_presence')
+      .select('*')
+      .eq('user_id', chatId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) {
+          setIsOnline(data.is_online || false);
+          setLastSeen(data.last_seen);
+        }
+      });
+
+    // Subscribe to realtime presence updates
+    const realtimeChannel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'user_presence',
+          filter: `user_id=eq.${chatId}`
+        },
+        (payload: any) => {
+          setIsOnline(payload.new.is_online || false);
+          setLastSeen(payload.new.last_seen);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(presenceChannel);
+      supabase.removeChannel(realtimeChannel);
+    };
+  };
+
+  const startVoiceRecording = async () => {
+    try {
+      voiceRecorderRef.current = new VoiceRecorder();
+      await voiceRecorderRef.current.start();
+      setIsRecording(true);
+      setRecordingDuration(0);
+
+      recordingTimerRef.current = setInterval(() => {
+        setRecordingDuration(prev => prev + 1);
+      }, 1000);
+    } catch (error) {
+      console.error("Error starting recording:", error);
+      toast({
+        title: "Error",
+        description: "Failed to access microphone",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const stopVoiceRecording = async () => {
+    try {
+      if (!voiceRecorderRef.current || !user) return;
+
+      const audioBlob = await voiceRecorderRef.current.stop();
+      if (recordingTimerRef.current) {
+        clearInterval(recordingTimerRef.current);
+      }
+
+      // Upload voice message
+      const fileName = `voice-${Date.now()}.webm`;
+      const filePath = `${user.id}/${fileName}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('chat-files')
+        .upload(filePath, audioBlob);
+
+      if (uploadError) throw uploadError;
+
+      // Send message with voice attachment
+      const { error: messageError } = await supabase
+        .from('messages')
+        .insert({
+          content: "🎤 Voice message",
+          sender_id: user.id,
+          receiver_id: chatId,
+          attachments: [{
+            path: filePath,
+            name: fileName,
+            type: 'audio/webm',
+            size: audioBlob.size,
+          }] as any,
+          voice_duration: recordingDuration,
+        });
+
+      if (messageError) throw messageError;
+
+      setIsRecording(false);
+      setRecordingDuration(0);
+    } catch (error) {
+      console.error("Error sending voice message:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send voice message",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const cancelVoiceRecording = () => {
+    if (voiceRecorderRef.current) {
+      voiceRecorderRef.current.cancel();
+    }
+    if (recordingTimerRef.current) {
+      clearInterval(recordingTimerRef.current);
+    }
+    setIsRecording(false);
+    setRecordingDuration(0);
+  };
+
+  const playVoiceMessage = async (attachment: Attachment, messageId: string) => {
+    try {
+      if (playingAudioId === messageId) {
+        audioRef.current?.pause();
+        setPlayingAudioId(null);
+        return;
+      }
+
+      const { data, error } = await supabase.storage
+        .from('chat-files')
+        .download(attachment.path);
+
+      if (error) throw error;
+
+      const url = URL.createObjectURL(data);
+      
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+
+      audioRef.current = new Audio(url);
+      audioRef.current.onended = () => {
+        setPlayingAudioId(null);
+        URL.revokeObjectURL(url);
+      };
+
+      setPlayingAudioId(messageId);
+      await audioRef.current.play();
+    } catch (error) {
+      console.error("Error playing voice message:", error);
+      toast({
+        title: "Error",
+        description: "Failed to play voice message",
+        variant: "destructive",
+      });
     }
   };
 
@@ -419,13 +609,23 @@ export default function ChatRoom() {
                   {getInitials(chatPartner.display_name || chatPartner.username || "User")}
                 </AvatarFallback>
               </Avatar>
-              <div>
+               <div>
                 <h3 className="font-semibold">
                   {chatPartner.display_name || chatPartner.username}
                 </h3>
-                <Badge variant="secondary" className="text-xs">
-                  Online
-                </Badge>
+                {isOnline ? (
+                  <Badge variant="default" className="text-xs bg-green-500">
+                    Online
+                  </Badge>
+                ) : lastSeen ? (
+                  <p className="text-xs text-muted-foreground">
+                    Last seen {new Date(lastSeen).toLocaleString()}
+                  </p>
+                ) : (
+                  <Badge variant="secondary" className="text-xs">
+                    Offline
+                  </Badge>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -469,8 +669,32 @@ export default function ChatRoom() {
                 >
                   <p className="text-sm">{message.content}</p>
 
+                  {/* Voice Message Playback */}
+                  {message.voice_duration && message.attachments?.[0]?.type === 'audio/webm' && (
+                    <div className="mt-2 flex items-center gap-2 p-2 rounded bg-background/10">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        onClick={() => playVoiceMessage(message.attachments![0], message.id)}
+                      >
+                        {playingAudioId === message.id ? (
+                          <Pause className="w-4 h-4" />
+                        ) : (
+                          <Play className="w-4 h-4" />
+                        )}
+                      </Button>
+                      <div className="flex-1">
+                        <Progress value={playingAudioId === message.id ? 50 : 0} className="h-1" />
+                      </div>
+                      <span className="text-xs opacity-70">
+                        {formatDuration(message.voice_duration)}
+                      </span>
+                    </div>
+                  )}
+
                   {/* File Attachments */}
-                  {message.attachments && message.attachments.length > 0 && (
+                  {message.attachments && message.attachments.length > 0 && !message.voice_duration && (
                     <div className="mt-2 space-y-2">
                       {message.attachments.map((attachment, idx) => (
                         <div
@@ -493,8 +717,17 @@ export default function ChatRoom() {
                     </div>
                   )}
 
-                  <p className="text-xs opacity-70 mt-1">
+                  <p className="text-xs opacity-70 mt-1 flex items-center gap-1">
                     {formatTime(message.created_at)}
+                    {message.sender_id === user?.id && (
+                      <>
+                        {message.read_at ? (
+                          <CheckCheck className="w-3 h-3 text-blue-500" />
+                        ) : (
+                          <Check className="w-3 h-3" />
+                        )}
+                      </>
+                    )}
                   </p>
                 </div>
 
@@ -580,6 +813,33 @@ export default function ChatRoom() {
               </div>
             )}
 
+            {/* Voice Recording UI */}
+            {isRecording && (
+              <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-950 rounded-lg border border-red-200 dark:border-red-800">
+                <div className="flex-1 flex items-center gap-2">
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                  <span className="text-sm font-medium">Recording...</span>
+                  <span className="text-sm text-muted-foreground">
+                    {formatDuration(recordingDuration)}
+                  </span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={cancelVoiceRecording}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={stopVoiceRecording}
+                >
+                  <Send className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
+
             <div className="flex items-center gap-2">
               <input
                 ref={fileInputRef}
@@ -592,29 +852,41 @@ export default function ChatRoom() {
                 variant="ghost"
                 size="icon"
                 onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
+                disabled={uploading || isRecording}
               >
                 <Paperclip className="h-4 w-4" />
               </Button>
-              <Input
-                placeholder="Type a message..."
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
-                className="flex-1"
-                disabled={uploading}
-              />
-              <Button
-                onClick={sendMessage}
-                size="icon"
-                disabled={(!newMessage.trim() && selectedFiles.length === 0) || uploading}
-              >
-                {uploading ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
-                ) : (
-                  <Send className="h-4 w-4" />
-                )}
-              </Button>
+              {!isRecording ? (
+                <>
+                  <Input
+                    placeholder="Type a message..."
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
+                    className="flex-1"
+                    disabled={uploading}
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={startVoiceRecording}
+                    disabled={uploading}
+                  >
+                    <Mic className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    onClick={sendMessage}
+                    size="icon"
+                    disabled={(!newMessage.trim() && selectedFiles.length === 0) || uploading}
+                  >
+                    {uploading ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
+                    ) : (
+                      <Send className="h-4 w-4" />
+                    )}
+                  </Button>
+                </>
+              ) : null}
             </div>
           </div>
         </CardContent>
