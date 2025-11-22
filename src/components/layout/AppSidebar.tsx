@@ -68,6 +68,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -329,18 +330,21 @@ export function AppSidebar() {
   return (
     <Sidebar className="border-r border-sidebar-border bg-gradient-to-br from-sidebar via-sidebar/95 to-background backdrop-blur-2xl hidden md:flex shadow-2xl">
       <SidebarHeader className="border-b border-sidebar-border/50 p-4 bg-gradient-to-r from-primary/10 via-purple-500/10 to-blue-500/10">
-        <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary via-purple-600 to-blue-600 shadow-lg shadow-primary/20">
-            <Zap className="h-6 w-6 text-white animate-pulse" />
-          </div>
-          {!isCollapsed && (
-            <div className="flex-1">
-              <h1 className="font-bold text-xl bg-gradient-to-r from-primary via-purple-400 to-blue-400 bg-clip-text text-transparent">
-                NiranX
-              </h1>
-              <p className="text-xs text-white/60 font-medium">StudyVerse Platform</p>
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3 flex-1">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary via-purple-600 to-blue-600 shadow-lg shadow-primary/20">
+              <Zap className="h-6 w-6 text-white animate-pulse" />
             </div>
-          )}
+            {!isCollapsed && (
+              <div className="flex-1">
+                <h1 className="font-bold text-xl bg-gradient-to-r from-primary via-purple-400 to-blue-400 bg-clip-text text-transparent">
+                  NiranX
+                </h1>
+                <p className="text-xs text-white/60 font-medium">StudyVerse Platform</p>
+              </div>
+            )}
+          </div>
+          <SidebarTrigger className="hover:bg-white/10 rounded-md p-1.5 transition-colors" />
         </div>
         {!isCollapsed && (
           <>
