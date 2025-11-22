@@ -21,7 +21,7 @@ export default function Labs() {
       description: 'Experiment with mechanics, electricity, and quantum phenomena',
       icon: Atom,
       color: 'from-purple-500 to-pink-500',
-      available: false,
+      available: true,
     },
     {
       id: 'biology',
@@ -29,7 +29,7 @@ export default function Labs() {
       description: 'Study cells, genetics, and living organisms',
       icon: Dna,
       color: 'from-green-500 to-emerald-500',
-      available: false,
+      available: true,
     },
     {
       id: 'advanced',

@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Beaker, Table2 } from 'lucide-react';
+import { ArrowLeft, Beaker, Table2, FlaskConical } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import PeriodicTable from '@/components/labs/PeriodicTable';
+import { ReactionSimulator } from '@/components/labs/ReactionSimulator';
 
 export default function Chemistry() {
   const navigate = useNavigate();
@@ -37,7 +38,8 @@ export default function Chemistry() {
             <Table2 className="w-4 h-4" />
             Periodic Table
           </TabsTrigger>
-          <TabsTrigger value="reactions" disabled>
+          <TabsTrigger value="reactions" className="flex items-center gap-2">
+            <FlaskConical className="w-4 h-4" />
             Chemical Reactions
           </TabsTrigger>
           <TabsTrigger value="molecules" disabled>
@@ -63,13 +65,13 @@ export default function Chemistry() {
         <TabsContent value="reactions">
           <Card className="glass-card border-primary/20">
             <CardHeader>
-              <CardTitle>Chemical Reactions</CardTitle>
-              <CardDescription>Coming soon...</CardDescription>
+              <CardTitle>Chemical Reaction Simulator</CardTitle>
+              <CardDescription>
+                Mix elements together to see chemical reactions. Select elements and simulate their interactions!
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">
-                Interactive chemical reaction simulator will be available here.
-              </p>
+              <ReactionSimulator />
             </CardContent>
           </Card>
         </TabsContent>

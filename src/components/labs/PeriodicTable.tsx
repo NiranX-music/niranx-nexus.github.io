@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './PeriodicTable.css';
+import { ElementDetailModal } from './ElementDetailModal';
 
 const elements = [
   { number: 1, symbol: 'H', name: 'Hydrogen', category: 'nonmetal' },
@@ -178,13 +179,13 @@ const generateFullTableData = () => {
   return fullTable;
 };
 
-const ElementCell = ({ element }: { element: any }) => {
+const ElementCell = ({ element, onClick }: { element: any; onClick?: () => void }) => {
   if (element.category === 'placeholder' || element.category === 'gap-for-f-block') {
     return <div className={`element-cell placeholder ${element.category}`}></div>;
   }
 
   return (
-    <div className={`element-cell category-${element.category}`}>
+    <div className={`element-cell category-${element.category}`} onClick={onClick} style={{ cursor: 'pointer' }}>
       <div className="element-number">{element.number}</div>
       <div className="element-symbol">{element.symbol}</div>
       <div className="element-name">{element.name}</div>
@@ -194,15 +195,34 @@ const ElementCell = ({ element }: { element: any }) => {
 
 const PeriodicTable = () => {
   const tableData = generateFullTableData();
+  const [selectedElement, setSelectedElement] = useState<any>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const handleElementClick = (element: any) => {
+    if (element.category !== 'placeholder' && element.category !== 'gap-for-f-block') {
+      setSelectedElement(element);
+      setModalOpen(true);
+    }
+  };
 
   return (
     <div className="periodic-table-container">
       <h1 className="text-foreground">Periodic Table of Elements</h1>
       <div className="periodic-table-grid">
         {tableData.map((element, index) => (
-          <ElementCell key={index} element={element} />
+          <ElementCell 
+            key={index} 
+            element={element}
+            onClick={() => handleElementClick(element)}
+          />
         ))}
       </div>
+
+      <ElementDetailModal
+        element={selectedElement}
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+      />
 
       <div className="legend">
         <h2>Category Legend</h2>
