@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export function Calculator() {
   const [display, setDisplay] = useState('0');
   const [previousValue, setPreviousValue] = useState<string | null>(null);
   const [operation, setOperation] = useState<string | null>(null);
   const [waitingForOperand, setWaitingForOperand] = useState(false);
+  const [mode, setMode] = useState<'normal' | 'scientific'>('normal');
 
   const inputDigit = (digit: string) => {
     if (waitingForOperand) {
@@ -114,8 +116,14 @@ export function Calculator() {
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          Scientific Calculator
+        <CardTitle className="flex items-center justify-between">
+          <span>Calculator</span>
+          <Tabs value={mode} onValueChange={(v) => setMode(v as 'normal' | 'scientific')} className="w-auto">
+            <TabsList>
+              <TabsTrigger value="normal">Normal</TabsTrigger>
+              <TabsTrigger value="scientific">Scientific</TabsTrigger>
+            </TabsList>
+          </Tabs>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -129,7 +137,8 @@ export function Calculator() {
         </div>
 
         {/* Scientific Functions */}
-        <div className="grid grid-cols-4 gap-2">
+        {mode === 'scientific' && (
+          <div className="grid grid-cols-4 gap-2">
           <Button onClick={() => performScientific('sin')} className={scientificButtonClass}>
             sin
           </Button>
@@ -155,6 +164,7 @@ export function Calculator() {
             1/x
           </Button>
         </div>
+        )}
 
         {/* Main Calculator */}
         <div className="grid grid-cols-4 gap-2">
