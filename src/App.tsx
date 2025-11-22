@@ -94,6 +94,8 @@ import AdminRequestAnalytics from "./pages/AdminRequestAnalytics";
 import AdminMessageReports from "./pages/AdminMessageReports";
 import OAuthSettings from "./pages/OAuthSettings";
 import ClassScheduler from "./pages/ClassScheduler";
+import Labs from "./pages/Labs";
+import Chemistry from "./pages/labs/Chemistry";
 import { AdminRoute } from "./components/AdminRoute";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -198,6 +200,8 @@ const App = () => (
                           <Route path="/feature-suggestions" element={<FeatureSuggestions />} />
                           <Route path="/feedback" element={<FeatureSuggestions />} />
                           <Route path="/notification-settings" element={<NotificationSettings />} />
+                          <Route path="/labs" element={<Labs />} />
+                          <Route path="/labs/chemistry" element={<Chemistry />} />
                           <Route path="/admin" element={
                             <AdminRoute>
                               <AdminDashboard />

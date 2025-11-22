@@ -98,6 +98,7 @@ const studyNavigation = [
   { title: "Focus Engine", url: "/niranx/focus-engine", icon: Timer },
   { title: "Distraction Blocker", url: "/niranx/distraction-blocker", icon: Shield },
   { title: "Scheduler", url: "/niranx/scheduler", icon: Calendar },
+  { title: "Labs", url: "/niranx/labs", icon: GraduationCap },
   { title: "Exams", url: "/niranx/exams", icon: GraduationCap },
   { title: "Whiteboard", url: "/niranx/whiteboard", icon: PenTool },
   { title: "Study Groups", url: "/niranx/study-groups", icon: Users },
