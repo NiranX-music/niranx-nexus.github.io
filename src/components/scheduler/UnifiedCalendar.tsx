@@ -11,9 +11,10 @@ interface UnifiedCalendarProps {
   homework: any[];
   exams: any[];
   onUpdate: () => void;
+  onClassSelect?: (classId: string) => void;
 }
 
-export const UnifiedCalendar = ({ classes, homework, exams, onUpdate }: UnifiedCalendarProps) => {
+export const UnifiedCalendar = ({ classes, homework, exams, onUpdate, onClassSelect }: UnifiedCalendarProps) => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   const getItemsForDate = (date: Date) => {
@@ -81,8 +82,12 @@ export const UnifiedCalendar = ({ classes, homework, exams, onUpdate }: UnifiedC
                       <CalendarIcon className="w-4 h-4" />
                       Classes ({dayClasses.length})
                     </h4>
-                    {dayClasses.map((cls) => (
-                      <Card key={cls.id} className="p-3">
+                     {dayClasses.map((cls) => (
+                      <Card 
+                        key={cls.id} 
+                        className="p-3 cursor-pointer hover:bg-accent transition-colors"
+                        onClick={() => onClassSelect?.(cls.id)}
+                      >
                         <div className="space-y-1">
                           <div className="font-medium">{cls.title}</div>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">

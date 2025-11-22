@@ -370,6 +370,44 @@ export type Database = {
         }
         Relationships: []
       }
+      class_recordings: {
+        Row: {
+          ai_timestamps: Json | null
+          class_id: string
+          created_at: string | null
+          duration: number | null
+          id: string
+          recording_url: string
+          topic_links: Json | null
+        }
+        Insert: {
+          ai_timestamps?: Json | null
+          class_id: string
+          created_at?: string | null
+          duration?: number | null
+          id?: string
+          recording_url: string
+          topic_links?: Json | null
+        }
+        Update: {
+          ai_timestamps?: Json | null
+          class_id?: string
+          created_at?: string | null
+          duration?: number | null
+          id?: string
+          recording_url?: string
+          topic_links?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_recordings_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "live_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_challenges: {
         Row: {
           challenge_date: string | null
@@ -981,6 +1019,152 @@ export type Database = {
             columns: ["track_id"]
             isOneToOne: false
             referencedRelation: "tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_class_attendance: {
+        Row: {
+          class_id: string
+          id: string
+          is_online: boolean | null
+          joined_at: string | null
+          left_at: string | null
+          user_id: string
+        }
+        Insert: {
+          class_id: string
+          id?: string
+          is_online?: boolean | null
+          joined_at?: string | null
+          left_at?: string | null
+          user_id: string
+        }
+        Update: {
+          class_id?: string
+          id?: string
+          is_online?: boolean | null
+          joined_at?: string | null
+          left_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_class_attendance_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "live_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_class_mood: {
+        Row: {
+          class_id: string
+          id: string
+          mood: string
+          timestamp: string | null
+          user_id: string
+        }
+        Insert: {
+          class_id: string
+          id?: string
+          mood: string
+          timestamp?: string | null
+          user_id: string
+        }
+        Update: {
+          class_id?: string
+          id?: string
+          mood?: string
+          timestamp?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_class_mood_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "live_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_class_notes: {
+        Row: {
+          class_id: string
+          content: string
+          id: string
+          is_shared: boolean | null
+          timestamp: string | null
+          user_id: string
+        }
+        Insert: {
+          class_id: string
+          content: string
+          id?: string
+          is_shared?: boolean | null
+          timestamp?: string | null
+          user_id: string
+        }
+        Update: {
+          class_id?: string
+          content?: string
+          id?: string
+          is_shared?: boolean | null
+          timestamp?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_class_notes_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "live_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_class_qa: {
+        Row: {
+          answer: string | null
+          answered_at: string | null
+          answered_by: string | null
+          class_id: string
+          created_at: string | null
+          id: string
+          question: string
+          upvotes: number | null
+          user_id: string
+        }
+        Insert: {
+          answer?: string | null
+          answered_at?: string | null
+          answered_by?: string | null
+          class_id: string
+          created_at?: string | null
+          id?: string
+          question: string
+          upvotes?: number | null
+          user_id: string
+        }
+        Update: {
+          answer?: string | null
+          answered_at?: string | null
+          answered_by?: string | null
+          class_id?: string
+          created_at?: string | null
+          id?: string
+          question?: string
+          upvotes?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_class_qa_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "live_classes"
             referencedColumns: ["id"]
           },
         ]

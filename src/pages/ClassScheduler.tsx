@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Calendar, Clock, BookOpen, AlertTriangle, Users, Brain, Trophy, Plus } from "lucide-react";
+import { Calendar, Clock, BookOpen, AlertTriangle, Users, Brain, Trophy, Plus, Bell } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -23,6 +23,12 @@ import { GamificationStats } from "@/components/scheduler/GamificationStats";
 import { SmartSchedulingAssistant } from "@/components/scheduler/SmartSchedulingAssistant";
 import { ClassLeaderboard } from "@/components/scheduler/ClassLeaderboard";
 import { HomeworkBossBattles } from "@/components/scheduler/HomeworkBossBattles";
+import { useClassNotifications } from "@/hooks/useClassNotifications";
+import { LiveAttendanceTracker } from "@/components/scheduler/LiveAttendanceTracker";
+import { LiveQAQueue } from "@/components/scheduler/LiveQAQueue";
+import { CollaborativeNotes } from "@/components/scheduler/CollaborativeNotes";
+import { MoodMeter } from "@/components/scheduler/MoodMeter";
+import { RecordingIntegration } from "@/components/scheduler/RecordingIntegration";
 
 interface LiveClass {
   id: string;
@@ -96,6 +102,9 @@ const ClassScheduler = () => {
   const [loading, setLoading] = useState(true);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [addDialogType, setAddDialogType] = useState<"class" | "homework">("class");
+  const [selectedClassForLiveFeatures, setSelectedClassForLiveFeatures] = useState<string | null>(null);
+
+  const { notificationPermission, requestPermission, activeClassIds } = useClassNotifications(liveClasses);
 
   useEffect(() => {
     fetchAllData();
@@ -414,10 +423,13 @@ const ClassScheduler = () => {
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="today" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="today">Today</TabsTrigger>
           <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
           <TabsTrigger value="calendar">Calendar</TabsTrigger>
+          <TabsTrigger value="live" disabled={!selectedClassForLiveFeatures}>
+            Live Class
+          </TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
 
@@ -591,7 +603,47 @@ const ClassScheduler = () => {
             homework={homework}
             exams={exams}
             onUpdate={fetchAllData}
+            onClassSelect={setSelectedClassForLiveFeatures}
           />
+        </TabsContent>
+
+        {/* Live Class Tab */}
+        <TabsContent value="live" className="space-y-4">
+          {selectedClassForLiveFeatures ? (
+            <div className="space-y-6">
+              <Card className="bg-primary/10 border-primary/20">
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
+                    <p className="font-semibold">
+                      Live class session active
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <LiveAttendanceTracker classId={selectedClassForLiveFeatures} />
+                <MoodMeter classId={selectedClassForLiveFeatures} />
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <LiveQAQueue classId={selectedClassForLiveFeatures} />
+                <CollaborativeNotes classId={selectedClassForLiveFeatures} />
+              </div>
+
+              <RecordingIntegration classId={selectedClassForLiveFeatures} />
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <Users className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                <p className="text-muted-foreground">
+                  Select a class from the calendar to access live features
+                </p>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         {/* Analytics Tab */}
