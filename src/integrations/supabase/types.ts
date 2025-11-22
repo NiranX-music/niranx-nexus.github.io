@@ -415,6 +415,50 @@ export type Database = {
         }
         Relationships: []
       }
+      claimed_daily_rewards: {
+        Row: {
+          bonus_items: Json | null
+          claim_date: string
+          created_at: string | null
+          id: string
+          is_random_bonus: boolean | null
+          reward_tier_id: string | null
+          streak_count: number
+          user_id: string
+          xp_earned: number
+        }
+        Insert: {
+          bonus_items?: Json | null
+          claim_date?: string
+          created_at?: string | null
+          id?: string
+          is_random_bonus?: boolean | null
+          reward_tier_id?: string | null
+          streak_count: number
+          user_id: string
+          xp_earned: number
+        }
+        Update: {
+          bonus_items?: Json | null
+          claim_date?: string
+          created_at?: string | null
+          id?: string
+          is_random_bonus?: boolean | null
+          reward_tier_id?: string | null
+          streak_count?: number
+          user_id?: string
+          xp_earned?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claimed_daily_rewards_reward_tier_id_fkey"
+            columns: ["reward_tier_id"]
+            isOneToOne: false
+            referencedRelation: "reward_tiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       class_recordings: {
         Row: {
           ai_timestamps: Json | null
@@ -486,6 +530,42 @@ export type Database = {
           lab_type?: string
           owner_id?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      custom_themes: {
+        Row: {
+          colors: Json
+          created_at: string | null
+          downloads_count: number | null
+          id: string
+          is_public: boolean | null
+          share_token: string | null
+          theme_name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          colors: Json
+          created_at?: string | null
+          downloads_count?: number | null
+          id?: string
+          is_public?: boolean | null
+          share_token?: string | null
+          theme_name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          colors?: Json
+          created_at?: string | null
+          downloads_count?: number | null
+          id?: string
+          is_public?: boolean | null
+          share_token?: string | null
+          theme_name?: string
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -1417,6 +1497,30 @@ export type Database = {
         }
         Relationships: []
       }
+      login_streaks: {
+        Row: {
+          created_at: string | null
+          id: string
+          login_date: string
+          streak_count: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          login_date?: string
+          streak_count?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          login_date?: string
+          streak_count?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       message_bookmarks: {
         Row: {
           bookmarked_at: string | null
@@ -1722,6 +1826,38 @@ export type Database = {
         }
         Relationships: []
       }
+      page_theme_overrides: {
+        Row: {
+          created_at: string | null
+          id: string
+          page_route: string
+          theme_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          page_route: string
+          theme_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          page_route?: string
+          theme_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "page_theme_overrides_theme_id_fkey"
+            columns: ["theme_id"]
+            isOneToOne: false
+            referencedRelation: "custom_themes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       picture_likes: {
         Row: {
           created_at: string | null
@@ -1817,6 +1953,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      preset_themes: {
+        Row: {
+          category: string | null
+          colors: Json
+          created_at: string | null
+          description: string | null
+          id: string
+          is_featured: boolean | null
+          preview_image_url: string | null
+          theme_name: string
+        }
+        Insert: {
+          category?: string | null
+          colors: Json
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_featured?: boolean | null
+          preview_image_url?: string | null
+          theme_name: string
+        }
+        Update: {
+          category?: string | null
+          colors?: Json
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_featured?: boolean | null
+          preview_image_url?: string | null
+          theme_name?: string
+        }
+        Relationships: []
       }
       privacy_settings: {
         Row: {
@@ -1959,6 +2128,45 @@ export type Database = {
           user_id?: string
           visit_count?: number | null
           visited_at?: string | null
+        }
+        Relationships: []
+      }
+      reward_tiers: {
+        Row: {
+          bonus_items: Json | null
+          created_at: string | null
+          event_end_date: string | null
+          event_name: string | null
+          event_start_date: string | null
+          id: string
+          is_special_event: boolean | null
+          required_streak: number
+          tier_name: string
+          xp_reward: number
+        }
+        Insert: {
+          bonus_items?: Json | null
+          created_at?: string | null
+          event_end_date?: string | null
+          event_name?: string | null
+          event_start_date?: string | null
+          id?: string
+          is_special_event?: boolean | null
+          required_streak: number
+          tier_name: string
+          xp_reward: number
+        }
+        Update: {
+          bonus_items?: Json | null
+          created_at?: string | null
+          event_end_date?: string | null
+          event_name?: string | null
+          event_start_date?: string | null
+          id?: string
+          is_special_event?: boolean | null
+          required_streak?: number
+          tier_name?: string
+          xp_reward?: number
         }
         Relationships: []
       }
@@ -3021,6 +3229,7 @@ export type Database = {
     Functions: {
       calculate_level: { Args: { xp_amount: number }; Returns: number }
       generate_share_token: { Args: never; Returns: string }
+      generate_theme_share_token: { Args: never; Returns: string }
       get_public_user_info: {
         Args: { target_user_id: string }
         Returns: {

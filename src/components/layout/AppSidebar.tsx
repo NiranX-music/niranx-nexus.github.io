@@ -54,6 +54,8 @@ import {
   ShieldCheck,
   Link2,
   Eye,
+  Gift,
+  Palette,
 } from "lucide-react";
 import {
   Sidebar,
@@ -111,6 +113,7 @@ const progressNavigation = [
   { title: "Analytics", url: "/niranx/analytics", icon: TrendingUp },
   { title: "Goals", url: "/niranx/goals", icon: Target },
   { title: "Daily Challenges", url: "/niranx/daily-challenges", icon: Star },
+  { title: "Daily Rewards", url: "/niranx/daily-rewards", icon: Gift },
   { title: "Study Streaks", url: "/niranx/study-streak-challenges", icon: Flame },
   { title: "Leaderboard", url: "/niranx/leaderboard", icon: Trophy },
   { title: "Reward Store", url: "/niranx/reward-store", icon: ShoppingBag },
@@ -171,6 +174,7 @@ const adminNavigation = [
 const systemNavigation = [
   { title: "Notification Settings", url: "/niranx/notification-settings", icon: Bell },
   { title: "Accessibility Settings", url: "/niranx/accessibility-settings", icon: Eye },
+  { title: "Theme Customization", url: "/niranx/theme-customization", icon: Palette },
   { title: "Guardian Settings", url: "/niranx/guardian-settings", icon: ShieldCheck },
   { title: "OAuth Settings", url: "/niranx/oauth-settings", icon: Link2 },
   { title: "Become an Admin", url: "/niranx/become-admin", icon: UserPlus },
