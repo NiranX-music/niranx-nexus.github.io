@@ -109,8 +109,8 @@ export function Calculator() {
   };
 
   const buttonClass = "h-14 text-lg font-medium transition-all hover:scale-105";
-  const numberButtonClass = `${buttonClass} bg-card hover:bg-accent`;
-  const operatorButtonClass = `${buttonClass} bg-primary/20 hover:bg-primary/30 text-primary`;
+  const numberButtonClass = `${buttonClass} bg-card hover:bg-accent text-card-foreground hover:text-accent-foreground`;
+  const operatorButtonClass = `${buttonClass} bg-primary/20 hover:bg-primary/30 text-primary font-semibold`;
   const scientificButtonClass = `${buttonClass} bg-secondary/50 hover:bg-secondary text-secondary-foreground`;
 
   return (
