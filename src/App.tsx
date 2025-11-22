@@ -93,6 +93,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminRequestAnalytics from "./pages/AdminRequestAnalytics";
 import AdminMessageReports from "./pages/AdminMessageReports";
 import OAuthSettings from "./pages/OAuthSettings";
+import ClassScheduler from "./pages/ClassScheduler";
 import { AdminRoute } from "./components/AdminRoute";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -142,6 +143,7 @@ const App = () => (
                           <Route path="/library" element={<Library />} />
                           
                           <Route path="/scheduler" element={<EnhancedScheduler />} />
+                          <Route path="/class-scheduler" element={<ClassScheduler />} />
                           <Route path="/allen" element={<Allen />} />
                           <Route path="/pw" element={<PW />} />
                           <Route path="/settings" element={<Settings />} />

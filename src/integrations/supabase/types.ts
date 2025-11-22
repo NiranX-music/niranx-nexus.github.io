@@ -669,6 +669,95 @@ export type Database = {
         }
         Relationships: []
       }
+      homework_assignments: {
+        Row: {
+          actual_time: number | null
+          collaboration_enabled: boolean | null
+          created_at: string | null
+          dependency_ids: string[] | null
+          description: string | null
+          due_date: string
+          estimated_time: number | null
+          exam_link: string | null
+          id: string
+          priority: string | null
+          progress_checkpoints: Json | null
+          status: string | null
+          subject: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          actual_time?: number | null
+          collaboration_enabled?: boolean | null
+          created_at?: string | null
+          dependency_ids?: string[] | null
+          description?: string | null
+          due_date: string
+          estimated_time?: number | null
+          exam_link?: string | null
+          id?: string
+          priority?: string | null
+          progress_checkpoints?: Json | null
+          status?: string | null
+          subject: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          actual_time?: number | null
+          collaboration_enabled?: boolean | null
+          created_at?: string | null
+          dependency_ids?: string[] | null
+          description?: string | null
+          due_date?: string
+          estimated_time?: number | null
+          exam_link?: string | null
+          id?: string
+          priority?: string | null
+          progress_checkpoints?: Json | null
+          status?: string | null
+          subject?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      homework_checkpoints: {
+        Row: {
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          homework_id: string
+          id: string
+          title: string
+        }
+        Insert: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          homework_id: string
+          id?: string
+          title: string
+        }
+        Update: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          homework_id?: string
+          id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "homework_checkpoints_homework_id_fkey"
+            columns: ["homework_id"]
+            isOneToOne: false
+            referencedRelation: "homework_assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       institutes: {
         Row: {
           created_at: string | null
@@ -826,6 +915,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      live_classes: {
+        Row: {
+          attendance_count: number | null
+          class_link: string | null
+          created_at: string | null
+          end_time: string
+          id: string
+          notes: string | null
+          recording_url: string | null
+          start_time: string
+          status: string | null
+          subject: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          attendance_count?: number | null
+          class_link?: string | null
+          created_at?: string | null
+          end_time: string
+          id?: string
+          notes?: string | null
+          recording_url?: string | null
+          start_time: string
+          status?: string | null
+          subject: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          attendance_count?: number | null
+          class_link?: string | null
+          created_at?: string | null
+          end_time?: string
+          id?: string
+          notes?: string | null
+          recording_url?: string | null
+          start_time?: string
+          status?: string | null
+          subject?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       message_bookmarks: {
         Row: {
@@ -1372,6 +1506,36 @@ export type Database = {
         }
         Relationships: []
       }
+      schedule_conflicts: {
+        Row: {
+          conflict_type: string
+          detected_at: string | null
+          id: string
+          items: Json
+          resolution_note: string | null
+          resolved: boolean | null
+          user_id: string
+        }
+        Insert: {
+          conflict_type: string
+          detected_at?: string | null
+          id?: string
+          items: Json
+          resolution_note?: string | null
+          resolved?: boolean | null
+          user_id: string
+        }
+        Update: {
+          conflict_type?: string
+          detected_at?: string | null
+          id?: string
+          items?: Json
+          resolution_note?: string | null
+          resolved?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       schedule_tasks: {
         Row: {
           class_duration: number | null
@@ -1632,6 +1796,39 @@ export type Database = {
           uploaded_by?: string | null
           url?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      study_sessions: {
+        Row: {
+          created_at: string | null
+          duration: number
+          id: string
+          partner_ids: string[] | null
+          subject: string | null
+          type: string
+          user_id: string
+          xp_earned: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          duration: number
+          id?: string
+          partner_ids?: string[] | null
+          subject?: string | null
+          type: string
+          user_id: string
+          xp_earned?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          duration?: number
+          id?: string
+          partner_ids?: string[] | null
+          subject?: string | null
+          type?: string
+          user_id?: string
+          xp_earned?: number | null
         }
         Relationships: []
       }
@@ -2216,6 +2413,42 @@ export type Database = {
           tags?: string[] | null
           title?: string
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      workload_snapshots: {
+        Row: {
+          classes_count: number | null
+          created_at: string | null
+          date: string
+          exams_count: number | null
+          homework_count: number | null
+          id: string
+          stress_level: number | null
+          total_estimated_hours: number | null
+          user_id: string
+        }
+        Insert: {
+          classes_count?: number | null
+          created_at?: string | null
+          date: string
+          exams_count?: number | null
+          homework_count?: number | null
+          id?: string
+          stress_level?: number | null
+          total_estimated_hours?: number | null
+          user_id: string
+        }
+        Update: {
+          classes_count?: number | null
+          created_at?: string | null
+          date?: string
+          exams_count?: number | null
+          homework_count?: number | null
+          id?: string
+          stress_level?: number | null
+          total_estimated_hours?: number | null
           user_id?: string
         }
         Relationships: []
