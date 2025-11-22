@@ -11,7 +11,6 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { NowPlayingProvider } from "./contexts/NowPlayingContext";
 import { GuestModeProvider } from "./contexts/GuestModeContext";
 import { AppLayout } from "./components/layout/AppLayout";
-import ThemeToggle from "./components/ui/ThemeToggle";
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Index from "./pages/Index";
@@ -121,7 +120,6 @@ const App = () => (
             <FocusProvider>
               <NowPlayingProvider>
                 <TooltipProvider>
-                  <ThemeToggle />
                   <Toaster />
                   <Sonner />
                   <BrowserRouter>

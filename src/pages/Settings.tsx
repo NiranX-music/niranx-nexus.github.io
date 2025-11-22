@@ -125,14 +125,14 @@ const Settings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className="mobile-container min-h-screen bg-background mobile-padding space-y-6">
       <div className="container mx-auto max-w-4xl space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3">
-          <SettingsIcon className="w-8 h-8 text-primary" />
+          <SettingsIcon className="w-6 h-6 md:w-8 md:h-8 text-primary" />
           <div>
-            <h1 className="text-3xl font-bold">Settings</h1>
-            <p className="text-muted-foreground">Customize your StudyVerse experience</p>
+            <h1 className="mobile-title">Settings</h1>
+            <p className="text-sm md:text-base text-muted-foreground">Customize your StudyVerse experience</p>
           </div>
         </div>
 
@@ -165,7 +165,7 @@ const Settings = () => {
             <div>
               <Label className="text-base font-medium">Theme Selection</Label>
               <p className="text-sm text-muted-foreground mb-4">Choose your preferred color theme</p>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
                 {[
                   { name: 'light', label: 'Light', color: 'bg-white border-2' },
                   { name: 'dark', label: 'Dark', color: 'bg-gray-900' },
@@ -176,11 +176,11 @@ const Settings = () => {
                   <Button
                     key={themeOption.name}
                     variant={theme === themeOption.name ? "default" : "outline"}
-                    className="h-20 flex-col gap-2"
+                    className="h-16 md:h-20 flex-col gap-2"
                     onClick={() => setTheme(themeOption.name as any)}
                   >
-                    <div className={`w-8 h-8 rounded-full ${themeOption.color}`} />
-                    <span className="text-sm">{themeOption.label}</span>
+                    <div className={`w-6 h-6 md:w-8 md:h-8 rounded-full ${themeOption.color}`} />
+                    <span className="text-xs md:text-sm">{themeOption.label}</span>
                   </Button>
                 ))}
               </div>
@@ -389,15 +389,17 @@ const Settings = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button onClick={exportData} variant="outline" className="flex-1">
+            <div className="mobile-flex gap-3">
+              <Button onClick={exportData} variant="outline" className="flex-1 min-h-[44px]">
                 <Download className="w-4 h-4 mr-2" />
-                Export Data
+                <span className="hidden sm:inline">Export Data</span>
+                <span className="sm:hidden">Export</span>
               </Button>
               
-              <Button onClick={clearData} variant="destructive" className="flex-1">
+              <Button onClick={clearData} variant="destructive" className="flex-1 min-h-[44px]">
                 <Trash2 className="w-4 h-4 mr-2" />
-                Clear All Data
+                <span className="hidden sm:inline">Clear All Data</span>
+                <span className="sm:hidden">Clear</span>
               </Button>
             </div>
             

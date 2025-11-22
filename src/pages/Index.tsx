@@ -118,12 +118,12 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen p-4 md:p-6 lg:p-8 perspective-3d relative overflow-hidden">
+    <div className="min-h-screen mobile-padding perspective-3d relative overflow-hidden">
       {/* Cosmic Background Effects */}
       <div className="fixed inset-0 pointer-events-none -z-10">
         <div className="absolute inset-0 bg-gradient-to-br from-background via-primary/5 to-accent/5" />
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-0 left-1/4 w-48 h-48 md:w-96 md:h-96 bg-primary/10 rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-0 right-1/4 w-48 h-48 md:w-96 md:h-96 bg-accent/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
         {[...Array(20)].map((_, i) => (
           <div
             key={i}
@@ -139,13 +139,13 @@ const Index = () => {
       </div>
 
       {/* Header */}
-      <div className="mb-8 animate-fade-in">
+      <div className="mb-6 md:mb-8 animate-fade-in">
         {/* Top Toolbar */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-4 md:mb-6">
           <div className="flex-1"></div>
-          <div className="flex items-center gap-3 card-3d hover-lift">
-            <Brain className="w-8 h-8 text-primary animate-pulse-scale" />
-            <h1 className="text-2xl md:text-4xl font-bold gradient-text drop-shadow-lg">
+          <div className="flex items-center gap-2 md:gap-3 card-3d hover-lift px-3 md:px-0">
+            <Brain className="w-6 h-6 md:w-8 md:h-8 text-primary animate-pulse-scale" />
+            <h1 className="text-xl md:text-2xl lg:text-4xl font-bold gradient-text drop-shadow-lg">
               NiranX StudyVerse
             </h1>
             <Sparkles className="w-6 h-6 text-accent animate-float" />
@@ -170,31 +170,31 @@ const Index = () => {
           
           {/* Welcome & Stats Banner */}
           {isLoggedIn && (
-            <Card className="glass-card border-primary/20 mb-8 animate-scale-in bg-gradient-to-r from-primary/5 via-transparent to-accent/5">
-              <CardContent className="p-6">
-                <h2 className="text-2xl font-bold gradient-text mb-4">
+            <Card className="glass-card border-primary/20 mb-6 md:mb-8 animate-scale-in bg-gradient-to-r from-primary/5 via-transparent to-accent/5">
+              <CardContent className="p-4 md:p-6">
+                <h2 className="text-xl md:text-2xl font-bold gradient-text mb-4">
                   Welcome back, Legend!
                 </h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
                   <div className="text-center">
-                    <p className="text-3xl font-bold text-primary">{todayStats.totalMinutes}</p>
-                    <p className="text-sm text-muted-foreground">Minutes Today</p>
+                    <p className="text-2xl md:text-3xl font-bold text-primary">{todayStats.totalMinutes}</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">Minutes Today</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-3xl font-bold text-success">{streak}</p>
-                    <p className="text-sm text-muted-foreground">Day Streak</p>
+                    <p className="text-2xl md:text-3xl font-bold text-success">{streak}</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">Day Streak</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-3xl font-bold text-accent">L{level}</p>
-                    <p className="text-sm text-muted-foreground">Level</p>
+                    <p className="text-2xl md:text-3xl font-bold text-accent">L{level}</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">Level</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-3xl font-bold text-warning">{xp}</p>
-                    <p className="text-sm text-muted-foreground">XP</p>
+                    <p className="text-2xl md:text-3xl font-bold text-warning">{xp}</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">XP</p>
                   </div>
                 </div>
                 <div className="mt-4 space-y-2">
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-xs md:text-sm">
                     <span>Level Progress</span>
                     <span>{Math.round(xpProgress)}%</span>
                   </div>
@@ -206,7 +206,7 @@ const Index = () => {
 
           {/* Mood & Challenges Grid */}
           {isLoggedIn && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 animate-slide-up" style={{ animationDelay: '0.3s' }}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 mb-6 md:mb-8 animate-slide-up" style={{ animationDelay: '0.3s' }}>
               <MoodSelector />
               <AIMotivation />
               <DailyChallenge />
@@ -214,7 +214,7 @@ const Index = () => {
           )}
         
           {/* Quick Navigation Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-10">
           <Card 
             className={`glass-card cursor-pointer card-3d hover-lift animate-scale-in transform-3d ${
               !isLoggedIn ? 'opacity-60' : ''
