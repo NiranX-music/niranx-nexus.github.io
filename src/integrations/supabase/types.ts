@@ -978,6 +978,202 @@ export type Database = {
         }
         Relationships: []
       }
+      guild_challenge_progress: {
+        Row: {
+          challenge_id: string
+          completed: boolean | null
+          completed_at: string | null
+          current_value: number | null
+          guild_id: string
+          id: string
+        }
+        Insert: {
+          challenge_id: string
+          completed?: boolean | null
+          completed_at?: string | null
+          current_value?: number | null
+          guild_id: string
+          id?: string
+        }
+        Update: {
+          challenge_id?: string
+          completed?: boolean | null
+          completed_at?: string | null
+          current_value?: number | null
+          guild_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guild_challenge_progress_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "guild_challenges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guild_challenge_progress_guild_id_fkey"
+            columns: ["guild_id"]
+            isOneToOne: false
+            referencedRelation: "guilds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guild_challenges: {
+        Row: {
+          challenge_type: string
+          created_at: string | null
+          description: string | null
+          end_date: string
+          id: string
+          is_active: boolean | null
+          name: string
+          reward_xp: number
+          start_date: string | null
+          target_value: number
+        }
+        Insert: {
+          challenge_type: string
+          created_at?: string | null
+          description?: string | null
+          end_date: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          reward_xp: number
+          start_date?: string | null
+          target_value: number
+        }
+        Update: {
+          challenge_type?: string
+          created_at?: string | null
+          description?: string | null
+          end_date?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          reward_xp?: number
+          start_date?: string | null
+          target_value?: number
+        }
+        Relationships: []
+      }
+      guild_members: {
+        Row: {
+          contribution_xp: number | null
+          guild_id: string
+          id: string
+          joined_at: string | null
+          role: string | null
+          user_id: string
+        }
+        Insert: {
+          contribution_xp?: number | null
+          guild_id: string
+          id?: string
+          joined_at?: string | null
+          role?: string | null
+          user_id: string
+        }
+        Update: {
+          contribution_xp?: number | null
+          guild_id?: string
+          id?: string
+          joined_at?: string | null
+          role?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guild_members_guild_id_fkey"
+            columns: ["guild_id"]
+            isOneToOne: false
+            referencedRelation: "guilds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guild_messages: {
+        Row: {
+          attachments: Json | null
+          created_at: string | null
+          guild_id: string
+          id: string
+          message: string
+          message_type: string | null
+          user_id: string
+        }
+        Insert: {
+          attachments?: Json | null
+          created_at?: string | null
+          guild_id: string
+          id?: string
+          message: string
+          message_type?: string | null
+          user_id: string
+        }
+        Update: {
+          attachments?: Json | null
+          created_at?: string | null
+          guild_id?: string
+          id?: string
+          message?: string
+          message_type?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guild_messages_guild_id_fkey"
+            columns: ["guild_id"]
+            isOneToOne: false
+            referencedRelation: "guilds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guilds: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_public: boolean | null
+          member_limit: number | null
+          name: string
+          owner_id: string
+          rank: number | null
+          total_xp: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          member_limit?: number | null
+          name: string
+          owner_id: string
+          rank?: number | null
+          total_xp?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          member_limit?: number | null
+          name?: string
+          owner_id?: string
+          rank?: number | null
+          total_xp?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       homework_assignments: {
         Row: {
           actual_time: number | null
@@ -1760,35 +1956,95 @@ export type Database = {
       notification_preferences: {
         Row: {
           created_at: string | null
+          digest_mode: boolean | null
+          digest_time: string | null
           email_notifications: boolean | null
           exam_reminders: boolean | null
           feedback_responses: boolean | null
           id: string
+          priority_filter: string | null
           push_notifications: boolean | null
+          quiet_hours_end: string | null
+          quiet_hours_start: string | null
           resource_access: boolean | null
+          smart_timing_enabled: boolean | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
           created_at?: string | null
+          digest_mode?: boolean | null
+          digest_time?: string | null
           email_notifications?: boolean | null
           exam_reminders?: boolean | null
           feedback_responses?: boolean | null
           id?: string
+          priority_filter?: string | null
           push_notifications?: boolean | null
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
           resource_access?: boolean | null
+          smart_timing_enabled?: boolean | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
           created_at?: string | null
+          digest_mode?: boolean | null
+          digest_time?: string | null
           email_notifications?: boolean | null
           exam_reminders?: boolean | null
           feedback_responses?: boolean | null
           id?: string
+          priority_filter?: string | null
           push_notifications?: boolean | null
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
           resource_access?: boolean | null
+          smart_timing_enabled?: boolean | null
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notification_queue: {
+        Row: {
+          created_at: string | null
+          data: Json | null
+          id: string
+          message: string
+          notification_type: string
+          priority: string | null
+          scheduled_for: string | null
+          sent_at: string | null
+          status: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          message: string
+          notification_type: string
+          priority?: string | null
+          scheduled_for?: string | null
+          sent_at?: string | null
+          status?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          message?: string
+          notification_type?: string
+          priority?: string | null
+          scheduled_for?: string | null
+          sent_at?: string | null
+          status?: string | null
+          title?: string
           user_id?: string
         }
         Relationships: []

@@ -183,8 +183,8 @@ export default function ThemeCustomization() {
   return (
     <div className="container mx-auto p-6">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold gradient-text mb-2">Theme Customization</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-3xl font-bold gradient-text mb-2 animate-fade-in">Theme Customization</h1>
+        <p className="text-muted-foreground animate-fade-in">
           Create, customize, and share your own color themes
         </p>
       </div>
@@ -197,7 +197,7 @@ export default function ThemeCustomization() {
         </TabsList>
 
         <TabsContent value="create">
-          <Card>
+          <Card className="animate-scale-in">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Palette className="h-5 w-5" />
@@ -261,8 +261,8 @@ export default function ThemeCustomization() {
 
         <TabsContent value="presets">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {presetThemes.map((theme) => (
-              <Card key={theme.id} className="overflow-hidden">
+            {presetThemes.map((theme, index) => (
+              <Card key={theme.id} className="overflow-hidden hover-scale animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
                 <div
                   className="h-24 relative"
                   style={{
@@ -304,7 +304,7 @@ export default function ThemeCustomization() {
         <TabsContent value="my-themes">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {myThemes.length === 0 ? (
-              <Card className="col-span-full">
+              <Card className="col-span-full animate-fade-in">
                 <CardContent className="py-12 text-center text-muted-foreground">
                   <Palette className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>You haven't created any custom themes yet.</p>
@@ -312,8 +312,8 @@ export default function ThemeCustomization() {
                 </CardContent>
               </Card>
             ) : (
-              myThemes.map((theme) => (
-                <Card key={theme.id} className="overflow-hidden">
+              myThemes.map((theme, index) => (
+                <Card key={theme.id} className="overflow-hidden hover-scale animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
                   <div
                     className="h-24"
                     style={{
@@ -360,15 +360,15 @@ export default function ThemeCustomization() {
                         size="sm"
                       >
                         Delete
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </div>
-        </TabsContent>
-      </Tabs>
-    </div>
-  );
-}
+                       </Button>
+                     </div>
+                   </CardContent>
+                 </Card>
+               ))
+             )}
+           </div>
+         </TabsContent>
+       </Tabs>
+     </div>
+   );
+ }

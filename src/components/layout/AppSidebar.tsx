@@ -142,6 +142,8 @@ const filesNavigation = [
 const socialNavigation = [
   { title: "Messages", url: "/niranx/messages", icon: MessageCircle },
   { title: "Community", url: "/niranx/community", icon: MessagesSquare },
+  { title: "Study Guilds", url: "/niranx/guilds", icon: Shield },
+  { title: "Study Groups", url: "/niranx/study-groups", icon: Users },
   { title: "Blogs", url: "/niranx/blogs", icon: BookOpen },
   { title: "Picture Share", url: "/niranx/picture-share", icon: Image },
   { title: "Video Share", url: "/niranx/video-share", icon: Play },
@@ -173,6 +175,7 @@ const adminNavigation = [
 
 const systemNavigation = [
   { title: "Notification Settings", url: "/niranx/notification-settings", icon: Bell },
+  { title: "Smart Notifications", url: "/niranx/smart-notifications", icon: Zap },
   { title: "Accessibility Settings", url: "/niranx/accessibility-settings", icon: Eye },
   { title: "Theme Customization", url: "/niranx/theme-customization", icon: Palette },
   { title: "Guardian Settings", url: "/niranx/guardian-settings", icon: ShieldCheck },

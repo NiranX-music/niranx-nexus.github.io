@@ -165,14 +165,14 @@ export default function DailyRewards() {
   return (
     <div className="container mx-auto p-6">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold gradient-text mb-2">Daily Rewards</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-3xl font-bold gradient-text mb-2 animate-fade-in">Daily Rewards</h1>
+        <p className="text-muted-foreground animate-fade-in">
           Login daily to maintain your streak and earn rewards!
         </p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 mb-6">
-        <Card className="bg-gradient-to-br from-primary/20 to-primary/5">
+        <Card className="bg-gradient-to-br from-primary/20 to-primary/5 animate-scale-in">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Flame className="h-5 w-5 text-orange-500" />
@@ -193,7 +193,7 @@ export default function DailyRewards() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-secondary/20 to-secondary/5">
+        <Card className="bg-gradient-to-br from-secondary/20 to-secondary/5 animate-scale-in" style={{ animationDelay: "0.1s" }}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Gift className="h-5 w-5 text-pink-500" />
@@ -231,11 +231,12 @@ export default function DailyRewards() {
             {rewardTiers.map((tier) => (
               <div
                 key={tier.id}
-                className={`flex items-center justify-between p-4 rounded-lg border transition-all ${
+                className={`flex items-center justify-between p-4 rounded-lg border transition-all hover-scale ${
                   currentStreak >= tier.required_streak
-                    ? "bg-primary/10 border-primary"
+                    ? "bg-primary/10 border-primary animate-fade-in"
                     : "bg-muted/50"
                 }`}
+                style={{ animationDelay: `${tier.required_streak * 0.05}s` }}
               >
                 <div className="flex items-center gap-4">
                   <div
