@@ -21,7 +21,8 @@ import {
   LogOut,
   ShieldCheck,
   AlertTriangle,
-  Link2
+  Link2,
+  Eye
 } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useToast } from "@/hooks/use-toast";
@@ -455,6 +456,14 @@ const Settings = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
+            <Button 
+              onClick={() => navigate('/niranx/accessibility-settings')} 
+              variant="outline" 
+              className="w-full mb-3"
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              Accessibility Settings
+            </Button>
             <Button 
               onClick={handleLogout} 
               variant="destructive" 

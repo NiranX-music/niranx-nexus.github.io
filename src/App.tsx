@@ -103,6 +103,7 @@ import GuardianDashboard from "./pages/GuardianDashboard";
 import StudentGuardianSettings from "./pages/StudentGuardianSettings";
 import { AdminRoute } from "./components/AdminRoute";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { AccessibilitySettings } from "./pages/AccessibilitySettings";
 
 const queryClient = new QueryClient();
 
@@ -154,6 +155,7 @@ const App = () => (
                           <Route path="/allen" element={<Allen />} />
                           <Route path="/pw" element={<PW />} />
                           <Route path="/settings" element={<Settings />} />
+                          <Route path="/accessibility-settings" element={<AccessibilitySettings />} />
                           <Route path="/oauth-settings" element={<OAuthSettings />} />
                           <Route path="/analytics" element={<Analytics />} />
                           <Route path="/advanced-dashboard" element={<AdvancedDashboard />} />

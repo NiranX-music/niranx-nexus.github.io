@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      accessibility_preferences: {
+        Row: {
+          created_at: string | null
+          focus_indicators_enhanced: boolean | null
+          font_size_multiplier: number | null
+          high_contrast_mode: boolean | null
+          id: string
+          keyboard_shortcuts_enhanced: boolean | null
+          reduce_motion: boolean | null
+          text_to_speech_enabled: boolean | null
+          tts_rate: number | null
+          tts_voice: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          focus_indicators_enhanced?: boolean | null
+          font_size_multiplier?: number | null
+          high_contrast_mode?: boolean | null
+          id?: string
+          keyboard_shortcuts_enhanced?: boolean | null
+          reduce_motion?: boolean | null
+          text_to_speech_enabled?: boolean | null
+          tts_rate?: number | null
+          tts_voice?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          focus_indicators_enhanced?: boolean | null
+          font_size_multiplier?: number | null
+          high_contrast_mode?: boolean | null
+          id?: string
+          keyboard_shortcuts_enhanced?: boolean | null
+          reduce_motion?: boolean | null
+          text_to_speech_enabled?: boolean | null
+          tts_rate?: number | null
+          tts_voice?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       achievements: {
         Row: {
           created_at: string | null

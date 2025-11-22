@@ -53,6 +53,7 @@ import {
   ScrollText,
   ShieldCheck,
   Link2,
+  Eye,
 } from "lucide-react";
 import {
   Sidebar,
@@ -169,6 +170,7 @@ const adminNavigation = [
 
 const systemNavigation = [
   { title: "Notification Settings", url: "/niranx/notification-settings", icon: Bell },
+  { title: "Accessibility Settings", url: "/niranx/accessibility-settings", icon: Eye },
   { title: "Guardian Settings", url: "/niranx/guardian-settings", icon: ShieldCheck },
   { title: "OAuth Settings", url: "/niranx/oauth-settings", icon: Link2 },
   { title: "Become an Admin", url: "/niranx/become-admin", icon: UserPlus },

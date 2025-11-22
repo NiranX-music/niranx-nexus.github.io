@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './AuthContext';
 import { toast } from 'sonner';
+import { CelebrationAnimation } from '@/components/CelebrationAnimation';
 
 interface XPContextType {
   xp: number;
@@ -18,6 +19,7 @@ export function XPProvider({ children }: { children: React.ReactNode }) {
   const [xp, setXP] = useState(0);
   const [level, setLevel] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [celebration, setCelebration] = useState<{ type: 'xp' | 'level-up'; value?: number; message?: string } | null>(null);
   const { user } = useAuth();
 
   // Load XP from Supabase profiles
@@ -69,6 +71,13 @@ export function XPProvider({ children }: { children: React.ReactNode }) {
     setXP(newXP);
     setLevel(newLevel);
 
+    // Show celebration animation
+    if (leveledUp) {
+      setCelebration({ type: 'level-up', message: `You're now level ${newLevel}!` });
+    } else {
+      setCelebration({ type: 'xp', value: amount, message: reason });
+    }
+
     // Save to database if user is logged in
     if (user) {
       try {
@@ -116,6 +125,14 @@ export function XPProvider({ children }: { children: React.ReactNode }) {
   return (
     <XPContext.Provider value={{ xp, level, addXP, getXPForNextLevel, getXPProgress, loading }}>
       {children}
+      {celebration && (
+        <CelebrationAnimation
+          type={celebration.type}
+          value={celebration.value}
+          message={celebration.message}
+          onComplete={() => setCelebration(null)}
+        />
+      )}
     </XPContext.Provider>
   );
 }
