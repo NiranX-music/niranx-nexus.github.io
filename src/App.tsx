@@ -105,6 +105,8 @@ import { AdminRoute } from "./components/AdminRoute";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AccessibilitySettings } from "./pages/AccessibilitySettings";
 import Guide from "./pages/Guide";
+import DailyRewards from "./pages/DailyRewards";
+import ThemeCustomization from "./pages/ThemeCustomization";
 
 const queryClient = new QueryClient();
 
@@ -216,6 +218,8 @@ const App = () => (
                           <Route path="/guardian-dashboard" element={<GuardianDashboard />} />
                           <Route path="/guardian-settings" element={<StudentGuardianSettings />} />
                           <Route path="/guide" element={<Guide />} />
+                          <Route path="/daily-rewards" element={<DailyRewards />} />
+                          <Route path="/theme-customization" element={<ThemeCustomization />} />
                           <Route path="/admin" element={
                             <AdminRoute>
                               <AdminDashboard />
