@@ -107,6 +107,8 @@ import { AccessibilitySettings } from "./pages/AccessibilitySettings";
 import Guide from "./pages/Guide";
 import DailyRewards from "./pages/DailyRewards";
 import ThemeCustomization from "./pages/ThemeCustomization";
+import Guilds from "./pages/Guilds";
+import SmartNotifications from "./pages/SmartNotifications";
 
 const queryClient = new QueryClient();
 
@@ -220,6 +222,8 @@ const App = () => (
                           <Route path="/guide" element={<Guide />} />
                           <Route path="/daily-rewards" element={<DailyRewards />} />
                           <Route path="/theme-customization" element={<ThemeCustomization />} />
+                          <Route path="/guilds" element={<Guilds />} />
+                          <Route path="/smart-notifications" element={<SmartNotifications />} />
                           <Route path="/admin" element={
                             <AdminRoute>
                               <AdminDashboard />
