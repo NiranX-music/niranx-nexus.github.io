@@ -16,6 +16,10 @@ import { UnifiedCalendar } from "@/components/scheduler/UnifiedCalendar";
 import { WorkloadMeter } from "@/components/scheduler/WorkloadMeter";
 import { ConflictAlert } from "@/components/scheduler/ConflictAlert";
 import { AddItemDialog } from "@/components/scheduler/AddItemDialog";
+import { AIInsightsPanel } from "@/components/scheduler/AIInsightsPanel";
+import { NaturalLanguageInput } from "@/components/scheduler/NaturalLanguageInput";
+import { StudyBuddyPanel } from "@/components/scheduler/StudyBuddyPanel";
+import { GamificationStats } from "@/components/scheduler/GamificationStats";
 
 interface LiveClass {
   id: string;
@@ -314,7 +318,7 @@ const ClassScheduler = () => {
             Unified Schedule Manager
           </h1>
           <p className="text-muted-foreground mt-2">
-            Manage your classes, exams, and homework in one place
+            Manage your classes, exams, and homework in one place with AI-powered insights
           </p>
         </div>
         <div className="flex gap-2">
@@ -328,6 +332,9 @@ const ClassScheduler = () => {
           </Button>
         </div>
       </div>
+
+      {/* Natural Language Quick Add */}
+      <NaturalLanguageInput onSuccess={fetchAllData} />
 
       {/* Quick Stats & Workload */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -585,91 +592,58 @@ const ClassScheduler = () => {
         </TabsContent>
 
         {/* Analytics Tab */}
-        <TabsContent value="analytics">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Workload Distribution</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Classes (Next 7 days)</span>
-                    <span className="font-semibold">{workload.classes_count}</span>
-                  </div>
-                  <Progress value={(workload.classes_count / 20) * 100} />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Homework Pending</span>
-                    <span className="font-semibold">{workload.homework_count}</span>
-                  </div>
-                  <Progress value={(workload.homework_count / 10) * 100} />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Upcoming Exams</span>
-                    <span className="font-semibold">{workload.exams_count}</span>
-                  </div>
-                  <Progress value={(workload.exams_count / 5) * 100} />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Estimated Study Hours</span>
-                    <span className="font-semibold">{workload.total_estimated_hours}h</span>
-                  </div>
-                  <Progress value={(workload.total_estimated_hours / 40) * 100} />
-                </div>
-              </CardContent>
-            </Card>
+        <TabsContent value="analytics" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* AI Insights */}
+            <div>
+              <AIInsightsPanel 
+                homework={homework}
+                exams={exams}
+                liveClasses={liveClasses}
+                workload={workload}
+              />
+            </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Insights</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="p-4 bg-primary/10 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Brain className="w-5 h-5 text-primary" />
-                    <h4 className="font-semibold">AI Recommendation</h4>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {workload.stress_level > 70
-                      ? "Your schedule looks quite busy. Consider rescheduling some non-urgent homework."
-                      : workload.stress_level > 40
-                      ? "Your workload is balanced. Keep up the good work!"
-                      : "You have some free time. Great opportunity to get ahead on upcoming work!"}
-                  </p>
-                </div>
+            {/* Study Buddies & Streaks */}
+            <div>
+              <StudyBuddyPanel homework={homework} />
+            </div>
 
-                <div className="p-4 bg-secondary rounded-lg">
-                  <h4 className="font-semibold mb-2">Study Statistics</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>Total Classes This Week</span>
-                      <span className="font-semibold">{liveClasses.length}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Homework Completion Rate</span>
-                      <span className="font-semibold">
-                        {homework.length > 0
-                          ? Math.round((homework.filter(h => h.status === "completed").length / homework.length) * 100)
-                          : 0}%
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Avg. Exam Preparation</span>
-                      <span className="font-semibold">
-                        {exams.length > 0
-                          ? Math.round(exams.reduce((sum, e) => sum + e.preparation_progress, 0) / exams.length)
-                          : 0}%
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Gamification */}
+            <div>
+              <GamificationStats homework={homework} exams={exams} />
+            </div>
           </div>
+
+          {/* Workload Trend Chart */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Weekly Workload Overview</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">This Week</span>
+                  <span className="text-sm font-medium">{workload.total_estimated_hours}h estimated</span>
+                </div>
+                <Progress value={(workload.total_estimated_hours / 40) * 100} />
+                <div className="grid grid-cols-3 gap-4 pt-4">
+                  <div className="text-center p-3 rounded-lg bg-blue-500/10">
+                    <div className="text-2xl font-bold text-blue-600">{workload.classes_count}</div>
+                    <p className="text-xs text-muted-foreground mt-1">Classes</p>
+                  </div>
+                  <div className="text-center p-3 rounded-lg bg-green-500/10">
+                    <div className="text-2xl font-bold text-green-600">{workload.homework_count}</div>
+                    <p className="text-xs text-muted-foreground mt-1">Homework</p>
+                  </div>
+                  <div className="text-center p-3 rounded-lg bg-purple-500/10">
+                    <div className="text-2xl font-bold text-purple-600">{workload.exams_count}</div>
+                    <p className="text-xs text-muted-foreground mt-1">Exams</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
 
