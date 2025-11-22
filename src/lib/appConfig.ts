@@ -2,10 +2,7 @@
 // This replaces hardcoded values with secure configuration
 
 export const appConfig = {
-  // Google OAuth Configuration
-  google: {
-    clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID || '1087645542223-tfnktqkgdlhpopmnq1v6i7m7fg37o3md.apps.googleusercontent.com',
-  },
+  // OAuth Configuration - Managed by backend
   
   // Security Configuration
   security: {
