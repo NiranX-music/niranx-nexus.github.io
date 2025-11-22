@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Send, Edit, Trash, Flag, MoreVertical } from "lucide-react";
+import { Send, Edit, Trash, Flag, MoreVertical, Reply, Forward, Pin, PinOff, X } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,10 +40,22 @@ interface Message {
   content: string;
   created_at: string;
   message_type?: string;
+  parent_message_id?: string | null;
+  is_forwarded?: boolean;
+  forwarded_from?: string | null;
   profiles?: {
     username: string;
     avatar_url: string | null;
     display_name?: string;
+  };
+  parent_message?: {
+    id: string;
+    content: string;
+    sender_id: string;
+    profiles?: {
+      username: string;
+      display_name?: string;
+    };
   };
 }
 
@@ -57,9 +70,12 @@ export default function Community() {
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [reportMessageId, setReportMessageId] = useState<string | null>(null);
   const [reportReason, setReportReason] = useState("");
+  const [replyingTo, setReplyingTo] = useState<Message | null>(null);
+  const [pinnedMessages, setPinnedMessages] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetchMessages();
+    fetchPinnedMessages();
     
     // Subscribe to new community messages
     const channel = supabase
@@ -76,12 +92,37 @@ export default function Community() {
           fetchMessages();
         }
       )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "pinned_messages",
+        },
+        () => {
+          fetchPinnedMessages();
+        }
+      )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  const fetchPinnedMessages = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("pinned_messages")
+        .select("message_id")
+        .eq("message_type", "community");
+
+      if (error) throw error;
+      setPinnedMessages(new Set((data || []).map(p => p.message_id)));
+    } catch (error) {
+      console.error("Error fetching pinned messages:", error);
+    }
+  };
 
   const fetchMessages = async () => {
     try {
@@ -92,7 +133,10 @@ export default function Community() {
           sender_id,
           content,
           created_at,
-          message_type
+          message_type,
+          parent_message_id,
+          is_forwarded,
+          forwarded_from
         `)
         .eq("message_type", "community")
         .order("created_at", { ascending: false })
@@ -103,11 +147,8 @@ export default function Community() {
       // Fetch sender profiles for all messages
       if (data && data.length > 0) {
         const senderIds = [...new Set(data.map(m => m.sender_id))];
-        const { data: profilesData } = await supabase
-          .rpc('get_public_user_info', { target_user_id: senderIds[0] });
-
-        // Fetch all profiles separately since we can't do complex joins
         const profilesMap = new Map();
+        
         for (const senderId of senderIds) {
           const { data: profile } = await supabase
             .from('profiles')
@@ -120,13 +161,35 @@ export default function Community() {
           }
         }
 
-        // Attach profiles to messages
+        // Fetch parent messages if they exist
+        const parentIds = [...new Set(data.filter(m => m.parent_message_id).map(m => m.parent_message_id!))];
+        const parentMessagesMap = new Map();
+        
+        if (parentIds.length > 0) {
+          const { data: parentData } = await supabase
+            .from('messages')
+            .select('id, content, sender_id')
+            .in('id', parentIds);
+          
+          if (parentData) {
+            for (const parent of parentData) {
+              const profile = profilesMap.get(parent.sender_id);
+              parentMessagesMap.set(parent.id, {
+                ...parent,
+                profiles: profile || { username: 'Unknown', display_name: 'Unknown' }
+              });
+            }
+          }
+        }
+
+        // Attach profiles and parent messages to messages
         const messagesWithProfiles = data.map(msg => ({
           ...msg,
-          profiles: profilesMap.get(msg.sender_id) || { username: 'Anonymous', avatar_url: null }
+          profiles: profilesMap.get(msg.sender_id) || { username: 'Anonymous', avatar_url: null },
+          parent_message: msg.parent_message_id ? parentMessagesMap.get(msg.parent_message_id) : undefined
         }));
 
-        setMessages(messagesWithProfiles);
+        setMessages(messagesWithProfiles as any);
       } else {
         setMessages([]);
       }
@@ -154,11 +217,13 @@ export default function Community() {
         receiver_id: user.id, // Using same ID for community messages
         content: newMessage.trim(),
         message_type: "community",
+        parent_message_id: replyingTo?.id || null,
       });
 
       if (error) throw error;
 
       setNewMessage("");
+      setReplyingTo(null);
       toast.success("Message sent!");
     } catch (error) {
       console.error("Error sending message:", error);
@@ -236,6 +301,36 @@ export default function Community() {
     }
   };
 
+  const handlePinMessage = async (messageId: string) => {
+    try {
+      if (pinnedMessages.has(messageId)) {
+        // Unpin
+        const { error } = await supabase
+          .from("pinned_messages")
+          .delete()
+          .eq("message_id", messageId);
+
+        if (error) throw error;
+        toast.success("Message unpinned");
+      } else {
+        // Pin
+        const { error } = await supabase
+          .from("pinned_messages")
+          .insert({
+            message_id: messageId,
+            pinned_by: user!.id,
+            message_type: "community",
+          });
+
+        if (error) throw error;
+        toast.success("Message pinned");
+      }
+    } catch (error) {
+      console.error("Error pinning message:", error);
+      toast.error("Failed to pin message");
+    }
+  };
+
   return (
     <div className="container mx-auto p-6 max-w-4xl">
       <div className="mb-6">
@@ -246,9 +341,27 @@ export default function Community() {
       </div>
 
       <Card className="p-4 mb-6">
+        {replyingTo && (
+          <div className="mb-3 p-2 bg-muted rounded-lg flex items-center gap-2">
+            <Reply className="w-4 h-4" />
+            <span className="text-sm">
+              Replying to <span className="font-semibold">
+                {replyingTo.profiles?.display_name || replyingTo.profiles?.username}
+              </span>
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setReplyingTo(null)}
+              className="ml-auto"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
         <form onSubmit={handleSendMessage} className="flex gap-2">
           <Textarea
-            placeholder="Share something with the community..."
+            placeholder={replyingTo ? "Write your reply..." : "Share something with the community..."}
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             className="min-h-[80px]"
@@ -258,6 +371,33 @@ export default function Community() {
           </Button>
         </form>
       </Card>
+
+      {/* Pinned Messages */}
+      {messages.filter(m => pinnedMessages.has(m.id)).length > 0 && (
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+            <Pin className="w-5 h-5" />
+            Pinned Messages
+          </h2>
+          <div className="space-y-3">
+            {messages
+              .filter(m => pinnedMessages.has(m.id))
+              .map(message => (
+                <Card key={message.id} className="p-3 bg-primary/5 border-primary/20">
+                  <div className="flex items-start gap-2">
+                    <Pin className="w-4 h-4 text-primary mt-1" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium">
+                        {message.profiles?.display_name || message.profiles?.username}
+                      </p>
+                      <p className="text-sm">{message.content}</p>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+          </div>
+        </div>
+      )}
 
       <div className="space-y-4">
         {loading ? (
@@ -285,7 +425,33 @@ export default function Community() {
                     <span className="text-xs text-muted-foreground">
                       {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
                     </span>
+                    {pinnedMessages.has(message.id) && (
+                      <Badge variant="secondary" className="text-xs gap-1">
+                        <Pin className="w-3 h-3" />
+                        Pinned
+                      </Badge>
+                    )}
+                    {message.is_forwarded && (
+                      <Badge variant="outline" className="text-xs gap-1">
+                        <Forward className="w-3 h-3" />
+                        Forwarded
+                      </Badge>
+                    )}
                   </div>
+                  
+                  {/* Reply context */}
+                  {message.parent_message && (
+                    <div className="mb-2 p-2 bg-muted/50 rounded border-l-2 border-primary">
+                      <p className="text-xs text-muted-foreground">
+                        <Reply className="w-3 h-3 inline mr-1" />
+                        Replying to <span className="font-medium">
+                          {(message.parent_message as any).profiles?.display_name || 
+                           (message.parent_message as any).profiles?.username}
+                        </span>
+                      </p>
+                      <p className="text-xs mt-1 line-clamp-2">{message.parent_message.content}</p>
+                    </div>
+                  )}
                   
                   {editingMessageId === message.id ? (
                     <div className="space-y-2">
@@ -314,6 +480,23 @@ export default function Community() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => setReplyingTo(message)}>
+                      <Reply className="h-4 w-4 mr-2" />
+                      Reply
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handlePinMessage(message.id)}>
+                      {pinnedMessages.has(message.id) ? (
+                        <>
+                          <PinOff className="h-4 w-4 mr-2" />
+                          Unpin
+                        </>
+                      ) : (
+                        <>
+                          <Pin className="h-4 w-4 mr-2" />
+                          Pin
+                        </>
+                      )}
+                    </DropdownMenuItem>
                     {message.sender_id === user?.id && (
                       <>
                         <DropdownMenuItem onClick={() => {

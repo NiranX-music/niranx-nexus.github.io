@@ -905,9 +905,13 @@ export type Database = {
           attachments: Json | null
           content: string
           created_at: string | null
+          forwarded_from: string | null
           id: string
+          is_forwarded: boolean | null
           is_read: boolean | null
           message_type: string | null
+          original_message_id: string | null
+          parent_message_id: string | null
           read_at: string | null
           receiver_id: string
           room_id: string | null
@@ -919,9 +923,13 @@ export type Database = {
           attachments?: Json | null
           content: string
           created_at?: string | null
+          forwarded_from?: string | null
           id?: string
+          is_forwarded?: boolean | null
           is_read?: boolean | null
           message_type?: string | null
+          original_message_id?: string | null
+          parent_message_id?: string | null
           read_at?: string | null
           receiver_id: string
           room_id?: string | null
@@ -933,9 +941,13 @@ export type Database = {
           attachments?: Json | null
           content?: string
           created_at?: string | null
+          forwarded_from?: string | null
           id?: string
+          is_forwarded?: boolean | null
           is_read?: boolean | null
           message_type?: string | null
+          original_message_id?: string | null
+          parent_message_id?: string | null
           read_at?: string | null
           receiver_id?: string
           room_id?: string | null
@@ -944,6 +956,13 @@ export type Database = {
           voice_duration?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "messages_parent_message_id_fkey"
+            columns: ["parent_message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "messages_room_id_fkey"
             columns: ["room_id"]
@@ -1102,6 +1121,48 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      pinned_messages: {
+        Row: {
+          id: string
+          message_id: string
+          message_type: string
+          pinned_at: string | null
+          pinned_by: string
+          room_id: string | null
+        }
+        Insert: {
+          id?: string
+          message_id: string
+          message_type?: string
+          pinned_at?: string | null
+          pinned_by: string
+          room_id?: string | null
+        }
+        Update: {
+          id?: string
+          message_id?: string
+          message_type?: string
+          pinned_at?: string | null
+          pinned_by?: string
+          room_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pinned_messages_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: true
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pinned_messages_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "chat_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       privacy_settings: {
         Row: {
