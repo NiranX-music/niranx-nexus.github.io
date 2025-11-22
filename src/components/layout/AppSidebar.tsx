@@ -50,6 +50,7 @@ import {
   StarOff,
   UserPlus,
   ScrollText,
+  ShieldCheck,
 } from "lucide-react";
 import {
   Sidebar,
@@ -75,6 +76,7 @@ import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useFavorites } from "@/hooks/useFavorites";
 import { DraggableFavorites } from "@/components/DraggableFavorites";
 import { getValidIconOrFallback } from "@/lib/iconValidator";
+import { MasterPasswordDialog } from "@/components/MasterPasswordDialog";
 
 // Core Navigation
 const coreNavigation = [
@@ -189,6 +191,7 @@ export function AppSidebar() {
   const { favorites, addFavorite, removeFavorite, isFavorite, reorderFavorites } = useFavorites();
   
   const [searchQuery, setSearchQuery] = useState("");
+  const [showMasterPasswordDialog, setShowMasterPasswordDialog] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     favorites: true,
     study: true,
@@ -548,7 +551,24 @@ export function AppSidebar() {
             </CollapsibleTrigger>
             <CollapsibleContent>
               <SidebarGroupContent>
-                <SidebarMenu>{renderNavItems(systemNavigation)}</SidebarMenu>
+                <SidebarMenu>
+                  {renderNavItems(systemNavigation)}
+                  
+                  {/* Master Password Admin Access - Only for non-admins */}
+                  {!adminLoading && !isAdmin && (
+                    <SidebarMenuItem>
+                      <SidebarMenuButton asChild className="text-white [&_svg]:text-white">
+                        <button
+                          onClick={() => setShowMasterPasswordDialog(true)}
+                          className="flex items-center gap-3 rounded-lg px-3 py-2 transition-all w-full text-left group text-destructive hover:bg-destructive/10 border border-destructive/20"
+                        >
+                          <ShieldCheck className="h-4 w-4" />
+                          {!isCollapsed && <span className="flex-1">Admin (Master)</span>}
+                        </button>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )}
+                </SidebarMenu>
               </SidebarGroupContent>
             </CollapsibleContent>
           </SidebarGroup>
@@ -606,6 +626,12 @@ export function AppSidebar() {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
+
+      {/* Master Password Dialog */}
+      <MasterPasswordDialog
+        open={showMasterPasswordDialog}
+        onOpenChange={setShowMasterPasswordDialog}
+      />
     </Sidebar>
   );
 }
