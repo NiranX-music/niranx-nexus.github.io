@@ -5,12 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Repeat } from "lucide-react";
 
 interface AddItemDialogProps {
   open: boolean;
@@ -32,7 +34,21 @@ export const AddItemDialog = ({ open, onOpenChange, type, onSuccess }: AddItemDi
     classLink: "",
     estimatedTime: "",
     priority: "medium",
+    isRecurring: false,
+    recurringPattern: "weekly",
+    recurringDays: [] as number[],
+    recurringEndDate: null as Date | null,
   });
+
+  const weekDays = [
+    { value: 0, label: "Sun" },
+    { value: 1, label: "Mon" },
+    { value: 2, label: "Tue" },
+    { value: 3, label: "Wed" },
+    { value: 4, label: "Thu" },
+    { value: 5, label: "Fri" },
+    { value: 6, label: "Sat" },
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,6 +75,10 @@ export const AddItemDialog = ({ open, onOpenChange, type, onSuccess }: AddItemDi
           start_time: startDateTime.toISOString(),
           end_time: endDateTime.toISOString(),
           status: "upcoming",
+          is_recurring: formData.isRecurring,
+          recurring_pattern: formData.isRecurring ? formData.recurringPattern : null,
+          recurring_days: formData.isRecurring && formData.recurringPattern === "custom" ? formData.recurringDays : null,
+          recurring_end_date: formData.isRecurring && formData.recurringEndDate ? format(formData.recurringEndDate, "yyyy-MM-dd") : null,
         });
 
         if (error) throw error;
@@ -98,6 +118,10 @@ export const AddItemDialog = ({ open, onOpenChange, type, onSuccess }: AddItemDi
         classLink: "",
         estimatedTime: "",
         priority: "medium",
+        isRecurring: false,
+        recurringPattern: "weekly",
+        recurringDays: [],
+        recurringEndDate: null,
       });
     } catch (error) {
       toast({
@@ -205,6 +229,105 @@ export const AddItemDialog = ({ open, onOpenChange, type, onSuccess }: AddItemDi
                   onChange={(e) => setFormData({ ...formData, classLink: e.target.value })}
                   placeholder="https://..."
                 />
+              </div>
+
+              {/* Recurring Options */}
+              <div className="space-y-4 p-4 border rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Repeat className="w-4 h-4" />
+                    <Label htmlFor="isRecurring">Recurring Class</Label>
+                  </div>
+                  <Switch
+                    id="isRecurring"
+                    checked={formData.isRecurring}
+                    onCheckedChange={(checked) => setFormData({ ...formData, isRecurring: checked })}
+                  />
+                </div>
+
+                {formData.isRecurring && (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="recurringPattern">Repeat Pattern</Label>
+                      <Select
+                        value={formData.recurringPattern}
+                        onValueChange={(value) => setFormData({ ...formData, recurringPattern: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="daily">Every Day</SelectItem>
+                          <SelectItem value="weekly">Every Week (Same Day)</SelectItem>
+                          <SelectItem value="custom">Custom Days</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {formData.recurringPattern === "custom" && (
+                      <div className="space-y-2">
+                        <Label>Repeat On</Label>
+                        <div className="flex gap-2 flex-wrap">
+                          {weekDays.map((day) => (
+                            <div key={day.value} className="flex items-center space-x-2">
+                              <Checkbox
+                                id={`day-${day.value}`}
+                                checked={formData.recurringDays.includes(day.value)}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setFormData({
+                                      ...formData,
+                                      recurringDays: [...formData.recurringDays, day.value].sort()
+                                    });
+                                  } else {
+                                    setFormData({
+                                      ...formData,
+                                      recurringDays: formData.recurringDays.filter((d: number) => d !== day.value)
+                                    });
+                                  }
+                                }}
+                              />
+                              <label
+                                htmlFor={`day-${day.value}`}
+                                className="text-sm font-medium leading-none cursor-pointer"
+                              >
+                                {day.label}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="space-y-2">
+                      <Label>Repeat Until (Optional)</Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="w-full justify-start">
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {formData.recurringEndDate ? format(formData.recurringEndDate, "PPP") : "No end date"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar
+                            mode="single"
+                            selected={formData.recurringEndDate}
+                            onSelect={(date) => setFormData({ ...formData, recurringEndDate: date })}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      {formData.recurringEndDate && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setFormData({ ...formData, recurringEndDate: null })}
+                        >
+                          Clear end date
+                        </Button>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
             </>
           ) : (

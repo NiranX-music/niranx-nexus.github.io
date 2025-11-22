@@ -923,8 +923,12 @@ export type Database = {
           created_at: string | null
           end_time: string
           id: string
+          is_recurring: boolean | null
           notes: string | null
           recording_url: string | null
+          recurring_days: number[] | null
+          recurring_end_date: string | null
+          recurring_pattern: string | null
           start_time: string
           status: string | null
           subject: string
@@ -937,8 +941,12 @@ export type Database = {
           created_at?: string | null
           end_time: string
           id?: string
+          is_recurring?: boolean | null
           notes?: string | null
           recording_url?: string | null
+          recurring_days?: number[] | null
+          recurring_end_date?: string | null
+          recurring_pattern?: string | null
           start_time: string
           status?: string | null
           subject: string
@@ -951,8 +959,12 @@ export type Database = {
           created_at?: string | null
           end_time?: string
           id?: string
+          is_recurring?: boolean | null
           notes?: string | null
           recording_url?: string | null
+          recurring_days?: number[] | null
+          recurring_end_date?: string | null
+          recurring_pattern?: string | null
           start_time?: string
           status?: string | null
           subject?: string
