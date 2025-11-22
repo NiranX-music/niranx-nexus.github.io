@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
-import { RightSidebar } from "./RightSidebar";
 import { NowPlaying } from "./NowPlaying";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { NotificationCenter } from "@/components/NotificationCenter";
@@ -160,7 +159,6 @@ export function AppLayout({ children }: AppLayoutProps) {
             {children}
           </div>
         </SidebarInset>
-        <RightSidebar />
         <NowPlaying />
         <MobileBottomNav />
         <CommandPalette open={commandPaletteOpen} onOpenChange={setCommandPaletteOpen} />
