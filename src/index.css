@@ -564,5 +564,72 @@
     .sidebar-mobile-hidden {
       @apply hidden;
     }
+    
+    /* Ensure cards stack properly on mobile */
+    .card {
+      @apply mb-4;
+    }
+    
+    /* Mobile-optimized spacing */
+    .container {
+      @apply px-4;
+    }
+    
+    /* Mobile grid adjustments */
+    .grid {
+      @apply gap-3;
+    }
+  }
+  
+  /* Tablet optimization */
+  @media (min-width: 768px) and (max-width: 1024px) {
+    .tablet-optimize {
+      @apply px-6;
+    }
+  }
+  
+  /* Mobile utility classes */
+  .mobile-responsive {
+    @apply text-sm md:text-base lg:text-lg;
+  }
+  
+  .mobile-title {
+    @apply text-xl md:text-2xl lg:text-3xl font-bold;
+  }
+  
+  .mobile-subtitle {
+    @apply text-base md:text-lg lg:text-xl font-semibold;
+  }
+  
+  .mobile-padding {
+    @apply p-4 md:p-6 lg:p-8;
+  }
+  
+  .mobile-margin {
+    @apply m-4 md:m-6 lg:m-8;
+  }
+  
+  .mobile-flex {
+    @apply flex flex-col md:flex-row gap-4;
+  }
+  
+  .mobile-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4;
+  }
+  
+  .mobile-hide {
+    @apply hidden md:block;
+  }
+  
+  .mobile-show {
+    @apply block md:hidden;
+  }
+  
+  /* Touch-friendly buttons on mobile */
+  @media (max-width: 768px) {
+    button, a {
+      min-height: 44px; /* iOS minimum touch target */
+      min-width: 44px;
+    }
   }
 }
