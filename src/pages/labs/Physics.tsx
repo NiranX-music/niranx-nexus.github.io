@@ -3,8 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Slider } from '@/components/ui/slider';
-import { ArrowLeft, Atom, Zap, Radio, Magnet } from 'lucide-react';
+import { ArrowLeft, Atom, Zap, Radio, Magnet, ClipboardList, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { LabQuiz } from '@/components/labs/LabQuiz';
+import { LabNotebook } from '@/components/labs/LabNotebook';
+import { physicsQuestions } from '@/data/quizQuestions';
 
 export default function Physics() {
   const navigate = useNavigate();
@@ -36,7 +39,7 @@ export default function Physics() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 lg:w-auto">
+        <TabsList className="grid w-full grid-cols-6 lg:w-auto">
           <TabsTrigger value="pendulum" className="flex items-center gap-2">
             <Magnet className="w-4 h-4" />
             Pendulum
@@ -52,6 +55,14 @@ export default function Physics() {
           <TabsTrigger value="projectile" className="flex items-center gap-2">
             <Atom className="w-4 h-4" />
             Projectile
+          </TabsTrigger>
+          <TabsTrigger value="quiz" className="flex items-center gap-2">
+            <ClipboardList className="w-4 h-4" />
+            Quiz
+          </TabsTrigger>
+          <TabsTrigger value="notebook" className="flex items-center gap-2">
+            <BookOpen className="w-4 h-4" />
+            Notebook
           </TabsTrigger>
         </TabsList>
 
@@ -313,6 +324,14 @@ export default function Physics() {
               </Card>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="quiz">
+          <LabQuiz labType="physics" quizId="physics-basics" questions={physicsQuestions} />
+        </TabsContent>
+
+        <TabsContent value="notebook">
+          <LabNotebook labType="physics" />
         </TabsContent>
       </Tabs>
     </div>

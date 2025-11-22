@@ -2,8 +2,11 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Dna, Microscope, Activity } from 'lucide-react';
+import { ArrowLeft, Dna, Microscope, Activity, ClipboardList, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { LabQuiz } from '@/components/labs/LabQuiz';
+import { LabNotebook } from '@/components/labs/LabNotebook';
+import { biologyQuestions } from '@/data/quizQuestions';
 
 export default function Biology() {
   const navigate = useNavigate();
@@ -31,18 +34,26 @@ export default function Biology() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 lg:w-auto">
+        <TabsList className="grid w-full grid-cols-5 lg:w-auto">
           <TabsTrigger value="cell-structure" className="flex items-center gap-2">
             <Microscope className="w-4 h-4" />
-            Cell Structure
+            Cells
           </TabsTrigger>
           <TabsTrigger value="dna" className="flex items-center gap-2">
             <Dna className="w-4 h-4" />
-            DNA Models
+            DNA
           </TabsTrigger>
           <TabsTrigger value="systems" className="flex items-center gap-2">
             <Activity className="w-4 h-4" />
-            Body Systems
+            Systems
+          </TabsTrigger>
+          <TabsTrigger value="quiz" className="flex items-center gap-2">
+            <ClipboardList className="w-4 h-4" />
+            Quiz
+          </TabsTrigger>
+          <TabsTrigger value="notebook" className="flex items-center gap-2">
+            <BookOpen className="w-4 h-4" />
+            Notebook
           </TabsTrigger>
         </TabsList>
 
@@ -244,6 +255,14 @@ export default function Biology() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="quiz">
+          <LabQuiz labType="biology" quizId="biology-basics" questions={biologyQuestions} />
+        </TabsContent>
+
+        <TabsContent value="notebook">
+          <LabNotebook labType="biology" />
         </TabsContent>
       </Tabs>
     </div>
