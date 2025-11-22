@@ -315,18 +315,18 @@ export function AppSidebar() {
   );
 
   return (
-    <Sidebar className="border-r border-sidebar-border bg-gradient-to-b from-sidebar/95 via-sidebar/90 to-background/80 backdrop-blur-xl hidden md:flex">
-      <SidebarHeader className="border-b border-sidebar-border/80 p-4">
+    <Sidebar className="border-r border-sidebar-border bg-gradient-to-br from-sidebar via-sidebar/95 to-background backdrop-blur-2xl hidden md:flex shadow-2xl">
+      <SidebarHeader className="border-b border-sidebar-border/50 p-4 bg-gradient-to-r from-primary/10 via-purple-500/10 to-blue-500/10">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-purple-600">
-            <Zap className="h-5 w-5 text-white" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary via-purple-600 to-blue-600 shadow-lg shadow-primary/20">
+            <Zap className="h-6 w-6 text-white animate-pulse" />
           </div>
           {!isCollapsed && (
             <div className="flex-1">
-              <h1 className="font-bold text-lg text-white">
+              <h1 className="font-bold text-xl bg-gradient-to-r from-primary via-purple-400 to-blue-400 bg-clip-text text-transparent">
                 NiranX
               </h1>
-              <p className="text-xs text-white/70">StudyVerse</p>
+              <p className="text-xs text-white/60 font-medium">StudyVerse Platform</p>
             </div>
           )}
         </div>
@@ -401,7 +401,10 @@ export function AppSidebar() {
 
         {/* Core */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-white font-semibold">Core</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-white/90 font-bold text-sm uppercase tracking-wider flex items-center gap-2 px-2 py-3 bg-gradient-to-r from-primary/20 to-transparent rounded-lg">
+            <Sparkles className="h-4 w-4 text-primary" />
+            {!isCollapsed && "Core"}
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>{renderNavItems(coreNavigation)}</SidebarMenu>
           </SidebarGroupContent>
@@ -411,9 +414,12 @@ export function AppSidebar() {
         <Collapsible open={expandedSections.study} onOpenChange={() => toggleSection('study')}>
           <SidebarGroup>
             <CollapsibleTrigger asChild>
-              <SidebarGroupLabel className="cursor-pointer hover:bg-sidebar-accent/60 rounded px-2 -mx-2 flex items-center justify-between text-white font-semibold">
-                <span>Study & Focus</span>
-                <ChevronDown className={`h-4 w-4 transition-transform text-white ${expandedSections.study ? '' : '-rotate-90'}`} />
+              <SidebarGroupLabel className="cursor-pointer hover:bg-primary/20 rounded-lg px-2 -mx-2 flex items-center justify-between text-white/90 font-bold text-sm uppercase tracking-wider transition-all duration-200 py-3 bg-gradient-to-r from-blue-500/20 to-transparent">
+                <span className="flex items-center gap-2">
+                  <GraduationCap className="h-4 w-4 text-blue-400" />
+                  {!isCollapsed && "Study & Focus"}
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform text-white/70 ${expandedSections.study ? '' : '-rotate-90'}`} />
               </SidebarGroupLabel>
             </CollapsibleTrigger>
             <CollapsibleContent>
@@ -428,9 +434,12 @@ export function AppSidebar() {
         <Collapsible open={expandedSections.progress} onOpenChange={() => toggleSection('progress')}>
           <SidebarGroup>
             <CollapsibleTrigger asChild>
-              <SidebarGroupLabel className="cursor-pointer hover:bg-sidebar-accent/60 rounded px-2 -mx-2 flex items-center justify-between text-white font-semibold">
-                <span>Progress & Rewards</span>
-                <ChevronDown className={`h-4 w-4 transition-transform text-white ${expandedSections.progress ? '' : '-rotate-90'}`} />
+              <SidebarGroupLabel className="cursor-pointer hover:bg-primary/20 rounded-lg px-2 -mx-2 flex items-center justify-between text-white/90 font-bold text-sm uppercase tracking-wider transition-all duration-200 py-3 bg-gradient-to-r from-yellow-500/20 to-transparent">
+                <span className="flex items-center gap-2">
+                  <Trophy className="h-4 w-4 text-yellow-400" />
+                  {!isCollapsed && "Progress & Rewards"}
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform text-white/70 ${expandedSections.progress ? '' : '-rotate-90'}`} />
               </SidebarGroupLabel>
             </CollapsibleTrigger>
             <CollapsibleContent>
@@ -445,9 +454,12 @@ export function AppSidebar() {
         <Collapsible open={expandedSections.media} onOpenChange={() => toggleSection('media')}>
           <SidebarGroup>
             <CollapsibleTrigger asChild>
-              <SidebarGroupLabel className="cursor-pointer hover:bg-sidebar-accent/60 rounded px-2 -mx-2 flex items-center justify-between text-white font-semibold">
-                <span>Media</span>
-                <ChevronDown className={`h-4 w-4 transition-transform text-white ${expandedSections.media ? '' : '-rotate-90'}`} />
+              <SidebarGroupLabel className="cursor-pointer hover:bg-primary/20 rounded-lg px-2 -mx-2 flex items-center justify-between text-white/90 font-bold text-sm uppercase tracking-wider transition-all duration-200 py-3 bg-gradient-to-r from-purple-500/20 to-transparent">
+                <span className="flex items-center gap-2">
+                  <Music className="h-4 w-4 text-purple-400" />
+                  {!isCollapsed && "Media"}
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform text-white/70 ${expandedSections.media ? '' : '-rotate-90'}`} />
               </SidebarGroupLabel>
             </CollapsibleTrigger>
             <CollapsibleContent>
@@ -462,9 +474,12 @@ export function AppSidebar() {
         <Collapsible open={expandedSections.files} onOpenChange={() => toggleSection('files')}>
           <SidebarGroup>
             <CollapsibleTrigger asChild>
-              <SidebarGroupLabel className="cursor-pointer hover:bg-sidebar-accent/60 rounded px-2 -mx-2 flex items-center justify-between text-white font-semibold">
-                <span>Files & Cloud</span>
-                <ChevronDown className={`h-4 w-4 transition-transform text-white ${expandedSections.files ? '' : '-rotate-90'}`} />
+              <SidebarGroupLabel className="cursor-pointer hover:bg-primary/20 rounded-lg px-2 -mx-2 flex items-center justify-between text-white/90 font-bold text-sm uppercase tracking-wider transition-all duration-200 py-3 bg-gradient-to-r from-green-500/20 to-transparent">
+                <span className="flex items-center gap-2">
+                  <Cloud className="h-4 w-4 text-green-400" />
+                  {!isCollapsed && "Files & Cloud"}
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform text-white/70 ${expandedSections.files ? '' : '-rotate-90'}`} />
               </SidebarGroupLabel>
             </CollapsibleTrigger>
             <CollapsibleContent>
@@ -479,9 +494,12 @@ export function AppSidebar() {
         <Collapsible open={expandedSections.social} onOpenChange={() => toggleSection('social')}>
           <SidebarGroup>
             <CollapsibleTrigger asChild>
-              <SidebarGroupLabel className="cursor-pointer hover:bg-sidebar-accent/60 rounded px-2 -mx-2 flex items-center justify-between text-white font-semibold">
-                <span>Social & Community</span>
-                <ChevronDown className={`h-4 w-4 transition-transform text-white ${expandedSections.social ? '' : '-rotate-90'}`} />
+              <SidebarGroupLabel className="cursor-pointer hover:bg-primary/20 rounded-lg px-2 -mx-2 flex items-center justify-between text-white/90 font-bold text-sm uppercase tracking-wider transition-all duration-200 py-3 bg-gradient-to-r from-pink-500/20 to-transparent">
+                <span className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-pink-400" />
+                  {!isCollapsed && "Social & Community"}
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform text-white/70 ${expandedSections.social ? '' : '-rotate-90'}`} />
               </SidebarGroupLabel>
             </CollapsibleTrigger>
             <CollapsibleContent>
@@ -496,9 +514,12 @@ export function AppSidebar() {
         <Collapsible open={expandedSections.tools} onOpenChange={() => toggleSection('tools')}>
           <SidebarGroup>
             <CollapsibleTrigger asChild>
-              <SidebarGroupLabel className="cursor-pointer hover:bg-sidebar-accent/60 rounded px-2 -mx-2 flex items-center justify-between text-white font-semibold">
-                <span>Tools & Utilities</span>
-                <ChevronDown className={`h-4 w-4 transition-transform text-white ${expandedSections.tools ? '' : '-rotate-90'}`} />
+              <SidebarGroupLabel className="cursor-pointer hover:bg-primary/20 rounded-lg px-2 -mx-2 flex items-center justify-between text-white/90 font-bold text-sm uppercase tracking-wider transition-all duration-200 py-3 bg-gradient-to-r from-cyan-500/20 to-transparent">
+                <span className="flex items-center gap-2">
+                  <Settings className="h-4 w-4 text-cyan-400" />
+                  {!isCollapsed && "Tools & Utilities"}
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform text-white/70 ${expandedSections.tools ? '' : '-rotate-90'}`} />
               </SidebarGroupLabel>
             </CollapsibleTrigger>
             <CollapsibleContent>
@@ -513,9 +534,12 @@ export function AppSidebar() {
         <Collapsible open={expandedSections.external} onOpenChange={() => toggleSection('external')}>
           <SidebarGroup>
             <CollapsibleTrigger asChild>
-              <SidebarGroupLabel className="cursor-pointer hover:bg-sidebar-accent/60 rounded px-2 -mx-2 flex items-center justify-between text-white font-semibold">
-                <span>Quick Links</span>
-                <ChevronDown className={`h-4 w-4 transition-transform text-white ${expandedSections.external ? '' : '-rotate-90'}`} />
+              <SidebarGroupLabel className="cursor-pointer hover:bg-primary/20 rounded-lg px-2 -mx-2 flex items-center justify-between text-white/90 font-bold text-sm uppercase tracking-wider transition-all duration-200 py-3 bg-gradient-to-r from-orange-500/20 to-transparent">
+                <span className="flex items-center gap-2">
+                  <ExternalLink className="h-4 w-4 text-orange-400" />
+                  {!isCollapsed && "Quick Links"}
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform text-white/70 ${expandedSections.external ? '' : '-rotate-90'}`} />
               </SidebarGroupLabel>
             </CollapsibleTrigger>
             <CollapsibleContent>
@@ -531,9 +555,12 @@ export function AppSidebar() {
           <Collapsible open={expandedSections.admin} onOpenChange={() => toggleSection('admin')}>
             <SidebarGroup>
               <CollapsibleTrigger asChild>
-                <SidebarGroupLabel className="cursor-pointer hover:bg-sidebar-accent/60 rounded px-2 -mx-2 flex items-center justify-between text-white font-semibold">
-                  <span>Admin</span>
-                  <ChevronDown className={`h-4 w-4 transition-transform text-white ${expandedSections.admin ? '' : '-rotate-90'}`} />
+                <SidebarGroupLabel className="cursor-pointer hover:bg-red-500/20 rounded-lg px-2 -mx-2 flex items-center justify-between text-white/90 font-bold text-sm uppercase tracking-wider transition-all duration-200 py-3 bg-gradient-to-r from-red-500/20 to-transparent border border-red-500/20">
+                  <span className="flex items-center gap-2">
+                    <ShieldCheck className="h-4 w-4 text-red-400" />
+                    {!isCollapsed && "Admin"}
+                  </span>
+                  <ChevronDown className={`h-4 w-4 transition-transform text-white/70 ${expandedSections.admin ? '' : '-rotate-90'}`} />
                 </SidebarGroupLabel>
               </CollapsibleTrigger>
               <CollapsibleContent>
