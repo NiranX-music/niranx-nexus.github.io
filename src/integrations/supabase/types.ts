@@ -61,30 +61,48 @@ export type Database = {
       }
       achievements: {
         Row: {
+          category: string | null
           created_at: string | null
           description: string | null
+          hidden: boolean | null
           icon: string | null
           id: string
+          image_url: string | null
           name: string
+          rarity: string | null
           requirement_value: number | null
+          reward_currency: number | null
+          reward_xp: number | null
           type: string | null
         }
         Insert: {
+          category?: string | null
           created_at?: string | null
           description?: string | null
+          hidden?: boolean | null
           icon?: string | null
           id?: string
+          image_url?: string | null
           name: string
+          rarity?: string | null
           requirement_value?: number | null
+          reward_currency?: number | null
+          reward_xp?: number | null
           type?: string | null
         }
         Update: {
+          category?: string | null
           created_at?: string | null
           description?: string | null
+          hidden?: boolean | null
           icon?: string | null
           id?: string
+          image_url?: string | null
           name?: string
+          rarity?: string | null
           requirement_value?: number | null
+          reward_currency?: number | null
+          reward_xp?: number | null
           type?: string | null
         }
         Relationships: []
@@ -1352,9 +1370,11 @@ export type Database = {
       }
       leaderboard_entries: {
         Row: {
+          category: string | null
           created_at: string | null
           id: string
           leaderboard_type: string
+          metadata: Json | null
           period_end: string
           period_start: string
           rank: number | null
@@ -1363,9 +1383,11 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          category?: string | null
           created_at?: string | null
           id?: string
           leaderboard_type: string
+          metadata?: Json | null
           period_end: string
           period_start: string
           rank?: number | null
@@ -1374,9 +1396,11 @@ export type Database = {
           user_id: string
         }
         Update: {
+          category?: string | null
           created_at?: string | null
           id?: string
           leaderboard_type?: string
+          metadata?: Json | null
           period_end?: string
           period_start?: string
           rank?: number | null
@@ -2551,33 +2575,48 @@ export type Database = {
       }
       store_items: {
         Row: {
+          category: string | null
           created_at: string | null
+          data: Json | null
           description: string | null
           id: string
           image_url: string | null
+          is_active: boolean | null
           is_available: boolean | null
           item_type: string
           name: string
+          price_coins: number | null
+          price_gems: number | null
           xp_cost: number
         }
         Insert: {
+          category?: string | null
           created_at?: string | null
+          data?: Json | null
           description?: string | null
           id?: string
           image_url?: string | null
+          is_active?: boolean | null
           is_available?: boolean | null
           item_type: string
           name: string
+          price_coins?: number | null
+          price_gems?: number | null
           xp_cost: number
         }
         Update: {
+          category?: string | null
           created_at?: string | null
+          data?: Json | null
           description?: string | null
           id?: string
           image_url?: string | null
+          is_active?: boolean | null
           is_available?: boolean | null
           item_type?: string
           name?: string
+          price_coins?: number | null
+          price_gems?: number | null
           xp_cost?: number
         }
         Relationships: []
@@ -3061,6 +3100,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_currency: {
+        Row: {
+          coins: number | null
+          created_at: string | null
+          gems: number | null
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          coins?: number | null
+          created_at?: string | null
+          gems?: number | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          coins?: number | null
+          created_at?: string | null
+          gems?: number | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_favorites: {
         Row: {
           created_at: string | null
@@ -3478,6 +3544,27 @@ export type Database = {
           avg_xp: number | null
           new_users_month: number | null
           total_users: number | null
+        }
+        Relationships: []
+      }
+      leaderboard_rankings: {
+        Row: {
+          alltime_rank: number | null
+          avatar_url: string | null
+          category: string | null
+          created_at: string | null
+          full_name: string | null
+          id: string | null
+          leaderboard_type: string | null
+          metadata: Json | null
+          monthly_rank: number | null
+          period_end: string | null
+          period_start: string | null
+          rank: number | null
+          score: number | null
+          updated_at: string | null
+          user_id: string | null
+          weekly_rank: number | null
         }
         Relationships: []
       }
