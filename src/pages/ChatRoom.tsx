@@ -95,11 +95,14 @@ export default function ChatRoom() {
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState(false);
   const [lastSeen, setLastSeen] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [typingUsers, setTypingUsers] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const voiceRecorderRef = useRef<VoiceRecorder | null>(null);
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -189,6 +192,14 @@ export default function ChatRoom() {
           }
         }
       )
+      .on('presence', { event: 'sync' }, () => {
+        const state = channel.presenceState();
+        const typing = Object.values(state)
+          .flat()
+          .filter((presence: any) => presence.typing && presence.user_id !== user.id)
+          .map((presence: any) => presence.display_name || presence.username);
+        setTypingUsers(typing as string[]);
+      })
       .subscribe();
 
     return () => {
@@ -434,10 +445,39 @@ export default function ChatRoom() {
     return uploadedFiles;
   };
 
+  const handleTyping = async () => {
+    if (!user || !chatId) return;
+
+    const channel = supabase.channel(`chat-${chatId}`);
+    await channel.track({
+      user_id: user.id,
+      display_name: chatPartner?.display_name || chatPartner?.username || 'User',
+      typing: true
+    });
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    typingTimeoutRef.current = setTimeout(async () => {
+      await channel.track({
+        user_id: user.id,
+        typing: false
+      });
+    }, 2000);
+  };
+
   const sendMessage = async () => {
     if ((!newMessage.trim() && selectedFiles.length === 0) || !chatId || !user) return;
 
     try {
+      // Clear typing indicator
+      const channel = supabase.channel(`chat-${chatId}`);
+      await channel.track({
+        user_id: user.id,
+        typing: false
+      });
+
       const attachments = await uploadFiles();
 
       const { error } = await supabase
@@ -629,13 +669,11 @@ export default function ChatRoom() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon">
-                <Phone className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="icon">
-                <Video className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="icon">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => setSearchQuery(searchQuery ? "" : "search")}
+              >
                 <Search className="h-4 w-4" />
               </Button>
               <Button variant="ghost" size="icon">
@@ -646,13 +684,30 @@ export default function ChatRoom() {
               </Button>
             </div>
           </div>
+          {searchQuery && (
+            <div className="mt-3 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search messages..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          )}
         </CardHeader>
       </Card>
 
       {/* Messages */}
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-4">
-          {messages.map((message) => (
+          {messages
+            .filter(msg => 
+              !searchQuery || searchQuery === "search" ||
+              msg.content.toLowerCase().includes(searchQuery.toLowerCase())
+            )
+            .map((message) => (
             <div
               key={message.id}
               className={`flex ${
@@ -789,6 +844,11 @@ export default function ChatRoom() {
               </div>
             </div>
           ))}
+          {typingUsers.length > 0 && (
+            <div className="text-sm text-muted-foreground italic pl-4">
+              {typingUsers.join(", ")} {typingUsers.length === 1 ? "is" : "are"} typing...
+            </div>
+          )}
           <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
@@ -861,8 +921,16 @@ export default function ChatRoom() {
                   <Input
                     placeholder="Type a message..."
                     value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
+                    onChange={(e) => {
+                      setNewMessage(e.target.value);
+                      handleTyping();
+                    }}
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                      }
+                    }}
                     className="flex-1"
                     disabled={uploading}
                   />

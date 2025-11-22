@@ -5,9 +5,33 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Send } from "lucide-react";
+import { Send, Edit, Trash, Flag, MoreVertical } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Message {
   id: string;
@@ -27,6 +51,12 @@ export default function Community() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState("");
+  const [deleteMessageId, setDeleteMessageId] = useState<string | null>(null);
+  const [reportDialogOpen, setReportDialogOpen] = useState(false);
+  const [reportMessageId, setReportMessageId] = useState<string | null>(null);
+  const [reportReason, setReportReason] = useState("");
 
   useEffect(() => {
     fetchMessages();
@@ -136,6 +166,76 @@ export default function Community() {
     }
   };
 
+  const handleEditMessage = async () => {
+    if (!editingMessageId || !editContent.trim()) return;
+
+    try {
+      const { error } = await supabase
+        .from("messages")
+        .update({ content: editContent.trim() })
+        .eq("id", editingMessageId);
+
+      if (error) throw error;
+
+      setMessages(messages.map(msg => 
+        msg.id === editingMessageId ? { ...msg, content: editContent.trim() } : msg
+      ));
+      setEditingMessageId(null);
+      setEditContent("");
+      toast.success("Message updated!");
+    } catch (error) {
+      console.error("Error updating message:", error);
+      toast.error("Failed to update message");
+    }
+  };
+
+  const handleDeleteMessage = async () => {
+    if (!deleteMessageId) return;
+
+    try {
+      const { error } = await supabase
+        .from("messages")
+        .delete()
+        .eq("id", deleteMessageId);
+
+      if (error) throw error;
+
+      setMessages(messages.filter(msg => msg.id !== deleteMessageId));
+      setDeleteMessageId(null);
+      toast.success("Message deleted!");
+    } catch (error) {
+      console.error("Error deleting message:", error);
+      toast.error("Failed to delete message");
+    }
+  };
+
+  const handleReportMessage = async () => {
+    if (!reportMessageId || !reportReason.trim()) {
+      toast.error("Please provide a reason for reporting");
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("message_reports")
+        .insert({
+          message_id: reportMessageId,
+          reported_by: user!.id,
+          reason: reportReason.trim(),
+        });
+
+      if (error) throw error;
+
+      setReportDialogOpen(false);
+      setReportMessageId(null);
+      setReportReason("");
+      toast.success("Message reported to admins");
+    } catch (error) {
+      console.error("Error reporting message:", error);
+      toast.error("Failed to report message");
+    }
+  };
+
   return (
     <div className="container mx-auto p-6 max-w-4xl">
       <div className="mb-6">
@@ -186,13 +286,107 @@ export default function Community() {
                       {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
                     </span>
                   </div>
-                  <p className="text-sm break-words whitespace-pre-wrap">{message.content}</p>
+                  
+                  {editingMessageId === message.id ? (
+                    <div className="space-y-2">
+                      <Textarea
+                        value={editContent}
+                        onChange={(e) => setEditContent(e.target.value)}
+                        className="min-h-[60px]"
+                      />
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={handleEditMessage}>Save</Button>
+                        <Button size="sm" variant="outline" onClick={() => {
+                          setEditingMessageId(null);
+                          setEditContent("");
+                        }}>Cancel</Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-sm break-words whitespace-pre-wrap">{message.content}</p>
+                  )}
                 </div>
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {message.sender_id === user?.id && (
+                      <>
+                        <DropdownMenuItem onClick={() => {
+                          setEditingMessageId(message.id);
+                          setEditContent(message.content);
+                        }}>
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => setDeleteMessageId(message.id)}
+                          className="text-destructive"
+                        >
+                          <Trash className="h-4 w-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                    <DropdownMenuItem onClick={() => {
+                      setReportMessageId(message.id);
+                      setReportDialogOpen(true);
+                    }}>
+                      <Flag className="h-4 w-4 mr-2" />
+                      Report
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </Card>
           ))
         )}
       </div>
+
+      <AlertDialog open={!!deleteMessageId} onOpenChange={() => setDeleteMessageId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Message</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this message? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteMessage}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <Dialog open={reportDialogOpen} onOpenChange={setReportDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Report Message</DialogTitle>
+            <DialogDescription>
+              Please provide a reason for reporting this message. Our admins will review it.
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            placeholder="Explain why you're reporting this message..."
+            value={reportReason}
+            onChange={(e) => setReportReason(e.target.value)}
+            className="min-h-[100px]"
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setReportDialogOpen(false);
+              setReportReason("");
+            }}>
+              Cancel
+            </Button>
+            <Button onClick={handleReportMessage}>Submit Report</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
