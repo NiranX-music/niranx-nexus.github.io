@@ -238,8 +238,6 @@ const Auth = () => {
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
-            // Add timestamp to bypass any cached OAuth screens
-            state: `timestamp_${Date.now()}`,
           },
         },
       });
@@ -262,7 +260,6 @@ const Auth = () => {
       setLoading(false);
     }
   };
-
   const handleSpotifyAuth = async () => {
     try {
       setLoading(true);
