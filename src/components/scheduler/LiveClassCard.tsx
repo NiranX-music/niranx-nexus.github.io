@@ -2,7 +2,7 @@ import { format, differenceInMinutes } from "date-fns";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, Video, Users, ExternalLink } from "lucide-react";
+import { Clock, Video, Users, ExternalLink, Repeat } from "lucide-react";
 
 interface LiveClassCardProps {
   liveClass: {
@@ -14,6 +14,9 @@ interface LiveClassCardProps {
     subject: string;
     status: string;
     attendance_count: number;
+    is_recurring?: boolean;
+    recurring_pattern?: string;
+    recurring_days?: number[];
   };
   onUpdate: () => void;
 }
@@ -32,6 +35,19 @@ export const LiveClassCard = ({ liveClass, onUpdate }: LiveClassCardProps) => {
     return "bg-muted";
   };
 
+  const getRecurringText = () => {
+    if (!liveClass.is_recurring) return null;
+    
+    if (liveClass.recurring_pattern === "daily") return "Repeats daily";
+    if (liveClass.recurring_pattern === "weekly") return "Repeats weekly";
+    if (liveClass.recurring_pattern === "custom" && liveClass.recurring_days) {
+      const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      const days = liveClass.recurring_days.map(d => dayNames[d]).join(", ");
+      return `Repeats on ${days}`;
+    }
+    return "Recurring";
+  };
+
   return (
     <Card className="p-4 space-y-3">
       <div className="flex items-start justify-between">
@@ -39,10 +55,18 @@ export const LiveClassCard = ({ liveClass, onUpdate }: LiveClassCardProps) => {
           <div className="flex items-center gap-2">
             <div className={`w-2 h-2 rounded-full ${getStatusColor()}`}></div>
             <h4 className="font-semibold">{liveClass.title}</h4>
+            {liveClass.is_recurring && (
+              <Repeat className="w-4 h-4 text-muted-foreground" />
+            )}
           </div>
-          <Badge variant="secondary" className="text-xs">
-            {liveClass.subject}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="text-xs">
+              {liveClass.subject}
+            </Badge>
+            {liveClass.is_recurring && (
+              <span className="text-xs text-muted-foreground">{getRecurringText()}</span>
+            )}
+          </div>
         </div>
         {isLive && (
           <Badge variant="destructive" className="animate-pulse">
