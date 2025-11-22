@@ -2,10 +2,13 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Beaker, Table2, FlaskConical } from 'lucide-react';
+import { ArrowLeft, Beaker, Table2, FlaskConical, ClipboardList, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import PeriodicTable from '@/components/labs/PeriodicTable';
 import { ReactionSimulator } from '@/components/labs/ReactionSimulator';
+import { LabQuiz } from '@/components/labs/LabQuiz';
+import { LabNotebook } from '@/components/labs/LabNotebook';
+import { chemistryQuestions } from '@/data/quizQuestions';
 
 export default function Chemistry() {
   const navigate = useNavigate();
@@ -33,17 +36,25 @@ export default function Chemistry() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 lg:w-auto">
+        <TabsList className="grid w-full grid-cols-5 lg:w-auto">
           <TabsTrigger value="periodic-table" className="flex items-center gap-2">
             <Table2 className="w-4 h-4" />
             Periodic Table
           </TabsTrigger>
           <TabsTrigger value="reactions" className="flex items-center gap-2">
             <FlaskConical className="w-4 h-4" />
-            Chemical Reactions
+            Reactions
+          </TabsTrigger>
+          <TabsTrigger value="quiz" className="flex items-center gap-2">
+            <ClipboardList className="w-4 h-4" />
+            Quiz
+          </TabsTrigger>
+          <TabsTrigger value="notebook" className="flex items-center gap-2">
+            <BookOpen className="w-4 h-4" />
+            Notebook
           </TabsTrigger>
           <TabsTrigger value="molecules" disabled>
-            Molecular Models
+            Molecules
           </TabsTrigger>
         </TabsList>
 
@@ -74,6 +85,14 @@ export default function Chemistry() {
               <ReactionSimulator />
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="quiz">
+          <LabQuiz labType="chemistry" quizId="chemistry-basics" questions={chemistryQuestions} />
+        </TabsContent>
+
+        <TabsContent value="notebook">
+          <LabNotebook labType="chemistry" />
         </TabsContent>
 
         <TabsContent value="molecules">

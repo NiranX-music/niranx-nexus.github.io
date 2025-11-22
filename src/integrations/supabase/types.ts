@@ -776,6 +776,75 @@ export type Database = {
         }
         Relationships: []
       }
+      lab_notebook_entries: {
+        Row: {
+          created_at: string | null
+          data: Json | null
+          experiment_name: string
+          id: string
+          lab_type: string
+          observations: string | null
+          results: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          data?: Json | null
+          experiment_name: string
+          id?: string
+          lab_type: string
+          observations?: string | null
+          results?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json | null
+          experiment_name?: string
+          id?: string
+          lab_type?: string
+          observations?: string | null
+          results?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      lab_quiz_scores: {
+        Row: {
+          answers: Json | null
+          completed_at: string | null
+          id: string
+          lab_type: string
+          quiz_id: string
+          score: number
+          total_questions: number
+          user_id: string
+        }
+        Insert: {
+          answers?: Json | null
+          completed_at?: string | null
+          id?: string
+          lab_type: string
+          quiz_id: string
+          score: number
+          total_questions: number
+          user_id: string
+        }
+        Update: {
+          answers?: Json | null
+          completed_at?: string | null
+          id?: string
+          lab_type?: string
+          quiz_id?: string
+          score?: number
+          total_questions?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       leaderboard_entries: {
         Row: {
           created_at: string | null
