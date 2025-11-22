@@ -67,9 +67,9 @@ export default function Labs() {
                 <CardDescription>{subject.description}</CardDescription>
               </CardHeader>
               <CardContent>
-                {subject.available ? (
+              {subject.available ? (
                   <Button
-                    onClick={() => navigate(`/labs/${subject.id}`)}
+                    onClick={() => navigate(`/niranx/labs/${subject.id}`)}
                     className="w-full"
                   >
                     Enter Lab
