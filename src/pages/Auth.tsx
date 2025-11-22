@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Brain, Sparkles, Loader2, Shield, KeyRound, UserPlus, Users } from "lucide-react";
+import { Brain, Sparkles, Loader2, Shield, KeyRound, UserPlus, Users, Bug } from "lucide-react";
 import { z } from "zod";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGuestMode } from "@/contexts/GuestModeContext";
@@ -48,6 +48,7 @@ const Auth = () => {
   const [institutes, setInstitutes] = useState<Institute[]>([]);
   const [captchaAnswer, setCaptchaAnswer] = useState('');
   const [captchaQuestion, setCaptchaQuestion] = useState({ question: '', answer: 0 });
+  const [showDebugPanel, setShowDebugPanel] = useState(false);
   const [signUpData, setSignUpData] = useState({
     email: '',
     password: '',
@@ -292,6 +293,61 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 perspective-3d">
+      {/* Debug Panel Toggle Button */}
+      <Button
+        variant="outline"
+        size="sm"
+        className="fixed top-4 right-4 z-50 flex items-center gap-2"
+        onClick={() => setShowDebugPanel(!showDebugPanel)}
+      >
+        <Bug className="w-4 h-4" />
+        Debug
+      </Button>
+
+      {/* Debug Panel */}
+      {showDebugPanel && (
+        <Card className="fixed top-16 right-4 z-50 w-80 glass-card shadow-xl">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Bug className="w-4 h-4" />
+              Auth Debug Panel
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-xs">
+            <div className="space-y-1">
+              <div className="font-semibold text-muted-foreground">Project ID:</div>
+              <code className="block p-2 bg-muted rounded text-xs break-all">
+                {import.meta.env.VITE_SUPABASE_PROJECT_ID || 'tophenwypevlfbznlwil'}
+              </code>
+            </div>
+            <div className="space-y-1">
+              <div className="font-semibold text-muted-foreground">Supabase URL:</div>
+              <code className="block p-2 bg-muted rounded text-xs break-all">
+                {import.meta.env.VITE_SUPABASE_URL || 'https://tophenwypevlfbznlwil.supabase.co'}
+              </code>
+            </div>
+            <div className="space-y-1">
+              <div className="font-semibold text-muted-foreground">Redirect URL:</div>
+              <code className="block p-2 bg-muted rounded text-xs break-all">
+                {`${window.location.origin}/niranx/dashboard`}
+              </code>
+            </div>
+            <div className="space-y-1">
+              <div className="font-semibold text-muted-foreground">Auth Status:</div>
+              <div className={`p-2 rounded font-semibold ${user ? 'bg-green-500/20 text-green-600' : 'bg-red-500/20 text-red-600'}`}>
+                {authLoading ? 'Loading...' : user ? `✓ Logged in as ${user.email}` : '✗ Not logged in'}
+              </div>
+            </div>
+            <div className="space-y-1">
+              <div className="font-semibold text-muted-foreground">User ID:</div>
+              <code className="block p-2 bg-muted rounded text-xs break-all">
+                {user?.id || 'N/A'}
+              </code>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Enhanced 3D Background Decorations */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-float transform-3d"></div>
