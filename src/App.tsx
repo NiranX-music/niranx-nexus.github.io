@@ -99,6 +99,8 @@ import Chemistry from "./pages/labs/Chemistry";
 import Biology from "./pages/labs/Biology";
 import Physics from "./pages/labs/Physics";
 import Math from "./pages/labs/Math";
+import GuardianDashboard from "./pages/GuardianDashboard";
+import StudentGuardianSettings from "./pages/StudentGuardianSettings";
 import { AdminRoute } from "./components/AdminRoute";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -208,6 +210,8 @@ const App = () => (
                           <Route path="/labs/biology" element={<Biology />} />
                           <Route path="/labs/physics" element={<Physics />} />
                           <Route path="/labs/math" element={<Math />} />
+                          <Route path="/guardian-dashboard" element={<GuardianDashboard />} />
+                          <Route path="/guardian-settings" element={<StudentGuardianSettings />} />
                           <Route path="/admin" element={
                             <AdminRoute>
                               <AdminDashboard />

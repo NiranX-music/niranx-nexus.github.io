@@ -775,6 +775,84 @@ export type Database = {
         }
         Relationships: []
       }
+      guardian_access_requests: {
+        Row: {
+          created_at: string | null
+          guardian_id: string
+          id: string
+          message: string | null
+          relationship_type: string
+          status: string
+          student_email: string
+          student_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          guardian_id: string
+          id?: string
+          message?: string | null
+          relationship_type: string
+          status?: string
+          student_email: string
+          student_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          guardian_id?: string
+          id?: string
+          message?: string | null
+          relationship_type?: string
+          status?: string
+          student_email?: string
+          student_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      guardian_study_goals: {
+        Row: {
+          created_at: string | null
+          current_value: number | null
+          goal_type: string
+          guardian_id: string
+          id: string
+          status: string | null
+          student_id: string
+          target_value: number
+          updated_at: string | null
+          week_end: string
+          week_start: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_value?: number | null
+          goal_type: string
+          guardian_id: string
+          id?: string
+          status?: string | null
+          student_id: string
+          target_value: number
+          updated_at?: string | null
+          week_end?: string
+          week_start?: string
+        }
+        Update: {
+          created_at?: string | null
+          current_value?: number | null
+          goal_type?: string
+          guardian_id?: string
+          id?: string
+          status?: string | null
+          student_id?: string
+          target_value?: number
+          updated_at?: string | null
+          week_end?: string
+          week_start?: string
+        }
+        Relationships: []
+      }
       homework_assignments: {
         Row: {
           actual_time: number | null
@@ -1995,6 +2073,36 @@ export type Database = {
         }
         Relationships: []
       }
+      student_guardians: {
+        Row: {
+          created_at: string | null
+          guardian_id: string
+          id: string
+          relationship_type: string
+          status: string
+          student_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          guardian_id: string
+          id?: string
+          relationship_type: string
+          status?: string
+          student_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          guardian_id?: string
+          id?: string
+          relationship_type?: string
+          status?: string
+          student_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       study_group_members: {
         Row: {
           group_id: string
@@ -2879,6 +2987,10 @@ export type Database = {
           username: string
         }[]
       }
+      get_student_weekly_stats: {
+        Args: { p_student_id: string; p_week_start: string }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2909,7 +3021,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role: "admin" | "moderator" | "user" | "parent" | "teacher"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -3037,7 +3149,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: ["admin", "moderator", "user", "parent", "teacher"],
     },
   },
 } as const
