@@ -186,6 +186,7 @@ const archiveNavigation = [
 
 // More Pages
 const morePages = [
+  { title: "Website Guide", url: "/niranx/guide", icon: BookOpen },
   { title: "Sitemap", url: "/niranx/sitemap", icon: Map },
   { title: "Old Pages", url: "/niranx/old-pages", icon: Archive },
   { title: "Feature Ideas", url: "/niranx/feature-suggestions", icon: Sparkles },

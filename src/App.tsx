@@ -104,6 +104,7 @@ import StudentGuardianSettings from "./pages/StudentGuardianSettings";
 import { AdminRoute } from "./components/AdminRoute";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AccessibilitySettings } from "./pages/AccessibilitySettings";
+import Guide from "./pages/Guide";
 
 const queryClient = new QueryClient();
 
@@ -214,6 +215,7 @@ const App = () => (
                           <Route path="/labs/math" element={<Math />} />
                           <Route path="/guardian-dashboard" element={<GuardianDashboard />} />
                           <Route path="/guardian-settings" element={<StudentGuardianSettings />} />
+                          <Route path="/guide" element={<Guide />} />
                           <Route path="/admin" element={
                             <AdminRoute>
                               <AdminDashboard />
