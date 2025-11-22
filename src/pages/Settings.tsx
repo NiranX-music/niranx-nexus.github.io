@@ -20,7 +20,8 @@ import {
   Video,
   LogOut,
   ShieldCheck,
-  AlertTriangle
+  AlertTriangle,
+  Link2
 } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useToast } from "@/hooks/use-toast";
@@ -288,6 +289,57 @@ const Settings = () => {
                   </>
                 )}
               </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Account & Security */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5" />
+              Account & Security
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label className="text-base font-medium">Connected Accounts</Label>
+              <p className="text-sm text-muted-foreground mb-3">
+                Manage your OAuth connections and authentication methods
+              </p>
+              <Button 
+                onClick={() => navigate('/niranx/oauth-settings')} 
+                variant="outline" 
+                className="w-full"
+              >
+                <Link2 className="w-4 h-4 mr-2" />
+                Manage OAuth Accounts
+              </Button>
+            </div>
+
+            <Separator />
+
+            <div>
+              <Label className="text-base font-medium">Security Options</Label>
+              <p className="text-sm text-muted-foreground mb-3">
+                Additional security settings and authentication methods
+              </p>
+              <div className="flex flex-col gap-2">
+                <Button 
+                  onClick={() => navigate('/niranx/security/2fa')} 
+                  variant="outline"
+                  className="w-full justify-start"
+                >
+                  Two-Factor Authentication
+                </Button>
+                <Button 
+                  onClick={() => navigate('/niranx/security/sessions')} 
+                  variant="outline"
+                  className="w-full justify-start"
+                >
+                  Active Sessions
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>

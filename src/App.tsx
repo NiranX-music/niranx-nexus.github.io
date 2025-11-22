@@ -90,6 +90,7 @@ import OldPageArchive from "./pages/OldPageArchive";
 import NotificationSettings from "./pages/NotificationSettings";
 import BecomeAdmin from "./pages/BecomeAdmin";
 import AdminDashboard from "./pages/AdminDashboard";
+import OAuthSettings from "./pages/OAuthSettings";
 import { AdminRoute } from "./components/AdminRoute";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -142,6 +143,7 @@ const App = () => (
                           <Route path="/allen" element={<Allen />} />
                           <Route path="/pw" element={<PW />} />
                           <Route path="/settings" element={<Settings />} />
+                          <Route path="/oauth-settings" element={<OAuthSettings />} />
                           <Route path="/analytics" element={<Analytics />} />
                           <Route path="/advanced-dashboard" element={<AdvancedDashboard />} />
                           <Route path="/study-streak-challenges" element={<StudyStreakChallenges />} />

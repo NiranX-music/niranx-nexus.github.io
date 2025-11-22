@@ -34,10 +34,34 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+
+        // Sync profile photo from OAuth providers (Google, Spotify)
+        if (event === 'SIGNED_IN' && session?.user) {
+          setTimeout(async () => {
+            try {
+              const user = session.user;
+              const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture;
+              
+              if (avatarUrl) {
+                // Update profile with OAuth avatar
+                const { error } = await supabase
+                  .from('profiles')
+                  .update({ avatar_url: avatarUrl })
+                  .eq('user_id', user.id);
+
+                if (error) {
+                  console.error('Error updating profile avatar:', error);
+                }
+              }
+            } catch (error) {
+              console.error('Error syncing OAuth profile:', error);
+            }
+          }, 0);
+        }
       }
     );
 
