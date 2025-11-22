@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Brain, TrendingUp, Clock, AlertCircle, Lightbulb } from "lucide-react";
+import { Brain, TrendingUp, Clock, AlertCircle, Lightbulb, Calendar as CalendarIcon } from "lucide-react";
+import { isToday } from "date-fns";
 import { Progress } from "@/components/ui/progress";
 
 interface AIInsightsPanelProps {
@@ -24,14 +25,43 @@ export const AIInsightsPanel = ({ homework, exams, liveClasses, workload }: AIIn
   const generateInsights = () => {
     const newInsights = [];
 
-    // Workload stress insight
+    // Workload stress insight with balancer
     if (workload.stress_level > 75) {
+      const overloadedTasks = homework.filter(h => h.priority === "high" && h.status === "pending");
+      const suggestions = overloadedTasks.slice(0, 2).map(t => t.title).join(", ");
+      
       newInsights.push({
         type: "warning",
         icon: AlertCircle,
-        title: "High Workload Detected",
-        message: "Consider rescheduling some tasks or taking breaks to avoid burnout.",
-        action: "Optimize Schedule"
+        title: "High Workload Detected - Balancing Needed",
+        message: `Consider rescheduling: ${suggestions || "some high-priority tasks"} to lighter days or extend deadlines.`,
+        action: "Redistribute Tasks"
+      });
+    }
+
+    // Break time suggestions
+    const totalHours = workload.total_estimated_hours;
+    if (totalHours > 6) {
+      newInsights.push({
+        type: "info",
+        icon: Clock,
+        title: "Break Time Reminder",
+        message: `You have ${totalHours.toFixed(1)} hours of work planned. Schedule 10-15 minute breaks every 2 hours for optimal focus.`,
+      });
+    }
+
+    // Overloaded day warning
+    const todayHomework = homework.filter(h => {
+      const dueDate = new Date(h.due_date);
+      return isToday(dueDate) && h.status === "pending";
+    });
+    if (todayHomework.length > 3) {
+      newInsights.push({
+        type: "warning",
+        icon: AlertCircle,
+        title: "Today is Overloaded",
+        message: `${todayHomework.length} assignments due today. Consider completing ${todayHomework[0]?.title} first (highest priority).`,
+        action: "View Priorities"
       });
     }
 
