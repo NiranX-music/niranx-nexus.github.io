@@ -827,6 +827,70 @@ export type Database = {
           },
         ]
       }
+      message_bookmarks: {
+        Row: {
+          bookmarked_at: string | null
+          id: string
+          message_id: string
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          bookmarked_at?: string | null
+          id?: string
+          message_id: string
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          bookmarked_at?: string | null
+          id?: string
+          message_id?: string
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_bookmarks_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_edit_history: {
+        Row: {
+          edited_at: string | null
+          edited_by: string
+          id: string
+          message_id: string
+          previous_content: string
+        }
+        Insert: {
+          edited_at?: string | null
+          edited_by: string
+          id?: string
+          message_id: string
+          previous_content: string
+        }
+        Update: {
+          edited_at?: string | null
+          edited_by?: string
+          id?: string
+          message_id?: string
+          previous_content?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_edit_history_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       message_reactions: {
         Row: {
           created_at: string | null

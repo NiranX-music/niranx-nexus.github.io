@@ -32,6 +32,11 @@ import {
   X,
   Check,
   CheckCheck,
+  Reply,
+  Pin,
+  Bookmark,
+  Forward,
+  History,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -44,6 +49,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { VoiceRecorder, formatDuration } from "@/utils/VoiceRecorder";
 import { Progress } from "@/components/ui/progress";
+import { ForwardMessageDialog } from "@/components/ForwardMessageDialog";
+import { MessageEditHistoryDialog } from "@/components/MessageEditHistoryDialog";
 
 interface Attachment {
   path: string;
@@ -62,6 +69,9 @@ interface Message {
   read_at?: string;
   attachments?: Attachment[];
   voice_duration?: number;
+  parent_message_id?: string;
+  is_forwarded?: boolean;
+  forwarded_from?: string;
 }
 
 interface MessageReaction {
@@ -97,6 +107,12 @@ export default function ChatRoom() {
   const [lastSeen, setLastSeen] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
+  const [replyingTo, setReplyingTo] = useState<Message | null>(null);
+  const [pinnedMessages, setPinnedMessages] = useState<string[]>([]);
+  const [bookmarkedMessages, setBookmarkedMessages] = useState<Set<string>>(new Set());
+  const [showForwardDialog, setShowForwardDialog] = useState(false);
+  const [forwardingMessage, setForwardingMessage] = useState<Message | null>(null);
+  const [editHistory, setEditHistory] = useState<Record<string, any[]>>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const voiceRecorderRef = useRef<VoiceRecorder | null>(null);
@@ -122,6 +138,8 @@ export default function ChatRoom() {
     setupRealtimeSubscription();
     fetchReactions();
     setupPresenceTracking();
+    fetchPinnedMessages();
+    fetchBookmarkedMessages();
   }, [chatId, navigate]);
 
   const fetchChatData = async () => {
@@ -468,6 +486,10 @@ export default function ChatRoom() {
   };
 
   const sendMessage = async () => {
+    if (replyingTo) {
+      return sendReply();
+    }
+
     if ((!newMessage.trim() && selectedFiles.length === 0) || !chatId || !user) return;
 
     try {
@@ -570,6 +592,192 @@ export default function ChatRoom() {
         description: "Failed to download file",
         variant: "destructive",
       });
+    }
+  };
+
+  const fetchPinnedMessages = async () => {
+    if (!chatId) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('pinned_messages')
+        .select('message_id')
+        .eq('message_type', 'chat');
+
+      if (error) throw error;
+      setPinnedMessages((data || []).map(p => p.message_id));
+    } catch (error) {
+      console.error("Error fetching pinned messages:", error);
+    }
+  };
+
+  const fetchBookmarkedMessages = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('message_bookmarks')
+        .select('message_id')
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+      setBookmarkedMessages(new Set((data || []).map(b => b.message_id)));
+    } catch (error) {
+      console.error("Error fetching bookmarked messages:", error);
+    }
+  };
+
+  const togglePin = async (messageId: string) => {
+    if (!user) return;
+
+    try {
+      const isPinned = pinnedMessages.includes(messageId);
+
+      if (isPinned) {
+        await supabase
+          .from('pinned_messages')
+          .delete()
+          .eq('message_id', messageId)
+          .eq('pinned_by', user.id);
+
+        setPinnedMessages(prev => prev.filter(id => id !== messageId));
+      } else {
+        await supabase
+          .from('pinned_messages')
+          .insert({
+            message_id: messageId,
+            pinned_by: user.id,
+            message_type: 'chat'
+          });
+
+        setPinnedMessages(prev => [...prev, messageId]);
+      }
+
+      toast({
+        title: "Success",
+        description: isPinned ? "Message unpinned" : "Message pinned",
+      });
+    } catch (error) {
+      console.error("Error toggling pin:", error);
+      toast({
+        title: "Error",
+        description: "Failed to pin/unpin message",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const toggleBookmark = async (messageId: string) => {
+    if (!user) return;
+
+    try {
+      const isBookmarked = bookmarkedMessages.has(messageId);
+
+      if (isBookmarked) {
+        await supabase
+          .from('message_bookmarks')
+          .delete()
+          .eq('message_id', messageId)
+          .eq('user_id', user.id);
+
+        setBookmarkedMessages(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(messageId);
+          return newSet;
+        });
+      } else {
+        await supabase
+          .from('message_bookmarks')
+          .insert({
+            message_id: messageId,
+            user_id: user.id
+          });
+
+        setBookmarkedMessages(prev => new Set([...prev, messageId]));
+      }
+
+      toast({
+        title: "Success",
+        description: isBookmarked ? "Bookmark removed" : "Message bookmarked",
+      });
+    } catch (error) {
+      console.error("Error toggling bookmark:", error);
+      toast({
+        title: "Error",
+        description: "Failed to bookmark message",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleReply = (message: Message) => {
+    setReplyingTo(message);
+  };
+
+  const handleForward = (message: Message) => {
+    setForwardingMessage(message);
+    setShowForwardDialog(true);
+  };
+
+  const sendReply = async () => {
+    if ((!newMessage.trim() && selectedFiles.length === 0) || !chatId || !user || !replyingTo) return;
+
+    try {
+      const attachments = await uploadFiles();
+
+      const { error } = await supabase
+        .from('messages')
+        .insert({
+          content: newMessage.trim() || "Sent an attachment",
+          sender_id: user.id,
+          receiver_id: chatId,
+          parent_message_id: replyingTo.id,
+          attachments: attachments as any,
+        });
+
+      if (error) throw error;
+
+      // Send notification to the user being replied to
+      if (replyingTo.sender_id !== user.id) {
+        await supabase.rpc('notify_user', {
+          p_user_id: replyingTo.sender_id,
+          p_title: 'New Reply',
+          p_type: 'message_reply',
+          p_message: `${chatPartner?.display_name || 'Someone'} replied to your message`,
+          p_data: {
+            message_id: replyingTo.id,
+            reply_content: newMessage.trim()
+          }
+        });
+      }
+
+      setNewMessage("");
+      setSelectedFiles([]);
+      setReplyingTo(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    } catch (error) {
+      console.error("Error sending reply:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send reply",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const fetchEditHistory = async (messageId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('message_edit_history')
+        .select('*')
+        .eq('message_id', messageId)
+        .order('edited_at', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error("Error fetching edit history:", error);
+      return [];
     }
   };
 
@@ -788,6 +996,27 @@ export default function ChatRoom() {
 
                 {/* Reactions */}
                 <div className="flex items-center gap-2 mt-1">
+                  {/* Pinned indicator */}
+                  {pinnedMessages.includes(message.id) && (
+                    <Badge variant="secondary" className="text-xs gap-1">
+                      <Pin className="w-3 h-3" /> Pinned
+                    </Badge>
+                  )}
+
+                  {/* Parent message indicator for replies */}
+                  {message.parent_message_id && (
+                    <Badge variant="outline" className="text-xs gap-1">
+                      <Reply className="w-3 h-3" /> Reply
+                    </Badge>
+                  )}
+
+                  {/* Forwarded indicator */}
+                  {message.is_forwarded && (
+                    <Badge variant="outline" className="text-xs gap-1">
+                      <Forward className="w-3 h-3" /> Forwarded
+                    </Badge>
+                  )}
+
                   {reactions[message.id] && reactions[message.id].length > 0 && (
                     <div className="flex gap-1">
                       {Array.from(new Set(reactions[message.id].map(r => r.reaction))).map(reaction => {
@@ -807,6 +1036,67 @@ export default function ChatRoom() {
                       })}
                     </div>
                   )}
+
+                  {/* Action Buttons */}
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                    {/* Reply Button */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-2"
+                      onClick={() => handleReply(message)}
+                      title="Reply"
+                    >
+                      <Reply className="w-3 h-3" />
+                    </Button>
+
+                    {/* Pin/Unpin Button */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-2"
+                      onClick={() => togglePin(message.id)}
+                      title={pinnedMessages.includes(message.id) ? "Unpin" : "Pin"}
+                    >
+                      <Pin className={`w-3 h-3 ${pinnedMessages.includes(message.id) ? 'fill-current' : ''}`} />
+                    </Button>
+
+                    {/* Bookmark Button */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-2"
+                      onClick={() => toggleBookmark(message.id)}
+                      title={bookmarkedMessages.has(message.id) ? "Remove bookmark" : "Bookmark"}
+                    >
+                      <Bookmark className={`w-3 h-3 ${bookmarkedMessages.has(message.id) ? 'fill-current' : ''}`} />
+                    </Button>
+
+                    {/* Forward Button */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-2"
+                      onClick={() => handleForward(message)}
+                      title="Forward"
+                    >
+                      <Forward className="w-3 h-3" />
+                    </Button>
+
+                    {/* Edit History Button */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-2"
+                      onClick={async () => {
+                        const history = await fetchEditHistory(message.id);
+                        setEditHistory({ [message.id]: history });
+                      }}
+                      title="Edit history"
+                    >
+                      <History className="w-3 h-3" />
+                    </Button>
+                  </div>
 
                   {/* Add Reaction Button */}
                   <DropdownMenu>
@@ -900,6 +1190,23 @@ export default function ChatRoom() {
               </div>
             )}
 
+            {/* Replying To Preview */}
+            {replyingTo && (
+              <div className="flex items-center gap-2 p-2 bg-muted rounded-lg">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-muted-foreground">Replying to:</p>
+                  <p className="text-sm truncate">{replyingTo.content}</p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setReplyingTo(null)}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
+
             <div className="flex items-center gap-2">
               <input
                 ref={fileInputRef}
@@ -919,7 +1226,7 @@ export default function ChatRoom() {
               {!isRecording ? (
                 <>
                   <Input
-                    placeholder="Type a message..."
+                    placeholder={replyingTo ? "Type your reply..." : "Type a message..."}
                     value={newMessage}
                     onChange={(e) => {
                       setNewMessage(e.target.value);
@@ -959,6 +1266,35 @@ export default function ChatRoom() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Forward Message Dialog */}
+      {forwardingMessage && (
+        <ForwardMessageDialog
+          open={showForwardDialog}
+          onOpenChange={setShowForwardDialog}
+          messageId={forwardingMessage.id}
+          messageContent={forwardingMessage.content}
+        />
+      )}
+
+      {/* Edit History Dialog */}
+      {Object.keys(editHistory).map(messageId => {
+        const message = messages.find(m => m.id === messageId);
+        if (!message || !editHistory[messageId]) return null;
+        return (
+          <MessageEditHistoryDialog
+            key={messageId}
+            open={!!editHistory[messageId]}
+            onOpenChange={(open) => {
+              if (!open) {
+                setEditHistory({});
+              }
+            }}
+            history={editHistory[messageId]}
+            currentContent={message.content}
+          />
+        );
+      })}
     </div>
   );
 }

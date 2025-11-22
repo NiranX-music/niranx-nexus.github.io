@@ -187,15 +187,34 @@ const Messages = () => {
     }
   };
 
-  const handleChatCreated = (chatId: string, isGroup: boolean) => {
+  const handleChatCreated = async (chatId: string, isGroup: boolean) => {
     if (isGroup) {
       // Navigate to group chat room
       navigate(`/niranx/chat-room/${chatId}`);
     } else {
-      // Navigate to direct message
-      setSelectedChat(null);
-      fetchMessages(chatId);
-      fetchChats();
+      // For direct message, fetch the user profile and set as selected chat
+      try {
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('id, user_id, username, display_name, avatar_url')
+          .eq('user_id', chatId)
+          .single();
+
+        if (error) throw error;
+        
+        if (profile) {
+          setSelectedChat(profile);
+          await fetchMessages(chatId);
+          await fetchChats();
+        }
+      } catch (error) {
+        console.error('Error fetching chat partner:', error);
+        toast({
+          title: "Error",
+          description: "Failed to open chat",
+          variant: "destructive",
+        });
+      }
     }
   };
 
