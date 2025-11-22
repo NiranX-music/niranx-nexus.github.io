@@ -3,10 +3,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Slider } from '@/components/ui/slider';
-import { ArrowLeft, Atom, Zap, Radio, Magnet, ClipboardList, BookOpen } from 'lucide-react';
+import { ArrowLeft, Atom, Zap, Radio, Magnet, ClipboardList, BookOpen, Users, Trophy, Beaker } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { LabQuiz } from '@/components/labs/LabQuiz';
 import { LabNotebook } from '@/components/labs/LabNotebook';
+import { VirtualEquipment } from '@/components/labs/VirtualEquipment';
+import { QuizLeaderboard } from '@/components/labs/QuizLeaderboard';
+import { CollaborativeExperiments } from '@/components/labs/CollaborativeExperiments';
 import { physicsQuestions } from '@/data/quizQuestions';
 
 export default function Physics() {
@@ -23,7 +26,7 @@ export default function Physics() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => navigate('/labs')}
+          onClick={() => navigate('/niranx/labs')}
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
@@ -39,30 +42,42 @@ export default function Physics() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-6 lg:w-auto">
+        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9 lg:w-auto">
           <TabsTrigger value="pendulum" className="flex items-center gap-2">
             <Magnet className="w-4 h-4" />
-            Pendulum
+            <span className="hidden lg:inline">Pendulum</span>
           </TabsTrigger>
           <TabsTrigger value="waves" className="flex items-center gap-2">
             <Radio className="w-4 h-4" />
-            Waves
+            <span className="hidden lg:inline">Waves</span>
           </TabsTrigger>
           <TabsTrigger value="electricity" className="flex items-center gap-2">
             <Zap className="w-4 h-4" />
-            Circuits
+            <span className="hidden lg:inline">Circuits</span>
           </TabsTrigger>
           <TabsTrigger value="projectile" className="flex items-center gap-2">
             <Atom className="w-4 h-4" />
-            Projectile
+            <span className="hidden lg:inline">Projectile</span>
+          </TabsTrigger>
+          <TabsTrigger value="equipment" className="flex items-center gap-2">
+            <Beaker className="w-4 h-4" />
+            <span className="hidden lg:inline">Equipment</span>
+          </TabsTrigger>
+          <TabsTrigger value="collaborative" className="flex items-center gap-2">
+            <Users className="w-4 h-4" />
+            <span className="hidden lg:inline">Collaborative</span>
           </TabsTrigger>
           <TabsTrigger value="quiz" className="flex items-center gap-2">
             <ClipboardList className="w-4 h-4" />
-            Quiz
+            <span className="hidden lg:inline">Quiz</span>
+          </TabsTrigger>
+          <TabsTrigger value="leaderboard" className="flex items-center gap-2">
+            <Trophy className="w-4 h-4" />
+            <span className="hidden lg:inline">Leaderboard</span>
           </TabsTrigger>
           <TabsTrigger value="notebook" className="flex items-center gap-2">
             <BookOpen className="w-4 h-4" />
-            Notebook
+            <span className="hidden lg:inline">Notebook</span>
           </TabsTrigger>
         </TabsList>
 
@@ -328,6 +343,38 @@ export default function Physics() {
 
         <TabsContent value="quiz">
           <LabQuiz labType="physics" quizId="physics-basics" questions={physicsQuestions} />
+        </TabsContent>
+
+        <TabsContent value="equipment">
+          <Card className="glass-card border-primary/20">
+            <CardHeader>
+              <CardTitle>Virtual Lab Equipment</CardTitle>
+              <CardDescription>
+                Precise measurement tools for physics experiments.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <VirtualEquipment />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="collaborative">
+          <Card className="glass-card border-primary/20">
+            <CardHeader>
+              <CardTitle>Collaborative Experiments</CardTitle>
+              <CardDescription>
+                Share and collaborate on physics experiments with classmates.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <CollaborativeExperiments labType="physics" />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="leaderboard">
+          <QuizLeaderboard labType="physics" />
         </TabsContent>
 
         <TabsContent value="notebook">

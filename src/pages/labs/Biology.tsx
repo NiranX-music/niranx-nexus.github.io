@@ -2,10 +2,13 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Dna, Microscope, Activity, ClipboardList, BookOpen } from 'lucide-react';
+import { ArrowLeft, Dna, Microscope, Activity, ClipboardList, BookOpen, Users, Trophy, Beaker } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { LabQuiz } from '@/components/labs/LabQuiz';
 import { LabNotebook } from '@/components/labs/LabNotebook';
+import { VirtualEquipment } from '@/components/labs/VirtualEquipment';
+import { QuizLeaderboard } from '@/components/labs/QuizLeaderboard';
+import { CollaborativeExperiments } from '@/components/labs/CollaborativeExperiments';
 import { biologyQuestions } from '@/data/quizQuestions';
 
 export default function Biology() {
@@ -18,7 +21,7 @@ export default function Biology() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => navigate('/labs')}
+          onClick={() => navigate('/niranx/labs')}
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
@@ -34,26 +37,38 @@ export default function Biology() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-5 lg:w-auto">
+        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 lg:w-auto">
           <TabsTrigger value="cell-structure" className="flex items-center gap-2">
             <Microscope className="w-4 h-4" />
-            Cells
+            <span className="hidden lg:inline">Cells</span>
           </TabsTrigger>
           <TabsTrigger value="dna" className="flex items-center gap-2">
             <Dna className="w-4 h-4" />
-            DNA
+            <span className="hidden lg:inline">DNA</span>
           </TabsTrigger>
           <TabsTrigger value="systems" className="flex items-center gap-2">
             <Activity className="w-4 h-4" />
-            Systems
+            <span className="hidden lg:inline">Systems</span>
+          </TabsTrigger>
+          <TabsTrigger value="equipment" className="flex items-center gap-2">
+            <Beaker className="w-4 h-4" />
+            <span className="hidden lg:inline">Equipment</span>
+          </TabsTrigger>
+          <TabsTrigger value="collaborative" className="flex items-center gap-2">
+            <Users className="w-4 h-4" />
+            <span className="hidden lg:inline">Collaborative</span>
           </TabsTrigger>
           <TabsTrigger value="quiz" className="flex items-center gap-2">
             <ClipboardList className="w-4 h-4" />
-            Quiz
+            <span className="hidden lg:inline">Quiz</span>
+          </TabsTrigger>
+          <TabsTrigger value="leaderboard" className="flex items-center gap-2">
+            <Trophy className="w-4 h-4" />
+            <span className="hidden lg:inline">Leaderboard</span>
           </TabsTrigger>
           <TabsTrigger value="notebook" className="flex items-center gap-2">
             <BookOpen className="w-4 h-4" />
-            Notebook
+            <span className="hidden lg:inline">Notebook</span>
           </TabsTrigger>
         </TabsList>
 
@@ -259,6 +274,38 @@ export default function Biology() {
 
         <TabsContent value="quiz">
           <LabQuiz labType="biology" quizId="biology-basics" questions={biologyQuestions} />
+        </TabsContent>
+
+        <TabsContent value="equipment">
+          <Card className="glass-card border-primary/20">
+            <CardHeader>
+              <CardTitle>Virtual Lab Equipment</CardTitle>
+              <CardDescription>
+                Use virtual equipment for biological measurements and experiments.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <VirtualEquipment />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="collaborative">
+          <Card className="glass-card border-primary/20">
+            <CardHeader>
+              <CardTitle>Collaborative Experiments</CardTitle>
+              <CardDescription>
+                Work together with classmates on shared biology experiments.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <CollaborativeExperiments labType="biology" />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="leaderboard">
+          <QuizLeaderboard labType="biology" />
         </TabsContent>
 
         <TabsContent value="notebook">

@@ -2,12 +2,15 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Beaker, Table2, FlaskConical, ClipboardList, BookOpen } from 'lucide-react';
+import { ArrowLeft, Beaker, Table2, FlaskConical, ClipboardList, BookOpen, Users, Trophy } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import PeriodicTable from '@/components/labs/PeriodicTable';
 import { ReactionSimulator } from '@/components/labs/ReactionSimulator';
 import { LabQuiz } from '@/components/labs/LabQuiz';
 import { LabNotebook } from '@/components/labs/LabNotebook';
+import { VirtualEquipment } from '@/components/labs/VirtualEquipment';
+import { QuizLeaderboard } from '@/components/labs/QuizLeaderboard';
+import { CollaborativeExperiments } from '@/components/labs/CollaborativeExperiments';
 import { chemistryQuestions } from '@/data/quizQuestions';
 
 export default function Chemistry() {
@@ -20,7 +23,7 @@ export default function Chemistry() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => navigate('/labs')}
+          onClick={() => navigate('/niranx/labs')}
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
@@ -36,25 +39,37 @@ export default function Chemistry() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-5 lg:w-auto">
+        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 lg:w-auto">
           <TabsTrigger value="periodic-table" className="flex items-center gap-2">
             <Table2 className="w-4 h-4" />
-            Periodic Table
+            <span className="hidden lg:inline">Periodic Table</span>
           </TabsTrigger>
           <TabsTrigger value="reactions" className="flex items-center gap-2">
             <FlaskConical className="w-4 h-4" />
-            Reactions
+            <span className="hidden lg:inline">Reactions</span>
+          </TabsTrigger>
+          <TabsTrigger value="equipment" className="flex items-center gap-2">
+            <Beaker className="w-4 h-4" />
+            <span className="hidden lg:inline">Equipment</span>
+          </TabsTrigger>
+          <TabsTrigger value="collaborative" className="flex items-center gap-2">
+            <Users className="w-4 h-4" />
+            <span className="hidden lg:inline">Collaborative</span>
           </TabsTrigger>
           <TabsTrigger value="quiz" className="flex items-center gap-2">
             <ClipboardList className="w-4 h-4" />
-            Quiz
+            <span className="hidden lg:inline">Quiz</span>
+          </TabsTrigger>
+          <TabsTrigger value="leaderboard" className="flex items-center gap-2">
+            <Trophy className="w-4 h-4" />
+            <span className="hidden lg:inline">Leaderboard</span>
           </TabsTrigger>
           <TabsTrigger value="notebook" className="flex items-center gap-2">
             <BookOpen className="w-4 h-4" />
-            Notebook
+            <span className="hidden lg:inline">Notebook</span>
           </TabsTrigger>
           <TabsTrigger value="molecules" disabled>
-            Molecules
+            <span className="hidden lg:inline">Molecules</span>
           </TabsTrigger>
         </TabsList>
 
@@ -87,8 +102,40 @@ export default function Chemistry() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="equipment">
+          <Card className="glass-card border-primary/20">
+            <CardHeader>
+              <CardTitle>Virtual Lab Equipment</CardTitle>
+              <CardDescription>
+                Use virtual beakers, test tubes, and measuring tools for precise measurements.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <VirtualEquipment />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="collaborative">
+          <Card className="glass-card border-primary/20">
+            <CardHeader>
+              <CardTitle>Collaborative Experiments</CardTitle>
+              <CardDescription>
+                Work together with classmates on shared experiments and projects.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <CollaborativeExperiments labType="chemistry" />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="quiz">
           <LabQuiz labType="chemistry" quizId="chemistry-basics" questions={chemistryQuestions} />
+        </TabsContent>
+
+        <TabsContent value="leaderboard">
+          <QuizLeaderboard labType="chemistry" />
         </TabsContent>
 
         <TabsContent value="notebook">

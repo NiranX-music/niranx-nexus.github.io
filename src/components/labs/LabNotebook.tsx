@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Plus, Trash2, Edit } from 'lucide-react';
+import { BookOpen, Plus, Trash2, Edit, Download } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -137,6 +137,33 @@ export function LabNotebook({ labType }: LabNotebookProps) {
     setFormData({ experiment_name: '', observations: '', results: '' });
   };
 
+  const handleExportPDF = async (entry: NotebookEntry) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('export-notebook-pdf', {
+        body: { entryId: entry.id },
+      });
+
+      if (error) throw error;
+
+      // Create HTML window for printing
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(data.html);
+        printWindow.document.close();
+        
+        // Wait for content to load, then trigger print dialog
+        setTimeout(() => {
+          printWindow.print();
+        }, 500);
+        
+        toast.success('Print dialog opened - save as PDF');
+      }
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      toast.error('Failed to export PDF');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -227,6 +254,9 @@ export function LabNotebook({ labType }: LabNotebookProps) {
                     </div>
                   </div>
                   <div className="flex gap-2">
+                    <Button variant="ghost" size="sm" onClick={() => handleExportPDF(entry)}>
+                      <Download className="w-4 h-4" />
+                    </Button>
                     <Button variant="ghost" size="sm" onClick={() => handleEdit(entry)}>
                       <Edit className="w-4 h-4" />
                     </Button>
