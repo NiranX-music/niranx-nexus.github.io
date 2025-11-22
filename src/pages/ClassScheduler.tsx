@@ -20,6 +20,9 @@ import { AIInsightsPanel } from "@/components/scheduler/AIInsightsPanel";
 import { NaturalLanguageInput } from "@/components/scheduler/NaturalLanguageInput";
 import { StudyBuddyPanel } from "@/components/scheduler/StudyBuddyPanel";
 import { GamificationStats } from "@/components/scheduler/GamificationStats";
+import { SmartSchedulingAssistant } from "@/components/scheduler/SmartSchedulingAssistant";
+import { ClassLeaderboard } from "@/components/scheduler/ClassLeaderboard";
+import { HomeworkBossBattles } from "@/components/scheduler/HomeworkBossBattles";
 
 interface LiveClass {
   id: string;
@@ -593,6 +596,13 @@ const ClassScheduler = () => {
 
         {/* Analytics Tab */}
         <TabsContent value="analytics" className="space-y-4">
+          {/* Smart Scheduling Assistant */}
+          <SmartSchedulingAssistant 
+            liveClasses={liveClasses}
+            homework={homework}
+            exams={exams}
+          />
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {/* AI Insights */}
             <div>
@@ -613,6 +623,12 @@ const ClassScheduler = () => {
             <div>
               <GamificationStats homework={homework} exams={exams} />
             </div>
+          </div>
+
+          {/* Homework Boss Battles & Leaderboards */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <HomeworkBossBattles homework={homework} />
+            <ClassLeaderboard />
           </div>
 
           {/* Workload Trend Chart */}
