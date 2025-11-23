@@ -34,6 +34,52 @@ export default function AdvancedDashboard() {
     }
   }, [user]);
 
+  // Real-time subscriptions for dashboard updates
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('dashboard-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'study_streaks'
+        },
+        () => {
+          fetchDashboardData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'focus_sessions'
+        },
+        () => {
+          fetchDashboardData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'tasks'
+        },
+        () => {
+          fetchDashboardData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
   const fetchDashboardData = async () => {
     try {
       // Fetch study streaks

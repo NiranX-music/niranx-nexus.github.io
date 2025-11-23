@@ -28,7 +28,7 @@ import { Shield, UserPlus, Users } from "lucide-react";
 export default function RoleManagement() {
   const { user } = useAuth();
   const [userEmail, setUserEmail] = useState("");
-  const [selectedRole, setSelectedRole] = useState<"teacher" | "moderator">("teacher");
+  const [selectedRole, setSelectedRole] = useState<"teacher" | "moderator" | "parent">("teacher");
   const [reason, setReason] = useState("");
   const [isGranting, setIsGranting] = useState(false);
 
@@ -218,6 +218,7 @@ export default function RoleManagement() {
                 <SelectContent>
                   <SelectItem value="teacher">Teacher</SelectItem>
                   <SelectItem value="moderator">Moderator</SelectItem>
+                  <SelectItem value="parent">Parent/Guardian</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -256,6 +257,12 @@ export default function RoleManagement() {
               <p className="text-sm text-muted-foreground">Total Moderators</p>
               <p className="text-2xl font-bold">
                 {roleAssignments?.filter(r => r.role_granted === "moderator" && !r.revoked_at).length || 0}
+              </p>
+            </div>
+            <div className="p-4 bg-muted rounded-lg">
+              <p className="text-sm text-muted-foreground">Total Parents/Guardians</p>
+              <p className="text-2xl font-bold">
+                {roleAssignments?.filter(r => r.role_granted === "parent" && !r.revoked_at).length || 0}
               </p>
             </div>
             <div className="p-4 bg-muted rounded-lg">

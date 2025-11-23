@@ -72,6 +72,85 @@ const Analytics = () => {
     }
   }, [user]);
 
+  // Real-time subscriptions for analytics updates
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('analytics-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'profiles'
+        },
+        () => {
+          fetchAnalytics();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'study_streaks'
+        },
+        () => {
+          fetchAnalytics();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'focus_sessions'
+        },
+        () => {
+          fetchAnalytics();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'tasks'
+        },
+        () => {
+          fetchAnalytics();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'exams'
+        },
+        () => {
+          fetchAnalytics();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_achievements'
+        },
+        () => {
+          fetchAnalytics();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
   const fetchAnalytics = async () => {
     try {
       setLoading(true);
