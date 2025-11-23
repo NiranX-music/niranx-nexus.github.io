@@ -40,7 +40,7 @@ export default function Leaderboard() {
     if (!user) return;
 
     const channel = supabase
-      .channel('leaderboard-changes')
+      .channel('leaderboard-realtime')
       .on(
         'postgres_changes',
         {
@@ -49,7 +49,50 @@ export default function Leaderboard() {
           table: 'leaderboard_entries'
         },
         () => {
-          // Refetch leaderboards when any change occurs
+          fetchLeaderboards();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'profiles'
+        },
+        () => {
+          fetchLeaderboards();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'focus_sessions'
+        },
+        () => {
+          fetchLeaderboards();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'tasks'
+        },
+        () => {
+          fetchLeaderboards();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'study_streaks'
+        },
+        () => {
           fetchLeaderboards();
         }
       )
