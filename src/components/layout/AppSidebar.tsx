@@ -79,6 +79,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Input } from "@/components/ui/input";
 import { useState, useMemo } from "react";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
+import { useTeacherCheck } from "@/hooks/useTeacherCheck";
 import { useFavorites } from "@/hooks/useFavorites";
 import { DraggableFavorites } from "@/components/DraggableFavorites";
 import { getValidIconOrFallback } from "@/lib/iconValidator";
@@ -185,6 +186,11 @@ const adminNavigation = [
   { title: "Guardian Dashboard", url: "/niranx/guardian-dashboard", icon: Users },
 ];
 
+const teacherNavigation = [
+  { title: "Teacher Portal", url: "/niranx/teacher/dashboard", icon: GraduationCap },
+  { title: "Role Management", url: "/niranx/admin/roles", icon: ShieldCheck },
+];
+
 const systemNavigation = [
   { title: "Notification Settings", url: "/niranx/notification-settings", icon: Bell },
   { title: "Smart Notifications", url: "/niranx/smart-notifications", icon: Zap },
@@ -217,6 +223,7 @@ export function AppSidebar() {
   const currentPath = location.pathname;
   const isCollapsed = state === "collapsed";
   const { isAdmin, isLoading: adminLoading } = useAdminCheck();
+  const { isTeacher, isLoading: teacherLoading } = useTeacherCheck();
   const { favorites, addFavorite, removeFavorite, isFavorite, reorderFavorites } = useFavorites();
   
   const [searchQuery, setSearchQuery] = useState("");
@@ -232,6 +239,7 @@ export function AppSidebar() {
     tools: false,
     external: false,
     admin: true,
+    teacher: true,
     system: false,
     archive: false,
     more: false,
@@ -249,9 +257,10 @@ export function AppSidebar() {
     ...toolsNavigation,
     ...externalPlatforms,
     ...(isAdmin ? adminNavigation : []),
+    ...(isTeacher || isAdmin ? teacherNavigation : []),
     ...systemNavigation,
     ...morePages,
-  ], [isAdmin]);
+  ], [isAdmin, isTeacher]);
 
   // Filter navigation items based on search query
   const filteredNavItems = useMemo(() => {
@@ -615,6 +624,28 @@ export function AppSidebar() {
               <CollapsibleContent>
                 <SidebarGroupContent>
                   <SidebarMenu>{renderNavItems(adminNavigation)}</SidebarMenu>
+                </SidebarGroupContent>
+              </CollapsibleContent>
+            </SidebarGroup>
+          </Collapsible>
+        )}
+
+        {/* Teacher Portal - Conditionally rendered */}
+        {!teacherLoading && (isTeacher || isAdmin) && (
+          <Collapsible open={expandedSections.teacher} onOpenChange={() => toggleSection('teacher')}>
+            <SidebarGroup>
+              <CollapsibleTrigger asChild>
+                <SidebarGroupLabel className="cursor-pointer hover:bg-blue-500/20 rounded-lg px-2 -mx-2 flex items-center justify-between text-white/90 font-bold text-sm uppercase tracking-wider transition-all duration-200 py-3 bg-gradient-to-r from-blue-500/20 to-transparent border border-blue-500/20">
+                  <span className="flex items-center gap-2">
+                    <GraduationCap className="h-4 w-4 text-blue-400" />
+                    {!isCollapsed && "Teacher"}
+                  </span>
+                  <ChevronDown className={`h-4 w-4 transition-transform text-white/70 ${expandedSections.teacher ? '' : '-rotate-90'}`} />
+                </SidebarGroupLabel>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <SidebarGroupContent>
+                  <SidebarMenu>{renderNavItems(teacherNavigation)}</SidebarMenu>
                 </SidebarGroupContent>
               </CollapsibleContent>
             </SidebarGroup>
