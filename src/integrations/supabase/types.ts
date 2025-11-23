@@ -644,6 +644,456 @@ export type Database = {
         }
         Relationships: []
       }
+      debate_awards: {
+        Row: {
+          cost_coins: number
+          created_at: string | null
+          description: string | null
+          icon: string
+          id: string
+          name: string
+          rarity: Database["public"]["Enums"]["debate_award_rarity"] | null
+          xp_value: number
+        }
+        Insert: {
+          cost_coins: number
+          created_at?: string | null
+          description?: string | null
+          icon: string
+          id?: string
+          name: string
+          rarity?: Database["public"]["Enums"]["debate_award_rarity"] | null
+          xp_value: number
+        }
+        Update: {
+          cost_coins?: number
+          created_at?: string | null
+          description?: string | null
+          icon?: string
+          id?: string
+          name?: string
+          rarity?: Database["public"]["Enums"]["debate_award_rarity"] | null
+          xp_value?: number
+        }
+        Relationships: []
+      }
+      debate_awards_given: {
+        Row: {
+          award_id: string
+          created_at: string | null
+          given_by: string
+          given_to: string
+          id: string
+          target_id: string
+          target_type: Database["public"]["Enums"]["debate_target_type"]
+        }
+        Insert: {
+          award_id: string
+          created_at?: string | null
+          given_by: string
+          given_to: string
+          id?: string
+          target_id: string
+          target_type: Database["public"]["Enums"]["debate_target_type"]
+        }
+        Update: {
+          award_id?: string
+          created_at?: string | null
+          given_by?: string
+          given_to?: string
+          id?: string
+          target_id?: string
+          target_type?: Database["public"]["Enums"]["debate_target_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "debate_awards_given_award_id_fkey"
+            columns: ["award_id"]
+            isOneToOne: false
+            referencedRelation: "debate_awards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      debate_bookmarks: {
+        Row: {
+          created_at: string | null
+          debate_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          debate_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          debate_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "debate_bookmarks_debate_id_fkey"
+            columns: ["debate_id"]
+            isOneToOne: false
+            referencedRelation: "debate_topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      debate_categories: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          debate_count: number | null
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          debate_count?: number | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          debate_count?: number | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      debate_comments: {
+        Row: {
+          ai_argument_score: number | null
+          content: string
+          created_at: string | null
+          debate_id: string
+          depth_level: number | null
+          downvotes: number | null
+          has_evidence: boolean | null
+          id: string
+          is_edited: boolean | null
+          parent_comment_id: string | null
+          stance: Database["public"]["Enums"]["debate_stance"] | null
+          updated_at: string | null
+          upvotes: number | null
+          user_id: string
+        }
+        Insert: {
+          ai_argument_score?: number | null
+          content: string
+          created_at?: string | null
+          debate_id: string
+          depth_level?: number | null
+          downvotes?: number | null
+          has_evidence?: boolean | null
+          id?: string
+          is_edited?: boolean | null
+          parent_comment_id?: string | null
+          stance?: Database["public"]["Enums"]["debate_stance"] | null
+          updated_at?: string | null
+          upvotes?: number | null
+          user_id: string
+        }
+        Update: {
+          ai_argument_score?: number | null
+          content?: string
+          created_at?: string | null
+          debate_id?: string
+          depth_level?: number | null
+          downvotes?: number | null
+          has_evidence?: boolean | null
+          id?: string
+          is_edited?: boolean | null
+          parent_comment_id?: string | null
+          stance?: Database["public"]["Enums"]["debate_stance"] | null
+          updated_at?: string | null
+          upvotes?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "debate_comments_debate_id_fkey"
+            columns: ["debate_id"]
+            isOneToOne: false
+            referencedRelation: "debate_topics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "debate_comments_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "debate_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      debate_evidence: {
+        Row: {
+          comment_id: string
+          created_at: string | null
+          credibility_score: number | null
+          description: string | null
+          id: string
+          source_type: Database["public"]["Enums"]["debate_source_type"]
+          source_url: string | null
+          title: string | null
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string | null
+          credibility_score?: number | null
+          description?: string | null
+          id?: string
+          source_type: Database["public"]["Enums"]["debate_source_type"]
+          source_url?: string | null
+          title?: string | null
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string | null
+          credibility_score?: number | null
+          description?: string | null
+          id?: string
+          source_type?: Database["public"]["Enums"]["debate_source_type"]
+          source_url?: string | null
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "debate_evidence_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "debate_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      debate_reports: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          id: string
+          reason: string
+          reporter_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["debate_report_status"] | null
+          target_id: string
+          target_type: Database["public"]["Enums"]["debate_target_type"]
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          reason: string
+          reporter_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["debate_report_status"] | null
+          target_id: string
+          target_type: Database["public"]["Enums"]["debate_target_type"]
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          reason?: string
+          reporter_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["debate_report_status"] | null
+          target_id?: string
+          target_type?: Database["public"]["Enums"]["debate_target_type"]
+        }
+        Relationships: []
+      }
+      debate_subscriptions: {
+        Row: {
+          created_at: string | null
+          debate_id: string
+          id: string
+          notify_on_comment: boolean | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          debate_id: string
+          id?: string
+          notify_on_comment?: boolean | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          debate_id?: string
+          id?: string
+          notify_on_comment?: boolean | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "debate_subscriptions_debate_id_fkey"
+            columns: ["debate_id"]
+            isOneToOne: false
+            referencedRelation: "debate_topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      debate_topics: {
+        Row: {
+          category_id: string | null
+          comment_count: number | null
+          controversy_score: number | null
+          created_at: string | null
+          description: string
+          downvotes: number | null
+          hotness_score: number | null
+          id: string
+          is_locked: boolean | null
+          is_pinned: boolean | null
+          stance_against_count: number | null
+          stance_for_count: number | null
+          stance_neutral_count: number | null
+          tags: string[] | null
+          time_limit: string | null
+          title: string
+          updated_at: string | null
+          upvotes: number | null
+          user_id: string
+          view_count: number | null
+          voting_ends_at: string | null
+          winning_stance: Database["public"]["Enums"]["debate_stance"] | null
+        }
+        Insert: {
+          category_id?: string | null
+          comment_count?: number | null
+          controversy_score?: number | null
+          created_at?: string | null
+          description: string
+          downvotes?: number | null
+          hotness_score?: number | null
+          id?: string
+          is_locked?: boolean | null
+          is_pinned?: boolean | null
+          stance_against_count?: number | null
+          stance_for_count?: number | null
+          stance_neutral_count?: number | null
+          tags?: string[] | null
+          time_limit?: string | null
+          title: string
+          updated_at?: string | null
+          upvotes?: number | null
+          user_id: string
+          view_count?: number | null
+          voting_ends_at?: string | null
+          winning_stance?: Database["public"]["Enums"]["debate_stance"] | null
+        }
+        Update: {
+          category_id?: string | null
+          comment_count?: number | null
+          controversy_score?: number | null
+          created_at?: string | null
+          description?: string
+          downvotes?: number | null
+          hotness_score?: number | null
+          id?: string
+          is_locked?: boolean | null
+          is_pinned?: boolean | null
+          stance_against_count?: number | null
+          stance_for_count?: number | null
+          stance_neutral_count?: number | null
+          tags?: string[] | null
+          time_limit?: string | null
+          title?: string
+          updated_at?: string | null
+          upvotes?: number | null
+          user_id?: string
+          view_count?: number | null
+          voting_ends_at?: string | null
+          winning_stance?: Database["public"]["Enums"]["debate_stance"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "debate_topics_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "debate_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      debate_user_stances: {
+        Row: {
+          created_at: string | null
+          debate_id: string
+          id: string
+          stance: Database["public"]["Enums"]["debate_stance"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          debate_id: string
+          id?: string
+          stance: Database["public"]["Enums"]["debate_stance"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          debate_id?: string
+          id?: string
+          stance?: Database["public"]["Enums"]["debate_stance"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "debate_user_stances_debate_id_fkey"
+            columns: ["debate_id"]
+            isOneToOne: false
+            referencedRelation: "debate_topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      debate_votes: {
+        Row: {
+          created_at: string | null
+          id: string
+          target_id: string
+          target_type: Database["public"]["Enums"]["debate_target_type"]
+          user_id: string
+          vote_type: Database["public"]["Enums"]["debate_vote_type"]
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          target_id: string
+          target_type: Database["public"]["Enums"]["debate_target_type"]
+          user_id: string
+          vote_type: Database["public"]["Enums"]["debate_vote_type"]
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          target_id?: string
+          target_type?: Database["public"]["Enums"]["debate_target_type"]
+          user_id?: string
+          vote_type?: Database["public"]["Enums"]["debate_vote_type"]
+        }
+        Relationships: []
+      }
       exam_resources: {
         Row: {
           created_at: string | null
@@ -3127,6 +3577,57 @@ export type Database = {
         }
         Relationships: []
       }
+      user_debate_stats: {
+        Row: {
+          awards_received: number | null
+          best_argument_score: number | null
+          comment_karma: number | null
+          comments_posted: number | null
+          created_at: string | null
+          debate_karma: number | null
+          debate_streak: number | null
+          debates_created: number | null
+          debates_won: number | null
+          id: string
+          rank: string | null
+          total_karma: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          awards_received?: number | null
+          best_argument_score?: number | null
+          comment_karma?: number | null
+          comments_posted?: number | null
+          created_at?: string | null
+          debate_karma?: number | null
+          debate_streak?: number | null
+          debates_created?: number | null
+          debates_won?: number | null
+          id?: string
+          rank?: string | null
+          total_karma?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          awards_received?: number | null
+          best_argument_score?: number | null
+          comment_karma?: number | null
+          comments_posted?: number | null
+          created_at?: string | null
+          debate_karma?: number | null
+          debate_streak?: number | null
+          debates_created?: number | null
+          debates_won?: number | null
+          id?: string
+          rank?: string | null
+          total_karma?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_favorites: {
         Row: {
           created_at: string | null
@@ -3619,6 +4120,12 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user" | "parent" | "teacher"
+      debate_award_rarity: "common" | "rare" | "epic" | "legendary"
+      debate_report_status: "pending" | "reviewed" | "dismissed" | "actioned"
+      debate_source_type: "url" | "citation" | "image" | "document"
+      debate_stance: "for" | "against" | "neutral"
+      debate_target_type: "topic" | "comment"
+      debate_vote_type: "upvote" | "downvote"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -3747,6 +4254,12 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user", "parent", "teacher"],
+      debate_award_rarity: ["common", "rare", "epic", "legendary"],
+      debate_report_status: ["pending", "reviewed", "dismissed", "actioned"],
+      debate_source_type: ["url", "citation", "image", "document"],
+      debate_stance: ["for", "against", "neutral"],
+      debate_target_type: ["topic", "comment"],
+      debate_vote_type: ["upvote", "downvote"],
     },
   },
 } as const

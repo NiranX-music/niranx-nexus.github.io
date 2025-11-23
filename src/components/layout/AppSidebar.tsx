@@ -150,6 +150,17 @@ const socialNavigation = [
   { title: "Video Share", url: "/niranx/video-share", icon: Play },
 ];
 
+// Debate Platform
+const debateNavigation = [
+  { title: "Debate Hub", url: "/niranx/debates", icon: MessageCircle },
+  { title: "My Debates", url: "/niranx/debates/mine", icon: User },
+  { title: "Bookmarked", url: "/niranx/debates/bookmarks", icon: StarIcon },
+  { title: "Categories", url: "/niranx/debates/categories", icon: Target },
+  { title: "Leaderboard", url: "/niranx/debates/leaderboard", icon: Trophy },
+  { title: "Tournaments", url: "/niranx/debates/tournaments", icon: Trophy },
+  { title: "Live Rooms", url: "/niranx/debates/live", icon: Zap },
+];
+
 // Tools & Utilities
 const toolsNavigation = [
   { title: "Infinite Chain", url: "/niranx/infinite-chain", icon: Infinity },
@@ -217,6 +228,7 @@ export function AppSidebar() {
     media: false,
     files: false,
     social: false,
+    debate: false,
     tools: false,
     external: false,
     admin: true,
@@ -233,6 +245,7 @@ export function AppSidebar() {
     ...mediaNavigation,
     ...filesNavigation,
     ...socialNavigation,
+    ...debateNavigation,
     ...toolsNavigation,
     ...externalPlatforms,
     ...(isAdmin ? adminNavigation : []),
@@ -521,6 +534,26 @@ export function AppSidebar() {
             <CollapsibleContent>
               <SidebarGroupContent>
                 <SidebarMenu>{renderNavItems(socialNavigation)}</SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
+
+        {/* Debate Platform */}
+        <Collapsible open={expandedSections.debate} onOpenChange={() => toggleSection('debate')}>
+          <SidebarGroup>
+            <CollapsibleTrigger asChild>
+              <SidebarGroupLabel className="cursor-pointer hover:bg-primary/20 rounded-lg px-2 -mx-2 flex items-center justify-between text-white/90 font-bold text-sm uppercase tracking-wider transition-all duration-200 py-3 bg-gradient-to-r from-orange-500/20 to-transparent">
+                <span className="flex items-center gap-2">
+                  <MessageCircle className="h-4 w-4 text-orange-400" />
+                  {!isCollapsed && "Debate Platform"}
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform text-white/70 ${expandedSections.debate ? '' : '-rotate-90'}`} />
+              </SidebarGroupLabel>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>{renderNavItems(debateNavigation)}</SidebarMenu>
               </SidebarGroupContent>
             </CollapsibleContent>
           </SidebarGroup>

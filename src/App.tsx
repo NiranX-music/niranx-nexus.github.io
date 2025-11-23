@@ -108,6 +108,14 @@ import DailyRewards from "./pages/DailyRewards";
 import ThemeCustomization from "./pages/ThemeCustomization";
 import Guilds from "./pages/Guilds";
 import SmartNotifications from "./pages/SmartNotifications";
+import DebateHub from "./pages/debates/DebateHub";
+import DebateDetail from "./pages/debates/DebateDetail";
+import MyDebates from "./pages/debates/MyDebates";
+import DebateBookmarks from "./pages/debates/Bookmarks";
+import DebateCategories from "./pages/debates/Categories";
+import DebateLeaderboard from "./pages/debates/Leaderboard";
+import DebateTournaments from "./pages/debates/Tournaments";
+import LiveDebateRooms from "./pages/debates/LiveRooms";
 
 const queryClient = new QueryClient();
 
@@ -222,6 +230,14 @@ const App = () => (
                           <Route path="/theme-customization" element={<ThemeCustomization />} />
                           <Route path="/guilds" element={<Guilds />} />
                           <Route path="/smart-notifications" element={<SmartNotifications />} />
+                          <Route path="/debates" element={<DebateHub />} />
+                          <Route path="/debates/:id" element={<DebateDetail />} />
+                          <Route path="/debates/mine" element={<MyDebates />} />
+                          <Route path="/debates/bookmarks" element={<DebateBookmarks />} />
+                          <Route path="/debates/categories" element={<DebateCategories />} />
+                          <Route path="/debates/leaderboard" element={<DebateLeaderboard />} />
+                          <Route path="/debates/tournaments" element={<DebateTournaments />} />
+                          <Route path="/debates/live" element={<LiveDebateRooms />} />
                           <Route path="/admin" element={
                             <AdminRoute>
                               <AdminDashboard />
