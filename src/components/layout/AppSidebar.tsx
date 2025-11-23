@@ -84,6 +84,9 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { DraggableFavorites } from "@/components/DraggableFavorites";
 import { getValidIconOrFallback } from "@/lib/iconValidator";
 import { MasterPasswordDialog } from "@/components/MasterPasswordDialog";
+import { useQuickLinks } from "@/hooks/useQuickLinks";
+import { AddQuickLinkDialog } from "@/components/AddQuickLinkDialog";
+import * as LucideIcons from "lucide-react";
 
 // Core Navigation
 const coreNavigation = [
@@ -225,6 +228,7 @@ export function AppSidebar() {
   const { isAdmin, isLoading: adminLoading } = useAdminCheck();
   const { isTeacher, isLoading: teacherLoading } = useTeacherCheck();
   const { favorites, addFavorite, removeFavorite, isFavorite, reorderFavorites } = useFavorites();
+  const { quickLinks, addQuickLink, removeQuickLink } = useQuickLinks();
   
   const [searchQuery, setSearchQuery] = useState("");
   const [showMasterPasswordDialog, setShowMasterPasswordDialog] = useState(false);
@@ -588,7 +592,7 @@ export function AppSidebar() {
           </SidebarGroup>
         </Collapsible>
 
-        {/* External Links */}
+        {/* Quick Links */}
         <Collapsible open={expandedSections.external} onOpenChange={() => toggleSection('external')}>
           <SidebarGroup>
             <CollapsibleTrigger asChild>
@@ -602,7 +606,56 @@ export function AppSidebar() {
             </CollapsibleTrigger>
             <CollapsibleContent>
               <SidebarGroupContent>
-                <SidebarMenu>{renderNavItems(externalPlatforms, true)}</SidebarMenu>
+                <SidebarMenu>
+                  {/* Add Quick Link Button */}
+                  {!isCollapsed && (
+                    <SidebarMenuItem>
+                      <AddQuickLinkDialog onAdd={addQuickLink} />
+                    </SidebarMenuItem>
+                  )}
+                  
+                  {/* User's Custom Quick Links */}
+                  {quickLinks.map((link) => {
+                    const IconComponent = (LucideIcons as any)[link.icon_name] || ExternalLink;
+                    return (
+                      <SidebarMenuItem key={link.id}>
+                        <SidebarMenuButton asChild className="text-white [&_svg]:text-white">
+                          <button
+                            onClick={(e) => handleExternalLink(link.url, e)}
+                            className="flex items-center gap-3 rounded-lg px-3 py-2 transition-all w-full text-left group text-white hover:bg-white/10 relative"
+                          >
+                            <IconComponent className="h-4 w-4 text-white" />
+                            {!isCollapsed && (
+                              <>
+                                <span className="flex-1">{link.title}</span>
+                                <ExternalLink className="h-3 w-3 opacity-70 text-white/70" />
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity absolute right-1"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    removeQuickLink(link.id);
+                                  }}
+                                >
+                                  <StarOff className="h-3 w-3 text-red-400" />
+                                </Button>
+                              </>
+                            )}
+                          </button>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                  
+                  {/* Divider between custom and default links */}
+                  {quickLinks.length > 0 && !isCollapsed && (
+                    <div className="my-2 border-t border-white/10" />
+                  )}
+                  
+                  {/* Default External Platforms */}
+                  {renderNavItems(externalPlatforms, true, false)}
+                </SidebarMenu>
               </SidebarGroupContent>
             </CollapsibleContent>
           </SidebarGroup>
