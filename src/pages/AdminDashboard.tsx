@@ -164,7 +164,7 @@ export default function AdminDashboard() {
     setUserRoles(usersWithRoles);
   };
 
-  const updateUserRole = async (userId: string, role: 'admin' | 'moderator' | 'user', action: 'add' | 'remove') => {
+  const updateUserRole = async (userId: string, role: 'admin' | 'moderator' | 'teacher' | 'parent' | 'user', action: 'add' | 'remove') => {
     try {
       if (action === 'add') {
         const { error } = await supabase
@@ -618,7 +618,7 @@ export default function AdminDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>User Role Management</CardTitle>
-              <CardDescription>Assign or revoke admin, moderator, and user roles</CardDescription>
+              <CardDescription>Assign or revoke admin, moderator, teacher, and parent/guardian roles</CardDescription>
               <div className="mt-4">
                 <Input
                   placeholder="Search by username, display name, or email..."
@@ -656,15 +656,26 @@ export default function AdminDashboard() {
                             {user.roles.map((role: string) => (
                               <Badge 
                                 key={role} 
-                                variant={role === 'admin' ? 'destructive' : role === 'moderator' ? 'default' : 'secondary'}
+                                variant={
+                                  role === 'admin' ? 'destructive' : 
+                                  role === 'moderator' ? 'default' : 
+                                  role === 'teacher' ? 'outline' :
+                                  role === 'parent' ? 'secondary' :
+                                  'secondary'
+                                }
+                                className={
+                                  role === 'teacher' ? 'border-blue-500 text-blue-700' :
+                                  role === 'parent' ? 'border-green-500 text-green-700' :
+                                  ''
+                                }
                               >
-                                {role}
+                                {role === 'parent' ? 'guardian' : role}
                               </Badge>
                             ))}
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex gap-2">
+                          <div className="flex gap-2 flex-wrap">
                             {!user.roles.includes('admin') && (
                               <Button
                                 size="sm"
@@ -699,6 +710,46 @@ export default function AdminDashboard() {
                                 onClick={() => updateUserRole(user.user_id, 'moderator', 'remove')}
                               >
                                 Remove Moderator
+                              </Button>
+                            )}
+                            {!user.roles.includes('teacher') && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => updateUserRole(user.user_id, 'teacher', 'add')}
+                                className="border-blue-500 hover:bg-blue-50"
+                              >
+                                Make Teacher
+                              </Button>
+                            )}
+                            {user.roles.includes('teacher') && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => updateUserRole(user.user_id, 'teacher', 'remove')}
+                                className="border-blue-500"
+                              >
+                                Remove Teacher
+                              </Button>
+                            )}
+                            {!user.roles.includes('parent') && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => updateUserRole(user.user_id, 'parent', 'add')}
+                                className="border-green-500 hover:bg-green-50"
+                              >
+                                Make Guardian
+                              </Button>
+                            )}
+                            {user.roles.includes('parent') && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => updateUserRole(user.user_id, 'parent', 'remove')}
+                                className="border-green-500"
+                              >
+                                Remove Guardian
                               </Button>
                             )}
                           </div>
