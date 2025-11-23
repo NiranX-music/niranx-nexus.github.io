@@ -146,6 +146,42 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_role_assignments: {
+        Row: {
+          expiration_date: string | null
+          granted_at: string | null
+          granted_by: string
+          granted_to: string
+          id: string
+          reason: string | null
+          revoked_at: string | null
+          revoked_by: string | null
+          role_granted: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          expiration_date?: string | null
+          granted_at?: string | null
+          granted_by: string
+          granted_to: string
+          id?: string
+          reason?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          role_granted: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          expiration_date?: string | null
+          granted_at?: string | null
+          granted_by?: string
+          granted_to?: string
+          id?: string
+          reason?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          role_granted?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: []
+      }
       ai_conversations: {
         Row: {
           created_at: string | null
@@ -244,6 +280,50 @@ export type Database = {
           weekly_hours?: number[] | null
         }
         Relationships: []
+      }
+      attendance_records: {
+        Row: {
+          auto_detected: boolean | null
+          classroom_id: string
+          created_at: string | null
+          date: string
+          id: string
+          notes: string | null
+          recorded_by: string | null
+          status: string
+          student_id: string
+        }
+        Insert: {
+          auto_detected?: boolean | null
+          classroom_id: string
+          created_at?: string | null
+          date: string
+          id?: string
+          notes?: string | null
+          recorded_by?: string | null
+          status: string
+          student_id: string
+        }
+        Update: {
+          auto_detected?: boolean | null
+          classroom_id?: string
+          created_at?: string | null
+          date?: string
+          id?: string
+          notes?: string | null
+          recorded_by?: string | null
+          status?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_records_classroom_id_fkey"
+            columns: ["classroom_id"]
+            isOneToOne: false
+            referencedRelation: "classrooms"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       audit_log: {
         Row: {
@@ -514,6 +594,218 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      classroom_announcements: {
+        Row: {
+          attachments: Json | null
+          classroom_id: string
+          content: string
+          created_at: string | null
+          id: string
+          is_pinned: boolean | null
+          notify_students: boolean | null
+          priority: string | null
+          teacher_id: string
+          title: string
+        }
+        Insert: {
+          attachments?: Json | null
+          classroom_id: string
+          content: string
+          created_at?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          notify_students?: boolean | null
+          priority?: string | null
+          teacher_id: string
+          title: string
+        }
+        Update: {
+          attachments?: Json | null
+          classroom_id?: string
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          notify_students?: boolean | null
+          priority?: string | null
+          teacher_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classroom_announcements_classroom_id_fkey"
+            columns: ["classroom_id"]
+            isOneToOne: false
+            referencedRelation: "classrooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      classroom_debates: {
+        Row: {
+          assignment_type: string | null
+          classroom_id: string
+          created_at: string | null
+          debate_topic_id: string
+          due_date: string | null
+          id: string
+          instructions: string | null
+          is_published: boolean | null
+          min_word_count: number | null
+          peer_review_enabled: boolean | null
+          points_possible: number | null
+          required_evidence_count: number | null
+          rubric_id: string | null
+        }
+        Insert: {
+          assignment_type?: string | null
+          classroom_id: string
+          created_at?: string | null
+          debate_topic_id: string
+          due_date?: string | null
+          id?: string
+          instructions?: string | null
+          is_published?: boolean | null
+          min_word_count?: number | null
+          peer_review_enabled?: boolean | null
+          points_possible?: number | null
+          required_evidence_count?: number | null
+          rubric_id?: string | null
+        }
+        Update: {
+          assignment_type?: string | null
+          classroom_id?: string
+          created_at?: string | null
+          debate_topic_id?: string
+          due_date?: string | null
+          id?: string
+          instructions?: string | null
+          is_published?: boolean | null
+          min_word_count?: number | null
+          peer_review_enabled?: boolean | null
+          points_possible?: number | null
+          required_evidence_count?: number | null
+          rubric_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classroom_debates_classroom_id_fkey"
+            columns: ["classroom_id"]
+            isOneToOne: false
+            referencedRelation: "classrooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "classroom_debates_debate_topic_id_fkey"
+            columns: ["debate_topic_id"]
+            isOneToOne: false
+            referencedRelation: "debate_topics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "classroom_debates_rubric_id_fkey"
+            columns: ["rubric_id"]
+            isOneToOne: false
+            referencedRelation: "grading_rubrics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      classroom_members: {
+        Row: {
+          attendance_rate: number | null
+          classroom_id: string
+          enrollment_status: string | null
+          id: string
+          joined_at: string | null
+          participation_score: number | null
+          role: string | null
+          student_id: string
+        }
+        Insert: {
+          attendance_rate?: number | null
+          classroom_id: string
+          enrollment_status?: string | null
+          id?: string
+          joined_at?: string | null
+          participation_score?: number | null
+          role?: string | null
+          student_id: string
+        }
+        Update: {
+          attendance_rate?: number | null
+          classroom_id?: string
+          enrollment_status?: string | null
+          id?: string
+          joined_at?: string | null
+          participation_score?: number | null
+          role?: string | null
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classroom_members_classroom_id_fkey"
+            columns: ["classroom_id"]
+            isOneToOne: false
+            referencedRelation: "classrooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      classrooms: {
+        Row: {
+          academic_year: string | null
+          class_code: string | null
+          created_at: string | null
+          description: string | null
+          grade_level: string | null
+          id: string
+          is_active: boolean | null
+          max_students: number | null
+          meeting_schedule: Json | null
+          name: string
+          settings: Json | null
+          subject: string | null
+          syllabus: Json | null
+          teacher_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          academic_year?: string | null
+          class_code?: string | null
+          created_at?: string | null
+          description?: string | null
+          grade_level?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_students?: number | null
+          meeting_schedule?: Json | null
+          name: string
+          settings?: Json | null
+          subject?: string | null
+          syllabus?: Json | null
+          teacher_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          academic_year?: string | null
+          class_code?: string | null
+          created_at?: string | null
+          description?: string | null
+          grade_level?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_students?: number | null
+          meeting_schedule?: Json | null
+          name?: string
+          settings?: Json | null
+          subject?: string | null
+          syllabus?: Json | null
+          teacher_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       collaborative_experiments: {
         Row: {
@@ -881,6 +1173,59 @@ export type Database = {
           },
         ]
       }
+      debate_participation_tracking: {
+        Row: {
+          arguments_posted: number | null
+          classroom_debate_id: string
+          comments_count: number | null
+          engagement_score: number | null
+          evidence_cited: number | null
+          fallacies_detected: number | null
+          id: string
+          last_activity: string | null
+          peer_reviews_given: number | null
+          student_id: string
+          time_spent_minutes: number | null
+          upvotes_received: number | null
+        }
+        Insert: {
+          arguments_posted?: number | null
+          classroom_debate_id: string
+          comments_count?: number | null
+          engagement_score?: number | null
+          evidence_cited?: number | null
+          fallacies_detected?: number | null
+          id?: string
+          last_activity?: string | null
+          peer_reviews_given?: number | null
+          student_id: string
+          time_spent_minutes?: number | null
+          upvotes_received?: number | null
+        }
+        Update: {
+          arguments_posted?: number | null
+          classroom_debate_id?: string
+          comments_count?: number | null
+          engagement_score?: number | null
+          evidence_cited?: number | null
+          fallacies_detected?: number | null
+          id?: string
+          last_activity?: string | null
+          peer_reviews_given?: number | null
+          student_id?: string
+          time_spent_minutes?: number | null
+          upvotes_received?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "debate_participation_tracking_classroom_debate_id_fkey"
+            columns: ["classroom_debate_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_debates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       debate_reports: {
         Row: {
           category: string | null
@@ -955,6 +1300,7 @@ export type Database = {
       debate_topics: {
         Row: {
           category_id: string | null
+          classroom_id: string | null
           comment_count: number | null
           controversy_score: number | null
           created_at: string | null
@@ -962,8 +1308,10 @@ export type Database = {
           downvotes: number | null
           hotness_score: number | null
           id: string
+          is_classroom_debate: boolean | null
           is_locked: boolean | null
           is_pinned: boolean | null
+          is_private: boolean | null
           stance_against_count: number | null
           stance_for_count: number | null
           stance_neutral_count: number | null
@@ -979,6 +1327,7 @@ export type Database = {
         }
         Insert: {
           category_id?: string | null
+          classroom_id?: string | null
           comment_count?: number | null
           controversy_score?: number | null
           created_at?: string | null
@@ -986,8 +1335,10 @@ export type Database = {
           downvotes?: number | null
           hotness_score?: number | null
           id?: string
+          is_classroom_debate?: boolean | null
           is_locked?: boolean | null
           is_pinned?: boolean | null
+          is_private?: boolean | null
           stance_against_count?: number | null
           stance_for_count?: number | null
           stance_neutral_count?: number | null
@@ -1003,6 +1354,7 @@ export type Database = {
         }
         Update: {
           category_id?: string | null
+          classroom_id?: string | null
           comment_count?: number | null
           controversy_score?: number | null
           created_at?: string | null
@@ -1010,8 +1362,10 @@ export type Database = {
           downvotes?: number | null
           hotness_score?: number | null
           id?: string
+          is_classroom_debate?: boolean | null
           is_locked?: boolean | null
           is_pinned?: boolean | null
+          is_private?: boolean | null
           stance_against_count?: number | null
           stance_for_count?: number | null
           stance_neutral_count?: number | null
@@ -1031,6 +1385,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "debate_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "debate_topics_classroom_id_fkey"
+            columns: ["classroom_id"]
+            isOneToOne: false
+            referencedRelation: "classrooms"
             referencedColumns: ["id"]
           },
         ]
@@ -1365,6 +1726,39 @@ export type Database = {
           id?: string
           target_value?: number
           title?: string
+        }
+        Relationships: []
+      }
+      grading_rubrics: {
+        Row: {
+          created_at: string | null
+          criteria: Json
+          id: string
+          is_template: boolean | null
+          name: string
+          subject: string | null
+          teacher_id: string
+          total_points: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          criteria?: Json
+          id?: string
+          is_template?: boolean | null
+          name: string
+          subject?: string | null
+          teacher_id: string
+          total_points?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          criteria?: Json
+          id?: string
+          is_template?: boolean | null
+          name?: string
+          subject?: string | null
+          teacher_id?: string
+          total_points?: number | null
         }
         Relationships: []
       }
@@ -2166,6 +2560,56 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      lms_integrations: {
+        Row: {
+          api_credentials: Json | null
+          classroom_id: string
+          created_at: string | null
+          id: string
+          last_sync: string | null
+          lms_course_id: string | null
+          lms_type: string | null
+          sync_enabled: boolean | null
+          sync_errors: Json | null
+          sync_grades: boolean | null
+          sync_roster: boolean | null
+        }
+        Insert: {
+          api_credentials?: Json | null
+          classroom_id: string
+          created_at?: string | null
+          id?: string
+          last_sync?: string | null
+          lms_course_id?: string | null
+          lms_type?: string | null
+          sync_enabled?: boolean | null
+          sync_errors?: Json | null
+          sync_grades?: boolean | null
+          sync_roster?: boolean | null
+        }
+        Update: {
+          api_credentials?: Json | null
+          classroom_id?: string
+          created_at?: string | null
+          id?: string
+          last_sync?: string | null
+          lms_course_id?: string | null
+          lms_type?: string | null
+          sync_enabled?: boolean | null
+          sync_errors?: Json | null
+          sync_grades?: boolean | null
+          sync_roster?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lms_integrations_classroom_id_fkey"
+            columns: ["classroom_id"]
+            isOneToOne: false
+            referencedRelation: "classrooms"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       login_streaks: {
         Row: {
@@ -3070,6 +3514,62 @@ export type Database = {
           xp_cost?: number
         }
         Relationships: []
+      }
+      student_grades: {
+        Row: {
+          ai_analysis: Json | null
+          ai_assisted: boolean | null
+          classroom_debate_id: string
+          feedback: string | null
+          graded_at: string | null
+          graded_by: string
+          id: string
+          letter_grade: string | null
+          percentage: number | null
+          published_to_student: boolean | null
+          rubric_scores: Json | null
+          student_id: string
+          total_score: number | null
+        }
+        Insert: {
+          ai_analysis?: Json | null
+          ai_assisted?: boolean | null
+          classroom_debate_id: string
+          feedback?: string | null
+          graded_at?: string | null
+          graded_by: string
+          id?: string
+          letter_grade?: string | null
+          percentage?: number | null
+          published_to_student?: boolean | null
+          rubric_scores?: Json | null
+          student_id: string
+          total_score?: number | null
+        }
+        Update: {
+          ai_analysis?: Json | null
+          ai_assisted?: boolean | null
+          classroom_debate_id?: string
+          feedback?: string | null
+          graded_at?: string | null
+          graded_by?: string
+          id?: string
+          letter_grade?: string | null
+          percentage?: number | null
+          published_to_student?: boolean | null
+          rubric_scores?: Json | null
+          student_id?: string
+          total_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_grades_classroom_debate_id_fkey"
+            columns: ["classroom_debate_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_debates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       student_guardians: {
         Row: {
@@ -4072,6 +4572,7 @@ export type Database = {
     }
     Functions: {
       calculate_level: { Args: { xp_amount: number }; Returns: number }
+      generate_class_code: { Args: never; Returns: string }
       generate_share_token: { Args: never; Returns: string }
       generate_theme_share_token: { Args: never; Returns: string }
       get_public_user_info: {

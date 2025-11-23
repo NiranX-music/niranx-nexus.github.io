@@ -116,6 +116,10 @@ import DebateCategories from "./pages/debates/Categories";
 import DebateLeaderboard from "./pages/debates/Leaderboard";
 import DebateTournaments from "./pages/debates/Tournaments";
 import LiveDebateRooms from "./pages/debates/LiveRooms";
+import TeacherDashboard from "./pages/teacher/TeacherDashboard";
+import ClassroomDetail from "./pages/teacher/ClassroomDetail";
+import RoleManagement from "./pages/admin/RoleManagement";
+import { TeacherRoute } from "./components/TeacherRoute";
 
 const queryClient = new QueryClient();
 
@@ -252,6 +256,21 @@ const App = () => (
                             <AdminRoute>
                               <AdminMessageReports />
                             </AdminRoute>
+                          } />
+                          <Route path="/admin/roles" element={
+                            <AdminRoute>
+                              <RoleManagement />
+                            </AdminRoute>
+                          } />
+                          <Route path="/teacher/dashboard" element={
+                            <TeacherRoute>
+                              <TeacherDashboard />
+                            </TeacherRoute>
+                          } />
+                          <Route path="/teacher/classrooms/:id" element={
+                            <TeacherRoute>
+                              <ClassroomDetail />
+                            </TeacherRoute>
                           } />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
