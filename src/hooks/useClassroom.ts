@@ -60,6 +60,21 @@ export function useClassroom(classroomId?: string) {
     enabled: !!classroomId,
   });
 
+  const { data: videos } = useQuery({
+    queryKey: ["classroom-videos", classroomId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("classroom_videos")
+        .select("*")
+        .eq("classroom_id", classroomId)
+        .order("order_index", { ascending: true });
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!classroomId,
+  });
+
   const createClassroom = useMutation({
     mutationFn: async (data: any) => {
       const { data: newClassroom, error } = await supabase
@@ -134,6 +149,7 @@ export function useClassroom(classroomId?: string) {
     classrooms,
     classroom,
     members,
+    videos,
     classroomsLoading,
     classroomLoading,
     createClassroom,

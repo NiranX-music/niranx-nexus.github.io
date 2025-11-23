@@ -118,6 +118,7 @@ import DebateTournaments from "./pages/debates/Tournaments";
 import LiveDebateRooms from "./pages/debates/LiveRooms";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import ClassroomDetail from "./pages/teacher/ClassroomDetail";
+import JoinClassroom from "./pages/teacher/JoinClassroom";
 import RoleManagement from "./pages/admin/RoleManagement";
 import { TeacherRoute } from "./components/TeacherRoute";
 
@@ -271,6 +272,11 @@ const App = () => (
                             <TeacherRoute>
                               <ClassroomDetail />
                             </TeacherRoute>
+                          } />
+                          <Route path="/join-classroom" element={
+                            <ProtectedRoute>
+                              <JoinClassroom />
+                            </ProtectedRoute>
                           } />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
