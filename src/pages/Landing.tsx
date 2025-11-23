@@ -26,7 +26,6 @@ import {
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { GuestModeButton } from "@/components/GuestModeButton";
 
 const Landing = () => {
   const { user } = useAuth();
@@ -116,12 +115,11 @@ const Landing = () => {
               StudyVerse is the ultimate platform for students to organize, collaborate, and excel in their academic journey. 
               From smart scheduling to gamified learning, we've got everything you need to succeed.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex justify-center">
               <Button size="lg" className="text-lg px-8 py-6" onClick={handleGetStarted}>
                 Get Started Free
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <GuestModeButton />
             </div>
           </div>
         </div>
