@@ -753,6 +753,47 @@ export type Database = {
           },
         ]
       }
+      classroom_videos: {
+        Row: {
+          added_by: string
+          classroom_id: string
+          created_at: string | null
+          id: string
+          order_index: number | null
+          video_description: string | null
+          video_title: string
+          video_url: string
+        }
+        Insert: {
+          added_by: string
+          classroom_id: string
+          created_at?: string | null
+          id?: string
+          order_index?: number | null
+          video_description?: string | null
+          video_title: string
+          video_url: string
+        }
+        Update: {
+          added_by?: string
+          classroom_id?: string
+          created_at?: string | null
+          id?: string
+          order_index?: number | null
+          video_description?: string | null
+          video_title?: string
+          video_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classroom_videos_classroom_id_fkey"
+            columns: ["classroom_id"]
+            isOneToOne: false
+            referencedRelation: "classrooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       classrooms: {
         Row: {
           academic_year: string | null
