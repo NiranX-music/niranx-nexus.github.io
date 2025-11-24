@@ -30,6 +30,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { validateMessageContent, checkClientRateLimit } from "@/lib/security";
 import { openAIStorage, validateSession } from "@/lib/apiKeyStorage";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 
 interface ChatMessage {
@@ -60,6 +61,7 @@ interface QuickAction {
 
 const AIStudyBuddy = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentInput, setCurrentInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -116,23 +118,57 @@ const AIStudyBuddy = () => {
     }
   ];
 
-  // Load data from localStorage
+  // Load data from Supabase and localStorage
   useEffect(() => {
-    // Session validation removed to prevent popup notifications
+    const loadSessions = async () => {
+      if (!user) return;
 
-    const savedSessions = localStorage.getItem('studyverse-ai-sessions');
-    
-    if (savedSessions) {
       try {
-        const parsed = JSON.parse(savedSessions);
-        setSessions(parsed);
-        if (parsed.length > 0 && !activeSession) {
-          setActiveSession(parsed[0].id);
-          setMessages(parsed[0].messages || []);
+        const { data: conversations, error } = await supabase
+          .from("ai_conversations")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("last_activity", { ascending: false });
+
+        if (error) throw error;
+
+        if (conversations && conversations.length > 0) {
+          const sessions: StudySession[] = conversations.map(conv => ({
+            id: conv.id,
+            title: conv.title,
+            messages: [],
+            subject: conv.subject || 'General',
+            createdAt: conv.created_at,
+            lastActivity: conv.last_activity
+          }));
+
+          setSessions(sessions);
+          setActiveSession(sessions[0].id);
+          
+          // Load messages for first session
+          const { data: msgs } = await supabase
+            .from("ai_messages")
+            .select("*")
+            .eq("conversation_id", sessions[0].id)
+            .order("created_at", { ascending: true });
+
+          if (msgs) {
+            setMessages(msgs.map(msg => ({
+              id: msg.id,
+              type: msg.role as 'user' | 'ai',
+              content: msg.content,
+              timestamp: msg.created_at,
+              category: msg.category as any
+            })));
+          }
         }
       } catch (error) {
-        console.error('Error loading AI sessions:', error);
+        console.error('Error loading sessions:', error);
       }
+    };
+
+    if (user) {
+      loadSessions();
     }
     
     // Load secure API key
@@ -155,7 +191,7 @@ const AIStudyBuddy = () => {
         console.error('Error loading AI settings:', error);
       }
     }
-  }, []);
+  }, [user]);
 
   // Save data to localStorage (sessions) and secure storage (API key)
   useEffect(() => {
@@ -182,30 +218,53 @@ const AIStudyBuddy = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const createNewSession = (subject = 'General') => {
-    const newSession: StudySession = {
-      id: Math.random().toString(36).substr(2, 9),
-      title: `Study Session - ${new Date().toLocaleDateString()}`,
-      messages: [],
-      subject,
-      createdAt: new Date().toISOString(),
-      lastActivity: new Date().toISOString()
-    };
+  const createNewSession = async (subject = 'General') => {
+    if (!user) return;
 
-    setSessions(prev => [newSession, ...prev]);
-    setActiveSession(newSession.id);
-    setMessages([]);
-    
-    // Add welcome message
-    const welcomeMessage: ChatMessage = {
-      id: Math.random().toString(36).substr(2, 9),
-      type: 'ai',
-      content: `Hi there! 👋 I'm your AI Study Buddy. I'm here to help you with homework, explain concepts, create practice questions, and make your learning journey more effective. What would you like to study today?`,
-      timestamp: new Date().toISOString(),
-      category: 'general'
-    };
-    
-    setMessages([welcomeMessage]);
+    try {
+      const { data, error } = await supabase
+        .from("ai_conversations")
+        .insert({
+          user_id: user.id,
+          title: `Study Session - ${new Date().toLocaleDateString()}`,
+          subject
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newSession: StudySession = {
+        id: data.id,
+        title: data.title,
+        messages: [],
+        subject: data.subject || subject,
+        createdAt: data.created_at,
+        lastActivity: data.last_activity
+      };
+
+      setSessions(prev => [newSession, ...prev]);
+      setActiveSession(newSession.id);
+      setMessages([]);
+      
+      // Add welcome message
+      const welcomeMessage: ChatMessage = {
+        id: Math.random().toString(36).substr(2, 9),
+        type: 'ai',
+        content: `Hi there! 👋 I'm your AI Study Buddy. I'm here to help you with homework, explain concepts, create practice questions, and make your learning journey more effective. What would you like to study today?`,
+        timestamp: new Date().toISOString(),
+        category: 'general'
+      };
+      
+      setMessages([welcomeMessage]);
+    } catch (error) {
+      console.error('Error creating session:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create new session",
+        variant: "destructive",
+      });
+    }
   };
 
   const sendMessage = async (content: string, category?: ChatMessage['category']) => {
@@ -246,6 +305,16 @@ const AIStudyBuddy = () => {
     setIsLoading(true);
 
     try {
+      // Save to database instead of localStorage
+      if (activeSession) {
+        await supabase.from("ai_messages").insert({
+          conversation_id: activeSession,
+          role: 'user',
+          content,
+          category: category || 'general'
+        });
+      }
+
       // Call secure edge function instead of client-side OpenAI
       const { data, error } = await supabase.functions.invoke('secure-ai-chat', {
         body: { prompt: content, category }
@@ -276,7 +345,26 @@ const AIStudyBuddy = () => {
       const finalMessages = [...updatedMessages, aiMessage];
       setMessages(finalMessages);
       
-      // Update active session
+      // Save AI response to database
+      if (activeSession) {
+        await supabase.from("ai_messages").insert({
+          conversation_id: activeSession,
+          role: 'assistant',
+          content: data.response,
+          category: category || 'general'
+        });
+
+        // Update conversation last activity and title
+        await supabase
+          .from("ai_conversations")
+          .update({ 
+            last_activity: new Date().toISOString(),
+            title: finalMessages.length === 2 ? content.slice(0, 50) : undefined
+          })
+          .eq("id", activeSession);
+      }
+      
+      // Update local sessions
       if (activeSession) {
         setSessions(prev => prev.map(session => 
           session.id === activeSession 
@@ -381,7 +469,7 @@ const AIStudyBuddy = () => {
     }
   };
 
-  if (!activeSession && sessions.length === 0) {
+  if (!activeSession && sessions.length === 0 && user) {
     createNewSession();
   }
 
