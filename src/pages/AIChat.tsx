@@ -7,6 +7,9 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Send, Bot, User, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useSearchParams } from "react-router-dom";
 
 interface Message {
   role: "user" | "assistant";
@@ -14,9 +17,12 @@ interface Message {
 }
 
 export default function AIChat() {
+  const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
 
@@ -26,10 +32,83 @@ export default function AIChat() {
     }
   }, [messages]);
 
+  useEffect(() => {
+    const convId = searchParams.get("conversation");
+    if (convId && user) {
+      loadConversation(convId);
+    } else if (user) {
+      createNewConversation();
+    }
+  }, [searchParams, user]);
+
+  const loadConversation = async (convId: string) => {
+    try {
+      const { data: messages, error } = await supabase
+        .from("ai_messages")
+        .select("*")
+        .eq("conversation_id", convId)
+        .order("created_at", { ascending: true });
+
+      if (error) throw error;
+
+      setConversationId(convId);
+      setMessages(messages.map(msg => ({ role: msg.role as "user" | "assistant", content: msg.content })));
+    } catch (error) {
+      console.error("Error loading conversation:", error);
+      toast.error("Failed to load conversation");
+    }
+  };
+
+  const createNewConversation = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("ai_conversations")
+        .insert({
+          user_id: user.id,
+          title: "New Chat",
+          subject: "General"
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      setConversationId(data.id);
+    } catch (error) {
+      console.error("Error creating conversation:", error);
+      toast.error("Failed to create conversation");
+    }
+  };
+
+  const saveMessage = async (role: "user" | "assistant", content: string) => {
+    if (!conversationId) return;
+
+    try {
+      await supabase.from("ai_messages").insert({
+        conversation_id: conversationId,
+        role,
+        content,
+        category: "general"
+      });
+
+      // Update last activity
+      await supabase
+        .from("ai_conversations")
+        .update({ last_activity: new Date().toISOString() })
+        .eq("id", conversationId);
+    } catch (error) {
+      console.error("Error saving message:", error);
+    }
+  };
+
   const streamChat = async (userMessage: string) => {
     const newMessages = [...messages, { role: "user" as const, content: userMessage }];
     setMessages(newMessages);
     setIsLoading(true);
+    
+    // Save user message
+    await saveMessage("user", userMessage);
 
     try {
       const response = await fetch(CHAT_URL, {
@@ -106,6 +185,19 @@ export default function AIChat() {
           } catch {
             // Ignore
           }
+        }
+      }
+
+      // Save assistant message
+      if (assistantMessage) {
+        await saveMessage("assistant", assistantMessage);
+        
+        // Update conversation title if first message
+        if (newMessages.length === 1 && conversationId) {
+          await supabase
+            .from("ai_conversations")
+            .update({ title: userMessage.slice(0, 50) })
+            .eq("id", conversationId);
         }
       }
     } catch (error) {
