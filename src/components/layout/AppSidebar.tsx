@@ -86,6 +86,7 @@ import { getValidIconOrFallback } from "@/lib/iconValidator";
 import { MasterPasswordDialog } from "@/components/MasterPasswordDialog";
 import { useQuickLinks } from "@/hooks/useQuickLinks";
 import { AddQuickLinkDialog } from "@/components/AddQuickLinkDialog";
+import { useClassroom } from "@/hooks/useClassroom";
 import * as LucideIcons from "lucide-react";
 
 // Core Navigation
@@ -231,6 +232,7 @@ export function AppSidebar() {
   const { isTeacher, isLoading: teacherLoading } = useTeacherCheck();
   const { favorites, addFavorite, removeFavorite, isFavorite, reorderFavorites } = useFavorites();
   const { quickLinks, addQuickLink, removeQuickLink } = useQuickLinks();
+  const { classrooms } = useClassroom();
   
   const [searchQuery, setSearchQuery] = useState("");
   const [showMasterPasswordDialog, setShowMasterPasswordDialog] = useState(false);
@@ -246,6 +248,7 @@ export function AppSidebar() {
     external: false,
     admin: true,
     teacher: true,
+    liveClasses: true,
     system: false,
     archive: false,
     more: false,
@@ -701,6 +704,48 @@ export function AppSidebar() {
               <CollapsibleContent>
                 <SidebarGroupContent>
                   <SidebarMenu>{renderNavItems(teacherNavigation)}</SidebarMenu>
+                </SidebarGroupContent>
+              </CollapsibleContent>
+            </SidebarGroup>
+          </Collapsible>
+        )}
+
+        {/* Live Classes - Show classrooms for teachers/admins */}
+        {!teacherLoading && (isTeacher || isAdmin) && classrooms && classrooms.length > 0 && (
+          <Collapsible open={expandedSections.liveClasses} onOpenChange={() => toggleSection('liveClasses')}>
+            <SidebarGroup>
+              <CollapsibleTrigger asChild>
+                <SidebarGroupLabel className="cursor-pointer hover:bg-green-500/20 rounded-lg px-2 -mx-2 flex items-center justify-between text-white/90 font-bold text-sm uppercase tracking-wider transition-all duration-200 py-3 bg-gradient-to-r from-green-500/20 to-transparent border border-green-500/20">
+                  <span className="flex items-center gap-2">
+                    <Video className="h-4 w-4 text-green-400" />
+                    {!isCollapsed && "Live Classes"}
+                  </span>
+                  <ChevronDown className={`h-4 w-4 transition-transform text-white/70 ${expandedSections.liveClasses ? '' : '-rotate-90'}`} />
+                </SidebarGroupLabel>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {classrooms.map((classroom) => (
+                      <SidebarMenuItem key={classroom.id}>
+                        <SidebarMenuButton asChild className="text-white [&_svg]:text-white">
+                          <NavLink
+                            to={`/niranx/teacher/classroom/${classroom.id}`}
+                            className={({ isActive: navIsActive }) =>
+                              `flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
+                                navIsActive
+                                  ? "bg-primary text-primary-foreground font-semibold"
+                                  : "text-white hover:bg-white/10"
+                              }`
+                            }
+                          >
+                            <Video className="h-4 w-4" />
+                            {!isCollapsed && <span className="truncate">{classroom.name}</span>}
+                          </NavLink>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
                 </SidebarGroupContent>
               </CollapsibleContent>
             </SidebarGroup>
