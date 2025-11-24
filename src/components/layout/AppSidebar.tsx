@@ -97,7 +97,6 @@ const coreNavigation = [
   { title: "Class Manager", url: "/niranx/class-scheduler", icon: CalendarCheck },
   { title: "Web Search", url: "/niranx/web-search", icon: Search },
   { title: "Profile", url: "/niranx/profile", icon: User },
-  { title: "Feedback & Suggestions", url: "/niranx/feedback", icon: MessagesSquare },
 ];
 
 // Study & Focus
@@ -202,6 +201,7 @@ const systemNavigation = [
   { title: "Theme Customization", url: "/niranx/theme-customization", icon: Palette },
   { title: "Guardian Settings", url: "/niranx/guardian-settings", icon: ShieldCheck },
   { title: "OAuth Settings", url: "/niranx/oauth-settings", icon: Link2 },
+  { title: "Feedback & Suggestions", url: "/niranx/feedback", icon: MessagesSquare },
   { title: "Become an Admin", url: "/niranx/become-admin", icon: UserPlus },
 ];
 
