@@ -102,6 +102,7 @@ import GuardianDashboard from "./pages/GuardianDashboard";
 import StudentGuardianSettings from "./pages/StudentGuardianSettings";
 import { AdminRoute } from "./components/AdminRoute";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { ModeratorRoute } from "./components/ModeratorRoute";
 import { AccessibilitySettings } from "./pages/AccessibilitySettings";
 import Guide from "./pages/Guide";
 import DailyRewards from "./pages/DailyRewards";
@@ -120,6 +121,8 @@ import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import ClassroomDetail from "./pages/teacher/ClassroomDetail";
 import JoinClassroom from "./pages/teacher/JoinClassroom";
 import RoleManagement from "./pages/admin/RoleManagement";
+import FeedbackSubmission from "./pages/FeedbackSubmission";
+import FeedbackList from "./pages/admin/FeedbackList";
 import { TeacherRoute } from "./components/TeacherRoute";
 
 const queryClient = new QueryClient();
@@ -221,7 +224,7 @@ const App = () => (
                           <Route path="/sitemap" element={<Sitemap />} />
                           <Route path="/kiosk-mode" element={<KioskMode />} />
                           <Route path="/feature-suggestions" element={<FeatureSuggestions />} />
-                          <Route path="/feedback" element={<FeatureSuggestions />} />
+                          <Route path="/feedback" element={<FeedbackSubmission />} />
                           <Route path="/notification-settings" element={<NotificationSettings />} />
                           <Route path="/labs" element={<Labs />} />
                           <Route path="/labs/chemistry" element={<Chemistry />} />
@@ -277,6 +280,11 @@ const App = () => (
                             <ProtectedRoute>
                               <JoinClassroom />
                             </ProtectedRoute>
+                          } />
+                          <Route path="/admin/feedback-list" element={
+                            <ModeratorRoute>
+                              <FeedbackList />
+                            </ModeratorRoute>
                           } />
                           <Route path="*" element={<NotFound />} />
                         </Routes>

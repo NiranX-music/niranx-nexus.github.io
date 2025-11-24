@@ -1647,6 +1647,51 @@ export type Database = {
           },
         ]
       }
+      feedback_submissions: {
+        Row: {
+          admin_notes: string | null
+          created_at: string | null
+          feature_suggestions: string | null
+          id: string
+          issues_faced: string | null
+          rating: number
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string | null
+          user_class: string | null
+          user_id: string
+          user_name: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string | null
+          feature_suggestions?: string | null
+          id?: string
+          issues_faced?: string | null
+          rating: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          user_class?: string | null
+          user_id: string
+          user_name: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string | null
+          feature_suggestions?: string | null
+          id?: string
+          issues_faced?: string | null
+          rating?: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          user_class?: string | null
+          user_id?: string
+          user_name?: string
+        }
+        Relationships: []
+      }
       feedback_suggestions: {
         Row: {
           attachments: Json | null
