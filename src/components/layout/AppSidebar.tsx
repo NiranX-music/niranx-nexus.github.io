@@ -202,6 +202,7 @@ const systemNavigation = [
   { title: "Guardian Settings", url: "/niranx/guardian-settings", icon: ShieldCheck },
   { title: "OAuth Settings", url: "/niranx/oauth-settings", icon: Link2 },
   { title: "Feedback & Suggestions", url: "/niranx/feedback", icon: MessagesSquare },
+  { title: "Android TWA Setup", url: "/niranx/twa-setup", icon: Smartphone },
   { title: "Become an Admin", url: "/niranx/become-admin", icon: UserPlus },
 ];
 
