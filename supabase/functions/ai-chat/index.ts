@@ -31,10 +31,11 @@ serve(async (req) => {
         messages: [
           { 
             role: "system", 
-            content: "You are a helpful AI study assistant. Help students with their questions, provide clear explanations, and encourage learning. Keep responses concise and focused."
+            content: "You are a helpful AI study assistant. Help students with their questions, provide clear explanations, and encourage learning. Keep responses concise and focused within 5000 characters."
           },
           ...messages,
         ],
+        max_tokens: 1250,
         stream: true,
       }),
     });

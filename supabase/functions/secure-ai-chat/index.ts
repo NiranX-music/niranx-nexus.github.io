@@ -101,23 +101,23 @@ serve(async (req) => {
     }
 
     // Prepare system message based on category
-    let systemMessage = 'You are a helpful AI study assistant for students.';
+    let systemMessage = 'You are a helpful AI study assistant for students. Keep responses under 5000 characters.';
     
     switch (category) {
       case 'homework':
-        systemMessage = 'You are a helpful homework assistant. Guide students through problems step-by-step without giving direct answers. Encourage learning and understanding.';
+        systemMessage = 'You are a helpful homework assistant. Guide students through problems step-by-step without giving direct answers. Encourage learning and understanding. Keep responses under 5000 characters.';
         break;
       case 'explain':
-        systemMessage = 'You are an expert at explaining complex concepts in simple, easy-to-understand terms. Use analogies and examples when helpful.';
+        systemMessage = 'You are an expert at explaining complex concepts in simple, easy-to-understand terms. Use analogies and examples when helpful. Keep responses under 5000 characters.';
         break;
       case 'practice':
-        systemMessage = 'You are a practice question generator. Create meaningful practice questions that test understanding of the given topic.';
+        systemMessage = 'You are a practice question generator. Create meaningful practice questions that test understanding of the given topic. Keep responses under 5000 characters.';
         break;
       case 'translate':
-        systemMessage = 'You are a language learning assistant. Provide accurate translations and explain grammar concepts clearly.';
+        systemMessage = 'You are a language learning assistant. Provide accurate translations and explain grammar concepts clearly. Keep responses under 5000 characters.';
         break;
       case 'schedule':
-        systemMessage = 'You are a study planning assistant. Help create realistic, effective study schedules based on the student\'s needs.';
+        systemMessage = 'You are a study planning assistant. Help create realistic, effective study schedules based on the student\'s needs. Keep responses under 5000 characters.';
         break;
     }
 
@@ -134,7 +134,7 @@ serve(async (req) => {
           { role: 'system', content: systemMessage },
           { role: 'user', content: prompt }
         ],
-        max_tokens: 1000,
+        max_tokens: 1250,
         temperature: 0.7,
       }),
     });
