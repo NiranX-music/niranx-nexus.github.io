@@ -3,9 +3,11 @@ import { useClassroom } from "@/hooks/useClassroom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Users, BookOpen, ClipboardList, Calendar, Bell, Link2, Youtube, Copy, Check } from "lucide-react";
+import { ArrowLeft, Users, BookOpen, ClipboardList, Calendar, Bell, Link2, Youtube, Copy, Check, Video } from "lucide-react";
 import { StudentRosterTable } from "@/components/teacher/StudentRosterTable";
 import { ClassroomVideoManager } from "@/components/teacher/ClassroomVideoManager";
+import { LiveClassroom } from "@/components/teacher/LiveClassroom";
+import { useTeacherCheck } from "@/hooks/useTeacherCheck";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
 
@@ -13,6 +15,7 @@ export default function ClassroomDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { classroom, members, videos, classroomLoading } = useClassroom(id);
+  const { isTeacher } = useTeacherCheck();
   const [copied, setCopied] = useState(false);
 
   const inviteLink = classroom?.class_code
@@ -123,6 +126,10 @@ export default function ClassroomDetail() {
             <BookOpen className="w-4 h-4 mr-2" />
             Overview
           </TabsTrigger>
+          <TabsTrigger value="live">
+            <Video className="w-4 h-4 mr-2" />
+            Live Class
+          </TabsTrigger>
           <TabsTrigger value="videos">
             <Youtube className="w-4 h-4 mr-2" />
             Video Library
@@ -152,6 +159,10 @@ export default function ClassroomDetail() {
               {classroom.description || "No description available"}
             </p>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="live">
+          <LiveClassroom classroomId={id!} isTeacher={isTeacher} />
         </TabsContent>
 
         <TabsContent value="videos">

@@ -2479,6 +2479,79 @@ export type Database = {
           },
         ]
       }
+      live_class_doubts: {
+        Row: {
+          answer: string | null
+          answered: boolean | null
+          answered_at: string | null
+          created_at: string | null
+          id: string
+          question: string
+          session_id: string
+          user_id: string
+        }
+        Insert: {
+          answer?: string | null
+          answered?: boolean | null
+          answered_at?: string | null
+          created_at?: string | null
+          id?: string
+          question: string
+          session_id: string
+          user_id: string
+        }
+        Update: {
+          answer?: string | null
+          answered?: boolean | null
+          answered_at?: string | null
+          created_at?: string | null
+          id?: string
+          question?: string
+          session_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_class_doubts_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "live_class_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_class_messages: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string
+          session_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message: string
+          session_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string
+          session_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_class_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "live_class_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       live_class_mood: {
         Row: {
           class_id: string
@@ -2586,6 +2659,82 @@ export type Database = {
             columns: ["class_id"]
             isOneToOne: false
             referencedRelation: "live_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_class_raised_hands: {
+        Row: {
+          acknowledged: boolean | null
+          acknowledged_at: string | null
+          id: string
+          raised_at: string | null
+          session_id: string
+          user_id: string
+        }
+        Insert: {
+          acknowledged?: boolean | null
+          acknowledged_at?: string | null
+          id?: string
+          raised_at?: string | null
+          session_id: string
+          user_id: string
+        }
+        Update: {
+          acknowledged?: boolean | null
+          acknowledged_at?: string | null
+          id?: string
+          raised_at?: string | null
+          session_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_class_raised_hands_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "live_class_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_class_sessions: {
+        Row: {
+          channel_name: string
+          classroom_id: string
+          created_at: string | null
+          ended_at: string | null
+          id: string
+          started_at: string | null
+          status: string | null
+          teacher_id: string
+        }
+        Insert: {
+          channel_name: string
+          classroom_id: string
+          created_at?: string | null
+          ended_at?: string | null
+          id?: string
+          started_at?: string | null
+          status?: string | null
+          teacher_id: string
+        }
+        Update: {
+          channel_name?: string
+          classroom_id?: string
+          created_at?: string | null
+          ended_at?: string | null
+          id?: string
+          started_at?: string | null
+          status?: string | null
+          teacher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_class_sessions_classroom_id_fkey"
+            columns: ["classroom_id"]
+            isOneToOne: false
+            referencedRelation: "classrooms"
             referencedColumns: ["id"]
           },
         ]
