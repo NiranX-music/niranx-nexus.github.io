@@ -186,6 +186,7 @@ const externalPlatforms = [
 // Admin & System
 const adminNavigation = [
   { title: "Admin Dashboard", url: "/niranx/admin", icon: UserCog },
+  { title: "Feedback List", url: "/niranx/admin/feedback-list", icon: MessagesSquare },
   { title: "Guardian Dashboard", url: "/niranx/guardian-dashboard", icon: Users },
 ];
 
