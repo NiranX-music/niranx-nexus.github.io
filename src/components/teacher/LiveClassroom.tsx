@@ -26,7 +26,10 @@ import {
   Send,
   Hand,
   MessageSquare,
-  HelpCircle
+  HelpCircle,
+  Users,
+  UserCheck,
+  UserX
 } from "lucide-react";
 
 interface LiveClassroomProps {
@@ -78,10 +81,59 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
   const [doubts, setDoubts] = useState<Doubt[]>([]);
   const [raisedHands, setRaisedHands] = useState<RaisedHand[]>([]);
   const [hasRaisedHand, setHasRaisedHand] = useState(false);
-  const [activeTab, setActiveTab] = useState<"chat" | "doubts">("chat");
+  const [activeTab, setActiveTab] = useState<"chat" | "doubts" | "attendance">("chat");
+  const [presentStudents, setPresentStudents] = useState<string[]>([]);
+  const [allStudents, setAllStudents] = useState<any[]>([]);
   
   const localVideoRef = useRef<HTMLDivElement>(null);
   const remoteVideoRef = useRef<HTMLDivElement>(null);
+
+  // Fetch all classroom students
+  useEffect(() => {
+    if (!classroomId) return;
+
+    const fetchStudents = async () => {
+      // First get the student IDs from classroom_members
+      const { data: members, error: membersError } = await supabase
+        .from('classroom_members')
+        .select('student_id')
+        .eq('classroom_id', classroomId)
+        .eq('enrollment_status', 'active');
+
+      if (membersError) {
+        console.error('Error fetching members:', membersError);
+        return;
+      }
+
+      if (!members || members.length === 0) {
+        setAllStudents([]);
+        return;
+      }
+
+      // Then fetch profile data for those students
+      const studentIds = members.map(m => m.student_id);
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, user_id, display_name, username, avatar_url')
+        .in('user_id', studentIds);
+
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError);
+        return;
+      }
+
+      const students = profiles?.map(profile => ({
+        id: profile.user_id,
+        display_name: profile.display_name || 'Unknown',
+        username: profile.username || 'unknown',
+        avatar_url: profile.avatar_url
+      })) || [];
+      
+      setAllStudents(students);
+    };
+
+    fetchStudents();
+  }, [classroomId]);
 
   // Initialize Agora client
   useEffect(() => {
@@ -92,6 +144,35 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
       agoraClient.leave();
     };
   }, []);
+
+  // Track student presence when they join
+  useEffect(() => {
+    if (!sessionId || !user) return;
+
+    const markAttendance = async () => {
+      // Mark user as present when joining
+      if (!presentStudents.includes(user.id)) {
+        setPresentStudents(prev => [...prev, user.id]);
+
+        // Save to attendance records
+        const today = new Date().toISOString().split('T')[0];
+        await supabase
+          .from('attendance_records')
+          .upsert({
+            classroom_id: classroomId,
+            student_id: user.id,
+            date: today,
+            status: 'present',
+            auto_detected: true,
+            notes: 'Auto-marked via live class attendance'
+          }, {
+            onConflict: 'classroom_id,student_id,date'
+          });
+      }
+    };
+
+    markAttendance();
+  }, [sessionId, user, classroomId]);
 
   // Setup realtime subscriptions
   useEffect(() => {
@@ -477,6 +558,42 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
     }
   };
 
+  const markStudentAttendance = async (studentId: string, status: 'present' | 'absent') => {
+    if (!isTeacher) return;
+
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      
+      await supabase
+        .from('attendance_records')
+        .upsert({
+          classroom_id: classroomId,
+          student_id: studentId,
+          date: today,
+          status,
+          recorded_by: user?.id,
+          notes: status === 'present' ? 'Manually marked present' : 'Marked absent'
+        }, {
+          onConflict: 'classroom_id,student_id,date'
+        });
+
+      if (status === 'present' && !presentStudents.includes(studentId)) {
+        setPresentStudents(prev => [...prev, studentId]);
+      } else if (status === 'absent') {
+        setPresentStudents(prev => prev.filter(id => id !== studentId));
+      }
+
+      toast({ 
+        title: "Attendance Updated", 
+        description: `Student marked as ${status}` 
+      });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const absentStudents = allStudents.filter(s => !presentStudents.includes(s.id));
+
   if (!isJoined) {
     return (
       <Card className="p-12 text-center">
@@ -594,6 +711,17 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
             <HelpCircle className="w-4 h-4 mr-2" />
             Doubts ({doubts.filter(d => !d.answered).length})
           </Button>
+          {isTeacher && (
+            <Button
+              variant={activeTab === "attendance" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setActiveTab("attendance")}
+              className="flex-1"
+            >
+              <Users className="w-4 h-4 mr-2" />
+              Attendance
+            </Button>
+          )}
         </div>
 
         <Separator className="mb-4" />
@@ -628,7 +756,7 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
               </Button>
             </div>
           </>
-        ) : (
+        ) : activeTab === "doubts" ? (
           <>
             <ScrollArea className="flex-1 pr-4">
               {doubts.map((doubt) => (
@@ -673,7 +801,87 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
               </Button>
             </div>
           </>
-        )}
+        ) : activeTab === "attendance" && isTeacher ? (
+          <>
+            <ScrollArea className="flex-1 pr-4">
+              <div className="space-y-4">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-semibold flex items-center gap-2">
+                      <UserCheck className="w-4 h-4 text-green-500" />
+                      Present ({presentStudents.length})
+                    </h4>
+                  </div>
+                  <div className="space-y-2">
+                    {allStudents
+                      .filter(s => presentStudents.includes(s.id))
+                      .map((student) => (
+                        <Card key={student.id} className="p-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className="w-2 h-2 bg-green-500 rounded-full" />
+                              <span className="text-sm font-medium">
+                                {student.display_name || student.username}
+                              </span>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => markStudentAttendance(student.id, 'absent')}
+                            >
+                              Mark Absent
+                            </Button>
+                          </div>
+                        </Card>
+                      ))}
+                    {presentStudents.length === 0 && (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        No students present yet
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-semibold flex items-center gap-2">
+                      <UserX className="w-4 h-4 text-red-500" />
+                      Absent ({absentStudents.length})
+                    </h4>
+                  </div>
+                  <div className="space-y-2">
+                    {absentStudents.map((student) => (
+                      <Card key={student.id} className="p-3 bg-muted/50">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-red-500 rounded-full" />
+                            <span className="text-sm text-muted-foreground">
+                              {student.display_name || student.username}
+                            </span>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => markStudentAttendance(student.id, 'present')}
+                          >
+                            Mark Present
+                          </Button>
+                        </div>
+                      </Card>
+                    ))}
+                    {absentStudents.length === 0 && (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        All students are present
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </ScrollArea>
+          </>
+        ) : null}
       </Card>
     </div>
   );
