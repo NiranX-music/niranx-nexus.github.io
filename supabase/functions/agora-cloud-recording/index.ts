@@ -135,12 +135,27 @@ serve(async (req) => {
       const stopData = await stopResponse.json();
       console.log('Stop recording response:', stopData);
 
-      // Update recording with actual URL when available
-      const recordingUrl = stopData.serverResponse?.fileList?.[0]?.fileName || 'processing';
+      // The recording file info from Agora
+      const fileList = stopData.serverResponse?.fileList || [];
+      let recordingUrl = 'https://agora-recording-files.s3.amazonaws.com/';
       
+      if (fileList.length > 0) {
+        // Construct the recording URL from Agora's response
+        const fileName = fileList[0].fileName;
+        recordingUrl = `https://download.agora.io/recording/${appId}/${channelName}/${fileName}`;
+      } else {
+        recordingUrl = `processing_${sid}`;
+      }
+      
+      // Update recording with actual URL
       await supabase
         .from('class_recordings')
-        .update({ recording_url: recordingUrl })
+        .update({ 
+          recording_url: recordingUrl,
+          duration: stopData.serverResponse?.uploadingStatus === 'uploaded' 
+            ? Math.round((new Date().getTime() - new Date(stopData.serverResponse?.startTime || Date.now()).getTime()) / 1000)
+            : null
+        })
         .eq('class_id', classId)
         .like('recording_url', `pending_${sid}`);
 

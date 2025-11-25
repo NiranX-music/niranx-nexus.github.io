@@ -99,10 +99,14 @@ export const LiveClassControls = ({
               variant={isRecording ? 'destructive' : 'outline'}
               size="icon"
               onClick={onToggleRecording}
-              className="rounded-full"
+              className="rounded-full relative"
+              title={isRecording ? 'Stop Recording' : 'Start Recording'}
             >
               {isRecording ? (
-                <Square className="w-5 h-5 fill-current" />
+                <>
+                  <Square className="w-5 h-5 fill-current" />
+                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+                </>
               ) : (
                 <Circle className="w-5 h-5" />
               )}

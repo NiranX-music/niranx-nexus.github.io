@@ -3,9 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { Clock, Users, Calendar, Video } from 'lucide-react';
+import { Clock, Users, Calendar, Video, ChevronDown, ChevronUp } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ClassRecordingsViewer } from './ClassRecordingsViewer';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface ClassHistoryProps {
   classroomId: string;
@@ -26,6 +28,7 @@ interface CompletedClass {
 export const ClassHistory = ({ classroomId }: ClassHistoryProps) => {
   const [classes, setClasses] = useState<CompletedClass[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedClass, setExpandedClass] = useState<string | null>(null);
 
   useEffect(() => {
     fetchCompletedClasses();
@@ -136,17 +139,25 @@ export const ClassHistory = ({ classroomId }: ClassHistoryProps) => {
                 </span>
               </div>
 
-              {cls.recording_url && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-3"
-                  onClick={() => window.open(cls.recording_url!, '_blank')}
-                >
-                  <Video className="w-4 h-4 mr-2" />
-                  View Recording
-                </Button>
-              )}
+              <Collapsible
+                open={expandedClass === cls.id}
+                onOpenChange={() => setExpandedClass(expandedClass === cls.id ? null : cls.id)}
+              >
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" size="sm" className="mt-3 gap-2">
+                    <Video className="w-4 h-4" />
+                    View Recordings
+                    {expandedClass === cls.id ? (
+                      <ChevronUp className="w-4 h-4" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4" />
+                    )}
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-4">
+                  <ClassRecordingsViewer classId={cls.id} />
+                </CollapsibleContent>
+              </Collapsible>
             </CardContent>
           </Card>
         ))}
