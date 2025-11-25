@@ -72,6 +72,9 @@ const Index = () => {
     if (saved) {
       setIsDarkMode(JSON.parse(saved));
     }
+    
+    // Prevent auto-scroll on mount
+    window.scrollTo(0, 0);
   }, []);
 
   useEffect(() => {

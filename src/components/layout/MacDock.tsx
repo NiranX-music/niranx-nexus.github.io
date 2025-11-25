@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface DockItem {
   id: string;
@@ -29,6 +30,7 @@ interface MacDockProps {
 
 const MacDock = ({ onNavigate, currentPage }: MacDockProps) => {
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const isMobile = useIsMobile();
 
   const dockItems: DockItem[] = [
     { id: 'dashboard', label: 'Dashboard', icon: Home, onClick: () => onNavigate('dashboard') },
@@ -43,8 +45,8 @@ const MacDock = ({ onNavigate, currentPage }: MacDockProps) => {
   ];
 
   return (
-    <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
-      <div className="bg-background/80 backdrop-blur-xl border border-border rounded-2xl p-2 shadow-2xl">
+    <div className={`fixed left-1/2 transform -translate-x-1/2 z-[100] ${isMobile ? 'bottom-0' : 'bottom-4'}`}>
+      <div className={`bg-background/80 backdrop-blur-xl border border-border shadow-2xl ${isMobile ? 'rounded-t-2xl p-2 pb-3' : 'rounded-2xl p-2'}`}>
         <div className="flex items-end gap-1">
           {dockItems.map((item, index) => {
             const Icon = item.icon;
