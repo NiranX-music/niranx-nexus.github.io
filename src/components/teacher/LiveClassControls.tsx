@@ -15,8 +15,21 @@ import {
   LogOut,
   Circle,
   Square,
+  Settings,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface LiveClassControlsProps {
   isTeacher: boolean;
@@ -34,6 +47,12 @@ interface LiveClassControlsProps {
   onShowChat: () => void;
   onShowQuestions: () => void;
   onShowParticipants: () => void;
+  audioDevices: MediaDeviceInfo[];
+  videoDevices: MediaDeviceInfo[];
+  selectedAudioDevice: string;
+  selectedVideoDevice: string;
+  onAudioDeviceChange: (deviceId: string) => void;
+  onVideoDeviceChange: (deviceId: string) => void;
 }
 
 export const LiveClassControls = ({
@@ -52,6 +71,12 @@ export const LiveClassControls = ({
   onShowChat,
   onShowQuestions,
   onShowParticipants,
+  audioDevices,
+  videoDevices,
+  selectedAudioDevice,
+  selectedVideoDevice,
+  onAudioDeviceChange,
+  onVideoDeviceChange,
 }: LiveClassControlsProps) => {
   return (
     <Card className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 shadow-2xl border-primary/20 bg-background/95 backdrop-blur-lg">
@@ -76,6 +101,49 @@ export const LiveClassControls = ({
           >
             {isCameraOn ? <Video className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
           </Button>
+
+          {/* Device Settings */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="icon" className="rounded-full">
+                <Settings className="w-5 h-5" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80">
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Microphone</label>
+                  <Select value={selectedAudioDevice} onValueChange={onAudioDeviceChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select microphone" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {audioDevices.map((device) => (
+                        <SelectItem key={device.deviceId} value={device.deviceId}>
+                          {device.label || `Microphone ${device.deviceId.slice(0, 5)}`}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Camera</label>
+                  <Select value={selectedVideoDevice} onValueChange={onVideoDeviceChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select camera" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {videoDevices.map((device) => (
+                        <SelectItem key={device.deviceId} value={device.deviceId}>
+                          {device.label || `Camera ${device.deviceId.slice(0, 5)}`}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
 
           {/* Screen Share (Teacher Only) */}
           {isTeacher && (
