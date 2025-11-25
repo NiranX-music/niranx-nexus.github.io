@@ -304,48 +304,58 @@ const LiveClassSession = () => {
       </div>
 
       {/* Video Grid */}
-      <div className="flex-1 overflow-auto p-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-20">
-          {/* Screen Share Display (Full Width when active) */}
-          {isScreenSharing && (
-            <Card className="col-span-full">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Monitor className="w-4 h-4 text-primary" />
-                  <span className="font-semibold">Screen Share</span>
+      <div className="flex-1 overflow-auto p-4 flex flex-col gap-4 mb-20">
+        {/* Main Screen Area (Screen Share or Remote Videos) */}
+        <Card className="flex-1 min-h-[60vh]">
+          <CardContent className="p-4 h-full">
+            <div className="flex items-center gap-2 mb-2">
+              <Monitor className="w-4 h-4 text-primary" />
+              <span className="font-semibold">
+                {isScreenSharing ? 'Screen Share' : 'Main Display'}
+              </span>
+            </div>
+            <div
+              id="screen-share-video"
+              className="w-full h-[calc(100%-2rem)] bg-black rounded-lg flex items-center justify-center"
+            >
+              {!isScreenSharing && (
+                <div className="text-center text-muted-foreground">
+                  <Monitor className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                  <p className="text-lg">No screen being shared</p>
+                  <p className="text-sm mt-2">
+                    {isTeacher 
+                      ? 'Click the monitor icon below to share your screen' 
+                      : 'Waiting for teacher to share screen...'}
+                  </p>
                 </div>
-                <div
-                  id="screen-share-video"
-                  className="w-full aspect-video bg-black rounded-lg"
-                />
-              </CardContent>
-            </Card>
-          )}
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Local Video */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Badge variant="secondary">You</Badge>
-                {isTeacher && <Badge variant="default">Teacher</Badge>}
-              </div>
-              <div
-                id="local-video"
-                className="w-full aspect-video bg-muted rounded-lg flex items-center justify-center"
-              >
-                {!isCameraOn && (
-                  <div className="text-center">
-                    <VideoOff className="w-12 h-12 mx-auto mb-2 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">Camera off</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+        {/* Local Camera (Smaller Box Below) */}
+        <Card className="w-full md:w-80 self-end">
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <Badge variant="secondary" className="text-xs">You</Badge>
+              {isTeacher && <Badge variant="default" className="text-xs">Teacher</Badge>}
+            </div>
+            <div
+              id="local-video"
+              className="w-full aspect-video bg-muted rounded-lg flex items-center justify-center"
+            >
+              {!isCameraOn && (
+                <div className="text-center">
+                  <VideoOff className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                  <p className="text-xs text-muted-foreground">Camera off</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Remote participants will be dynamically added here by Agora */}
-          <div id="remote-videos-container" className="contents"></div>
-        </div>
+        {/* Remote participants container (hidden, Agora will manage) */}
+        <div id="remote-videos-container" className="hidden"></div>
       </div>
 
       {/* Controls */}
