@@ -5150,6 +5150,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_classroom_member: {
+        Args: { _classroom_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_member_of_chat_room: { Args: { _room_id: string }; Returns: boolean }
       notify_user: {
         Args: {
