@@ -116,7 +116,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="flex h-svh w-full overflow-hidden perspective-3d">
+      <div className="fixed inset-0 flex w-full h-screen overflow-hidden perspective-3d">
         <AppSidebar />
         <SidebarInset>
           <header className="flex h-16 shrink-0 items-center gap-2 border-b backdrop-blur-xl bg-background/80 px-4 transition-all duration-300 hover:bg-background/90 animate-fade-in sticky top-0 z-30">
