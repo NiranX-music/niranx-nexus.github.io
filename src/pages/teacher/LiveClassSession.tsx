@@ -35,6 +35,8 @@ const LiveClassSession = () => {
   const [isMicOn, setIsMicOn] = useState(false);
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingData, setRecordingData] = useState<{ resourceId: string; sid: string } | null>(null);
   
   const clientRef = useRef<IAgoraRTCClient | null>(null);
   const localAudioTrackRef = useRef<IMicrophoneAudioTrack | null>(null);
@@ -195,7 +197,11 @@ const LiveClassSession = () => {
         setIsMicOn(true);
         toast.success('Microphone enabled');
       } else {
-        localAudioTrackRef.current?.close();
+        if (localAudioTrackRef.current) {
+          await clientRef.current?.unpublish(localAudioTrackRef.current);
+          localAudioTrackRef.current.close();
+          localAudioTrackRef.current = null;
+        }
         setIsMicOn(false);
         toast.success('Microphone disabled');
       }
@@ -217,7 +223,15 @@ const LiveClassSession = () => {
         setIsCameraOn(true);
         toast.success('Camera enabled');
       } else {
-        localVideoTrackRef.current?.close();
+        if (localVideoTrackRef.current) {
+          await clientRef.current?.unpublish(localVideoTrackRef.current);
+          localVideoTrackRef.current.close();
+          localVideoTrackRef.current = null;
+          
+          // Clear video container
+          const container = document.getElementById('local-video');
+          if (container) container.innerHTML = '';
+        }
         setIsCameraOn(false);
         toast.success('Camera disabled');
       }
@@ -313,6 +327,54 @@ const LiveClassSession = () => {
     }
   };
 
+  const toggleRecording = async () => {
+    if (!isTeacher) {
+      toast.error('Only teachers can control recording');
+      return;
+    }
+
+    try {
+      if (!isRecording) {
+        // Start recording
+        const { data, error } = await supabase.functions.invoke('agora-cloud-recording', {
+          body: {
+            action: 'start',
+            classId,
+            channelName: classData?.agora_channel_name,
+            uid: `${user!.id}_recorder`,
+          },
+        });
+
+        if (error) throw error;
+
+        setRecordingData({ resourceId: data.resourceId, sid: data.sid });
+        setIsRecording(true);
+        toast.success('Recording started');
+      } else {
+        // Stop recording
+        if (!recordingData) throw new Error('No recording data');
+
+        await supabase.functions.invoke('agora-cloud-recording', {
+          body: {
+            action: 'stop',
+            classId,
+            channelName: classData?.agora_channel_name,
+            uid: `${user!.id}_recorder`,
+            resourceId: recordingData.resourceId,
+            sid: recordingData.sid,
+          },
+        });
+
+        setIsRecording(false);
+        setRecordingData(null);
+        toast.success('Recording stopped');
+      }
+    } catch (error) {
+      console.error('Error toggling recording:', error);
+      toast.error('Failed to toggle recording');
+    }
+  };
+
   const endClass = async () => {
     if (!isTeacher) {
       toast.error('Only teachers can end the class');
@@ -320,6 +382,11 @@ const LiveClassSession = () => {
     }
 
     try {
+      // Stop recording if active
+      if (isRecording) {
+        await toggleRecording();
+      }
+
       // Update class status to completed
       await supabase
         .from('live_classes')
@@ -431,6 +498,8 @@ const LiveClassSession = () => {
         onToggleMic={toggleMic}
         isCameraOn={isCameraOn}
         onToggleCamera={toggleCamera}
+        isRecording={isRecording}
+        onToggleRecording={toggleRecording}
         participantCount={participants}
         onLeaveClass={leaveClass}
         onEndClass={endClass}
