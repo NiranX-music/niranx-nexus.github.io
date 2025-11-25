@@ -4492,6 +4492,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_profiles: {
+        Row: {
+          created_at: string
+          current_streak: number
+          id: string
+          last_activity_date: string | null
+          level: number
+          longest_streak: number
+          total_study_minutes: number
+          updated_at: string
+          xp: number
+        }
+        Insert: {
+          created_at?: string
+          current_streak?: number
+          id: string
+          last_activity_date?: string | null
+          level?: number
+          longest_streak?: number
+          total_study_minutes?: number
+          updated_at?: string
+          xp?: number
+        }
+        Update: {
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_activity_date?: string | null
+          level?: number
+          longest_streak?: number
+          total_study_minutes?: number
+          updated_at?: string
+          xp?: number
+        }
+        Relationships: []
+      }
       user_purchases: {
         Row: {
           id: string

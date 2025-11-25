@@ -9,6 +9,8 @@ import { Plus, X, Calendar, Flag, Star, Trophy, Zap, Target, CheckCircle2, Clock
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
+import { useXPReward } from '@/hooks/useXPReward';
+import { useXP } from '@/contexts/XPContext';
 
 interface Task {
   id: string;
@@ -41,6 +43,8 @@ interface GameStats {
 
 const TaskManager = () => {
   const { toast } = useToast();
+  const { awardXP } = useXPReward();
+  const { xp, level } = useXP();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [gameStats, setGameStats] = useState<GameStats>({
     totalXP: 0,
@@ -148,7 +152,7 @@ const TaskManager = () => {
     resetForm();
   };
 
-  const toggleTask = (taskId: string) => {
+  const toggleTask = async (taskId: string) => {
     const task = tasks.find(t => t.id === taskId);
     if (!task) return;
 
@@ -161,7 +165,9 @@ const TaskManager = () => {
     ));
 
     if (!wasCompleted) {
-      // Task completed - award XP and update stats
+      // Task completed - award XP using universal system
+      await awardXP('COMPLETE_TASK');
+      
       const today = new Date().toDateString();
       const lastDate = gameStats.lastCompletionDate;
       const isConsecutiveDay = lastDate === new Date(Date.now() - 86400000).toDateString();
@@ -170,7 +176,7 @@ const TaskManager = () => {
 
       const newStats = {
         totalXP: gameStats.totalXP + task.xpReward,
-        level: calculateLevel(gameStats.totalXP + task.xpReward),
+        level,
         currentStreak: newStreak,
         longestStreak: Math.max(gameStats.longestStreak, newStreak),
         tasksCompleted: gameStats.tasksCompleted + 1,
@@ -180,8 +186,8 @@ const TaskManager = () => {
       setGameStats(newStats);
       
       toast({
-        title: `🎉 Task Completed! +${task.xpReward} XP`,
-        description: `Streak: ${newStreak} days | Level ${newStats.level}`,
+        title: `🎉 Task Completed!`,
+        description: `Streak: ${newStreak} days | Level ${level}`,
       });
 
       // Handle recurring tasks
@@ -196,11 +202,9 @@ const TaskManager = () => {
         setTasks(prev => [...prev, newRecurringTask]);
       }
     } else {
-      // Task uncompleted - remove XP
+      // Task uncompleted - update stats
       setGameStats(prev => ({
         ...prev,
-        totalXP: Math.max(0, prev.totalXP - task.xpReward),
-        level: calculateLevel(Math.max(0, prev.totalXP - task.xpReward)),
         tasksCompleted: Math.max(0, prev.tasksCompleted - 1)
       }));
     }
