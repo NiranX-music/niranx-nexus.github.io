@@ -92,7 +92,8 @@ export function useWidgets() {
 
   const isWidgetEnabled = (widgetName: string) => {
     const widget = widgets.find(w => w.widget_name === widgetName);
-    return widget?.is_enabled || false;
+    // Return false by default - widgets must be explicitly enabled
+    return widget?.is_enabled ?? false;
   };
 
   return {
