@@ -195,8 +195,11 @@ const adminNavigation = [
 
 const teacherNavigation = [
   { title: "Teacher Portal", url: "/niranx/teacher/dashboard", icon: GraduationCap },
-  { title: "Browse Classrooms", url: "/niranx/classrooms", icon: BookOpen },
   { title: "Role Management", url: "/niranx/admin/roles", icon: ShieldCheck },
+];
+
+const liveClassroomNavigation = [
+  { title: "Browse Classrooms", url: "/niranx/classrooms", icon: BookOpen },
 ];
 
 const systemNavigation = [
@@ -254,6 +257,7 @@ export function AppSidebar() {
     external: false,
     admin: true,
     teacher: true,
+    liveClassrooms: true,
     liveClasses: true,
     system: false,
     archive: false,
@@ -273,6 +277,7 @@ export function AppSidebar() {
     ...externalPlatforms,
     ...(isAdmin ? adminNavigation : []),
     ...(isTeacher || isAdmin ? teacherNavigation : []),
+    ...liveClassroomNavigation,
     ...systemNavigation,
     ...morePages,
   ], [isAdmin, isTeacher]);
@@ -724,6 +729,26 @@ export function AppSidebar() {
             </SidebarGroup>
           </Collapsible>
         )}
+
+        {/* Live Classrooms Subgroup */}
+        <Collapsible open={expandedSections.liveClassrooms} onOpenChange={() => toggleSection('liveClassrooms')}>
+          <SidebarGroup>
+            <CollapsibleTrigger asChild>
+              <SidebarGroupLabel className="cursor-pointer hover:bg-purple-500/20 rounded-lg px-2 -mx-2 flex items-center justify-between text-white/90 font-bold text-sm uppercase tracking-wider transition-all duration-200 py-3 bg-gradient-to-r from-purple-500/20 to-transparent">
+                <span className="flex items-center gap-2">
+                  <BookOpen className="h-4 w-4 text-purple-400" />
+                  {!isCollapsed && "Live Classrooms"}
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform text-white/70 ${expandedSections.liveClassrooms ? '' : '-rotate-90'}`} />
+              </SidebarGroupLabel>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>{renderNavItems(liveClassroomNavigation)}</SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
 
         {/* Live Classes - Show classrooms for teachers/admins */}
         {!teacherLoading && (isTeacher || isAdmin) && classrooms && classrooms.length > 0 && (
