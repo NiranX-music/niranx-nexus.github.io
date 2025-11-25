@@ -26,6 +26,7 @@ interface LiveClassControlsProps {
   onToggleCamera: () => void;
   participantCount: number;
   onLeaveClass: () => void;
+  onEndClass?: () => void;
   onShowChat: () => void;
   onShowQuestions: () => void;
   onShowParticipants: () => void;
@@ -41,6 +42,7 @@ export const LiveClassControls = ({
   onToggleCamera,
   participantCount,
   onLeaveClass,
+  onEndClass,
   onShowChat,
   onShowQuestions,
   onShowParticipants,
@@ -105,9 +107,20 @@ export const LiveClassControls = ({
 
           <div className="h-8 w-px bg-border mx-2" />
 
-          {/* Leave Class */}
+          {/* End Class (Teacher Only) & Leave */}
+          {isTeacher && onEndClass && (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={onEndClass}
+              className="gap-2"
+            >
+              End Class
+            </Button>
+          )}
+          
           <Button
-            variant="destructive"
+            variant="secondary"
             size="sm"
             onClick={onLeaveClass}
             className="gap-2"
