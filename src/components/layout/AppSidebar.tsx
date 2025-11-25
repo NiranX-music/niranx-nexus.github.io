@@ -360,8 +360,8 @@ export function AppSidebar() {
   );
 
   return (
-    <Sidebar className="border-r border-sidebar-border bg-gradient-to-br from-sidebar via-sidebar/95 to-background backdrop-blur-2xl hidden md:flex shadow-2xl">
-      <SidebarHeader className="border-b border-sidebar-border/50 p-4 bg-gradient-to-r from-primary/10 via-purple-500/10 to-blue-500/10">
+    <Sidebar className="border-r border-sidebar-border bg-gradient-to-br from-sidebar via-sidebar/95 to-background backdrop-blur-2xl hidden md:flex shadow-2xl flex-col h-screen overflow-hidden">
+      <SidebarHeader className="border-b border-sidebar-border/50 p-4 bg-gradient-to-r from-primary/10 via-purple-500/10 to-blue-500/10 flex-shrink-0 sticky top-0 z-10">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-3 flex-1">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl overflow-hidden bg-black shadow-lg shadow-primary/20">
@@ -396,8 +396,7 @@ export function AppSidebar() {
         )}
       </SidebarHeader>
 
-      <SidebarContent>
-        {/* Show search results when searching */}
+      <SidebarContent className="flex-1 overflow-y-auto overflow-x-hidden sidebar-scroll">{/* Show search results when searching */}
         {filteredNavItems && filteredNavItems.length > 0 ? (
           <SidebarGroup>
             <SidebarGroupLabel className="text-white font-semibold">

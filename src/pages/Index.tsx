@@ -121,49 +121,83 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen mobile-padding perspective-3d relative overflow-hidden">
-      {/* Cosmic Background Effects */}
-      <div className="fixed inset-0 pointer-events-none -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-primary/5 to-accent/5" />
-        <div className="absolute top-0 left-1/4 w-48 h-48 md:w-96 md:h-96 bg-primary/10 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-0 right-1/4 w-48 h-48 md:w-96 md:h-96 bg-accent/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
-        {[...Array(20)].map((_, i) => (
+    <div className="min-h-full mobile-padding perspective-3d relative">
+      {/* Enhanced Cosmic Background Effects */}
+      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-primary/10 to-accent/10" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-accent/20 via-transparent to-transparent" />
+        
+        {/* Animated Orbs */}
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 md:w-96 md:h-96 bg-primary/20 rounded-full blur-3xl animate-float opacity-50" />
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 md:w-96 md:h-96 bg-accent/20 rounded-full blur-3xl animate-float opacity-50" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-1/2 left-1/2 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl animate-float opacity-30" style={{ animationDelay: '4s' }} />
+        
+        {/* Floating Stars */}
+        {[...Array(30)].map((_, i) => (
           <div
             key={i}
-            className="absolute w-1 h-1 bg-primary/30 rounded-full animate-float"
+            className="absolute rounded-full animate-float"
             style={{
+              width: `${Math.random() * 3 + 1}px`,
+              height: `${Math.random() * 3 + 1}px`,
+              background: i % 3 === 0 ? 'hsl(var(--primary))' : i % 3 === 1 ? 'hsl(var(--accent))' : 'hsl(var(--purple-400))',
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
               animationDelay: `${Math.random() * 5}s`,
-              animationDuration: `${5 + Math.random() * 5}s`,
+              animationDuration: `${5 + Math.random() * 10}s`,
+              opacity: 0.3 + Math.random() * 0.4,
             }}
           />
         ))}
       </div>
 
-      {/* Header */}
-      <div className="mb-6 md:mb-8 animate-fade-in">
-        {/* Top Toolbar */}
-        <div className="flex justify-between items-center mb-4 md:mb-6">
-          <div className="flex-1"></div>
-          <div className="flex items-center gap-2 md:gap-3 card-3d hover-lift px-3 md:px-0">
-            <Brain className="w-6 h-6 md:w-8 md:h-8 text-primary animate-pulse-scale" />
-            <h1 className="text-xl md:text-2xl lg:text-4xl font-bold gradient-text drop-shadow-lg">
-              NiranX StudyVerse
-            </h1>
-            <Sparkles className="w-6 h-6 text-accent animate-float" />
+      {/* Hero Header */}
+      <div className="mb-8 md:mb-12 animate-fade-in">
+        {/* Main Title Section */}
+        <div className="text-center mb-6 relative">
+          <div className="inline-flex items-center gap-3 card-3d hover-lift p-6 rounded-2xl bg-gradient-to-r from-primary/10 via-purple-500/10 to-accent/10 backdrop-blur-sm border border-primary/20">
+            <Zap className="w-10 h-10 md:w-14 md:h-14 text-primary animate-pulse-scale drop-shadow-[0_0_15px_rgba(124,58,237,0.5)]" />
+            <div>
+              <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold gradient-text drop-shadow-2xl mb-2">
+                NiranX StudyVerse
+              </h1>
+              <p className="text-sm md:text-lg text-muted-foreground animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                Your Quantum Study Universe 🚀✨
+              </p>
+            </div>
+            <Sparkles className="w-8 h-8 md:w-12 md:h-12 text-accent animate-float drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]" />
           </div>
-          <div className="flex-1 flex justify-end gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate('/niranx/focus-engine')}
-              className="glass-button flex items-center gap-2 transform-3d hover:scale-110 transition-all"
-            >
-              <Flame className="w-4 h-4 text-orange-500 animate-pulse" />
-              Focus Engine
-            </Button>
-          </div>
+        </div>
+        
+        {/* Action Buttons */}
+        <div className="flex flex-wrap justify-center gap-3 mb-6 animate-slide-up" style={{ animationDelay: '0.3s' }}>
+          <Button
+            onClick={() => navigate('/niranx/focus-engine')}
+            className="glass-button flex items-center gap-2 transform-3d hover:scale-110 transition-all shadow-lg"
+            size="lg"
+          >
+            <Flame className="w-5 h-5 text-orange-500 animate-pulse" />
+            Focus Engine
+          </Button>
+          <Button
+            onClick={() => navigate('/niranx/ai-chat')}
+            variant="outline"
+            className="glass-button flex items-center gap-2 transform-3d hover:scale-110 transition-all"
+            size="lg"
+          >
+            <Brain className="w-5 h-5 text-primary" />
+            AI Study Buddy
+          </Button>
+          <Button
+            onClick={() => navigate('/niranx/debates')}
+            variant="outline"
+            className="glass-button flex items-center gap-2 transform-3d hover:scale-110 transition-all"
+            size="lg"
+          >
+            <MessageCircle className="w-5 h-5 text-accent" />
+            Debate Hub
+          </Button>
         </div>
         
         <div className="text-center animate-slide-up">
@@ -216,10 +250,10 @@ const Index = () => {
             </div>
           )}
         
-          {/* Quick Navigation Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-10">
+        {/* Quick Navigation Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-10 animate-slide-up" style={{ animationDelay: '0.4s' }}>
           <Card 
-            className={`glass-card cursor-pointer card-3d hover-lift animate-scale-in transform-3d ${
+            className={`glass-card cursor-pointer card-3d hover-lift animate-scale-in transform-3d group ${
               !isLoggedIn ? 'opacity-60' : ''
             }`}
             style={{ animationDelay: '0.1s' }}
@@ -227,7 +261,7 @@ const Index = () => {
           >
             <CardContent className="p-6 text-center">
               <div className="flex justify-center items-center mb-3">
-                <CheckSquare className="w-10 h-10 text-primary animate-wobble" />
+                <CheckSquare className="w-10 h-10 text-primary group-hover:scale-110 transition-transform" />
                 {!isLoggedIn && <Lock className="w-4 h-4 text-muted-foreground ml-2" />}
               </div>
               <h3 className="font-semibold text-lg">Tasks</h3>
@@ -239,20 +273,20 @@ const Index = () => {
           </Card>
           
           <Card 
-            className="glass-card cursor-pointer card-3d hover-lift animate-scale-in transform-3d"
+            className="glass-card cursor-pointer card-3d hover-lift animate-scale-in transform-3d group"
             style={{ animationDelay: '0.2s' }}
-            onClick={() => handleNavigation('pomodoro')}
+            onClick={() => handleNavigation('focus-engine')}
           >
             <CardContent className="p-6 text-center">
-              <Timer className="w-10 h-10 text-primary mx-auto mb-3 animate-rotate-slow" />
+              <Timer className="w-10 h-10 text-primary mx-auto mb-3 group-hover:rotate-12 transition-transform" />
               <h3 className="font-semibold text-lg">Focus</h3>
               <p className="text-sm text-muted-foreground">Pomodoro timer</p>
-              <Badge variant="secondary" className="mt-2 text-xs animate-shimmer">Always Available</Badge>
+              <Badge variant="secondary" className="mt-2 text-xs">Always Available</Badge>
             </CardContent>
           </Card>
           
           <Card 
-            className={`glass-card cursor-pointer card-3d hover-lift animate-scale-in transform-3d ${
+            className={`glass-card cursor-pointer card-3d hover-lift animate-scale-in transform-3d group ${
               !isLoggedIn ? 'opacity-60' : ''
             }`}
             style={{ animationDelay: '0.3s' }}
@@ -260,7 +294,7 @@ const Index = () => {
           >
             <CardContent className="p-6 text-center">
               <div className="flex justify-center items-center mb-3">
-                <Music className="w-10 h-10 text-primary animate-pulse-scale" />
+                <Music className="w-10 h-10 text-primary group-hover:scale-125 transition-transform" />
                 {!isLoggedIn && <Lock className="w-4 h-4 text-muted-foreground ml-2" />}
               </div>
               <h3 className="font-semibold text-lg">Music</h3>
@@ -272,7 +306,7 @@ const Index = () => {
           </Card>
           
           <Card 
-            className={`glass-card cursor-pointer card-3d hover-lift animate-scale-in transform-3d ${
+            className={`glass-card cursor-pointer card-3d hover-lift animate-scale-in transform-3d group ${
               !isLoggedIn ? 'opacity-60' : ''
             }`}
             style={{ animationDelay: '0.4s' }}
@@ -280,7 +314,7 @@ const Index = () => {
           >
             <CardContent className="p-6 text-center">
               <div className="flex justify-center items-center mb-3">
-                <Gamepad2 className="w-10 h-10 text-primary" />
+                <Gamepad2 className="w-10 h-10 text-primary group-hover:rotate-6 transition-transform" />
                 {!isLoggedIn && <Lock className="w-4 h-4 text-muted-foreground ml-2" />}
               </div>
               <h3 className="font-semibold text-lg">Games</h3>

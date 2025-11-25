@@ -115,10 +115,15 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="flex min-h-screen w-full perspective-3d">
-        <AppSidebar />
-        <SidebarInset className="flex-1 w-full">
-          <header className="flex h-16 shrink-0 items-center gap-2 border-b backdrop-blur-xl bg-background/80 px-4 transition-all duration-300 hover:bg-background/90 animate-fade-in">
+      <div className="flex h-screen w-full overflow-hidden perspective-3d">
+        {/* Fixed Sidebar with Independent Scroll */}
+        <div className="hidden md:flex fixed left-0 top-0 h-screen z-40">
+          <AppSidebar />
+        </div>
+        
+        {/* Main Content Area with Independent Scroll */}
+        <div className="flex-1 flex flex-col h-screen overflow-hidden md:ml-[var(--sidebar-width)] transition-all duration-300">
+          <header className="flex h-16 shrink-0 items-center gap-2 border-b backdrop-blur-xl bg-background/80 px-4 transition-all duration-300 hover:bg-background/90 animate-fade-in sticky top-0 z-30">
             <SidebarTrigger className="-ml-1 hover:scale-110 transition-transform duration-200" />
             <Separator orientation="vertical" className="mr-2 h-4" />
             <Breadcrumb>
@@ -155,10 +160,15 @@ export function AppLayout({ children }: AppLayoutProps) {
               <NotificationCenter />
             </div>
           </header>
-          <div className="flex flex-1 flex-col gap-4 p-4 pb-20 md:pb-4 animate-fade-in">
-            {children}
-          </div>
-        </SidebarInset>
+          
+          {/* Scrollable Main Content */}
+          <main className="flex-1 overflow-y-auto overflow-x-hidden">
+            <div className="p-4 pb-20 md:pb-4 animate-fade-in">
+              {children}
+            </div>
+          </main>
+        </div>
+        
         <NowPlaying />
         <MobileBottomNav />
         <CommandPalette open={commandPaletteOpen} onOpenChange={setCommandPaletteOpen} />
