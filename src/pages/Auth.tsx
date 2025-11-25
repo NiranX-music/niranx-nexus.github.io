@@ -12,6 +12,7 @@ import { Brain, Sparkles, Loader2, Shield, KeyRound, UserPlus, Users, Bug } from
 import { z } from "zod";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGuestMode } from "@/contexts/GuestModeContext";
+import niranxLogo from '@/assets/niranx-logo.jpg';
 
 const GoogleIcon = () => (
   <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -358,7 +359,9 @@ const Auth = () => {
       <Card className="w-full max-w-2xl glass-card shadow-2xl card-3d hover-lift">
         <CardHeader className="text-center pb-8">
           <div className="flex justify-center items-center gap-3 mb-6 transform-3d">
-            <Brain className="w-12 h-12 text-primary animate-pulse-scale pulse-glow" />
+            <div className="w-12 h-12 rounded-xl overflow-hidden bg-black shadow-lg shadow-primary/20">
+              <img src={niranxLogo} alt="NiranX Logo" className="w-full h-full object-cover" />
+            </div>
             <h1 className="text-4xl font-bold gradient-text neon-glow">NiranX StudyVerse</h1>
             <Sparkles className="w-8 h-8 text-accent animate-float" />
           </div>

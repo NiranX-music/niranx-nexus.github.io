@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import niranxLogo from '@/assets/niranx-logo.jpg';
 
 const Landing = () => {
   const { user } = useAuth();
@@ -89,8 +90,8 @@ const Landing = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <GraduationCap className="w-5 h-5 text-white" />
+              <div className="w-8 h-8 rounded-lg overflow-hidden bg-black flex items-center justify-center">
+                <img src={niranxLogo} alt="NiranX Logo" className="w-full h-full object-cover" />
               </div>
               <span className="text-xl font-bold">StudyVerse</span>
               <Badge variant="secondary" className="ml-2">by NiranX</Badge>
@@ -332,8 +333,8 @@ const Landing = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                  <GraduationCap className="w-5 h-5 text-white" />
+                <div className="w-8 h-8 rounded-lg overflow-hidden bg-black flex items-center justify-center">
+                  <img src={niranxLogo} alt="NiranX Logo" className="w-full h-full object-cover" />
                 </div>
                 <span className="text-xl font-bold">StudyVerse</span>
               </div>
