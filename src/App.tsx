@@ -106,6 +106,7 @@ import { AdminRoute } from "./components/AdminRoute";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ModeratorRoute } from "./components/ModeratorRoute";
 import { AccessibilitySettings } from "./pages/AccessibilitySettings";
+import LiveClassroom from "@/pages/LiveClassroom";
 import Guide from "./pages/Guide";
 import DailyRewards from "./pages/DailyRewards";
 import ThemeCustomization from "./pages/ThemeCustomization";
@@ -291,6 +292,11 @@ const App = () => (
           <Route path="teacher/live-class/:classId" element={
             <ProtectedRoute>
               <LiveClassSession />
+            </ProtectedRoute>
+          } />
+          <Route path="live-classroom" element={
+            <ProtectedRoute>
+              <LiveClassroom />
             </ProtectedRoute>
           } />
                           <Route path="/admin/feedback-list" element={
