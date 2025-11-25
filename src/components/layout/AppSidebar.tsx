@@ -56,6 +56,7 @@ import {
   Eye,
   Gift,
   Palette,
+  Layout,
 } from "lucide-react";
 import {
   Sidebar,
@@ -87,6 +88,7 @@ import { MasterPasswordDialog } from "@/components/MasterPasswordDialog";
 import { useQuickLinks } from "@/hooks/useQuickLinks";
 import { AddQuickLinkDialog } from "@/components/AddQuickLinkDialog";
 import { useClassroom } from "@/hooks/useClassroom";
+import { useXP } from "@/contexts/XPContext";
 import * as LucideIcons from "lucide-react";
 import niranxLogo from '@/assets/niranx-logo.jpg';
 
@@ -197,6 +199,7 @@ const teacherNavigation = [
 ];
 
 const systemNavigation = [
+  { title: "Widget Settings", url: "/niranx/widget-settings", icon: Layout },
   { title: "Notification Settings", url: "/niranx/notification-settings", icon: Bell },
   { title: "Smart Notifications", url: "/niranx/smart-notifications", icon: Zap },
   { title: "Accessibility Settings", url: "/niranx/accessibility-settings", icon: Eye },
@@ -234,6 +237,7 @@ export function AppSidebar() {
   const { favorites, addFavorite, removeFavorite, isFavorite, reorderFavorites } = useFavorites();
   const { quickLinks, addQuickLink, removeQuickLink } = useQuickLinks();
   const { classrooms } = useClassroom();
+  const { xp, level } = useXP();
   
   const [searchQuery, setSearchQuery] = useState("");
   const [showMasterPasswordDialog, setShowMasterPasswordDialog] = useState(false);
@@ -380,8 +384,18 @@ export function AppSidebar() {
         </div>
         {!isCollapsed && (
           <>
-            <div className="mt-3">
-              <XPDisplay />
+            <div className="mt-4 p-3 bg-gradient-to-r from-primary/10 to-purple-500/10 rounded-lg border border-primary/20">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-white">Your Progress</span>
+                <div className="flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-yellow-500" />
+                  <span className="text-sm font-bold text-primary">{xp} XP</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Star className="w-4 h-4 text-yellow-500" />
+                <span className="text-sm font-semibold text-white">Level {level}</span>
+              </div>
             </div>
             <div className="mt-3">
               <Input

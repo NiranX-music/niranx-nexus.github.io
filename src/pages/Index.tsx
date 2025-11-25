@@ -44,6 +44,7 @@ import NotesWidget from "@/components/widgets/NotesWidget";
 import StudyMaterialHub from "@/components/widgets/StudyMaterialHub";
 import AIStudyBuddy from "@/components/widgets/AIStudyBuddy";
 import MacDock from "@/components/layout/MacDock";
+import { useWidgets } from "@/hooks/useWidgets";
 
 const Index = () => {
   const [isDarkMode, setIsDarkMode] = useState(true); // Default to dark mode for neon cosmic theme
@@ -51,19 +52,8 @@ const Index = () => {
   const { xp, level, getXPProgress } = useXP();
   const { getTodayStats, getStreak } = useFocus();
   const { awardXP } = useXPReward();
+  const { isWidgetEnabled } = useWidgets();
   const isLoggedIn = !!user;
-  const [activeWidgets, setActiveWidgets] = useState({
-    music: true,
-    files: true,
-    schedule: true,
-    tasks: true,
-    pomodoro: true,
-    analytics: false,
-    chill: true,
-    notes: true,
-    studyMaterials: true,
-    aiChat: true,
-  });
   const navigate = useNavigate();
 
   const todayStats = getTodayStats();
@@ -79,7 +69,7 @@ const Index = () => {
     // Prevent auto-scroll on mount
     window.scrollTo(0, 0);
     
-    // Award daily login XP
+    // Award 1000 XP for app visit after login
     if (isLoggedIn) {
       const lastLoginDate = localStorage.getItem('lastLoginDate');
       const today = new Date().toDateString();
@@ -95,13 +85,6 @@ const Index = () => {
     localStorage.setItem('studyverse-dark-mode', JSON.stringify(isDarkMode));
     document.documentElement.classList.toggle('dark', isDarkMode);
   }, [isDarkMode]);
-
-  const toggleWidget = (widget: string) => {
-    setActiveWidgets(prev => ({
-      ...prev,
-      [widget]: !prev[widget]
-    }));
-  };
 
   const handleNavigation = (page: string) => {
     if (page === 'dashboard') {
@@ -122,16 +105,16 @@ const Index = () => {
   };
 
   const widgets = [
-    { key: 'music', label: 'Music Player', icon: Music, component: MusicPlayer },
-    { key: 'files', label: 'File Explorer', icon: FolderOpen, component: FileExplorer },
-    { key: 'schedule', label: 'Class Schedule', icon: Calendar, component: ClassScheduler },
-    { key: 'tasks', label: 'Task Manager', icon: CheckSquare, component: TaskManager },
-    { key: 'pomodoro', label: 'Pomodoro Timer', icon: Timer, component: PomodoroTimer },
-    { key: 'analytics', label: 'Analytics', icon: BarChart3, component: Analytics },
-    { key: 'chill', label: 'Chill Corner', icon: Heart, component: ChillCorner },
-    { key: 'notes', label: 'Quick Notes', icon: StickyNote, component: NotesWidget },
-    { key: 'studyMaterials', label: 'Study Hub', icon: Brain, component: StudyMaterialHub },
-    { key: 'aiChat', label: 'AI Buddy', icon: MessageCircle, component: AIStudyBuddy },
+    { key: 'music_player', component: MusicPlayer },
+    { key: 'file_explorer', component: FileExplorer },
+    { key: 'class_schedule', component: ClassScheduler },
+    { key: 'task_manager', component: TaskManager },
+    { key: 'pomodoro_timer', component: PomodoroTimer },
+    { key: 'analytics', component: Analytics },
+    { key: 'chill_corner', component: ChillCorner },
+    { key: 'notes', component: NotesWidget },
+    { key: 'study_materials', component: StudyMaterialHub },
+    { key: 'ai_buddy', component: AIStudyBuddy },
   ];
 
   return (
@@ -340,7 +323,7 @@ const Index = () => {
           </Card>
         </div>
         
-        {/* Theme Toggle & Widget Controls */}
+        {/* Theme Toggle & Quick Actions */}
         <div className="flex flex-wrap justify-center gap-6 mb-10 animate-slide-up" style={{ animationDelay: '0.5s' }}>
           <Button
             variant="outline"
@@ -361,29 +344,27 @@ const Index = () => {
             <User className="w-4 h-4 mr-2 animate-bounce-gentle" />
             {isLoggedIn ? 'Profile' : 'Login'}
           </Button>
-          
-          <div className="flex flex-wrap gap-3">
-            {widgets.map(({ key, label, icon: Icon }, index) => (
-              <Badge
-                key={key}
-                variant={activeWidgets[key] ? "default" : "secondary"}
-                className="cursor-pointer transform-3d hover:scale-110 transition-all duration-300 text-sm px-3 py-1 animate-scale-in"
-                style={{ animationDelay: `${0.6 + index * 0.05}s` }}
-                onClick={() => toggleWidget(key)}
-              >
-                <Icon className="w-4 h-4 mr-1 group-hover:rotate-12 transition-transform" />
-                {label}
-              </Badge>
-            ))}
-          </div>
+
+          <Button
+            variant="outline"
+            size="default"
+            onClick={() => navigate('/niranx/widget-settings')}
+            className="glass-button transform-3d hover:scale-110 transition-all duration-300"
+          >
+            <Target className="w-4 h-4 mr-2" />
+            Manage Widgets
+          </Button>
         </div>
         </div>
       </div>
 
+      {/* MacDock */}
+      <MacDock />
+
       {/* Widgets Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 auto-rows-min perspective-3d">
         {widgets.map(({ key, component: Component }, index) => 
-          activeWidgets[key] && (
+          isWidgetEnabled(key) && (
             <div 
               key={key} 
               className="animate-flip-in card-3d hover-lift"
@@ -395,13 +376,22 @@ const Index = () => {
         )}
       </div>
 
-      {/* Floating Action Button */}
-      <Button
-        className="fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg hover:shadow-xl bg-gradient-to-br from-primary to-primary-glow transform-3d hover:scale-125 hover:rotate-180 transition-all duration-500 animate-glow-pulse z-50"
-        onClick={() => toggleWidget('analytics')}
-      >
-        <Zap className="w-6 h-6" />
-      </Button>
+      {/* Empty State */}
+      {!widgets.some(w => isWidgetEnabled(w.key)) && (
+        <div className="text-center py-16 animate-fade-in">
+          <div className="mb-6">
+            <GraduationCap className="w-20 h-20 mx-auto text-muted-foreground/50" />
+          </div>
+          <h3 className="text-2xl font-bold mb-2">No Widgets Enabled</h3>
+          <p className="text-muted-foreground mb-6">
+            Add widgets to customize your dashboard and get started!
+          </p>
+          <Button onClick={() => navigate('/niranx/widget-settings')} size="lg" className="glass-button">
+            <Target className="w-5 h-5 mr-2" />
+            Add Your First Widget
+          </Button>
+        </div>
+      )}
 
       {/* Background Decorations with 3D effects */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">

@@ -53,7 +53,7 @@ export const XP_REWARDS = {
   SUBMIT_ON_TIME: 50,
   
   // Misc
-  DAILY_LOGIN: 25,
+  DAILY_LOGIN: 1000,
   UPDATE_PROFILE: 30,
   CUSTOMIZE_THEME: 40,
   EXPLORE_NEW_FEATURE: 20,
@@ -107,7 +107,7 @@ export function getXPDescription(activity: XPRewardKey): string {
     ASK_QUESTION_IN_CLASS: 'for asking a question',
     COMPLETE_HOMEWORK: 'for completing homework',
     SUBMIT_ON_TIME: 'for timely submission',
-    DAILY_LOGIN: 'for daily login',
+    DAILY_LOGIN: 'for visiting the app',
     UPDATE_PROFILE: 'for updating profile',
     CUSTOMIZE_THEME: 'for customizing theme',
     EXPLORE_NEW_FEATURE: 'for exploring new features',
