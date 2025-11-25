@@ -7,6 +7,9 @@ import { ArrowLeft, Users, BookOpen, ClipboardList, Calendar, Bell, Link2, Youtu
 import { StudentRosterTable } from "@/components/teacher/StudentRosterTable";
 import { ClassroomVideoManager } from "@/components/teacher/ClassroomVideoManager";
 import { LiveClassroom } from "@/components/teacher/LiveClassroom";
+import { ScheduleClassDialog } from "@/components/teacher/ScheduleClassDialog";
+import { ScheduledClasses } from "@/components/teacher/ScheduledClasses";
+import { ClassHistory } from "@/components/teacher/ClassHistory";
 import { useTeacherCheck } from "@/hooks/useTeacherCheck";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -162,7 +165,22 @@ export default function ClassroomDetail() {
         </TabsContent>
 
         <TabsContent value="live">
-          <LiveClassroom classroomId={id!} isTeacher={isTeacher} />
+          <div className="space-y-6">
+            {/* Schedule New Class Button */}
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold">Live Classes</h3>
+              <ScheduleClassDialog classroomId={id!} />
+            </div>
+
+            {/* Scheduled & Active Classes */}
+            <ScheduledClasses classroomId={id!} />
+
+            {/* Class History */}
+            <ClassHistory classroomId={id!} />
+
+            {/* Legacy Live Classroom (if needed) */}
+            <LiveClassroom classroomId={id!} isTeacher={isTeacher} />
+          </div>
         </TabsContent>
 
         <TabsContent value="videos">
