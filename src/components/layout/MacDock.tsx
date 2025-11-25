@@ -56,9 +56,12 @@ const MacDock = () => {
   };
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 mobile-hide">
-      <TooltipProvider>
-        <div className="relative">
+    <>
+      <div className={`fixed bottom-8 left-1/2 transform -translate-x-1/2 z-[100] transition-all duration-300 ${
+        isExpanded ? 'w-auto' : 'w-auto'
+      } hidden md:block`}>
+        <TooltipProvider>
+          <div className="relative">
           {/* Toggle Button */}
           <div className="flex justify-center mb-2">
             <Button
@@ -149,6 +152,7 @@ const MacDock = () => {
         </div>
       </TooltipProvider>
     </div>
+    </>
   );
 };
 
