@@ -80,7 +80,7 @@ export default function JoinClassroom() {
             title: "Already Enrolled",
             description: "You are already a member of this classroom",
           });
-          navigate(`/niranx/teacher/classrooms/${classroomId}`);
+          window.open(`/niranx/teacher/classrooms/${classroomId}`, '_blank');
         } else {
           throw error;
         }
@@ -89,7 +89,7 @@ export default function JoinClassroom() {
           title: "Success",
           description: "Successfully joined classroom!",
         });
-        navigate(`/niranx/teacher/classrooms/${classroomId}`);
+        window.open(`/niranx/teacher/classrooms/${classroomId}`, '_blank');
       }
     } catch (error) {
       toast({
