@@ -115,14 +115,9 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="flex h-screen w-full overflow-hidden perspective-3d">
-        {/* Fixed Sidebar with Independent Scroll */}
-        <div className="hidden md:flex fixed left-0 top-0 h-screen z-40">
-          <AppSidebar />
-        </div>
-        
-        {/* Main Content Area with Independent Scroll */}
-        <div className="flex-1 flex flex-col h-screen overflow-hidden md:ml-[var(--sidebar-width)] transition-all duration-300">
+      <div className="flex min-h-svh w-full overflow-hidden perspective-3d">
+        <AppSidebar />
+        <SidebarInset>
           <header className="flex h-16 shrink-0 items-center gap-2 border-b backdrop-blur-xl bg-background/80 px-4 transition-all duration-300 hover:bg-background/90 animate-fade-in sticky top-0 z-30">
             <SidebarTrigger className="-ml-1 hover:scale-110 transition-transform duration-200" />
             <Separator orientation="vertical" className="mr-2 h-4" />
@@ -160,19 +155,18 @@ export function AppLayout({ children }: AppLayoutProps) {
               <NotificationCenter />
             </div>
           </header>
-          
-          {/* Scrollable Main Content */}
+
           <main className="flex-1 overflow-y-auto overflow-x-hidden">
             <div className="p-4 pb-20 md:pb-4 animate-fade-in">
               {children}
             </div>
           </main>
-        </div>
-        
-        <NowPlaying />
-        <MobileBottomNav />
-        <CommandPalette open={commandPaletteOpen} onOpenChange={setCommandPaletteOpen} />
-        <KeyboardShortcutsHelp open={shortcutsHelpOpen} onOpenChange={setShortcutsHelpOpen} />
+
+          <NowPlaying />
+          <MobileBottomNav />
+          <CommandPalette open={commandPaletteOpen} onOpenChange={setCommandPaletteOpen} />
+          <KeyboardShortcutsHelp open={shortcutsHelpOpen} onOpenChange={setShortcutsHelpOpen} />
+        </SidebarInset>
       </div>
     </SidebarProvider>
   );
