@@ -57,9 +57,9 @@ const MacDock = () => {
 
   return (
     <>
-      <div className={`fixed bottom-8 left-1/2 transform -translate-x-1/2 z-[100] transition-all duration-300 ${
+      <div className={`fixed bottom-8 left-1/2 transform -translate-x-1/2 z-[9999] transition-all duration-300 ${
         isExpanded ? 'w-auto' : 'w-auto'
-      } hidden md:block`}>
+      } hidden md:block pointer-events-auto`}>
         <TooltipProvider>
           <div className="relative">
           {/* Toggle Button */}
