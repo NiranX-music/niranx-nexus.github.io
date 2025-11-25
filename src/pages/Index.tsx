@@ -42,6 +42,7 @@ import ChillCorner from "@/components/widgets/ChillCorner";
 import NotesWidget from "@/components/widgets/NotesWidget";
 import StudyMaterialHub from "@/components/widgets/StudyMaterialHub";
 import AIStudyBuddy from "@/components/widgets/AIStudyBuddy";
+import MacDock from "@/components/layout/MacDock";
 
 const Index = () => {
   const [isDarkMode, setIsDarkMode] = useState(true); // Default to dark mode for neon cosmic theme
@@ -395,6 +396,9 @@ const Index = () => {
         <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-accent/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '1s' }}></div>
         <div className="absolute top-1/2 right-1/3 w-48 h-48 bg-success/5 rounded-full blur-3xl animate-pulse-scale" style={{ animationDelay: '2s' }}></div>
       </div>
+
+      {/* Expandable Dock */}
+      <MacDock />
     </div>
   );
 };
