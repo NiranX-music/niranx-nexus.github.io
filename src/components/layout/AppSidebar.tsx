@@ -199,6 +199,7 @@ const teacherNavigation = [
 ];
 
 const liveClassroomNavigation = [
+  { title: "Live Classroom", url: "/niranx/live-classroom", icon: Video },
   { title: "Browse Classrooms", url: "/niranx/classrooms", icon: BookOpen },
 ];
 
