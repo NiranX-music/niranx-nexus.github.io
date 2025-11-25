@@ -2479,6 +2479,41 @@ export type Database = {
           },
         ]
       }
+      live_class_chat: {
+        Row: {
+          class_id: string
+          created_at: string | null
+          id: string
+          message: string
+          message_type: string | null
+          user_id: string
+        }
+        Insert: {
+          class_id: string
+          created_at?: string | null
+          id?: string
+          message: string
+          message_type?: string | null
+          user_id: string
+        }
+        Update: {
+          class_id?: string
+          created_at?: string | null
+          id?: string
+          message?: string
+          message_type?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_class_chat_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "live_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       live_class_doubts: {
         Row: {
           answer: string | null
@@ -2663,6 +2698,56 @@ export type Database = {
           },
         ]
       }
+      live_class_questions: {
+        Row: {
+          answer: string | null
+          answered_at: string | null
+          answered_by: string | null
+          class_id: string
+          created_at: string | null
+          id: string
+          is_answered: boolean | null
+          priority: number | null
+          question: string
+          student_id: string
+          upvotes: number | null
+        }
+        Insert: {
+          answer?: string | null
+          answered_at?: string | null
+          answered_by?: string | null
+          class_id: string
+          created_at?: string | null
+          id?: string
+          is_answered?: boolean | null
+          priority?: number | null
+          question: string
+          student_id: string
+          upvotes?: number | null
+        }
+        Update: {
+          answer?: string | null
+          answered_at?: string | null
+          answered_by?: string | null
+          class_id?: string
+          created_at?: string | null
+          id?: string
+          is_answered?: boolean | null
+          priority?: number | null
+          question?: string
+          student_id?: string
+          upvotes?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_class_questions_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "live_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       live_class_raised_hands: {
         Row: {
           acknowledged: boolean | null
@@ -2741,60 +2826,113 @@ export type Database = {
       }
       live_classes: {
         Row: {
+          actual_end: string | null
+          actual_start: string | null
+          agora_channel_name: string | null
+          agora_token: string | null
           attendance_count: number | null
           class_link: string | null
+          classroom_id: string | null
           created_at: string | null
+          description: string | null
           end_time: string
           id: string
           is_recurring: boolean | null
+          max_participants: number | null
           notes: string | null
+          recording_enabled: boolean | null
           recording_url: string | null
           recurring_days: number[] | null
           recurring_end_date: string | null
           recurring_pattern: string | null
+          scheduled_end: string | null
+          scheduled_start: string | null
+          screen_share_active: boolean | null
+          screen_share_enabled: boolean | null
+          screen_share_user_id: string | null
           start_time: string
           status: string | null
           subject: string
+          teacher_id: string | null
           title: string
+          updated_at: string | null
           user_id: string
         }
         Insert: {
+          actual_end?: string | null
+          actual_start?: string | null
+          agora_channel_name?: string | null
+          agora_token?: string | null
           attendance_count?: number | null
           class_link?: string | null
+          classroom_id?: string | null
           created_at?: string | null
+          description?: string | null
           end_time: string
           id?: string
           is_recurring?: boolean | null
+          max_participants?: number | null
           notes?: string | null
+          recording_enabled?: boolean | null
           recording_url?: string | null
           recurring_days?: number[] | null
           recurring_end_date?: string | null
           recurring_pattern?: string | null
+          scheduled_end?: string | null
+          scheduled_start?: string | null
+          screen_share_active?: boolean | null
+          screen_share_enabled?: boolean | null
+          screen_share_user_id?: string | null
           start_time: string
           status?: string | null
           subject: string
+          teacher_id?: string | null
           title: string
+          updated_at?: string | null
           user_id: string
         }
         Update: {
+          actual_end?: string | null
+          actual_start?: string | null
+          agora_channel_name?: string | null
+          agora_token?: string | null
           attendance_count?: number | null
           class_link?: string | null
+          classroom_id?: string | null
           created_at?: string | null
+          description?: string | null
           end_time?: string
           id?: string
           is_recurring?: boolean | null
+          max_participants?: number | null
           notes?: string | null
+          recording_enabled?: boolean | null
           recording_url?: string | null
           recurring_days?: number[] | null
           recurring_end_date?: string | null
           recurring_pattern?: string | null
+          scheduled_end?: string | null
+          scheduled_start?: string | null
+          screen_share_active?: boolean | null
+          screen_share_enabled?: boolean | null
+          screen_share_user_id?: string | null
           start_time?: string
           status?: string | null
           subject?: string
+          teacher_id?: string | null
           title?: string
+          updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "live_classes_classroom_id_fkey"
+            columns: ["classroom_id"]
+            isOneToOne: false
+            referencedRelation: "classrooms"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       lms_integrations: {
         Row: {
@@ -5039,6 +5177,7 @@ export type Database = {
         Args: { p_end_date: string; p_start_date: string }
         Returns: undefined
       }
+      update_live_class_status: { Args: never; Returns: undefined }
       update_recent_page: {
         Args: { p_page_title: string; p_page_url: string; p_user_id: string }
         Returns: undefined

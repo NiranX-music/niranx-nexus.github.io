@@ -1,0 +1,370 @@
+import { useEffect, useState, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { LiveClassControls } from '@/components/teacher/LiveClassControls';
+import { toast } from 'sonner';
+import AgoraRTC, { IAgoraRTCClient, ICameraVideoTrack, IMicrophoneAudioTrack, ILocalVideoTrack } from 'agora-rtc-sdk-ng';
+import { Loader2, Monitor, VideoOff } from 'lucide-react';
+
+interface LiveClassData {
+  id: string;
+  title: string;
+  description: string | null;
+  classroom_id: string;
+  teacher_id: string;
+  agora_channel_name: string;
+  screen_share_active: boolean;
+  screen_share_user_id: string | null;
+}
+
+const LiveClassSession = () => {
+  const { classId } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  
+  const [classData, setClassData] = useState<LiveClassData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [agoraToken, setAgoraToken] = useState<string>('');
+  const [isTeacher, setIsTeacher] = useState(false);
+  const [participants, setParticipants] = useState<number>(0);
+  
+  const [isMicOn, setIsMicOn] = useState(false);
+  const [isCameraOn, setIsCameraOn] = useState(false);
+  const [isScreenSharing, setIsScreenSharing] = useState(false);
+  
+  const clientRef = useRef<IAgoraRTCClient | null>(null);
+  const localAudioTrackRef = useRef<IMicrophoneAudioTrack | null>(null);
+  const localVideoTrackRef = useRef<ICameraVideoTrack | null>(null);
+  const screenTrackRef = useRef<ILocalVideoTrack | null>(null);
+
+  useEffect(() => {
+    if (!classId || !user) {
+      navigate('/niranx/teacher/dashboard');
+      return;
+    }
+
+    loadClassData();
+
+    return () => {
+      leaveClass();
+    };
+  }, [classId, user]);
+
+  const loadClassData = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('live_classes')
+        .select('*')
+        .eq('id', classId)
+        .single();
+
+      if (error) throw error;
+
+      if (!data) {
+        toast.error('Class not found');
+        navigate('/niranx/teacher/dashboard');
+        return;
+      }
+
+      setClassData(data as any);
+      setIsTeacher(data.teacher_id === user?.id);
+
+      // Get Agora token
+      await getAgoraToken(data.agora_channel_name, user!.id);
+
+      // Initialize Agora
+      await initializeAgora(data.agora_channel_name);
+
+      // Record attendance
+      await supabase
+        .from('live_class_attendance')
+        .upsert({
+          class_id: classId,
+          user_id: user!.id,
+          joined_at: new Date().toISOString(),
+        });
+
+      // Update class status to live
+      if (data.status === 'scheduled') {
+        await supabase
+          .from('live_classes')
+          .update({ status: 'live', actual_start: new Date().toISOString() })
+          .eq('id', classId);
+      }
+    } catch (error) {
+      console.error('Error loading class:', error);
+      toast.error('Failed to load class');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getAgoraToken = async (channelName: string, userId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-agora-token', {
+        body: { channelName, userId, role: isTeacher ? 'host' : 'audience' },
+      });
+
+      if (error) throw error;
+      setAgoraToken(data.token);
+    } catch (error) {
+      console.error('Error getting Agora token:', error);
+      toast.error('Failed to get video token');
+    }
+  };
+
+  const initializeAgora = async (channelName: string) => {
+    try {
+      const appId = import.meta.env.VITE_AGORA_APP_ID;
+
+      if (!appId || !agoraToken) {
+        console.error('Missing Agora credentials');
+        return;
+      }
+
+      clientRef.current = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
+
+      // Join channel
+      await clientRef.current.join(appId, channelName, agoraToken, user!.id);
+
+      // Track participant count
+      clientRef.current.on('user-joined', () => {
+        setParticipants((prev) => prev + 1);
+      });
+
+      clientRef.current.on('user-left', () => {
+        setParticipants((prev) => Math.max(0, prev - 1));
+      });
+
+      setParticipants(clientRef.current.remoteUsers.length + 1);
+    } catch (error) {
+      console.error('Error initializing Agora:', error);
+      toast.error('Failed to join class');
+    }
+  };
+
+  const toggleMic = async () => {
+    try {
+      if (!isMicOn) {
+        localAudioTrackRef.current = await AgoraRTC.createMicrophoneAudioTrack();
+        await clientRef.current?.publish(localAudioTrackRef.current);
+        setIsMicOn(true);
+        toast.success('Microphone enabled');
+      } else {
+        localAudioTrackRef.current?.close();
+        setIsMicOn(false);
+        toast.success('Microphone disabled');
+      }
+    } catch (error) {
+      console.error('Error toggling mic:', error);
+      toast.error('Failed to toggle microphone');
+    }
+  };
+
+  const toggleCamera = async () => {
+    try {
+      if (!isCameraOn) {
+        localVideoTrackRef.current = await AgoraRTC.createCameraVideoTrack();
+        await clientRef.current?.publish(localVideoTrackRef.current);
+        
+        // Display local video
+        localVideoTrackRef.current.play('local-video');
+        
+        setIsCameraOn(true);
+        toast.success('Camera enabled');
+      } else {
+        localVideoTrackRef.current?.close();
+        setIsCameraOn(false);
+        toast.success('Camera disabled');
+      }
+    } catch (error) {
+      console.error('Error toggling camera:', error);
+      toast.error('Failed to toggle camera');
+    }
+  };
+
+  const toggleScreenShare = async () => {
+    if (!isTeacher) {
+      toast.error('Only teachers can share screen');
+      return;
+    }
+
+    try {
+      if (!isScreenSharing) {
+        // Start screen sharing
+        screenTrackRef.current = await AgoraRTC.createScreenVideoTrack({}, 'disable');
+        await clientRef.current?.publish(screenTrackRef.current);
+        
+        // Display screen share
+        screenTrackRef.current.play('screen-share-video');
+        
+        // Update database
+        await supabase
+          .from('live_classes')
+          .update({
+            screen_share_active: true,
+            screen_share_user_id: user!.id,
+          })
+          .eq('id', classId);
+
+        setIsScreenSharing(true);
+        toast.success('Screen sharing started');
+
+        // Handle when user stops sharing via browser button
+        screenTrackRef.current.on('track-ended', () => {
+          stopScreenShare();
+        });
+      } else {
+        await stopScreenShare();
+      }
+    } catch (error) {
+      console.error('Error toggling screen share:', error);
+      toast.error('Failed to toggle screen sharing');
+    }
+  };
+
+  const stopScreenShare = async () => {
+    try {
+      if (screenTrackRef.current) {
+        screenTrackRef.current.close();
+        screenTrackRef.current = null;
+      }
+
+      // Update database
+      await supabase
+        .from('live_classes')
+        .update({
+          screen_share_active: false,
+          screen_share_user_id: null,
+        })
+        .eq('id', classId);
+
+      setIsScreenSharing(false);
+      toast.success('Screen sharing stopped');
+    } catch (error) {
+      console.error('Error stopping screen share:', error);
+    }
+  };
+
+  const leaveClass = async () => {
+    try {
+      // Stop all tracks
+      localAudioTrackRef.current?.close();
+      localVideoTrackRef.current?.close();
+      screenTrackRef.current?.close();
+
+      // Leave channel
+      await clientRef.current?.leave();
+
+      // Update attendance
+      await supabase
+        .from('live_class_attendance')
+        .update({ left_at: new Date().toISOString() })
+        .eq('class_id', classId)
+        .eq('user_id', user!.id);
+
+      navigate('/niranx/teacher/dashboard');
+    } catch (error) {
+      console.error('Error leaving class:', error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!classData) return null;
+
+  return (
+    <div className="h-screen flex flex-col bg-background">
+      {/* Header */}
+      <div className="border-b bg-background/95 backdrop-blur-lg p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">{classData.title}</h1>
+            {classData.description && (
+              <p className="text-sm text-muted-foreground">{classData.description}</p>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="destructive" className="animate-pulse">
+              LIVE
+            </Badge>
+            {isTeacher && <Badge variant="secondary">Teacher</Badge>}
+          </div>
+        </div>
+      </div>
+
+      {/* Video Grid */}
+      <div className="flex-1 overflow-auto p-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-20">
+          {/* Screen Share Display (Full Width when active) */}
+          {isScreenSharing && (
+            <Card className="col-span-full">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Monitor className="w-4 h-4 text-primary" />
+                  <span className="font-semibold">Screen Share</span>
+                </div>
+                <div
+                  id="screen-share-video"
+                  className="w-full aspect-video bg-black rounded-lg"
+                />
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Local Video */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant="secondary">You</Badge>
+                {isTeacher && <Badge variant="default">Teacher</Badge>}
+              </div>
+              <div
+                id="local-video"
+                className="w-full aspect-video bg-muted rounded-lg flex items-center justify-center"
+              >
+                {!isCameraOn && (
+                  <div className="text-center">
+                    <VideoOff className="w-12 h-12 mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">Camera off</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Remote participants will be dynamically added here by Agora */}
+          <div id="remote-videos-container" className="contents"></div>
+        </div>
+      </div>
+
+      {/* Controls */}
+      <LiveClassControls
+        isTeacher={isTeacher}
+        isScreenSharing={isScreenSharing}
+        onToggleScreenShare={toggleScreenShare}
+        isMicOn={isMicOn}
+        onToggleMic={toggleMic}
+        isCameraOn={isCameraOn}
+        onToggleCamera={toggleCamera}
+        participantCount={participants}
+        onLeaveClass={leaveClass}
+        onShowChat={() => toast.info('Chat feature')}
+        onShowQuestions={() => toast.info('Questions feature')}
+        onShowParticipants={() => toast.info('Participants list')}
+      />
+    </div>
+  );
+};
+
+export default LiveClassSession;

@@ -126,6 +126,7 @@ import JoinClassroom from "./pages/teacher/JoinClassroom";
 import RoleManagement from "./pages/admin/RoleManagement";
 import FeedbackSubmission from "./pages/FeedbackSubmission";
 import FeedbackList from "./pages/admin/FeedbackList";
+import LiveClassSession from "./pages/teacher/LiveClassSession";
 import { TeacherRoute } from "./components/TeacherRoute";
 
 const queryClient = new QueryClient();
@@ -286,6 +287,11 @@ const App = () => (
                             <ProtectedRoute>
                               <JoinClassroom />
                             </ProtectedRoute>
+                          } />
+                          <Route path="/teacher/live-class/:classId" element={
+                            <TeacherRoute>
+                              <LiveClassSession />
+                            </TeacherRoute>
                           } />
                           <Route path="/admin/feedback-list" element={
                             <ModeratorRoute>
