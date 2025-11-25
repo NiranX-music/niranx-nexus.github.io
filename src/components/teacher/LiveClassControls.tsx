@@ -13,6 +13,8 @@ import {
   MessageCircle,
   HelpCircle,
   LogOut,
+  Circle,
+  Square,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -24,6 +26,8 @@ interface LiveClassControlsProps {
   onToggleMic: () => void;
   isCameraOn: boolean;
   onToggleCamera: () => void;
+  isRecording: boolean;
+  onToggleRecording: () => void;
   participantCount: number;
   onLeaveClass: () => void;
   onEndClass?: () => void;
@@ -40,6 +44,8 @@ export const LiveClassControls = ({
   onToggleMic,
   isCameraOn,
   onToggleCamera,
+  isRecording,
+  onToggleRecording,
   participantCount,
   onLeaveClass,
   onEndClass,
@@ -83,6 +89,22 @@ export const LiveClassControls = ({
                 <MonitorOff className="w-5 h-5" />
               ) : (
                 <Monitor className="w-5 h-5" />
+              )}
+            </Button>
+          )}
+
+          {/* Recording (Teacher Only) */}
+          {isTeacher && (
+            <Button
+              variant={isRecording ? 'destructive' : 'outline'}
+              size="icon"
+              onClick={onToggleRecording}
+              className="rounded-full"
+            >
+              {isRecording ? (
+                <Square className="w-5 h-5 fill-current" />
+              ) : (
+                <Circle className="w-5 h-5" />
               )}
             </Button>
           )}
