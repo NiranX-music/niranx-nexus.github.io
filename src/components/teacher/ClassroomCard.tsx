@@ -1,7 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Users, Calendar, MoreVertical } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,8 +13,6 @@ interface ClassroomCardProps {
 }
 
 export function ClassroomCard({ classroom }: ClassroomCardProps) {
-  const navigate = useNavigate();
-
   return (
     <Card className="p-6 hover:shadow-lg transition-shadow">
       <div className="flex justify-between items-start mb-4">
@@ -35,13 +32,13 @@ export function ClassroomCard({ classroom }: ClassroomCardProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => navigate(`/niranx/teacher/classrooms/${classroom.id}`)}>
+            <DropdownMenuItem onClick={() => window.open(`/niranx/teacher/classrooms/${classroom.id}`, '_blank')}>
               View Details
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => navigate(`/niranx/teacher/classrooms/${classroom.id}/debates`)}>
+            <DropdownMenuItem onClick={() => window.open(`/niranx/teacher/classrooms/${classroom.id}/debates`, '_blank')}>
               Manage Debates
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => navigate(`/niranx/teacher/classrooms/${classroom.id}/grades`)}>
+            <DropdownMenuItem onClick={() => window.open(`/niranx/teacher/classrooms/${classroom.id}/grades`, '_blank')}>
               Gradebook
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -70,7 +67,7 @@ export function ClassroomCard({ classroom }: ClassroomCardProps) {
 
       <Button 
         className="w-full" 
-        onClick={() => navigate(`/niranx/teacher/classrooms/${classroom.id}`)}
+        onClick={() => window.open(`/niranx/teacher/classrooms/${classroom.id}`, '_blank')}
       >
         View Classroom
       </Button>
