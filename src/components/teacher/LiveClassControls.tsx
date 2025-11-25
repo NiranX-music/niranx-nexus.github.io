@@ -102,10 +102,10 @@ export const LiveClassControls = ({
             {isCameraOn ? <Video className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
           </Button>
 
-          {/* Device Settings */}
+          {/* Device Selection */}
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="icon" className="rounded-full">
+              <Button variant="outline" size="icon" className="rounded-full" title="Choose Device">
                 <Settings className="w-5 h-5" />
               </Button>
             </PopoverTrigger>
@@ -145,6 +145,8 @@ export const LiveClassControls = ({
             </PopoverContent>
           </Popover>
 
+          <div className="h-8 w-px bg-border mx-1" />
+
           {/* Screen Share (Teacher Only) */}
           {isTeacher && (
             <Button
@@ -152,6 +154,7 @@ export const LiveClassControls = ({
               size="icon"
               onClick={onToggleScreenShare}
               className="rounded-full"
+              title="Screen Share"
             >
               {isScreenSharing ? (
                 <MonitorOff className="w-5 h-5" />
