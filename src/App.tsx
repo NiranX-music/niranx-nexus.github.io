@@ -273,22 +273,22 @@ const App = () => (
                               <RoleManagement />
                             </AdminRoute>
                           } />
-                          <Route path="/teacher/dashboard" element={
+                          <Route path="teacher/dashboard" element={
                             <TeacherRoute>
                               <TeacherDashboard />
                             </TeacherRoute>
                           } />
-          <Route path="/teacher/classrooms/:id" element={
+          <Route path="teacher/classrooms/:id" element={
             <ProtectedRoute>
               <ClassroomDetail />
             </ProtectedRoute>
           } />
-          <Route path="/classrooms" element={
+          <Route path="classrooms" element={
             <ProtectedRoute>
               <JoinClassroom />
             </ProtectedRoute>
           } />
-          <Route path="/teacher/live-class/:classId" element={
+          <Route path="teacher/live-class/:classId" element={
             <ProtectedRoute>
               <LiveClassSession />
             </ProtectedRoute>
