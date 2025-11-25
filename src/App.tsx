@@ -278,21 +278,21 @@ const App = () => (
                               <TeacherDashboard />
                             </TeacherRoute>
                           } />
-                          <Route path="/teacher/classrooms/:id" element={
-                            <TeacherRoute>
-                              <ClassroomDetail />
-                            </TeacherRoute>
-                          } />
-                          <Route path="/join-classroom" element={
-                            <ProtectedRoute>
-                              <JoinClassroom />
-                            </ProtectedRoute>
-                          } />
-                          <Route path="/teacher/live-class/:classId" element={
-                            <TeacherRoute>
-                              <LiveClassSession />
-                            </TeacherRoute>
-                          } />
+          <Route path="/teacher/classrooms/:id" element={
+            <ProtectedRoute>
+              <ClassroomDetail />
+            </ProtectedRoute>
+          } />
+          <Route path="/classrooms" element={
+            <ProtectedRoute>
+              <JoinClassroom />
+            </ProtectedRoute>
+          } />
+          <Route path="/teacher/live-class/:classId" element={
+            <ProtectedRoute>
+              <LiveClassSession />
+            </ProtectedRoute>
+          } />
                           <Route path="/admin/feedback-list" element={
                             <ModeratorRoute>
                               <FeedbackList />

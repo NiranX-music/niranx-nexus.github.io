@@ -195,6 +195,7 @@ const adminNavigation = [
 
 const teacherNavigation = [
   { title: "Teacher Portal", url: "/niranx/teacher/dashboard", icon: GraduationCap },
+  { title: "Browse Classrooms", url: "/niranx/classrooms", icon: BookOpen },
   { title: "Role Management", url: "/niranx/admin/roles", icon: ShieldCheck },
 ];
 

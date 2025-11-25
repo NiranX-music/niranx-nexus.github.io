@@ -1,182 +1,214 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
-import { Card } from "@/components/ui/card";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useClassroom } from "@/hooks/useClassroom";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { BookOpen, Users, Loader2 } from "lucide-react";
+import { Search, Users, BookOpen, GraduationCap } from "lucide-react";
 
 export default function JoinClassroom() {
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const [classroom, setClassroom] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [joining, setJoining] = useState(false);
-  const code = searchParams.get("code");
+  const { classrooms, classroomsLoading } = useClassroom();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [classCode, setClassCode] = useState("");
+  const [joiningId, setJoiningId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (code) {
-      fetchClassroom();
+  const filteredClassrooms = classrooms?.filter(
+    (classroom) =>
+      classroom.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      classroom.subject?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      classroom.grade_level?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleJoinByCode = async () => {
+    if (!classCode.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a class code",
+        variant: "destructive",
+      });
+      return;
     }
-  }, [code]);
 
-  const fetchClassroom = async () => {
     try {
-      const { data, error } = await supabase
+      const { data: classroom, error: fetchError } = await supabase
         .from("classrooms")
-        .select("*")
-        .eq("class_code", code)
+        .select("id")
+        .eq("class_code", classCode.toUpperCase())
         .eq("is_active", true)
         .single();
 
-      if (error) throw error;
-      setClassroom(data);
-    } catch (error: any) {
-      toast({
-        title: "Invalid classroom code",
-        description: "The classroom code is invalid or the classroom is no longer active.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleJoin = async () => {
-    if (!user || !classroom) return;
-
-    setJoining(true);
-    try {
-      // Check if already enrolled
-      const { data: existing } = await supabase
-        .from("classroom_members")
-        .select("id")
-        .eq("classroom_id", classroom.id)
-        .eq("student_id", user.id)
-        .single();
-
-      if (existing) {
+      if (fetchError || !classroom) {
         toast({
-          title: "Already enrolled",
-          description: "You are already a member of this classroom.",
+          title: "Error",
+          description: "Invalid class code",
+          variant: "destructive",
         });
-        navigate("/niranx/dashboard");
         return;
       }
 
-      // Join classroom
-      const { error } = await supabase
-        .from("classroom_members")
-        .insert({
-          classroom_id: classroom.id,
-          student_id: user.id,
-          enrollment_status: "active",
-          role: "student",
-        });
-
-      if (error) throw error;
-
+      await joinClassroom(classroom.id);
+    } catch (error) {
       toast({
-        title: "Successfully joined!",
-        description: `You have joined ${classroom.name}`,
-      });
-      navigate("/niranx/dashboard");
-    } catch (error: any) {
-      toast({
-        title: "Failed to join",
-        description: error.message,
+        title: "Error",
+        description: "Failed to join classroom",
         variant: "destructive",
       });
-    } finally {
-      setJoining(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="container mx-auto p-6 flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin" />
-      </div>
-    );
-  }
+  const joinClassroom = async (classroomId: string) => {
+    setJoiningId(classroomId);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
 
-  if (!classroom) {
-    return (
-      <div className="container mx-auto p-6 flex items-center justify-center min-h-screen">
-        <Card className="p-12 text-center max-w-md">
-          <h2 className="text-2xl font-bold mb-2">Classroom not found</h2>
-          <p className="text-muted-foreground mb-4">
-            The classroom code is invalid or the classroom is no longer active.
-          </p>
-          <Button onClick={() => navigate("/niranx/dashboard")}>
-            Go to Dashboard
-          </Button>
-        </Card>
-      </div>
-    );
-  }
+      const { error } = await supabase.from("classroom_members").insert({
+        classroom_id: classroomId,
+        student_id: user.id,
+        role: "student",
+        enrollment_status: "active",
+      });
+
+      if (error) {
+        if (error.code === "23505") {
+          toast({
+            title: "Already Enrolled",
+            description: "You are already a member of this classroom",
+          });
+          navigate(`/niranx/teacher/classrooms/${classroomId}`);
+        } else {
+          throw error;
+        }
+      } else {
+        toast({
+          title: "Success",
+          description: "Successfully joined classroom!",
+        });
+        navigate(`/niranx/teacher/classrooms/${classroomId}`);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to join classroom",
+        variant: "destructive",
+      });
+    } finally {
+      setJoiningId(null);
+    }
+  };
 
   return (
-    <div className="container mx-auto p-6 flex items-center justify-center min-h-screen">
-      <Card className="p-8 max-w-lg w-full">
-        <div className="text-center mb-6">
-          <BookOpen className="w-16 h-16 mx-auto mb-4 text-primary" />
-          <h1 className="text-3xl font-bold mb-2">Join Classroom</h1>
-          <p className="text-muted-foreground">You've been invited to join a classroom</p>
+    <AppLayout>
+      <div className="container mx-auto py-8 space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Browse Classrooms</h1>
+          <p className="text-muted-foreground">
+            Discover and join classrooms to access learning materials
+          </p>
         </div>
 
-        <div className="bg-muted p-6 rounded-lg space-y-4 mb-6">
-          <div>
-            <p className="text-sm text-muted-foreground mb-1">Classroom Name</p>
-            <p className="text-xl font-bold">{classroom.name}</p>
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground mb-1">Subject</p>
-            <p className="text-lg">{classroom.subject || "N/A"}</p>
-          </div>
-          {classroom.grade_level && (
-            <div>
-              <p className="text-sm text-muted-foreground mb-1">Grade Level</p>
-              <p className="text-lg">{classroom.grade_level}</p>
+        <Card>
+          <CardHeader>
+            <CardTitle>Join with Class Code</CardTitle>
+            <CardDescription>
+              Enter the code provided by your teacher
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-2">
+              <Input
+                placeholder="Enter class code"
+                value={classCode}
+                onChange={(e) => setClassCode(e.target.value.toUpperCase())}
+                className="uppercase"
+              />
+              <Button onClick={handleJoinByCode} disabled={!classCode.trim()}>
+                Join
+              </Button>
             </div>
-          )}
-          {classroom.description && (
-            <div>
-              <p className="text-sm text-muted-foreground mb-1">Description</p>
-              <p className="text-sm">{classroom.description}</p>
-            </div>
-          )}
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className="flex gap-4">
-          <Button
-            variant="outline"
-            className="flex-1"
-            onClick={() => navigate("/niranx/dashboard")}
-          >
-            Cancel
-          </Button>
-          <Button
-            className="flex-1"
-            onClick={handleJoin}
-            disabled={joining}
-          >
-            {joining ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Joining...
-              </>
-            ) : (
-              <>
-                <Users className="w-4 h-4 mr-2" />
-                Join Classroom
-              </>
-            )}
-          </Button>
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Search className="w-5 h-5 text-muted-foreground" />
+            <Input
+              placeholder="Search classrooms..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="max-w-md"
+            />
+          </div>
+
+          {classroomsLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[...Array(6)].map((_, i) => (
+                <Card key={i} className="animate-pulse">
+                  <CardHeader>
+                    <div className="h-6 bg-muted rounded w-3/4 mb-2" />
+                    <div className="h-4 bg-muted rounded w-1/2" />
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredClassrooms?.map((classroom) => (
+                <Card key={classroom.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1 flex-1">
+                        <CardTitle className="text-lg">{classroom.name}</CardTitle>
+                        <CardDescription>{classroom.subject}</CardDescription>
+                      </div>
+                      <GraduationCap className="w-5 h-5 text-primary" />
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex flex-wrap gap-2">
+                      {classroom.grade_level && (
+                        <Badge variant="secondary">
+                          <BookOpen className="w-3 h-3 mr-1" />
+                          {classroom.grade_level}
+                        </Badge>
+                      )}
+                      <Badge variant="outline">
+                        <Users className="w-3 h-3 mr-1" />
+                        {classroom.class_code}
+                      </Badge>
+                    </div>
+                    {classroom.description && (
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {classroom.description}
+                      </p>
+                    )}
+                    <Button
+                      className="w-full"
+                      onClick={() => joinClassroom(classroom.id)}
+                      disabled={joiningId === classroom.id}
+                    >
+                      {joiningId === classroom.id ? "Joining..." : "View Classroom"}
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+
+          {!classroomsLoading && filteredClassrooms?.length === 0 && (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <p className="text-muted-foreground">No classrooms found</p>
+              </CardContent>
+            </Card>
+          )}
         </div>
-      </Card>
-    </div>
+      </div>
+    </AppLayout>
   );
 }
