@@ -4738,6 +4738,36 @@ export type Database = {
         }
         Relationships: []
       }
+      widget_preferences: {
+        Row: {
+          created_at: string
+          id: string
+          is_enabled: boolean
+          position: number | null
+          updated_at: string
+          user_id: string
+          widget_name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          position?: number | null
+          updated_at?: string
+          user_id: string
+          widget_name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          position?: number | null
+          updated_at?: string
+          user_id?: string
+          widget_name?: string
+        }
+        Relationships: []
+      }
       workload_snapshots: {
         Row: {
           classes_count: number | null

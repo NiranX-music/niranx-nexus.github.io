@@ -109,6 +109,7 @@ import Guide from "./pages/Guide";
 import DailyRewards from "./pages/DailyRewards";
 import ThemeCustomization from "./pages/ThemeCustomization";
 import Guilds from "./pages/Guilds";
+import WidgetSettings from "./pages/WidgetSettings";
 import SmartNotifications from "./pages/SmartNotifications";
 import DebateHub from "./pages/debates/DebateHub";
 import DebateDetail from "./pages/debates/DebateDetail";
@@ -239,6 +240,7 @@ const App = () => (
                           <Route path="/daily-rewards" element={<DailyRewards />} />
                           <Route path="/theme-customization" element={<ThemeCustomization />} />
                           <Route path="/guilds" element={<Guilds />} />
+                          <Route path="/widget-settings" element={<WidgetSettings />} />
                           <Route path="/smart-notifications" element={<SmartNotifications />} />
                           <Route path="/debates" element={<DebateHub />} />
                           <Route path="/debates/:id" element={<DebateDetail />} />
