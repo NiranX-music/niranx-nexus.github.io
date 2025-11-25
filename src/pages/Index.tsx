@@ -44,6 +44,7 @@ import NotesWidget from "@/components/widgets/NotesWidget";
 import StudyMaterialHub from "@/components/widgets/StudyMaterialHub";
 import AIStudyBuddy from "@/components/widgets/AIStudyBuddy";
 import { useWidgets } from "@/hooks/useWidgets";
+import { StreakDisplay } from "@/components/StreakDisplay";
 
 const Index = () => {
   const [isDarkMode, setIsDarkMode] = useState(true); // Default to dark mode for neon cosmic theme
@@ -235,6 +236,13 @@ const Index = () => {
                 </div>
               </CardContent>
             </Card>
+          )}
+
+          {/* Streak Display */}
+          {isLoggedIn && (
+            <div className="mb-6 md:mb-8 animate-scale-in">
+              <StreakDisplay />
+            </div>
           )}
 
           {/* Mood & Challenges Grid */}

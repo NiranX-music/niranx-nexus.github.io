@@ -3108,6 +3108,7 @@ export type Database = {
       }
       notification_preferences: {
         Row: {
+          browser_notifications: boolean | null
           created_at: string | null
           digest_mode: boolean | null
           digest_time: string | null
@@ -3121,10 +3122,15 @@ export type Database = {
           quiet_hours_start: string | null
           resource_access: boolean | null
           smart_timing_enabled: boolean | null
+          streak_milestones: boolean | null
+          streak_reminders: boolean | null
+          task_due_soon: boolean | null
+          task_reminders: boolean | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          browser_notifications?: boolean | null
           created_at?: string | null
           digest_mode?: boolean | null
           digest_time?: string | null
@@ -3138,10 +3144,15 @@ export type Database = {
           quiet_hours_start?: string | null
           resource_access?: boolean | null
           smart_timing_enabled?: boolean | null
+          streak_milestones?: boolean | null
+          streak_reminders?: boolean | null
+          task_due_soon?: boolean | null
+          task_reminders?: boolean | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          browser_notifications?: boolean | null
           created_at?: string | null
           digest_mode?: boolean | null
           digest_time?: string | null
@@ -3155,6 +3166,10 @@ export type Database = {
           quiet_hours_start?: string | null
           resource_access?: boolean | null
           smart_timing_enabled?: boolean | null
+          streak_milestones?: boolean | null
+          streak_reminders?: boolean | null
+          task_due_soon?: boolean | null
+          task_reminders?: boolean | null
           updated_at?: string | null
           user_id?: string
         }
@@ -3783,6 +3798,33 @@ export type Database = {
         }
         Relationships: []
       }
+      streak_milestones: {
+        Row: {
+          achieved_at: string | null
+          created_at: string | null
+          id: string
+          streak_days: number
+          user_id: string
+          xp_reward: number | null
+        }
+        Insert: {
+          achieved_at?: string | null
+          created_at?: string | null
+          id?: string
+          streak_days: number
+          user_id: string
+          xp_reward?: number | null
+        }
+        Update: {
+          achieved_at?: string | null
+          created_at?: string | null
+          id?: string
+          streak_days?: number
+          user_id?: string
+          xp_reward?: number | null
+        }
+        Relationships: []
+      }
       student_grades: {
         Row: {
           ai_analysis: Json | null
@@ -4068,6 +4110,44 @@ export type Database = {
           xp_earned?: number | null
         }
         Relationships: []
+      }
+      task_notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          notification_type: string
+          scheduled_for: string
+          sent_at: string | null
+          task_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          notification_type: string
+          scheduled_for: string
+          sent_at?: string | null
+          task_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          notification_type?: string
+          scheduled_for?: string
+          sent_at?: string | null
+          task_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_notifications_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tasks: {
         Row: {
@@ -4909,6 +4989,7 @@ export type Database = {
       generate_class_code: { Args: never; Returns: string }
       generate_share_token: { Args: never; Returns: string }
       generate_theme_share_token: { Args: never; Returns: string }
+      get_current_streak: { Args: { p_user_id: string }; Returns: number }
       get_public_user_info: {
         Args: { target_user_id: string }
         Returns: {
@@ -4942,8 +5023,18 @@ export type Database = {
         }
         Returns: string
       }
+      record_study_activity: {
+        Args: {
+          p_minutes?: number
+          p_tasks?: number
+          p_user_id: string
+          p_xp?: number
+        }
+        Returns: undefined
+      }
       refresh_current_month_leaderboard: { Args: never; Returns: undefined }
       send_exam_reminders: { Args: never; Returns: undefined }
+      send_streak_reminders: { Args: never; Returns: undefined }
       update_leaderboard_entries: {
         Args: { p_end_date: string; p_start_date: string }
         Returns: undefined
