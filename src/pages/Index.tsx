@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { useAuth } from '@/contexts/AuthContext';
 import { useXP } from '@/contexts/XPContext';
 import { useFocus } from '@/contexts/FocusContext';
+import { useXPReward } from '@/hooks/useXPReward';
 import { 
   Music, 
   FolderOpen, 
@@ -49,6 +50,7 @@ const Index = () => {
   const { user } = useAuth();
   const { xp, level, getXPProgress } = useXP();
   const { getTodayStats, getStreak } = useFocus();
+  const { awardXP } = useXPReward();
   const isLoggedIn = !!user;
   const [activeWidgets, setActiveWidgets] = useState({
     music: true,
@@ -76,7 +78,18 @@ const Index = () => {
     
     // Prevent auto-scroll on mount
     window.scrollTo(0, 0);
-  }, []);
+    
+    // Award daily login XP
+    if (isLoggedIn) {
+      const lastLoginDate = localStorage.getItem('lastLoginDate');
+      const today = new Date().toDateString();
+      
+      if (lastLoginDate !== today) {
+        awardXP('DAILY_LOGIN');
+        localStorage.setItem('lastLoginDate', today);
+      }
+    }
+  }, [isLoggedIn, awardXP]);
 
   useEffect(() => {
     localStorage.setItem('studyverse-dark-mode', JSON.stringify(isDarkMode));

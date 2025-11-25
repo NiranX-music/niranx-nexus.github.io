@@ -41,14 +41,25 @@ export function XPProvider({ children }: { children: React.ReactNode }) {
     
     try {
       const { data, error } = await supabase
-        .from('profiles')
+        .from('user_profiles')
         .select('xp, level')
-        .eq('user_id', user.id)
+        .eq('id', user.id)
         .single();
 
-      if (error) throw error;
-
-      if (data) {
+      if (error) {
+        // If profile doesn't exist, create it
+        if (error.code === 'PGRST116') {
+          const { error: insertError } = await supabase
+            .from('user_profiles')
+            .insert({ id: user.id, xp: 0, level: 1 });
+          
+          if (insertError) throw insertError;
+          setXP(0);
+          setLevel(1);
+        } else {
+          throw error;
+        }
+      } else if (data) {
         setXP(data.xp || 0);
         setLevel(data.level || 1);
       }
@@ -82,12 +93,15 @@ export function XPProvider({ children }: { children: React.ReactNode }) {
     if (user) {
       try {
         const { error } = await supabase
-          .from('profiles')
-          .update({ 
+          .from('user_profiles')
+          .upsert({ 
+            id: user.id,
             xp: newXP, 
-            level: newLevel 
-          })
-          .eq('user_id', user.id);
+            level: newLevel,
+            updated_at: new Date().toISOString()
+          }, {
+            onConflict: 'id'
+          });
 
         if (error) throw error;
 
