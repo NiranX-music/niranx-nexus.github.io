@@ -382,9 +382,25 @@ const LiveClassSession = () => {
     }
 
     try {
-      // Stop recording if active
-      if (isRecording) {
-        await toggleRecording();
+      // Stop recording if active and save to recordings
+      if (isRecording && recordingData) {
+        toast.info('Stopping recording and saving...');
+        
+        const { error: stopError } = await supabase.functions.invoke('agora-cloud-recording', {
+          body: {
+            action: 'stop',
+            classId,
+            channelName: classData?.agora_channel_name,
+            uid: `${user!.id}_recorder`,
+            resourceId: recordingData.resourceId,
+            sid: recordingData.sid,
+          },
+        });
+
+        if (stopError) {
+          console.error('Error stopping recording:', stopError);
+          toast.error('Failed to stop recording, but class will end');
+        }
       }
 
       // Update class status to completed
@@ -396,7 +412,7 @@ const LiveClassSession = () => {
         })
         .eq('id', classId);
 
-      toast.success('Class ended successfully');
+      toast.success('Class ended successfully. Recording will be available soon.');
       await leaveClass();
     } catch (error) {
       console.error('Error ending class:', error);
