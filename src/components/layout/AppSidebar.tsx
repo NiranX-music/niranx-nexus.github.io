@@ -88,6 +88,7 @@ import { useQuickLinks } from "@/hooks/useQuickLinks";
 import { AddQuickLinkDialog } from "@/components/AddQuickLinkDialog";
 import { useClassroom } from "@/hooks/useClassroom";
 import * as LucideIcons from "lucide-react";
+import niranxLogo from '@/assets/niranx-logo.jpg';
 
 // Core Navigation
 const coreNavigation = [
@@ -363,8 +364,8 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-sidebar-border/50 p-4 bg-gradient-to-r from-primary/10 via-purple-500/10 to-blue-500/10">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-3 flex-1">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary via-purple-600 to-blue-600 shadow-lg shadow-primary/20">
-              <Zap className="h-6 w-6 text-white animate-pulse" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl overflow-hidden bg-black shadow-lg shadow-primary/20">
+              <img src={niranxLogo} alt="NiranX Logo" className="h-full w-full object-cover" />
             </div>
             {!isCollapsed && (
               <div className="flex-1">
