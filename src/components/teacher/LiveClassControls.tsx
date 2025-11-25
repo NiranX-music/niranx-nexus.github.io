@@ -16,6 +16,7 @@ import {
   Circle,
   Square,
   Settings,
+  BarChart3,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -47,6 +48,7 @@ interface LiveClassControlsProps {
   onShowChat: () => void;
   onShowQuestions: () => void;
   onShowParticipants: () => void;
+  onShowPoll?: () => void;
   audioDevices: MediaDeviceInfo[];
   videoDevices: MediaDeviceInfo[];
   selectedAudioDevice: string;
@@ -71,6 +73,7 @@ export const LiveClassControls = ({
   onShowChat,
   onShowQuestions,
   onShowParticipants,
+  onShowPoll,
   audioDevices,
   videoDevices,
   selectedAudioDevice,
@@ -201,6 +204,13 @@ export const LiveClassControls = ({
           <Button variant="ghost" size="sm" onClick={onShowQuestions}>
             <HelpCircle className="w-4 h-4" />
           </Button>
+
+          {/* Poll (Teacher Only) */}
+          {isTeacher && onShowPoll && (
+            <Button variant="ghost" size="sm" onClick={onShowPoll}>
+              <BarChart3 className="w-4 h-4" />
+            </Button>
+          )}
 
           <div className="h-8 w-px bg-border mx-2" />
 

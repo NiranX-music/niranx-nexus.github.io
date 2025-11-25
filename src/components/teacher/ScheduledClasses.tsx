@@ -91,7 +91,7 @@ export const ScheduledClasses = ({ classroomId, onUpdate }: ScheduledClassesProp
   };
 
   const handleJoinClass = (classId: string) => {
-    navigate(`/niranx/teacher/live-class/${classId}`);
+    window.open(`/niranx/teacher/live-class/${classId}`, '_blank');
   };
 
   const isClassLive = (scheduledStart: string, scheduledEnd: string) => {

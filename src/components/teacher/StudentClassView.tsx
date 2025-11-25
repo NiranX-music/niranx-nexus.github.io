@@ -71,7 +71,7 @@ export const StudentClassView = ({ classroomId }: StudentClassViewProps) => {
   };
 
   const handleJoinClass = (classId: string) => {
-    navigate(`/niranx/teacher/live-class/${classId}`);
+    window.open(`/niranx/teacher/live-class/${classId}`, '_blank');
   };
 
   const isClassLive = (scheduledStart: string, scheduledEnd: string) => {
