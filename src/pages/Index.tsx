@@ -43,7 +43,6 @@ import ChillCorner from "@/components/widgets/ChillCorner";
 import NotesWidget from "@/components/widgets/NotesWidget";
 import StudyMaterialHub from "@/components/widgets/StudyMaterialHub";
 import AIStudyBuddy from "@/components/widgets/AIStudyBuddy";
-import MacDock from "@/components/layout/MacDock";
 import { useWidgets } from "@/hooks/useWidgets";
 
 const Index = () => {
@@ -358,9 +357,6 @@ const Index = () => {
         </div>
       </div>
 
-      {/* MacDock */}
-      <MacDock />
-
       {/* Widgets Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 auto-rows-min perspective-3d">
         {widgets.map(({ key, component: Component }, index) => 
@@ -399,9 +395,6 @@ const Index = () => {
         <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-accent/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '1s' }}></div>
         <div className="absolute top-1/2 right-1/3 w-48 h-48 bg-success/5 rounded-full blur-3xl animate-pulse-scale" style={{ animationDelay: '2s' }}></div>
       </div>
-
-      {/* Expandable Dock */}
-      <MacDock />
     </div>
   );
 };

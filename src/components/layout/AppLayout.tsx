@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/s
 import { AppSidebar } from "./AppSidebar";
 import { NowPlaying } from "./NowPlaying";
 import { MobileBottomNav } from "./MobileBottomNav";
+import MacDock from "./MacDock";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { CommandPalette } from "@/components/CommandPalette";
 import { KeyboardShortcutsHelp } from "@/components/KeyboardShortcutsHelp";
@@ -164,6 +165,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
           <NowPlaying />
           <MobileBottomNav />
+          <MacDock />
           <CommandPalette open={commandPaletteOpen} onOpenChange={setCommandPaletteOpen} />
           <KeyboardShortcutsHelp open={shortcutsHelpOpen} onOpenChange={setShortcutsHelpOpen} />
         </SidebarInset>
