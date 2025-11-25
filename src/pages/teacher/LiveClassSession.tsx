@@ -49,8 +49,15 @@ const LiveClassSession = () => {
 
     loadClassData();
 
+    // Don't automatically leave on unmount - allow persistence
     return () => {
-      leaveClass();
+      // Only cleanup local media, don't end the class
+      if (clientRef.current) {
+        localAudioTrackRef.current?.close();
+        localVideoTrackRef.current?.close();
+        screenTrackRef.current?.close();
+        clientRef.current.leave();
+      }
     };
   }, [classId, user]);
 
@@ -132,12 +139,45 @@ const LiveClassSession = () => {
       await clientRef.current.join(appId, channelName, agoraToken, user!.id);
 
       // Track participant count
-      clientRef.current.on('user-joined', () => {
+      clientRef.current.on('user-joined', (remoteUser) => {
+        console.log('User joined:', remoteUser.uid);
         setParticipants((prev) => prev + 1);
       });
 
-      clientRef.current.on('user-left', () => {
+      clientRef.current.on('user-left', (remoteUser) => {
+        console.log('User left:', remoteUser.uid);
         setParticipants((prev) => Math.max(0, prev - 1));
+      });
+
+      // Handle remote user publishing video (including screen share)
+      clientRef.current.on('user-published', async (remoteUser, mediaType) => {
+        console.log('User published:', remoteUser.uid, mediaType);
+        await clientRef.current!.subscribe(remoteUser, mediaType);
+        
+        if (mediaType === 'video') {
+          // Check if this is a screen share by looking at the track
+          const remoteVideoTrack = remoteUser.videoTrack;
+          if (remoteVideoTrack) {
+            // Play in the screen-share-video container
+            remoteVideoTrack.play('screen-share-video');
+            console.log('Playing remote video in screen-share-video');
+          }
+        }
+        
+        if (mediaType === 'audio') {
+          remoteUser.audioTrack?.play();
+        }
+      });
+
+      clientRef.current.on('user-unpublished', (remoteUser, mediaType) => {
+        console.log('User unpublished:', remoteUser.uid, mediaType);
+        if (mediaType === 'video') {
+          // Clear the screen share display
+          const container = document.getElementById('screen-share-video');
+          if (container) {
+            container.innerHTML = '';
+          }
+        }
       });
 
       setParticipants(clientRef.current.remoteUsers.length + 1);
@@ -273,6 +313,30 @@ const LiveClassSession = () => {
     }
   };
 
+  const endClass = async () => {
+    if (!isTeacher) {
+      toast.error('Only teachers can end the class');
+      return;
+    }
+
+    try {
+      // Update class status to completed
+      await supabase
+        .from('live_classes')
+        .update({ 
+          status: 'completed',
+          actual_end: new Date().toISOString() 
+        })
+        .eq('id', classId);
+
+      toast.success('Class ended successfully');
+      await leaveClass();
+    } catch (error) {
+      console.error('Error ending class:', error);
+      toast.error('Failed to end class');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -369,6 +433,7 @@ const LiveClassSession = () => {
         onToggleCamera={toggleCamera}
         participantCount={participants}
         onLeaveClass={leaveClass}
+        onEndClass={endClass}
         onShowChat={() => toast.info('Chat feature')}
         onShowQuestions={() => toast.info('Questions feature')}
         onShowParticipants={() => toast.info('Participants list')}
