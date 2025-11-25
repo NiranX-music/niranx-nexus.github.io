@@ -574,6 +574,7 @@ const LiveClassSession = () => {
         onShowChat={() => toast.info('Chat feature')}
         onShowQuestions={() => toast.info('Questions feature')}
         onShowParticipants={() => toast.info('Participants list')}
+        onShowPoll={() => toast.info('Poll feature coming soon')}
         audioDevices={audioDevices}
         videoDevices={videoDevices}
         selectedAudioDevice={selectedAudioDevice}
