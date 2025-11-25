@@ -38,6 +38,11 @@ const LiveClassSession = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingData, setRecordingData] = useState<{ resourceId: string; sid: string } | null>(null);
   
+  const [audioDevices, setAudioDevices] = useState<MediaDeviceInfo[]>([]);
+  const [videoDevices, setVideoDevices] = useState<MediaDeviceInfo[]>([]);
+  const [selectedAudioDevice, setSelectedAudioDevice] = useState<string>('');
+  const [selectedVideoDevice, setSelectedVideoDevice] = useState<string>('');
+  
   const clientRef = useRef<IAgoraRTCClient | null>(null);
   const localAudioTrackRef = useRef<IMicrophoneAudioTrack | null>(null);
   const localVideoTrackRef = useRef<ICameraVideoTrack | null>(null);
@@ -50,6 +55,7 @@ const LiveClassSession = () => {
     }
 
     loadClassData();
+    loadDevices();
 
     // Don't automatically leave on unmount - allow persistence
     return () => {
@@ -62,6 +68,22 @@ const LiveClassSession = () => {
       }
     };
   }, [classId, user]);
+
+  const loadDevices = async () => {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const audioInputs = devices.filter(device => device.kind === 'audioinput');
+      const videoInputs = devices.filter(device => device.kind === 'videoinput');
+      
+      setAudioDevices(audioInputs);
+      setVideoDevices(videoInputs);
+      
+      if (audioInputs.length > 0) setSelectedAudioDevice(audioInputs[0].deviceId);
+      if (videoInputs.length > 0) setSelectedVideoDevice(videoInputs[0].deviceId);
+    } catch (error) {
+      console.error('Error loading devices:', error);
+    }
+  };
 
   const loadClassData = async () => {
     try {
@@ -192,7 +214,9 @@ const LiveClassSession = () => {
   const toggleMic = async () => {
     try {
       if (!isMicOn) {
-        localAudioTrackRef.current = await AgoraRTC.createMicrophoneAudioTrack();
+        localAudioTrackRef.current = await AgoraRTC.createMicrophoneAudioTrack({
+          microphoneId: selectedAudioDevice || undefined
+        });
         await clientRef.current?.publish(localAudioTrackRef.current);
         setIsMicOn(true);
         toast.success('Microphone enabled');
@@ -214,7 +238,9 @@ const LiveClassSession = () => {
   const toggleCamera = async () => {
     try {
       if (!isCameraOn) {
-        localVideoTrackRef.current = await AgoraRTC.createCameraVideoTrack();
+        localVideoTrackRef.current = await AgoraRTC.createCameraVideoTrack({
+          cameraId: selectedVideoDevice || undefined
+        });
         await clientRef.current?.publish(localVideoTrackRef.current);
         
         // Display local video
@@ -238,6 +264,32 @@ const LiveClassSession = () => {
     } catch (error) {
       console.error('Error toggling camera:', error);
       toast.error('Failed to toggle camera');
+    }
+  };
+
+  const switchAudioDevice = async (deviceId: string) => {
+    setSelectedAudioDevice(deviceId);
+    if (isMicOn && localAudioTrackRef.current) {
+      try {
+        await localAudioTrackRef.current.setDevice(deviceId);
+        toast.success('Microphone switched');
+      } catch (error) {
+        console.error('Error switching audio device:', error);
+        toast.error('Failed to switch microphone');
+      }
+    }
+  };
+
+  const switchVideoDevice = async (deviceId: string) => {
+    setSelectedVideoDevice(deviceId);
+    if (isCameraOn && localVideoTrackRef.current) {
+      try {
+        await localVideoTrackRef.current.setDevice(deviceId);
+        toast.success('Camera switched');
+      } catch (error) {
+        console.error('Error switching video device:', error);
+        toast.error('Failed to switch camera');
+      }
     }
   };
 
@@ -522,6 +574,12 @@ const LiveClassSession = () => {
         onShowChat={() => toast.info('Chat feature')}
         onShowQuestions={() => toast.info('Questions feature')}
         onShowParticipants={() => toast.info('Participants list')}
+        audioDevices={audioDevices}
+        videoDevices={videoDevices}
+        selectedAudioDevice={selectedAudioDevice}
+        selectedVideoDevice={selectedVideoDevice}
+        onAudioDeviceChange={switchAudioDevice}
+        onVideoDeviceChange={switchVideoDevice}
       />
     </div>
   );
