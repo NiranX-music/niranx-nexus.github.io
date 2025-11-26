@@ -21,7 +21,7 @@ export function CreditsDisplay() {
 
       if (error) throw error;
       
-      if (data && data.length > 0) {
+      if (data && Array.isArray(data) && data.length > 0) {
         setCredits({
           remaining: data[0].credits_remaining,
           limit: data[0].credits_limit
