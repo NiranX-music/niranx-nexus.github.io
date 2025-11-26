@@ -59,27 +59,6 @@ serve(async (req) => {
       );
     }
 
-    const { data: unlimitedSetting } = await serviceClient.rpc('get_admin_setting', {
-      p_setting_key: 'unlimited_credits_enabled'
-    });
-    
-    const unlimitedCredits = unlimitedSetting?.enabled || false;
-
-    if (user && !unlimitedCredits && supabaseClient) {
-      const { data: hasCredits, error: creditError } = await supabaseClient.rpc('deduct_credits', {
-        _user_id: user.id,
-        _amount: 1
-      });
-
-      if (creditError) {
-        console.error('Credit deduction error:', creditError);
-      } else if (!hasCredits) {
-        return new Response(
-          JSON.stringify({ error: 'Insufficient credits. You need 1 credit to generate an image.' }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 402 }
-        );
-      }
-    }
 
     console.log(`Generating image with prompt: ${prompt}, model: ${model}`);
 

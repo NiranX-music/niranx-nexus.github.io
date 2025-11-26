@@ -7,7 +7,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Bot, User, Loader2, Send, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { CreditsDisplay } from "@/components/ui/CreditsDisplay";
 
 interface Message {
   role: "user" | "assistant";
@@ -171,8 +170,6 @@ export default function OpenRouterChat() {
 
   return (
     <div className="container mx-auto p-6 max-w-6xl space-y-6">
-      <CreditsDisplay />
-      
       <div className="flex items-center gap-3 mb-8">
         <div className="p-3 rounded-lg bg-primary/10">
           <Sparkles className="h-8 w-8 text-primary" />

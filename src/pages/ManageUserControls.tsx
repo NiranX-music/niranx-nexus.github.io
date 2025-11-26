@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Settings, CreditCard, Users } from "lucide-react";
+import { Loader2, Settings, Users } from "lucide-react";
 
 export default function ManageUserControls() {
-  const [unlimitedCreditsEnabled, setUnlimitedCreditsEnabled] = useState(false);
   const [allowUnauthorizedAI, setAllowUnauthorizedAI] = useState(false);
   const [settingsLoading, setSettingsLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
@@ -20,23 +18,9 @@ export default function ManageUserControls() {
     try {
       setSettingsLoading(true);
       
-      const { data: unlimitedData } = await supabase.rpc('get_admin_setting', {
-        p_setting_key: 'unlimited_credits_enabled'
-      });
-      
       const { data: unauthorizedData } = await supabase.rpc('get_admin_setting', {
         p_setting_key: 'allow_unauthorized_ai'
       });
-
-      if (unlimitedData && typeof unlimitedData === 'object' && 'setting_value' in unlimitedData) {
-        const settingValue = (unlimitedData as any).setting_value;
-        const value = typeof settingValue === 'object' && 
-                     settingValue !== null && 
-                     'enabled' in settingValue 
-                     ? settingValue.enabled 
-                     : settingValue;
-        setUnlimitedCreditsEnabled(value === true);
-      }
       
       if (unauthorizedData && typeof unauthorizedData === 'object' && 'setting_value' in unauthorizedData) {
         const settingValue = (unauthorizedData as any).setting_value;
@@ -77,12 +61,6 @@ export default function ManageUserControls() {
     }
   };
 
-  const handleUnlimitedCreditsToggle = async () => {
-    const newValue = !unlimitedCreditsEnabled;
-    setUnlimitedCreditsEnabled(newValue);
-    await updateAdminSetting('unlimited_credits_enabled', newValue);
-  };
-
   const handleUnauthorizedAIToggle = async () => {
     const newValue = !allowUnauthorizedAI;
     setAllowUnauthorizedAI(newValue);
@@ -110,47 +88,6 @@ export default function ManageUserControls() {
       </div>
 
       <div className="grid gap-6">
-        {/* Unlimited Credits Control */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <CreditCard className="w-5 h-5 text-primary" />
-              <CardTitle>Unlimited Credits</CardTitle>
-            </div>
-            <CardDescription>
-              Enable unlimited AI credits for all users. When enabled, users won't consume credits for AI operations.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button
-              onClick={handleUnlimitedCreditsToggle}
-              disabled={updating}
-              variant={unlimitedCreditsEnabled ? "destructive" : "default"}
-              className="w-full sm:w-auto"
-            >
-              {updating ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Updating...
-                </>
-              ) : unlimitedCreditsEnabled ? (
-                "Turn OFF Unlimited Credits"
-              ) : (
-                "Turn ON Unlimited Credits"
-              )}
-            </Button>
-            <div className="mt-4 p-3 bg-muted/50 rounded-lg">
-              <p className="text-sm text-muted-foreground">
-                <strong>Status:</strong> {unlimitedCreditsEnabled ? (
-                  <span className="text-green-600 font-semibold">Enabled - All users have unlimited credits</span>
-                ) : (
-                  <span className="text-orange-600 font-semibold">Disabled - Users consume credits normally</span>
-                )}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Unauthorized AI Access Control */}
         <Card>
           <CardHeader>
@@ -196,9 +133,8 @@ export default function ManageUserControls() {
           </CardHeader>
           <CardContent className="space-y-2 text-sm text-muted-foreground">
             <p>• Changes to these settings take effect immediately across the platform</p>
-            <p>• Unlimited credits override individual user credit balances</p>
             <p>• Allowing unauthorized access may increase AI usage costs</p>
-            <p>• Monitor usage patterns regularly when these features are enabled</p>
+            <p>• Monitor usage patterns regularly when this feature is enabled</p>
           </CardContent>
         </Card>
       </div>
