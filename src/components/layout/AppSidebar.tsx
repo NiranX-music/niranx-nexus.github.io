@@ -109,6 +109,7 @@ const coreNavigation = [
 // AI Corner
 const aiCornerNavigation = [
   { title: "AI Hub", url: "/niranx/ai-corner", icon: Sparkles },
+  { title: "AI Solver", url: "/niranx/ai-solver", icon: Brain },
   { title: "AI Library", url: "/niranx/ai-library", icon: Archive },
   { title: "Topic Map Generator", url: "/niranx/ai-topic-map-generator", icon: RouteIcon },
 ];
