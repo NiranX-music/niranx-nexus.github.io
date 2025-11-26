@@ -66,6 +66,21 @@ export default function StudyPathGenerator() {
 
       if (saveError) throw saveError;
       
+      // Save to AI generations history
+      await supabase.from("ai_generations").insert({
+        user_id: user.id,
+        tool_type: "study_path",
+        prompt: `Goal: ${goal}\nSubjects: ${subjectArray.join(", ")}\nLevel: ${currentLevel}`,
+        result_data: {
+          goal,
+          subjects: subjectArray,
+          target_date: targetDate,
+          current_level: currentLevel,
+          roadmap: data.studyPath.roadmap,
+        },
+        status: "completed",
+      });
+      
       loadStudyPaths();
     } catch (error: any) {
       console.error("Error:", error);

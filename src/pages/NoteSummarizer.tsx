@@ -70,6 +70,23 @@ export default function NoteSummarizer() {
       });
 
       if (saveError) throw saveError;
+      
+      // Save to AI generations history
+      await supabase.from("ai_generations").insert({
+        user_id: user.id,
+        tool_type: "note_summary",
+        prompt: `Title: ${title}\nSubject: ${subject || "N/A"}`,
+        result_data: {
+          title,
+          subject,
+          summary: summaryData.summary,
+          key_points: summaryData.keyPoints,
+          mind_map: summaryData.mindMap,
+          tags: summaryData.tags,
+        },
+        status: "completed",
+      });
+      
       loadSummaries();
     } catch (error: any) {
       console.error("Error:", error);

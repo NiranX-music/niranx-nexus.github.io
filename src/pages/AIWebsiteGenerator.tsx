@@ -114,6 +114,19 @@ export default function AIWebsiteGenerator() {
         throw new Error("Failed to save website. Please try again.");
       }
 
+      // Save to AI generations history
+      await supabase.from("ai_generations").insert({
+        user_id: user?.id,
+        tool_type: "website",
+        prompt: `Title: ${title}\nDescription: ${description}`,
+        result_data: {
+          website_id: website.id,
+          title: title,
+          description: description,
+        },
+        status: "completed",
+      });
+
       toast.success("Website generated successfully!");
       setTitle("");
       setDescription("");
