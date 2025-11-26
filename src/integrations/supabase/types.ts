@@ -4710,6 +4710,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_credits: {
+        Row: {
+          created_at: string | null
+          credits_limit: number
+          credits_remaining: number
+          id: string
+          last_reset_date: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          credits_limit?: number
+          credits_remaining?: number
+          id?: string
+          last_reset_date?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          credits_limit?: number
+          credits_remaining?: number
+          id?: string
+          last_reset_date?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_currency: {
         Row: {
           coins: number | null
@@ -5386,6 +5416,17 @@ export type Database = {
     Functions: {
       calculate_level: { Args: { xp_amount: number }; Returns: number }
       can_create_website: { Args: { p_user_id: string }; Returns: boolean }
+      deduct_credits: {
+        Args: { _amount: number; _user_id: string }
+        Returns: boolean
+      }
+      ensure_user_credits: {
+        Args: { _user_id: string }
+        Returns: {
+          credits_limit: number
+          credits_remaining: number
+        }[]
+      }
       generate_class_code: { Args: never; Returns: string }
       generate_share_token: { Args: never; Returns: string }
       generate_theme_share_token: { Args: never; Returns: string }
@@ -5405,6 +5446,7 @@ export type Database = {
         Args: { p_student_id: string; p_week_start: string }
         Returns: Json
       }
+      get_user_credit_limit: { Args: { _user_id: string }; Returns: number }
       get_user_website_count: { Args: { p_user_id: string }; Returns: number }
       has_role: {
         Args: {
