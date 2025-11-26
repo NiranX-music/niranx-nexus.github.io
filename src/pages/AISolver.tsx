@@ -260,16 +260,29 @@ export default function AISolver() {
         messagesToSend.push({ role: "user", content: userMessage.content });
       }
 
-      // Call edge function
-      const response = await supabase.functions.invoke("ai-solver", {
-        body: { messages: messagesToSend, conversationId: currentConversationId },
-      });
+      // Call edge function with streaming
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-solver`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({ 
+            messages: messagesToSend, 
+            conversationId: currentConversationId 
+          }),
+        }
+      );
 
-      if (response.error) throw response.error;
+      if (!response.ok) throw new Error("Failed to get response from AI");
 
       // Stream the response
       let assistantMessage = "";
-      const reader = response.data.getReader();
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("No response body");
       const decoder = new TextDecoder();
 
       setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
