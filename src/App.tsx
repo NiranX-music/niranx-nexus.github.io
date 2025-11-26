@@ -143,6 +143,7 @@ import AIImageGenerator from "./pages/AIImageGenerator";
 import AILibrary from "./pages/AILibrary";
 import OpenRouterChat from "./pages/OpenRouterChat";
 import Weather from "./pages/Weather";
+import PDFSummarizer from "./pages/PDFSummarizer";
 import AITopicMapGenerator from "./pages/AITopicMapGenerator";
 import AISolver from "./pages/AISolver";
 import { TeacherRoute } from "./components/TeacherRoute";
@@ -283,6 +284,7 @@ const App = () => (
                           <Route path="/ai-image-generator" element={<AIImageGenerator />} />
                           <Route path="/ai-topic-map-generator" element={<AITopicMapGenerator />} />
                           <Route path="/ai-solver" element={<AISolver />} />
+                          <Route path="/pdf-summarizer" element={<PDFSummarizer />} />
                           <Route path="/ai-library" element={<AILibrary />} />
                           <Route path="/openrouter-chat" element={<OpenRouterChat />} />
                           <Route path="/weather" element={<Weather />} />
