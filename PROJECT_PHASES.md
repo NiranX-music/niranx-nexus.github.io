@@ -1,7 +1,7 @@
-# NiranX Study Platform - 20 Phase Development Plan
+# NiranX Study Platform - 24 Phase Development Plan
 
 ## Phase Overview
-This document outlines the complete development roadmap for NiranX Study Platform, broken into 20 incremental phases. Each phase builds upon previous phases and includes detailed frontend, backend, and infrastructure requirements.
+This document outlines the complete development roadmap for NiranX Study Platform, broken into 24 incremental phases. Each phase builds upon previous phases and includes detailed frontend, backend, and infrastructure requirements.
 
 ---
 
@@ -641,7 +641,7 @@ Build teacher dashboard and classroom management system.
 **Timeline**: Week 15-16 | **Complexity**: Very High
 
 ### Objective
-Integrate Agora video calling for live classroom sessions.
+Integrate Agora video calling with cloud recording for live classroom sessions.
 
 ### Frontend Work
 - [ ] Live Class tab in Classroom Detail
@@ -651,45 +651,69 @@ Integrate Agora video calling for live classroom sessions.
 - [ ] Doubt box (Q&A tracker)
 - [ ] Integrated chat during class
 - [ ] Attendance auto-tracking
-- [ ] Screen sharing for teachers
+- [ ] Screen sharing for teachers (teacher-only)
 - [ ] Speaking permissions management
+- [ ] Recording controls (start/stop)
+- [ ] Recording status indicator
+- [ ] Class history viewer
+- [ ] Persistent session URLs (unique per class)
+- [ ] Poll creation interface (teacher-only)
 
 ### Backend Work
 **Database Tables:**
-- `live_classes` - Session records (classroom_id, started_by, started_at, ended_at, status, participant_count, recording_url)
+- `live_classes` - Session records (classroom_id, started_by, started_at, ended_at, status, participant_count, agora_channel_id, session_url)
+- `class_recordings` - Recording metadata (class_id, recording_url, duration, ai_timestamps, topic_links, created_at)
 - `attendance_records` - Auto-tracking (classroom_id, student_id, date, status, recorded_by, auto_detected, notes)
 - `live_class_doubts` - Q&A (live_class_id, student_id, question, answered_by, answer, resolved, created_at)
 - `raised_hands` - Hand raising (live_class_id, student_id, raised_at, granted_speaking, granted_at)
+- `live_class_polls` - Teacher polls (live_class_id, created_by, question, options[], ends_at)
+- `poll_responses` - Student answers (poll_id, student_id, selected_option, submitted_at)
 
 **RLS Policies:**
 - `live_classes`: Teacher can manage, students can read
+- `class_recordings`: Teacher can manage, students can view
 - `attendance_records`: Teacher can manage, students can read own
 - `live_class_doubts`: Students can create, teacher can answer
 - `raised_hands`: Students can create, teacher can grant
+- `live_class_polls`: Teacher can create/manage, students can read and respond
 
 **Edge Functions:**
 - `generate-agora-token` - Video calling authentication
+- `agora-cloud-recording` - Start/stop cloud recording
 
 **Secrets:**
 - `AGORA_APP_ID` - Agora project ID
 - `AGORA_APP_CERTIFICATE` - Agora app certificate
+- `AGORA_CUSTOMER_ID` - Agora customer ID for recording
+- `AGORA_CUSTOMER_SECRET` - Agora customer secret for recording
 
 ### Other Components
-- Agora SDK integration
+- Agora SDK integration (agora-rtc-sdk-ng)
+- Agora Cloud Recording API integration
 - Real-time communication via Supabase
 - Audio/video device management
 - Network quality indicators
-- Screen sharing capture
+- Screen sharing capture (teacher-only)
 - Hand raise notification
 - Doubt box real-time updates
+- Persistent session management (survives page reload)
+- Unique session URL generation
+- Recording status synchronization
+- Poll creation and voting interface
+- Real-time poll results
 
 ### Key Deliverables
-✓ Live video calling  
-✓ Screen sharing  
+✓ Live video calling with Agora  
+✓ Cloud recording with Agora Recording API  
+✓ Screen sharing (teacher-only)  
 ✓ Raise hand system  
 ✓ Doubt box Q&A  
 ✓ Integrated chat  
-✓ Auto attendance tracking
+✓ Auto attendance tracking  
+✓ Persistent sessions with unique URLs  
+✓ Class history and recordings  
+✓ Poll feature for teachers  
+✓ Real-time poll voting
 
 ---
 
@@ -989,11 +1013,11 @@ Implement smart notifications and comprehensive accessibility features.
 
 ---
 
-## Phase 20: Polish, PWA & Deployment
+## Phase 20: Polish, PWA & Initial Deployment
 **Timeline**: Week 21-22 | **Complexity**: Medium
 
 ### Objective
-Final polish, PWA setup, performance optimization, and production deployment.
+Initial polish, PWA setup, performance optimization, and staging deployment.
 
 ### Frontend Work
 - [ ] PWA manifest configuration
@@ -1055,6 +1079,262 @@ Final polish, PWA setup, performance optimization, and production deployment.
 
 ---
 
+## Phase 21: AI Tools Ecosystem
+**Timeline**: Week 23-24 | **Complexity**: High
+
+### Objective
+Build comprehensive AI tools hub with multiple generators and integrations.
+
+### Frontend Work
+- [ ] AI Corner hub page (consolidated access)
+- [ ] AI Song Generator page (Sonauto integration)
+- [ ] AI Presentation Generator page (Presenton integration)
+- [ ] AI Topic Map Generator page (concept mapping)
+- [ ] AI Image Generator page (with prompts and controls)
+- [ ] OpenRouter Chat page (multi-model access)
+- [ ] Weather page (city search, forecasts)
+- [ ] Model selection interface
+- [ ] Generation history viewer
+- [ ] Export/download controls for all AI outputs
+
+### Backend Work
+**Database Tables:**
+- `ai_generations` - Already exists, extended with new tool_type values:
+  - `song` - Song generations
+  - `presentation` - Presentation generations
+  - `topic_map` - Topic map generations
+  - `image` - Image generations
+  - `openrouter_chat` - OpenRouter conversations
+
+**RLS Policies:**
+- `ai_generations`: Users can CRUD their own generations
+
+**Edge Functions:**
+- `generate-song` - Sonauto API integration with polling
+- `generate-presentation` - Presenton API integration
+- `generate-topic-map` - Lovable AI for concept mapping
+- `generate-subnp-image` - Gemini 3 Pro Image for AI images
+- `openrouter-chat` - Multi-model AI chat (GPT-4o, Claude 3.5, Gemini, Llama)
+- `weather-api` - RapidAPI WeatherAPI integration
+
+**Secrets:**
+- `SONAUTO_API_KEY` - Song generation service
+- `PRESENTON_API_KEY` - Presentation generation service
+- `RAPIDAPI_KEY` - Weather API access
+- `OPENROUTER_API_KEY` - Multi-model AI access
+
+### Other Components
+- Polling mechanism for async song generation (1-2 minutes)
+- AI Corner navigation integration in sidebar
+- Cover image generation for songs (Gemini Image)
+- Song duration controls (30s - 5min slider)
+- Weather data caching
+- OpenRouter model selection (GPT-4o, Claude 3.5 Sonnet, Gemini, Llama 3.1)
+- Topic map visualization with D3.js or similar
+- Image prompt engineering helpers
+
+### Key Deliverables
+✓ AI Song Generator with Sonauto  
+✓ AI Presentation Generator with Presenton  
+✓ AI Topic Map Generator for concept visualization  
+✓ AI Image Generator with Gemini  
+✓ OpenRouter multi-model chat interface  
+✓ Weather integration with forecasts  
+✓ Unified AI Corner hub  
+✓ Generation history tracking
+
+---
+
+## Phase 22: AI Website Builder & Publishing Platform
+**Timeline**: Week 24-25 | **Complexity**: Very High
+
+### Objective
+Create comprehensive AI website generation platform with code editing, iterative enhancement, and publishing system.
+
+### Frontend Work
+- [ ] AI Website Generator page
+- [ ] VS Code-style code editor with syntax highlighting
+- [ ] File explorer for HTML/CSS/JS organization
+- [ ] Live preview panel
+- [ ] Iterative enhancement chatbox
+- [ ] Project list management
+- [ ] Publishing interface with custom URL/slug
+- [ ] Published content gallery
+- [ ] Cover image selector (upload or AI generate)
+- [ ] Public website viewer page
+
+### Backend Work
+**Database Tables:**
+- `generated_websites` - Website projects (user_id, title, description, html_code, css_code, js_code, is_published, slug, published_at)
+- `ai_generations` - Extended to track all publishable AI content:
+  - New fields: `is_published`, `slug`, `published_at`, `cover_image_url`
+  - Supports: websites, songs, presentations, images, topic maps
+
+**RLS Policies:**
+- `generated_websites`: Users can CRUD own websites, public can view published
+- `ai_generations`: Users can CRUD own, public can view published content
+
+**Edge Functions:**
+- `generate-website` - AI website code generation
+- `website-ai-chat` - Iterative enhancement chat for websites
+
+**Storage Buckets:**
+- `ai-creations` (public) - Cover images and published assets
+
+### Other Components
+- Credit-based system for website generation:
+  - Regular users: 2 projects max
+  - Moderators/Teachers: 5 projects
+  - Admins: Unlimited
+- Monaco Editor integration (VS Code editor)
+- Real-time code preview with iframe
+- Conversational AI for code modifications
+- Slug generation and validation
+- Published content SEO optimization
+- Universal publish button across all AI tools
+- Cover image AI generation using Gemini
+
+### Key Deliverables
+✓ AI website generation from descriptions  
+✓ Full code editor with syntax highlighting  
+✓ Iterative AI-powered enhancement chat  
+✓ Publishing system with custom URLs  
+✓ Project management and versioning  
+✓ Public gallery of published AI creations  
+✓ Universal publishing across all AI tools  
+✓ Cover image generation/upload
+
+---
+
+## Phase 23: Music & Entertainment Integration
+**Timeline**: Week 25-26 | **Complexity**: High
+
+### Objective
+Integrate Spotify library management and enhance music hub experience.
+
+### Frontend Work
+- [ ] Spotify OAuth integration
+- [ ] Spotify library page (search, playlists, favorites)
+- [ ] Music Hub page expansion
+- [ ] Integrated music player widget
+- [ ] Now Playing context and widget
+- [ ] Playlist creation and management
+- [ ] Track search interface
+- [ ] Favorites/library management
+- [ ] Listening history tracking
+- [ ] Music recommendations
+
+### Backend Work
+**Database Tables:**
+- `spotify_tokens` - OAuth tokens (user_id, access_token, refresh_token, expires_at, scope)
+- `spotify_favorites` - Saved tracks (user_id, track_id, track_name, artist_name, album_name, preview_url, added_at)
+- `spotify_playlists` - User playlists (user_id, spotify_playlist_id, name, description, track_count, is_public)
+- `listening_history` - Play tracking (user_id, track_id, track_name, artist_name, played_at, duration_ms)
+
+**RLS Policies:**
+- All tables: Users can CRUD their own data
+
+**Edge Functions:**
+- `spotify-api` - Proxy for Spotify Web API operations:
+  - Search tracks
+  - Get/create playlists
+  - Add tracks to playlists
+  - Manage favorites
+
+**Secrets:**
+- `SPOTIFY_CLIENT_ID` - Spotify app credentials
+- `SPOTIFY_CLIENT_SECRET` - Spotify app secret
+
+### Other Components
+- Spotify OAuth flow (authorization code)
+- Token refresh mechanism
+- Spotify Web API integration
+- NowPlayingContext for cross-app music state
+- Music player controls (play, pause, skip)
+- Integration with existing MusicPlayer widget
+- Study music recommendations
+- Focus session music integration
+
+### Key Deliverables
+✓ Spotify OAuth authentication  
+✓ Library search and browsing  
+✓ Playlist creation and management  
+✓ Favorites tracking  
+✓ Now Playing widget  
+✓ Music integration with study features  
+✓ Listening history analytics
+
+---
+
+## Phase 24: UX Enhancements & Animations
+**Timeline**: Week 26-27 | **Complexity**: Medium
+
+### Objective
+Polish user experience with animations, AI study companion, and UI refinements.
+
+### Frontend Work
+- [ ] Study Buddy Clone avatar component
+- [ ] Animated study actions (writing, typing, reading, thinking, break)
+- [ ] Celebration animations system:
+  - [ ] Confetti effects
+  - [ ] XP particle animations
+  - [ ] Level-up animations
+  - [ ] Task completion celebrations
+- [ ] Micro-interactions:
+  - [ ] Card hover effects (lift, shadow)
+  - [ ] Button press feedback
+  - [ ] Link hover animations
+  - [ ] Form field focus states
+- [ ] Page transitions (fade + slide)
+- [ ] Staggered loading animations
+- [ ] Skeleton loading screens
+- [ ] Progress bar animations
+- [ ] Branded spinners
+- [ ] Enhanced toast notifications
+- [ ] Floating quick access dock (MacDock) on all pages
+- [ ] Widget customization system (enable/disable per user)
+
+### Backend Work
+**Database Tables:**
+- `user_widgets` - Widget preferences (user_id, widget_id, is_enabled, page, position, settings)
+- `study_buddy_settings` - Avatar preferences (user_id, avatar_style, animation_speed, show_during_focus)
+
+**RLS Policies:**
+- Both tables: Users can CRUD their own settings
+
+**Database Functions:**
+- None (frontend-only enhancements)
+
+### Other Components
+- FocusContext integration for Study Buddy animations
+- Canvas confetti library integration
+- Framer Motion animation library usage
+- CSS animations for micro-interactions
+- Study Buddy synchronization with timer
+- Study actions:
+  - Idle (default state)
+  - Writing (0-15 min into session)
+  - Typing (15-30 min)
+  - Reading/flipping pages (30-45 min)
+  - Thinking (45-50 min)
+  - Break (during break periods)
+- Widget system with default-disabled state
+- MacDock persistent floating button
+- Animation performance optimization
+
+### Key Deliverables
+✓ AI Study Buddy Clone avatar  
+✓ Synchronized study animations  
+✓ Comprehensive celebration system  
+✓ Micro-interactions throughout app  
+✓ Smooth page transitions  
+✓ Professional loading states  
+✓ Enhanced visual feedback  
+✓ Widget customization system  
+✓ Floating quick access on all pages
+
+---
+
 ## Post-Launch (Continuous)
 **Ongoing** | **Complexity**: Variable
 
@@ -1068,11 +1348,11 @@ Final polish, PWA setup, performance optimization, and production deployment.
 - [ ] Feature iterations based on analytics
 
 ### Future Enhancements
-- [ ] Two-Factor Authentication (2FA)
-- [ ] Video recording for live classes
-- [ ] Advanced AI tutoring features
+- [ ] Two-Factor Authentication (2FA) - ✅ Implemented
+- [ ] Live class recording - ✅ Implemented (Agora Cloud Recording)
+- [ ] Advanced AI tutoring features - ✅ Partial (OpenRouter, multiple AI models)
 - [ ] Flashcard system with spaced repetition
-- [ ] Mind mapping tools
+- [ ] Advanced mind mapping tools - ✅ Partial (Topic Map Generator)
 - [ ] Multi-language support (i18n)
 - [ ] LMS integration (Canvas, Moodle, Google Classroom)
 - [ ] Blockchain-based achievement certificates
@@ -1081,8 +1361,14 @@ Final polish, PWA setup, performance optimization, and production deployment.
 - [ ] Desktop apps (Electron)
 - [ ] Advanced data visualizations
 - [ ] Machine learning for personalized recommendations
-- [ ] Social media integrations
+- [ ] Social media integrations - ✅ Partial (Spotify integration)
 - [ ] Payment integration for premium features
+- [ ] Video editing tools for recordings
+- [ ] AI-powered content moderation
+- [ ] Advanced analytics dashboards
+- [ ] Parent-teacher conference scheduling
+- [ ] Virtual reality lab simulations
+- [ ] Gamified coding challenges
 
 ---
 
@@ -1092,12 +1378,12 @@ Final polish, PWA setup, performance optimization, and production deployment.
 |-------|-----------|--------|
 | 1 | - | All phases |
 | 2 | 1 | All features |
-| 3 | 1, 2 | 4, 5, 6, 7, 18 |
+| 3 | 1, 2 | 4, 5, 6, 7, 18, 24 |
 | 4 | 1, 2, 3 | 6 |
-| 5 | 1, 2, 3 | 19 |
+| 5 | 1, 2, 3 | 19, 24 |
 | 6 | 1, 2, 3, 4 | 7 |
 | 7 | 1, 2, 3, 6 | - |
-| 8 | 1, 2 | - |
+| 8 | 1, 2 | 21, 22 |
 | 9 | 1, 2 | 10 |
 | 10 | 1, 2, 9 | 11 |
 | 11 | 1, 2, 3 | 12 |
@@ -1109,7 +1395,11 @@ Final polish, PWA setup, performance optimization, and production deployment.
 | 17 | 1, 2 | - |
 | 18 | 1, 2, 3 | - |
 | 19 | 1, 2 | - |
-| 20 | All above | Production |
+| 20 | All above (1-19) | 21, 22, 23, 24 |
+| 21 | 1, 2, 8 | 22 |
+| 22 | 1, 2, 8, 21 | - |
+| 23 | 1, 2 | - |
+| 24 | 1, 2, 3, 5 | Production |
 
 ---
 
@@ -1123,23 +1413,34 @@ Final polish, PWA setup, performance optimization, and production deployment.
 
 ### Third-Party Services
 - **Lovable Cloud** - Backend (Supabase)
-- **Agora** - Video calling (free tier: 10,000 mins/month)
+- **Agora** - Video calling + cloud recording (free tier: 10,000 mins/month)
 - **Resend** - Email notifications (free tier: 100 emails/day)
-- **Lovable AI** - AI models (usage-based pricing)
+- **Lovable AI** - AI models (Gemini, GPT, usage-based)
+- **Sonauto** - AI song generation (API-based)
+- **Presenton** - AI presentation generation (API-based)
+- **OpenRouter** - Multi-model AI access (GPT-4o, Claude, Gemini, Llama)
+- **RapidAPI** - Weather API integration
+- **Spotify Web API** - Music library integration
 - **Domain Provider** - Custom domain (optional)
 - **CDN** - Content delivery (optional, Supabase includes)
 
 ### Estimated Timeline
-- **Solo Developer**: 20-24 weeks (6 months)
-- **Small Team (2-3)**: 12-16 weeks (4 months)
-- **Full Team (4+)**: 8-12 weeks (3 months)
+- **Solo Developer**: 24-28 weeks (7 months)
+- **Small Team (2-3)**: 14-18 weeks (4.5 months)
+- **Full Team (4+)**: 10-14 weeks (3.5 months)
 
 ### Budget Estimate (Monthly Recurring)
 - **Lovable Cloud**: $0-50/month (usage-based)
-- **Agora**: $0-100/month (based on usage)
+- **Agora** (Video + Recording): $0-150/month (based on usage)
 - **Resend**: $0-20/month (based on volume)
+- **Lovable AI**: $0-100/month (based on usage)
+- **Sonauto**: $20-80/month (based on generations)
+- **Presenton**: $15-60/month (based on generations)
+- **OpenRouter**: $20-100/month (based on usage)
+- **RapidAPI**: $0-25/month (weather API)
+- **Spotify API**: Free (no cost)
 - **Domain**: $10-15/year
-- **Total**: ~$50-200/month
+- **Total**: ~$75-600/month (depending on usage)
 
 ---
 
@@ -1225,7 +1526,7 @@ Each phase should include:
 
 ## Conclusion
 
-This 20-phase development plan provides a comprehensive roadmap for building the complete NiranX Study Platform. Each phase is designed to be incremental, testable, and production-ready, allowing for early deployment and iterative improvements based on user feedback.
+This 24-phase development plan provides a comprehensive roadmap for building the complete NiranX Study Platform. Each phase is designed to be incremental, testable, and production-ready, allowing for early deployment and iterative improvements based on user feedback.
 
 **Key Success Factors:**
 ✅ Clear phase dependencies  
@@ -1233,13 +1534,35 @@ This 20-phase development plan provides a comprehensive roadmap for building the
 ✅ Early value delivery (MVP by Phase 7)  
 ✅ Scalable architecture  
 ✅ Security-first approach  
-✅ User-centric design
+✅ User-centric design  
+✅ Comprehensive AI integration  
+✅ Rich multimedia features  
+✅ Gamification and engagement
 
 **Recommended Approach:**
-1. Start with Phases 1-7 (Core MVP)
-2. Deploy to beta users for feedback
-3. Iterate based on usage data
-4. Complete Phases 8-20 based on priorities
-5. Continuous improvement post-launch
+1. **Core MVP** - Start with Phases 1-7 (Authentication through Exam Hub)
+2. **AI Foundation** - Complete Phase 8 (AI Chat & Scheduler)
+3. **Beta Deployment** - Deploy core features to beta users for feedback
+4. **Community Features** - Phases 9-12 (Messaging, Study Groups, Debates)
+5. **Educational Tools** - Phases 13-16 (Teacher Portal, Live Classes, Guardian Dashboard, Labs)
+6. **Platform Maturity** - Phases 17-20 (Admin, Rewards, Notifications, PWA)
+7. **AI Ecosystem** - Phases 21-22 (AI Tools, Website Builder, Publishing)
+8. **Entertainment & UX** - Phases 23-24 (Spotify, Animations, Study Buddy)
+9. **Iterate based on usage data and user feedback**
+10. **Continuous improvement post-launch**
 
-Good luck building NiranX! 🚀📚
+**Current Implementation Status:**
+✅ Phases 1-20: Core platform complete  
+✅ Phase 21: AI tools ecosystem implemented  
+✅ Phase 22: Website builder & publishing live  
+✅ Phase 23: Spotify integration active  
+✅ Phase 24: UX enhancements and animations deployed
+
+**Next Steps:**
+- Monitor user engagement and feature adoption
+- Optimize performance and AI costs
+- Expand AI capabilities based on user needs
+- Enhance mobile experience further
+- Scale infrastructure based on growth
+
+Good luck building and scaling NiranX! 🚀📚🎨🎵🤖
