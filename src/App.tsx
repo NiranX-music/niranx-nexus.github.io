@@ -141,6 +141,7 @@ import AIPresentationGenerator from "./pages/AIPresentationGenerator";
 import AIImageGenerator from "./pages/AIImageGenerator";
 import AILibrary from "./pages/AILibrary";
 import OpenRouterChat from "./pages/OpenRouterChat";
+import Weather from "./pages/Weather";
 import { TeacherRoute } from "./components/TeacherRoute";
 
 const queryClient = new QueryClient();
@@ -278,6 +279,7 @@ const App = () => (
                           <Route path="/ai-image-generator" element={<AIImageGenerator />} />
                           <Route path="/ai-library" element={<AILibrary />} />
                           <Route path="/openrouter-chat" element={<OpenRouterChat />} />
+                          <Route path="/weather" element={<Weather />} />
                           <Route path="/admin" element={
                             <AdminRoute>
                               <AdminDashboard />

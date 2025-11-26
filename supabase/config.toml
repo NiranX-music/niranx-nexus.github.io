@@ -85,3 +85,6 @@ verify_jwt = false
 [functions.openrouter-chat]
 verify_jwt = false
 
+[functions.weather-api]
+verify_jwt = false
+
