@@ -33,24 +33,26 @@ serve(async (req) => {
             role: "system", 
             content: `You are an expert web developer. Generate a complete, modern, and responsive landing page based on the user's description. 
 
-IMPORTANT RULES:
-- Return ONLY valid JSON with three fields: html, css, and js
-- The HTML must be a complete page with proper structure
-- Use modern CSS with flexbox/grid, animations, and responsive design
-- Include inline styles in a <style> tag within the HTML
-- Make it visually stunning with gradients, shadows, and smooth transitions
-- Ensure mobile responsiveness
-- Use semantic HTML5 elements
-- Add subtle animations and hover effects
-- DO NOT include any markdown code blocks or explanations
-- Return pure JSON only
+CRITICAL: You MUST return ONLY a valid JSON object. NO markdown formatting, NO code blocks, NO explanations.
 
-Example response format:
+RESPONSE FORMAT (return EXACTLY this structure):
 {
   "html": "<!DOCTYPE html><html>...</html>",
   "css": "/* Additional CSS if needed */",
   "js": "// Additional JavaScript if needed"
-}`
+}
+
+REQUIREMENTS:
+- The HTML must be a complete page with proper <!DOCTYPE html> structure
+- Use modern CSS with flexbox/grid, animations, and responsive design
+- Include ALL styles in a <style> tag within the HTML head
+- Make it visually stunning with gradients, shadows, and smooth transitions
+- Ensure mobile responsiveness with media queries
+- Use semantic HTML5 elements (header, nav, main, section, footer)
+- Add subtle animations and hover effects
+- DO NOT wrap the response in markdown code blocks
+- DO NOT add any explanations or comments outside the JSON
+- Return ONLY the JSON object, nothing else`
           },
           {
             role: "user",
@@ -104,12 +106,30 @@ Example response format:
     // Try to extract JSON from the response
     let generatedCode;
     try {
-      // Remove markdown code blocks if present
-      const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      // Remove markdown code blocks more aggressively
+      let cleanContent = content.trim();
+      
+      // Remove markdown code blocks (handles various formats)
+      cleanContent = cleanContent.replace(/^```(?:json)?\s*/gi, '');
+      cleanContent = cleanContent.replace(/\s*```$/g, '');
+      cleanContent = cleanContent.trim();
+      
+      // Try to find JSON object if it's embedded in text
+      const jsonMatch = cleanContent.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        cleanContent = jsonMatch[0];
+      }
+      
       generatedCode = JSON.parse(cleanContent);
+      
+      // Validate that we have the required fields
+      if (!generatedCode.html) {
+        throw new Error("Generated response missing 'html' field");
+      }
     } catch (parseError) {
-      console.error("Failed to parse AI response:", content);
-      throw new Error("Failed to parse generated code");
+      console.error("Failed to parse AI response. Content preview:", content.substring(0, 500));
+      console.error("Parse error:", parseError);
+      throw new Error("AI returned invalid format. Please try again.");
     }
 
     return new Response(
