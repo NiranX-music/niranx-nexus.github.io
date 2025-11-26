@@ -4,6 +4,7 @@ import { AppSidebar } from "./AppSidebar";
 import { NowPlaying } from "./NowPlaying";
 import { MobileBottomNav } from "./MobileBottomNav";
 import MacDock from "./MacDock";
+import AISolverWidget from "@/components/widgets/AISolverWidget";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { CommandPalette } from "@/components/CommandPalette";
 import { KeyboardShortcutsHelp } from "@/components/KeyboardShortcutsHelp";
@@ -168,6 +169,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           <NowPlaying />
           <MobileBottomNav />
           <MacDock />
+          <AISolverWidget />
           <CommandPalette open={commandPaletteOpen} onOpenChange={setCommandPaletteOpen} />
           <KeyboardShortcutsHelp open={shortcutsHelpOpen} onOpenChange={setShortcutsHelpOpen} />
         </SidebarInset>

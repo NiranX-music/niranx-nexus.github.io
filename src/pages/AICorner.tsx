@@ -133,6 +133,14 @@ const aiTools = [
     route: "/niranx/ai-topic-map-generator",
     color: "text-teal-500",
   },
+  {
+    id: "ai-solver",
+    title: "GPAI AI Solver",
+    description: "Solve homework problems across all subjects with AI - text or image input",
+    icon: Brain,
+    route: "/niranx/ai-solver",
+    color: "text-green-500",
+  },
 ];
 
 export default function AICorner() {
