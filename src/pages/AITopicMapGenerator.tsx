@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Network, Sparkles, FileText, BookOpen, Upload, GitBranch, Workflow } from "lucide-react";
+import { Loader2, Network, Sparkles, FileText, BookOpen, Upload, GitBranch, Workflow, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import * as pdfjsLib from "pdfjs-dist";
@@ -41,6 +41,51 @@ export default function AITopicMapGenerator() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [topicMap, setTopicMap] = useState<TopicMap | null>(null);
   const [visualizationMode, setVisualizationMode] = useState<VisualizationMode>("concept-map");
+  const [history, setHistory] = useState<any[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+
+  useEffect(() => {
+    loadHistory();
+  }, []);
+
+  const loadHistory = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("topic_map_history")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+      setHistory(data || []);
+    } catch (error) {
+      console.error("Error loading history:", error);
+    }
+  };
+
+  const loadFromHistory = (item: any) => {
+    setTopicMap(item.topic_map_data);
+    setVisualizationMode(item.visualization_mode);
+    setChapterText(item.input_text || "");
+    setShowHistory(false);
+    toast.success("Loaded from history");
+  };
+
+  const deleteHistoryItem = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from("topic_map_history")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+      loadHistory();
+      toast.success("History item deleted");
+    } catch (error) {
+      console.error("Error deleting history:", error);
+      toast.error("Failed to delete history item");
+    }
+  };
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -106,6 +151,7 @@ export default function AITopicMapGenerator() {
       if (error) throw error;
 
       setTopicMap(data.topicMap);
+      await loadHistory();  // Reload history after generating
       toast.success("Topic map generated successfully!");
     } catch (error) {
       console.error("Error generating topic map:", error);
@@ -128,17 +174,59 @@ export default function AITopicMapGenerator() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center gap-3 mb-8">
-        <div className="p-3 rounded-lg bg-primary/10">
-          <Network className="h-8 w-8 text-primary" />
+      <div className="flex items-center gap-3 mb-8 justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-3 rounded-lg bg-primary/10">
+            <Network className="h-8 w-8 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold">AI Topic-Map Generator</h1>
+            <p className="text-muted-foreground">
+              Paste any chapter and get an interactive concept map with definitions, formulas, and prerequisites
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-3xl font-bold">AI Topic-Map Generator</h1>
-          <p className="text-muted-foreground">
-            Paste any chapter and get an interactive concept map with definitions, formulas, and prerequisites
-          </p>
-        </div>
+        <Button variant="outline" onClick={() => setShowHistory(!showHistory)}>
+          {showHistory ? "Hide" : "Show"} History
+        </Button>
       </div>
+
+      {showHistory && history.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Topic Maps</CardTitle>
+            <CardDescription>Click any item to reload it</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {history.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between p-3 bg-muted rounded-lg hover:bg-accent cursor-pointer"
+                  onClick={() => loadFromHistory(item)}
+                >
+                  <div className="flex-1">
+                    <p className="font-medium text-sm">{item.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {item.visualization_mode} • {new Date(item.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteHistoryItem(item.id);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

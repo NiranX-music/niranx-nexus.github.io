@@ -3641,6 +3641,33 @@ export type Database = {
           },
         ]
       }
+      pdf_summary_history: {
+        Row: {
+          created_at: string
+          filename: string
+          id: string
+          summary_text: string
+          summary_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          filename: string
+          id?: string
+          summary_text: string
+          summary_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          filename?: string
+          id?: string
+          summary_text?: string
+          summary_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       picture_likes: {
         Row: {
           created_at: string | null
@@ -4753,6 +4780,39 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
           xp_reward?: number | null
+        }
+        Relationships: []
+      }
+      topic_map_history: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string | null
+          input_text: string | null
+          title: string
+          topic_map_data: Json
+          user_id: string
+          visualization_mode: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          input_text?: string | null
+          title: string
+          topic_map_data: Json
+          user_id: string
+          visualization_mode?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          input_text?: string | null
+          title?: string
+          topic_map_data?: Json
+          user_id?: string
+          visualization_mode?: string
         }
         Relationships: []
       }
