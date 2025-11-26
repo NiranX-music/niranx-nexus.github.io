@@ -28,7 +28,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
-        max_tokens: 3500, // Reduced limit to prevent truncation
+        max_tokens: 10000, // Increased limit for more complex websites
         messages: [
           { 
             role: "system", 
