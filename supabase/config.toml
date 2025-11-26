@@ -79,3 +79,6 @@ verify_jwt = true
 [functions.generate-presentation]
 verify_jwt = true
 
+[functions.generate-subnp-image]
+verify_jwt = false
+
