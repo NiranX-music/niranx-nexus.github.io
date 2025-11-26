@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,8 +8,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
-import { ArrowLeft, Code, Eye, Trash2, Copy, FileCode, Palette, Zap, Save, Globe, ExternalLink } from "lucide-react";
+import { ArrowLeft, Code, Eye, Trash2, Copy, FileCode, Palette, Zap, Save, Globe, ExternalLink, MessageSquare, Send, Share2, Sparkles } from "lucide-react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
@@ -22,6 +23,17 @@ export default function GeneratedWebsite() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedCode, setEditedCode] = useState({ html: "", css: "", js: "" });
   const [slug, setSlug] = useState("");
+  const [showAIChat, setShowAIChat] = useState(false);
+  const [chatMessages, setChatMessages] = useState<Array<{ role: string; content: string }>>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [isAIProcessing, setIsAIProcessing] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [chatMessages]);
 
   const { data: website, isLoading } = useQuery({
     queryKey: ["generated-website", id],
@@ -183,6 +195,70 @@ export default function GeneratedWebsite() {
     }));
   };
 
+  const handleAIUpgrade = async () => {
+    if (!chatInput.trim() || isAIProcessing) return;
+
+    const userMessage = { role: "user", content: chatInput };
+    setChatMessages(prev => [...prev, userMessage]);
+    setChatInput("");
+    setIsAIProcessing(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('website-ai-chat', {
+        body: {
+          messages: [...chatMessages, userMessage],
+          currentCode: isEditing ? editedCode : {
+            html: website?.html_code,
+            css: website?.css_code,
+            js: website?.js_code
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      const assistantMessage = { role: "assistant", content: data.message };
+      setChatMessages(prev => [...prev, assistantMessage]);
+
+      // Update the edited code with AI suggestions
+      if (data.code) {
+        setEditedCode(data.code);
+        setIsEditing(true);
+        toast.success("Code updated! Review and save when ready.");
+      }
+    } catch (error: any) {
+      console.error("AI upgrade error:", error);
+      const errorMessage = { 
+        role: "assistant", 
+        content: `Sorry, I encountered an error: ${error.message || 'Please try again.'}` 
+      };
+      setChatMessages(prev => [...prev, errorMessage]);
+      toast.error("Failed to process AI request");
+    } finally {
+      setIsAIProcessing(false);
+    }
+  };
+
+  const handleShare = () => {
+    const shareUrl = website?.is_published && website?.slug 
+      ? `${window.location.origin}/w/${website.slug}`
+      : window.location.href;
+
+    if (navigator.share) {
+      navigator.share({
+        title: website?.title || "My Website",
+        text: website?.description || "Check out my website!",
+        url: shareUrl
+      }).catch(() => {
+        navigator.clipboard.writeText(shareUrl);
+        toast.success("Link copied to clipboard!");
+      });
+    } else {
+      navigator.clipboard.writeText(shareUrl);
+      toast.success("Link copied to clipboard!");
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
@@ -241,6 +317,10 @@ export default function GeneratedWebsite() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={handleShare}>
+                <Share2 className="mr-2 h-4 w-4" />
+                Share
+              </Button>
               {publicUrl && (
                 <Button variant="outline" size="sm" onClick={() => window.open(publicUrl, '_blank')}>
                   <ExternalLink className="mr-2 h-4 w-4" />
@@ -336,7 +416,7 @@ export default function GeneratedWebsite() {
 
           {/* Code Tab */}
           <TabsContent value="code" className="space-y-4 mt-0">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
               {/* Code Files Sidebar */}
               <div className="lg:col-span-1">
                 <Card className="p-4">
@@ -396,7 +476,24 @@ export default function GeneratedWebsite() {
               </div>
 
               {/* Code Editor */}
-              <div className="lg:col-span-3">
+              <div className="lg:col-span-3 space-y-4">
+                {/* AI Upgrade Button */}
+                <Card className="p-3 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-medium">AI-Powered Upgrades</span>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant={showAIChat ? "secondary" : "default"}
+                      onClick={() => setShowAIChat(!showAIChat)}
+                    >
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      {showAIChat ? "Hide Chat" : "Upgrade with AI"}
+                    </Button>
+                  </div>
+                </Card>
                 <Card className="overflow-hidden">
                   <div className="bg-muted/50 border-b px-4 py-2 flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -446,6 +543,93 @@ export default function GeneratedWebsite() {
                     )}
                   </div>
                 </Card>
+
+                {/* AI Chat Panel */}
+                {showAIChat && (
+                  <Card className="overflow-hidden">
+                    <div className="bg-gradient-to-r from-primary/10 to-primary/5 border-b px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="h-5 w-5 text-primary" />
+                        <h3 className="font-semibold">AI Website Assistant</h3>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Ask me to add features, change styles, or improve your website!
+                      </p>
+                    </div>
+                    
+                    <ScrollArea className="h-[300px] p-4">
+                      {chatMessages.length === 0 ? (
+                        <div className="text-center py-8 text-muted-foreground">
+                          <Sparkles className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                          <p className="text-sm">Start a conversation to upgrade your website</p>
+                          <div className="mt-4 space-y-2 text-xs">
+                            <p className="text-left">Try asking:</p>
+                            <ul className="text-left list-disc list-inside space-y-1">
+                              <li>"Add a contact form"</li>
+                              <li>"Make the hero section more colorful"</li>
+                              <li>"Add a pricing table"</li>
+                              <li>"Improve the navigation menu"</li>
+                            </ul>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {chatMessages.map((msg, idx) => (
+                            <div
+                              key={idx}
+                              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                            >
+                              <div
+                                className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                                  msg.role === "user"
+                                    ? "bg-primary text-primary-foreground"
+                                    : "bg-muted"
+                                }`}
+                              >
+                                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                              </div>
+                            </div>
+                          ))}
+                          {isAIProcessing && (
+                            <div className="flex justify-start">
+                              <div className="bg-muted rounded-lg px-4 py-2">
+                                <div className="flex items-center gap-2">
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                                  <span className="text-sm">Generating improvements...</span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          <div ref={chatEndRef} />
+                        </div>
+                      )}
+                    </ScrollArea>
+
+                    <div className="border-t p-3">
+                      <div className="flex gap-2">
+                        <Input
+                          value={chatInput}
+                          onChange={(e) => setChatInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                              e.preventDefault();
+                              handleAIUpgrade();
+                            }
+                          }}
+                          placeholder="Describe what you want to add or change..."
+                          disabled={isAIProcessing}
+                        />
+                        <Button
+                          size="icon"
+                          onClick={handleAIUpgrade}
+                          disabled={!chatInput.trim() || isAIProcessing}
+                        >
+                          <Send className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                )}
               </div>
             </div>
           </TabsContent>

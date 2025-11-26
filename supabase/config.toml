@@ -60,3 +60,7 @@ verify_jwt = true
 
 [functions.generate-website]
 verify_jwt = true
+
+[functions.website-ai-chat]
+verify_jwt = true
+
