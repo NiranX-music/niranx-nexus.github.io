@@ -32,16 +32,45 @@ export default function AIPresentationGenerator() {
     toast.info("Generating presentation... This may take 1-2 minutes");
     
     try {
-      const { data, error } = await supabase.functions.invoke('generate-presentation', {
-        body: { 
-          content: content.trim(),
-          n_slides: parseInt(nSlides),
-          language,
-          template,
-        }
-      });
+      const { data: { session } } = await supabase.auth.getSession();
 
-      if (error) throw error;
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-presentation`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            content: content.trim(),
+            n_slides: parseInt(nSlides),
+            language,
+            template,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        
+        if (response.status === 429) {
+          throw new Error("Rate limit exceeded. Please try again later.");
+        } else if (response.status === 402) {
+          throw new Error("Insufficient Presenton API credits. Please upgrade your plan or check your account.");
+        } else if (response.status === 400) {
+          const detail = errorData.detail || errorData.error || "Invalid request";
+          // Extract credit info if available
+          if (detail.includes("credits required")) {
+            throw new Error(detail);
+          }
+          throw new Error(detail);
+        } else {
+          throw new Error(errorData.error || errorData.detail || `Failed to generate presentation (Status: ${response.status})`);
+        }
+      }
+
+      const data = await response.json();
 
       if (data.error) {
         throw new Error(data.error);
@@ -82,13 +111,7 @@ export default function AIPresentationGenerator() {
       toast.success("Presentation generated successfully!");
     } catch (error: any) {
       console.error('Error generating presentation:', error);
-      if (error.message.includes('429')) {
-        toast.error("Rate limit exceeded. Please try again later.");
-      } else if (error.message.includes('402') || error.message.includes('credits')) {
-        toast.error("Insufficient credits. Please check your Presenton API credits.");
-      } else {
-        toast.error(error.message || "Failed to generate presentation");
-      }
+      toast.error(error.message || "Failed to generate presentation");
     } finally {
       setLoading(false);
     }

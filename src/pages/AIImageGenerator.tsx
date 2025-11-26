@@ -62,7 +62,17 @@ export default function AIImageGenerator() {
       );
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        
+        if (response.status === 429) {
+          throw new Error("Rate limit exceeded. Please try again later.");
+        } else if (response.status === 402) {
+          throw new Error("Payment required. Please check your SubNP credits.");
+        } else if (response.status === 400) {
+          throw new Error(errorData.error || errorData.message || "Invalid request. Please check your input.");
+        } else {
+          throw new Error(errorData.error || errorData.message || `Failed to generate image (Status: ${response.status})`);
+        }
       }
 
       const reader = response.body?.getReader();

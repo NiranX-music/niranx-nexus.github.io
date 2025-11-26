@@ -33,14 +33,38 @@ export default function AISongGenerator() {
     toast.info("Starting song generation... This may take 1-2 minutes");
     
     try {
-      const { data, error } = await supabase.functions.invoke('generate-song', {
-        body: { 
-          prompt: prompt.trim(),
-          title: title.trim() || "Untitled Song"
-        }
-      });
+      const { data: { session } } = await supabase.auth.getSession();
 
-      if (error) throw error;
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-song`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            prompt: prompt.trim(),
+            title: title.trim() || "Untitled Song"
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        
+        if (response.status === 429) {
+          throw new Error("Rate limit exceeded. Please try again later.");
+        } else if (response.status === 402) {
+          throw new Error("Insufficient Sonauto API credits. Please check your account.");
+        } else if (response.status === 400) {
+          throw new Error(errorData.error || "Invalid request. Please check your input.");
+        } else {
+          throw new Error(errorData.error || `Failed to generate song (Status: ${response.status})`);
+        }
+      }
+
+      const data = await response.json();
 
       if (data.error) {
         throw new Error(data.error);
@@ -74,13 +98,7 @@ export default function AISongGenerator() {
       toast.success("Song generated successfully!");
     } catch (error: any) {
       console.error('Error generating song:', error);
-      if (error.message.includes('429')) {
-        toast.error("Rate limit exceeded. Please try again later.");
-      } else if (error.message.includes('402')) {
-        toast.error("Insufficient credits. Please check your Sonauto API credits.");
-      } else {
-        toast.error(error.message || "Failed to generate song");
-      }
+      toast.error(error.message || "Failed to generate song");
     } finally {
       setLoading(false);
     }
