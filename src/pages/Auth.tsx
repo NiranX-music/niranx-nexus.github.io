@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Brain, Sparkles, Loader2, Shield, KeyRound, UserPlus, Users, Bug } from "lucide-react";
@@ -35,10 +35,6 @@ const usernameSchema = z.string().min(3, "Username must be at least 3 characters
 const fullNameSchema = z.string().min(2, "Full name must be at least 2 characters").max(100);
 const classSchema = z.string().min(1, "Class is required");
 
-interface Institute {
-  id: string;
-  name: string;
-}
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -46,7 +42,6 @@ const Auth = () => {
   const { user, loading: authLoading } = useAuth();
   const { enableGuestMode } = useGuestMode();
   const [loading, setLoading] = useState(false);
-  const [institutes, setInstitutes] = useState<Institute[]>([]);
   const [captchaAnswer, setCaptchaAnswer] = useState('');
   const [captchaQuestion, setCaptchaQuestion] = useState({ question: '', answer: 0 });
   const [showDebugPanel, setShowDebugPanel] = useState(false);
@@ -56,8 +51,7 @@ const Auth = () => {
     retypePassword: '',
     username: '',
     fullName: '',
-    class: '',
-    instituteId: ''
+    class: ''
   });
   const [loginData, setLoginData] = useState({
     email: '',
@@ -72,20 +66,8 @@ const Auth = () => {
   }, [user, authLoading, navigate]);
 
   useEffect(() => {
-    fetchInstitutes();
     generateCaptcha();
   }, []);
-
-  const fetchInstitutes = async () => {
-    const { data, error } = await supabase
-      .from('institutes')
-      .select('*')
-      .order('name');
-    
-    if (!error && data) {
-      setInstitutes(data);
-    }
-  };
 
   const generateCaptcha = () => {
     const num1 = Math.floor(Math.random() * 10) + 1;
@@ -132,16 +114,6 @@ const Auth = () => {
       fullNameSchema.parse(signUpData.fullName);
       classSchema.parse(signUpData.class);
 
-      if (!signUpData.instituteId) {
-        toast({
-          title: "Institute required",
-          description: "Please select your institute",
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
-      }
-
       const { data, error } = await supabase.auth.signUp({
         email: signUpData.email,
         password: signUpData.password,
@@ -151,8 +123,7 @@ const Auth = () => {
             username: signUpData.username,
             display_name: signUpData.fullName,
             full_name: signUpData.fullName,
-            class: signUpData.class,
-            institute_id: signUpData.instituteId
+            class: signUpData.class
           }
         }
       });
@@ -490,39 +461,17 @@ const Auth = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-class">Class *</Label>
-                    <Input
-                      id="signup-class"
-                      type="text"
-                      placeholder="e.g., 12th Science"
-                      value={signUpData.class}
-                      onChange={(e) => setSignUpData({ ...signUpData, class: e.target.value })}
-                      required
-                      className="backdrop-blur-sm transform-3d"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-institute">Institute *</Label>
-                    <Select
-                      value={signUpData.instituteId}
-                      onValueChange={(value) => setSignUpData({ ...signUpData, instituteId: value })}
-                      required
-                    >
-                      <SelectTrigger className="backdrop-blur-sm transform-3d">
-                        <SelectValue placeholder="Select institute" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {institutes.map((institute) => (
-                          <SelectItem key={institute.id} value={institute.id}>
-                            {institute.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-class">Class *</Label>
+                  <Input
+                    id="signup-class"
+                    type="text"
+                    placeholder="e.g., 12th Science"
+                    value={signUpData.class}
+                    onChange={(e) => setSignUpData({ ...signUpData, class: e.target.value })}
+                    required
+                    className="backdrop-blur-sm transform-3d"
+                  />
                 </div>
 
                 <div className="space-y-2">
