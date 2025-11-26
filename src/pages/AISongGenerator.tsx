@@ -27,6 +27,8 @@ export default function AISongGenerator() {
     }
 
     setLoading(true);
+    toast.info("Starting song generation... This may take 1-2 minutes");
+    
     try {
       const { data, error } = await supabase.functions.invoke('generate-song', {
         body: { 
@@ -43,14 +45,20 @@ export default function AISongGenerator() {
 
       setGeneratedSong({
         audio_url: data.audio_url,
-        title: data.title,
+        title: title.trim() || data.title || "Untitled Song",
         prompt: prompt
       });
 
       toast.success("Song generated successfully!");
     } catch (error: any) {
       console.error('Error generating song:', error);
-      toast.error(error.message || "Failed to generate song");
+      if (error.message.includes('429')) {
+        toast.error("Rate limit exceeded. Please try again later.");
+      } else if (error.message.includes('402')) {
+        toast.error("Insufficient credits. Please check your Sonauto API credits.");
+      } else {
+        toast.error(error.message || "Failed to generate song");
+      }
     } finally {
       setLoading(false);
     }
@@ -136,7 +144,7 @@ export default function AISongGenerator() {
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generating Song...
+                Generating Song (1-2 min)...
               </>
             ) : (
               <>

@@ -21,7 +21,7 @@ serve(async (req) => {
     console.log('Generating song with Sonauto:', { title, prompt });
 
     // Call Sonauto API to generate song
-    const response = await fetch('https://api.sonauto.ai/v1/generate', {
+    const response = await fetch('https://api.sonauto.ai/v1/generations', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${SONAUTO_API_KEY}`,
@@ -29,8 +29,9 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         prompt: prompt,
-        title: title,
-        duration: 180, // 3 minutes default
+        instrumental: false,
+        num_songs: 1,
+        output_format: 'mp3',
       }),
     });
 
@@ -56,13 +57,49 @@ serve(async (req) => {
     }
 
     const data = await response.json();
+    const taskId = data.task_id;
+    console.log('Song generation task created:', taskId);
+
+    // Poll for completion
+    let songUrl = null;
+    let attempts = 0;
+    const maxAttempts = 60; // Wait up to 5 minutes
+
+    while (!songUrl && attempts < maxAttempts) {
+      await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
+      
+      const statusResponse = await fetch(`https://api.sonauto.ai/v1/generations/${taskId}`, {
+        headers: {
+          'Authorization': `Bearer ${SONAUTO_API_KEY}`,
+        },
+      });
+
+      if (statusResponse.ok) {
+        const statusData = await statusResponse.json();
+        console.log('Generation status:', statusData.status);
+        
+        if (statusData.status === 'SUCCESS' && statusData.song_paths && statusData.song_paths.length > 0) {
+          songUrl = statusData.song_paths[0];
+          break;
+        } else if (statusData.status === 'FAILURE') {
+          throw new Error('Song generation failed');
+        }
+      }
+      
+      attempts++;
+    }
+
+    if (!songUrl) {
+      throw new Error('Song generation timed out');
+    }
+
     console.log('Song generated successfully');
 
     return new Response(
       JSON.stringify({
-        audio_url: data.audio_url,
+        audio_url: songUrl,
         title: title,
-        duration: data.duration,
+        task_id: taskId,
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
