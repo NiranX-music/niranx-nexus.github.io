@@ -110,7 +110,7 @@ const Landing = () => {
         <div className="container mx-auto text-center">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-              Transform Your Study Experience
+              Your Ultimate Learning Companion
             </h1>
             <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
               StudyVerse is the ultimate platform for students to organize, collaborate, and excel in their academic journey. 

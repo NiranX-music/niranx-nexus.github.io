@@ -86,7 +86,14 @@ export default function AIWebsiteGenerator() {
         body: { title, description },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Edge function error:", error);
+        throw new Error(error.message || "Failed to generate website");
+      }
+
+      if (!data || !data.html) {
+        throw new Error("Invalid response from AI. Please try again.");
+      }
 
       // Save to database
       const { data: website, error: dbError } = await supabase
@@ -96,20 +103,26 @@ export default function AIWebsiteGenerator() {
           title,
           description,
           html_code: data.html,
-          css_code: data.css,
-          js_code: data.js,
+          css_code: data.css || "",
+          js_code: data.js || "",
         })
         .select()
         .single();
 
-      if (dbError) throw dbError;
+      if (dbError) {
+        console.error("Database error:", dbError);
+        throw new Error("Failed to save website. Please try again.");
+      }
 
       toast.success("Website generated successfully!");
+      setTitle("");
+      setDescription("");
       refetch();
-      navigate(`/generated-website/${website.id}`);
-    } catch (error) {
+      navigate(`/niranx/generated-website/${website.id}`);
+    } catch (error: any) {
       console.error("Generation error:", error);
-      toast.error("Failed to generate website. Please try again.");
+      const errorMessage = error?.message || "Failed to generate website. Please try again.";
+      toast.error(errorMessage);
     } finally {
       setIsGenerating(false);
     }
@@ -206,7 +219,7 @@ export default function AIWebsiteGenerator() {
               <Card
                 key={website.id}
                 className="cursor-pointer hover:border-primary transition-colors"
-                onClick={() => navigate(`/generated-website/${website.id}`)}
+                onClick={() => navigate(`/niranx/generated-website/${website.id}`)}
               >
                 <CardHeader>
                   <CardTitle>{website.title}</CardTitle>
