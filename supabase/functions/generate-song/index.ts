@@ -49,7 +49,9 @@ serve(async (req) => {
       _amount: 1
     });
 
-    if (creditError || !hasCredits) {
+    if (creditError) {
+      console.error('Credit deduction error:', creditError);
+    } else if (!hasCredits) {
       return new Response(
         JSON.stringify({ error: 'Insufficient credits. You need 1 credit to generate a song.' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 402 }
