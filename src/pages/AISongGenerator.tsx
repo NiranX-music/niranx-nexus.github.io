@@ -5,13 +5,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Music, Loader2, Download, Play, Pause, Disc3 } from "lucide-react";
+import { Music, Loader2, Download, Play, Pause, Disc3, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Slider } from "@/components/ui/slider";
 
 export default function AISongGenerator() {
   const [prompt, setPrompt] = useState("");
   const [title, setTitle] = useState("");
+  const [duration, setDuration] = useState(180); // Default 3 minutes
   const [loading, setLoading] = useState(false);
   const [extractStems, setExtractStems] = useState(false);
   const [generatedSong, setGeneratedSong] = useState<{
@@ -46,7 +48,8 @@ export default function AISongGenerator() {
           },
           body: JSON.stringify({
             prompt: prompt.trim(),
-            title: title.trim() || "Untitled Song"
+            title: title.trim() || "Untitled Song",
+            duration: duration
           }),
         }
       );
@@ -175,6 +178,31 @@ export default function AISongGenerator() {
               className="min-h-[120px]"
               disabled={loading}
             />
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="duration" className="flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                Song Duration
+              </Label>
+              <span className="text-sm text-muted-foreground">
+                {Math.floor(duration / 60)}:{(duration % 60).toString().padStart(2, '0')}
+              </span>
+            </div>
+            <Slider
+              id="duration"
+              min={30}
+              max={300}
+              step={10}
+              value={[duration]}
+              onValueChange={(value) => setDuration(value[0])}
+              disabled={loading}
+              className="w-full"
+            />
+            <p className="text-xs text-muted-foreground">
+              Minimum: 30 seconds • Maximum: 5 minutes
+            </p>
           </div>
 
           <div className="flex items-center space-x-2">
