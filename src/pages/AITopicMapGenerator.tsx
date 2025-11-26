@@ -8,8 +8,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import * as pdfjsLib from "pdfjs-dist";
 
-// Set worker source
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Set worker source to use the package's worker file
+if (typeof window !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+    'pdfjs-dist/build/pdf.worker.min.mjs',
+    import.meta.url
+  ).toString();
+}
 
 type VisualizationMode = "concept-map" | "flowchart" | "tree-diagram";
 
