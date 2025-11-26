@@ -27,6 +27,7 @@ import {
   Search,
   Brain,
   FileMusic,
+  FileText,
   Upload,
   Image,
   Play,
@@ -57,6 +58,7 @@ import {
   Gift,
   Palette,
   Layout,
+  Route as RouteIcon,
 } from "lucide-react";
 import {
   Sidebar,
@@ -103,6 +105,11 @@ const coreNavigation = [
   { title: "Profile", url: "/niranx/profile", icon: User },
 ];
 
+// AI Corner
+const aiCornerNavigation = [
+  { title: "AI Hub", url: "/niranx/ai-corner", icon: Sparkles },
+];
+
 // Study & Focus
 const studyNavigation = [
   { title: "Tasks", url: "/niranx/tasks", icon: CheckSquare },
@@ -113,8 +120,8 @@ const studyNavigation = [
   { title: "Exams", url: "/niranx/exams", icon: GraduationCap },
   { title: "Whiteboard", url: "/niranx/whiteboard", icon: PenTool },
   { title: "Study Groups", url: "/niranx/study-groups", icon: Users },
-  { title: "AI Study Path", url: "/niranx/study-path-generator", icon: Sparkles },
-  { title: "Note Summarizer", url: "/niranx/note-summarizer", icon: Brain },
+  { title: "AI Study Path", url: "/niranx/study-path-generator", icon: RouteIcon },
+  { title: "Note Summarizer", url: "/niranx/note-summarizer", icon: FileText },
   { title: "YouTube Library", url: "/niranx/youtube-library", icon: Youtube },
 ];
 
@@ -253,6 +260,7 @@ export function AppSidebar() {
   const [showMasterPasswordDialog, setShowMasterPasswordDialog] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     favorites: true,
+    aiCorner: true,
     study: true,
     progress: false,
     media: false,
@@ -273,6 +281,7 @@ export function AppSidebar() {
   // Combine all navigation items for search
   const allNavItems = useMemo(() => [
     ...coreNavigation,
+    ...aiCornerNavigation,
     ...studyNavigation,
     ...progressNavigation,
     ...mediaNavigation,
@@ -482,6 +491,26 @@ export function AppSidebar() {
             <SidebarMenu>{renderNavItems(coreNavigation)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* AI Corner */}
+        <Collapsible open={expandedSections.aiCorner} onOpenChange={() => toggleSection('aiCorner')}>
+          <SidebarGroup>
+            <CollapsibleTrigger asChild>
+              <SidebarGroupLabel className="cursor-pointer hover:bg-primary/20 rounded-lg px-2 -mx-2 flex items-center justify-between text-white/90 font-bold text-sm uppercase tracking-wider transition-all duration-200 py-3 bg-gradient-to-r from-cyan-500/20 to-transparent">
+                <span className="flex items-center gap-2">
+                  <Brain className="h-4 w-4 text-cyan-400" />
+                  {!isCollapsed && "AI Corner"}
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform text-white/70 ${expandedSections.aiCorner ? '' : '-rotate-90'}`} />
+              </SidebarGroupLabel>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>{renderNavItems(aiCornerNavigation)}</SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
 
         {/* Study & Focus */}
         <Collapsible open={expandedSections.study} onOpenChange={() => toggleSection('study')}>

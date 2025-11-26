@@ -135,6 +135,8 @@ import PublishedWebsite from "./pages/PublishedWebsite";
 import StudyPathGenerator from "./pages/StudyPathGenerator";
 import NoteSummarizer from "./pages/NoteSummarizer";
 import YouTubeLibrary from "./pages/YouTubeLibrary";
+import AICorner from "./pages/AICorner";
+import AISongGenerator from "./pages/AISongGenerator";
 import { TeacherRoute } from "./components/TeacherRoute";
 
 const queryClient = new QueryClient();
@@ -266,6 +268,8 @@ const App = () => (
                           <Route path="/study-path-generator" element={<StudyPathGenerator />} />
                           <Route path="/note-summarizer" element={<NoteSummarizer />} />
                           <Route path="/youtube-library" element={<YouTubeLibrary />} />
+                          <Route path="/ai-corner" element={<AICorner />} />
+                          <Route path="/ai-song-generator" element={<AISongGenerator />} />
                           <Route path="/admin" element={
                             <AdminRoute>
                               <AdminDashboard />
