@@ -1785,6 +1785,42 @@ export type Database = {
         }
         Relationships: []
       }
+      generated_websites: {
+        Row: {
+          created_at: string | null
+          css_code: string
+          description: string
+          html_code: string
+          id: string
+          js_code: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          css_code: string
+          description: string
+          html_code: string
+          id?: string
+          js_code?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          css_code?: string
+          description?: string
+          html_code?: string
+          id?: string
+          js_code?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       goal_milestones: {
         Row: {
           completed: boolean | null
@@ -5124,6 +5160,7 @@ export type Database = {
     }
     Functions: {
       calculate_level: { Args: { xp_amount: number }; Returns: number }
+      can_create_website: { Args: { p_user_id: string }; Returns: boolean }
       generate_class_code: { Args: never; Returns: string }
       generate_share_token: { Args: never; Returns: string }
       generate_theme_share_token: { Args: never; Returns: string }
@@ -5143,6 +5180,7 @@ export type Database = {
         Args: { p_student_id: string; p_week_start: string }
         Returns: Json
       }
+      get_user_website_count: { Args: { p_user_id: string }; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

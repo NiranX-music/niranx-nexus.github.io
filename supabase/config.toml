@@ -57,3 +57,6 @@ verify_jwt = false
 
 [functions.invite-user]
 verify_jwt = true
+
+[functions.generate-website]
+verify_jwt = true

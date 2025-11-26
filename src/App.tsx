@@ -128,6 +128,8 @@ import RoleManagement from "./pages/admin/RoleManagement";
 import FeedbackSubmission from "./pages/FeedbackSubmission";
 import FeedbackList from "./pages/admin/FeedbackList";
 import LiveClassSession from "./pages/teacher/LiveClassSession";
+import AIWebsiteGenerator from "./pages/AIWebsiteGenerator";
+import GeneratedWebsite from "./pages/GeneratedWebsite";
 import { TeacherRoute } from "./components/TeacherRoute";
 
 const queryClient = new QueryClient();
@@ -297,6 +299,16 @@ const App = () => (
           <Route path="live-classroom" element={
             <ProtectedRoute>
               <LiveClassroom />
+            </ProtectedRoute>
+          } />
+          <Route path="ai-website-generator" element={
+            <ProtectedRoute>
+              <AIWebsiteGenerator />
+            </ProtectedRoute>
+          } />
+          <Route path="generated-website/:id" element={
+            <ProtectedRoute>
+              <GeneratedWebsite />
             </ProtectedRoute>
           } />
                           <Route path="/admin/feedback-list" element={
