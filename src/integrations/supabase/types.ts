@@ -3289,6 +3289,51 @@ export type Database = {
         }
         Relationships: []
       }
+      note_summaries: {
+        Row: {
+          created_at: string | null
+          file_type: string | null
+          id: string
+          key_points: string[]
+          mind_map: Json | null
+          original_file_path: string | null
+          subject: string | null
+          summary: string
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          file_type?: string | null
+          id?: string
+          key_points?: string[]
+          mind_map?: Json | null
+          original_file_path?: string | null
+          subject?: string | null
+          summary: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          file_type?: string | null
+          id?: string
+          key_points?: string[]
+          mind_map?: Json | null
+          original_file_path?: string | null
+          subject?: string | null
+          summary?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       notification_preferences: {
         Row: {
           browser_notifications: boolean | null
@@ -4231,6 +4276,57 @@ export type Database = {
         }
         Relationships: []
       }
+      study_paths: {
+        Row: {
+          created_at: string | null
+          current_milestone: number | null
+          description: string | null
+          difficulty_level: string | null
+          goal: string
+          id: string
+          is_active: boolean | null
+          progress_percentage: number | null
+          roadmap: Json
+          subjects: string[]
+          target_date: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_milestone?: number | null
+          description?: string | null
+          difficulty_level?: string | null
+          goal: string
+          id?: string
+          is_active?: boolean | null
+          progress_percentage?: number | null
+          roadmap?: Json
+          subjects: string[]
+          target_date?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_milestone?: number | null
+          description?: string | null
+          difficulty_level?: string | null
+          goal?: string
+          id?: string
+          is_active?: boolean | null
+          progress_percentage?: number | null
+          roadmap?: Json
+          subjects?: string[]
+          target_date?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       study_sessions: {
         Row: {
           created_at: string | null
@@ -4860,6 +4956,63 @@ export type Database = {
         }
         Relationships: []
       }
+      video_library: {
+        Row: {
+          ai_summary: string | null
+          created_at: string | null
+          description: string | null
+          duration: string | null
+          id: string
+          is_favorite: boolean | null
+          key_topics: string[] | null
+          notes: string | null
+          subject: string | null
+          timestamps: Json | null
+          title: string
+          updated_at: string | null
+          user_id: string
+          video_id: string
+          video_url: string
+          watch_progress: number | null
+        }
+        Insert: {
+          ai_summary?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration?: string | null
+          id?: string
+          is_favorite?: boolean | null
+          key_topics?: string[] | null
+          notes?: string | null
+          subject?: string | null
+          timestamps?: Json | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+          video_id: string
+          video_url: string
+          watch_progress?: number | null
+        }
+        Update: {
+          ai_summary?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration?: string | null
+          id?: string
+          is_favorite?: boolean | null
+          key_topics?: string[] | null
+          notes?: string | null
+          subject?: string | null
+          timestamps?: Json | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+          video_id?: string
+          video_url?: string
+          watch_progress?: number | null
+        }
+        Relationships: []
+      }
       video_likes: {
         Row: {
           created_at: string | null
@@ -4965,6 +5118,36 @@ export type Database = {
           user_id?: string
           video_url?: string
           views?: number | null
+        }
+        Relationships: []
+      }
+      voice_command_history: {
+        Row: {
+          action_taken: string
+          command_text: string
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          success: boolean | null
+          user_id: string
+        }
+        Insert: {
+          action_taken: string
+          command_text: string
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          success?: boolean | null
+          user_id: string
+        }
+        Update: {
+          action_taken?: string
+          command_text?: string
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          success?: boolean | null
+          user_id?: string
         }
         Relationships: []
       }
