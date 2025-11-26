@@ -94,3 +94,6 @@ verify_jwt = true
 [functions.ai-solver]
 verify_jwt = true
 
+[functions.summarize-pdf]
+verify_jwt = true
+

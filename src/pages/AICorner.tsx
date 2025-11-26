@@ -141,6 +141,14 @@ const aiTools = [
     route: "/niranx/ai-solver",
     color: "text-green-500",
   },
+  {
+    id: "pdf-summarizer",
+    title: "AI PDF Summarizer",
+    description: "Upload PDFs and get instant AI-generated summaries",
+    icon: FileText,
+    route: "/niranx/pdf-summarizer",
+    color: "text-rose-500",
+  },
 ];
 
 export default function AICorner() {
