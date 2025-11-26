@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Presentation, Loader2, Download, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { CreditsDisplay } from "@/components/ui/CreditsDisplay";
 
 export default function AIPresentationGenerator() {
   const [content, setContent] = useState("");
@@ -119,6 +120,8 @@ export default function AIPresentationGenerator() {
 
   return (
     <div className="container mx-auto p-6 max-w-4xl space-y-6">
+      <CreditsDisplay />
+      
       <div className="flex items-center gap-3 mb-8">
         <div className="p-3 rounded-lg bg-primary/10">
           <Presentation className="h-8 w-8 text-primary" />

@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Music, Loader2, Download, Play, Pause, Disc3 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { CreditsDisplay } from "@/components/ui/CreditsDisplay";
 
 export default function AISongGenerator() {
   const [prompt, setPrompt] = useState("");
@@ -133,6 +134,8 @@ export default function AISongGenerator() {
 
   return (
     <div className="container mx-auto p-6 max-w-4xl space-y-6">
+      <CreditsDisplay />
+      
       <div className="flex items-center gap-3 mb-8">
         <div className="p-3 rounded-lg bg-primary/10">
           <Music className="h-8 w-8 text-primary" />
