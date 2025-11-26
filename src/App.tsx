@@ -144,6 +144,7 @@ import AILibrary from "./pages/AILibrary";
 import OpenRouterChat from "./pages/OpenRouterChat";
 import Weather from "./pages/Weather";
 import { TeacherRoute } from "./components/TeacherRoute";
+import PublishedContent from "./pages/PublishedContent";
 
 const queryClient = new QueryClient();
 
@@ -353,6 +354,7 @@ const App = () => (
                       } />
                     <Route path="/shared/resource/:token" element={<SharedResource />} />
                     <Route path="/w/:slug" element={<PublishedWebsite />} />
+                    <Route path="/published/:slug" element={<PublishedContent />} />
                     <Route path="*" element={<Landing />} />
                     </Routes>
                   </AuthProvider>

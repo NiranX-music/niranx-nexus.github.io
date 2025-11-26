@@ -238,30 +238,42 @@ export type Database = {
       }
       ai_generations: {
         Row: {
+          cover_image_url: string | null
           created_at: string | null
           id: string
+          is_published: boolean | null
           prompt: string | null
+          published_at: string | null
           result_data: Json | null
+          slug: string | null
           status: string | null
           tool_type: string
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          cover_image_url?: string | null
           created_at?: string | null
           id?: string
+          is_published?: boolean | null
           prompt?: string | null
+          published_at?: string | null
           result_data?: Json | null
+          slug?: string | null
           status?: string | null
           tool_type: string
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          cover_image_url?: string | null
           created_at?: string | null
           id?: string
+          is_published?: boolean | null
           prompt?: string | null
+          published_at?: string | null
           result_data?: Json | null
+          slug?: string | null
           status?: string | null
           tool_type?: string
           updated_at?: string | null
@@ -5410,6 +5422,7 @@ export type Database = {
     Functions: {
       calculate_level: { Args: { xp_amount: number }; Returns: number }
       can_create_website: { Args: { p_user_id: string }; Returns: boolean }
+      generate_ai_generation_slug: { Args: never; Returns: string }
       generate_class_code: { Args: never; Returns: string }
       generate_share_token: { Args: never; Returns: string }
       generate_theme_share_token: { Args: never; Returns: string }
