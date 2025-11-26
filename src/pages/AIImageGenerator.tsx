@@ -48,7 +48,8 @@ export default function AIImageGenerator() {
     setImageUrl(null);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      console.log('AIImageGenerator session', session, sessionError);
       
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-subnp-image`,
