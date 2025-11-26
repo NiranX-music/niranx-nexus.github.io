@@ -11,7 +11,8 @@ import {
   Calendar,
   Music,
   Brain,
-  Mic
+  Mic,
+  Presentation
 } from "lucide-react";
 
 const aiTools = [
@@ -62,6 +63,14 @@ const aiTools = [
     icon: Calendar,
     route: "/niranx/ai-scheduler",
     color: "text-orange-500",
+  },
+  {
+    id: "presentation-generator",
+    title: "AI Presentation Generator",
+    description: "Generate professional PowerPoint presentations with AI",
+    icon: Presentation,
+    route: "/niranx/ai-presentation-generator",
+    color: "text-violet-500",
   },
   {
     id: "song-generator",
