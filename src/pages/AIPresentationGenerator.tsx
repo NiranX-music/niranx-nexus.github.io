@@ -33,7 +33,8 @@ export default function AIPresentationGenerator() {
     toast.info("Generating presentation... This may take 1-2 minutes");
     
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      console.log('AIPresentationGenerator session', session, sessionError);
 
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-presentation`,
