@@ -64,3 +64,12 @@ verify_jwt = true
 [functions.website-ai-chat]
 verify_jwt = true
 
+[functions.generate-study-path]
+verify_jwt = true
+
+[functions.summarize-notes]
+verify_jwt = true
+
+[functions.summarize-youtube]
+verify_jwt = true
+

@@ -113,6 +113,9 @@ const studyNavigation = [
   { title: "Exams", url: "/niranx/exams", icon: GraduationCap },
   { title: "Whiteboard", url: "/niranx/whiteboard", icon: PenTool },
   { title: "Study Groups", url: "/niranx/study-groups", icon: Users },
+  { title: "AI Study Path", url: "/niranx/study-path-generator", icon: Sparkles },
+  { title: "Note Summarizer", url: "/niranx/note-summarizer", icon: Brain },
+  { title: "YouTube Library", url: "/niranx/youtube-library", icon: Youtube },
 ];
 
 // Progress & Gamification

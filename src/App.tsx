@@ -12,6 +12,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { NowPlayingProvider } from "./contexts/NowPlayingContext";
 import { GuestModeProvider } from "./contexts/GuestModeContext";
 import { AppLayout } from "./components/layout/AppLayout";
+import VoiceCommand from "./components/VoiceCommand";
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Index from "./pages/Index";
@@ -131,6 +132,9 @@ import LiveClassSession from "./pages/teacher/LiveClassSession";
 import AIWebsiteGenerator from "./pages/AIWebsiteGenerator";
 import GeneratedWebsite from "./pages/GeneratedWebsite";
 import PublishedWebsite from "./pages/PublishedWebsite";
+import StudyPathGenerator from "./pages/StudyPathGenerator";
+import NoteSummarizer from "./pages/NoteSummarizer";
+import YouTubeLibrary from "./pages/YouTubeLibrary";
 import { TeacherRoute } from "./components/TeacherRoute";
 
 const queryClient = new QueryClient();
@@ -257,6 +261,11 @@ const App = () => (
                           <Route path="/debates/leaderboard" element={<DebateLeaderboard />} />
                           <Route path="/debates/tournaments" element={<DebateTournaments />} />
                           <Route path="/debates/live" element={<LiveDebateRooms />} />
+                          <Route path="/ai-website-generator" element={<AIWebsiteGenerator />} />
+                          <Route path="/generated-website/:id" element={<GeneratedWebsite />} />
+                          <Route path="/study-path-generator" element={<StudyPathGenerator />} />
+                          <Route path="/note-summarizer" element={<NoteSummarizer />} />
+                          <Route path="/youtube-library" element={<YouTubeLibrary />} />
                           <Route path="/admin" element={
                             <AdminRoute>
                               <AdminDashboard />
@@ -318,9 +327,10 @@ const App = () => (
                             </ModeratorRoute>
                           } />
                           <Route path="*" element={<NotFound />} />
-                        </Routes>
-                      </AppLayout>
-                    } />
+                          </Routes>
+                          <VoiceCommand />
+                        </AppLayout>
+                      } />
                     <Route path="/shared/resource/:token" element={<SharedResource />} />
                     <Route path="/w/:slug" element={<PublishedWebsite />} />
                     <Route path="*" element={<Landing />} />
