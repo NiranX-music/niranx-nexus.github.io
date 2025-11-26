@@ -109,6 +109,7 @@ const coreNavigation = [
 const aiCornerNavigation = [
   { title: "AI Hub", url: "/niranx/ai-corner", icon: Sparkles },
   { title: "AI Library", url: "/niranx/ai-library", icon: Archive },
+  { title: "Topic Map Generator", url: "/niranx/ai-topic-map-generator", icon: RouteIcon },
 ];
 
 // Study & Focus
@@ -387,8 +388,8 @@ export function AppSidebar() {
   );
 
   return (
-    <Sidebar className="border-r border-sidebar-border bg-gradient-to-br from-sidebar via-sidebar/95 to-background backdrop-blur-2xl hidden md:flex shadow-2xl flex-col h-full overflow-hidden fixed left-0 top-0 bottom-0">
-      <SidebarHeader className="border-b border-sidebar-border/50 p-4 bg-gradient-to-r from-primary/10 via-purple-500/10 to-blue-500/10 flex-shrink-0 sticky top-0 z-10">
+    <Sidebar className="border-r border-sidebar-border bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 backdrop-blur-2xl hidden md:flex shadow-2xl flex-col h-full overflow-hidden fixed left-0 top-0 bottom-0 z-50">
+      <SidebarHeader className="border-b border-primary/20 p-4 bg-gradient-to-r from-primary/10 via-purple-600/10 to-blue-600/10 flex-shrink-0 sticky top-0 z-50 backdrop-blur-md">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-3 flex-1">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl overflow-hidden bg-black shadow-lg shadow-primary/20">
@@ -407,17 +408,17 @@ export function AppSidebar() {
         </div>
         {!isCollapsed && (
           <>
-            <div className="mt-4 p-3 bg-gradient-to-r from-primary/10 to-purple-500/10 rounded-lg border border-primary/20">
+            <div className="mt-4 p-3 bg-gradient-to-br from-primary/20 via-purple-600/15 to-blue-600/15 rounded-lg border border-primary/30 shadow-lg shadow-primary/10">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-white">Your Progress</span>
-                <div className="flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-yellow-500" />
-                  <span className="text-sm font-bold text-primary">{xp} XP</span>
+                <div className="flex items-center gap-2 bg-black/30 px-2 py-1 rounded-full">
+                  <Zap className="w-4 h-4 text-yellow-400 animate-pulse" />
+                  <span className="text-sm font-bold text-yellow-400">{xp} XP</span>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Star className="w-4 h-4 text-yellow-500" />
-                <span className="text-sm font-semibold text-white">Level {level}</span>
+              <div className="flex items-center gap-2 bg-black/30 px-2 py-1 rounded-full w-fit">
+                <Star className="w-4 h-4 text-amber-400" />
+                <span className="text-sm font-semibold text-amber-400">Level {level}</span>
               </div>
             </div>
             <div className="mt-3">
@@ -426,7 +427,7 @@ export function AppSidebar() {
                 placeholder="Search pages..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-background/50 border-border/50 text-white placeholder:text-white/50"
+                className="bg-black/40 border-primary/30 text-white placeholder:text-white/40 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
               />
             </div>
           </>
@@ -485,8 +486,8 @@ export function AppSidebar() {
 
         {/* Core */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-white/90 font-bold text-sm uppercase tracking-wider flex items-center gap-2 px-2 py-3 bg-gradient-to-r from-primary/20 to-transparent rounded-lg">
-            <Sparkles className="h-4 w-4 text-primary" />
+          <SidebarGroupLabel className="text-white/90 font-bold text-sm uppercase tracking-wider flex items-center gap-2 px-3 py-3 bg-gradient-to-r from-primary/30 via-purple-500/20 to-transparent rounded-lg border border-primary/20 mb-2">
+            <Sparkles className="h-4 w-4 text-primary animate-pulse" />
             {!isCollapsed && "Core"}
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -498,12 +499,12 @@ export function AppSidebar() {
         <Collapsible open={expandedSections.aiCorner} onOpenChange={() => toggleSection('aiCorner')}>
           <SidebarGroup>
             <CollapsibleTrigger asChild>
-              <SidebarGroupLabel className="cursor-pointer hover:bg-primary/20 rounded-lg px-2 -mx-2 flex items-center justify-between text-white/90 font-bold text-sm uppercase tracking-wider transition-all duration-200 py-3 bg-gradient-to-r from-cyan-500/20 to-transparent">
+              <SidebarGroupLabel className="cursor-pointer hover:bg-cyan-500/20 rounded-lg px-3 -mx-2 flex items-center justify-between text-white/90 font-bold text-sm uppercase tracking-wider transition-all duration-200 py-3 bg-gradient-to-r from-cyan-500/25 to-transparent border border-cyan-500/20 mb-2">
                 <span className="flex items-center gap-2">
                   <Brain className="h-4 w-4 text-cyan-400" />
                   {!isCollapsed && "AI Corner"}
                 </span>
-                <ChevronDown className={`h-4 w-4 transition-transform text-white/70 ${expandedSections.aiCorner ? '' : '-rotate-90'}`} />
+                <ChevronDown className={`h-4 w-4 transition-transform text-cyan-400 ${expandedSections.aiCorner ? '' : '-rotate-90'}`} />
               </SidebarGroupLabel>
             </CollapsibleTrigger>
             <CollapsibleContent>
