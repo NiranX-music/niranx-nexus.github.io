@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { FileText, Upload, Loader2, Download } from "lucide-react";
+import { FileText, Upload, Loader2, Download, Trash2 } from "lucide-react";
 import { useXPReward } from "@/hooks/useXPReward";
 import * as pdfjsLib from "pdfjs-dist";
 
@@ -24,6 +24,52 @@ export default function PDFSummarizer() {
   const [summaryType, setSummaryType] = useState<string>("brief");
   const [summary, setSummary] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const [history, setHistory] = useState<any[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      loadHistory();
+    }
+  }, [user]);
+
+  const loadHistory = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("pdf_summary_history")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+      setHistory(data || []);
+    } catch (error) {
+      console.error("Error loading history:", error);
+    }
+  };
+
+  const loadFromHistory = (item: any) => {
+    setSummary(item.summary_text);
+    setSummaryType(item.summary_type);
+    setShowHistory(false);
+    toast.success("Loaded from history");
+  };
+
+  const deleteHistoryItem = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from("pdf_summary_history")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+      loadHistory();
+      toast.success("History item deleted");
+    } catch (error) {
+      console.error("Error deleting history:", error);
+      toast.error("Failed to delete history item");
+    }
+  };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -88,7 +134,8 @@ export default function PDFSummarizer() {
           },
           body: JSON.stringify({ 
             pdfContent: truncatedText,
-            summaryType 
+            summaryType,
+            filename: selectedFile.name
           }),
         }
       );
@@ -101,6 +148,7 @@ export default function PDFSummarizer() {
       const result = await response.json();
       setSummary(result.summary);
       await awardXP("USE_AI_CHAT");
+      await loadHistory();  // Reload history after generating
       toast.success("PDF summarized successfully!");
     } catch (error) {
       console.error("Error summarizing PDF:", error);
@@ -138,13 +186,55 @@ export default function PDFSummarizer() {
 
   return (
     <div className="container mx-auto p-6 max-w-5xl space-y-6">
-      <div className="flex items-center gap-3">
-        <FileText className="h-8 w-8 text-primary" />
-        <div>
-          <h1 className="text-3xl font-bold">AI PDF Summarizer</h1>
-          <p className="text-muted-foreground">Upload a PDF and get an AI-generated summary</p>
+      <div className="flex items-center gap-3 justify-between">
+        <div className="flex items-center gap-3">
+          <FileText className="h-8 w-8 text-primary" />
+          <div>
+            <h1 className="text-3xl font-bold">AI PDF Summarizer</h1>
+            <p className="text-muted-foreground">Upload a PDF and get an AI-generated summary</p>
+          </div>
         </div>
+        <Button variant="outline" onClick={() => setShowHistory(!showHistory)}>
+          {showHistory ? "Hide" : "Show"} History
+        </Button>
       </div>
+
+      {showHistory && history.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Summaries</CardTitle>
+            <CardDescription>Click any item to reload it</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {history.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between p-3 bg-muted rounded-lg hover:bg-accent cursor-pointer"
+                  onClick={() => loadFromHistory(item)}
+                >
+                  <div className="flex-1">
+                    <p className="font-medium text-sm">{item.filename}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {item.summary_type} • {new Date(item.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteHistoryItem(item.id);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* Upload Section */}

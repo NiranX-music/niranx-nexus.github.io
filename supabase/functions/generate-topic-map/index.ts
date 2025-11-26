@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.51.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -16,6 +17,25 @@ serve(async (req) => {
     
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: { Authorization: req.headers.get('Authorization')! },
+        },
+      }
+    );
+
+    // Verify user authentication
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     console.log("Generating topic map with mode:", visualizationMode);
@@ -178,6 +198,16 @@ Generate the complete topic map with:
       console.error("Content preview:", content.substring(0, 500));
       throw new Error("Failed to parse AI response. Please try again.");
     }
+
+    // Save to history
+    await supabaseClient.from("topic_map_history").insert({
+      user_id: user.id,
+      title: topicMap.title,
+      input_text: chapterText || null,
+      image_url: imageUrl || null,
+      visualization_mode: visualizationMode,
+      topic_map_data: topicMap
+    });
 
     return new Response(
       JSON.stringify({ 

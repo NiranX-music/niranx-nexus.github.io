@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { pdfContent, summaryType } = await req.json();
+    const { pdfContent, summaryType, filename } = await req.json();
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -91,6 +91,16 @@ serve(async (req) => {
 
     const data = await response.json();
     const summary = data.choices[0].message.content;
+
+    // Save to history
+    if (filename) {
+      await supabaseClient.from("pdf_summary_history").insert({
+        user_id: user.id,
+        filename: filename,
+        summary_type: summaryType,
+        summary_text: summary
+      });
+    }
 
     return new Response(
       JSON.stringify({ summary }),
