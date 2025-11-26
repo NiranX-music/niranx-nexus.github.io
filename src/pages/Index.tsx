@@ -43,6 +43,7 @@ import ChillCorner from "@/components/widgets/ChillCorner";
 import NotesWidget from "@/components/widgets/NotesWidget";
 import StudyMaterialHub from "@/components/widgets/StudyMaterialHub";
 import AIStudyBuddy from "@/components/widgets/AIStudyBuddy";
+import StudyBuddyClone from "@/components/StudyBuddyClone";
 import { useWidgets } from "@/hooks/useWidgets";
 import { StreakDisplay } from "@/components/StreakDisplay";
 
@@ -251,6 +252,13 @@ const Index = () => {
               <MoodSelector />
               <AIMotivation />
               <DailyChallenge />
+            </div>
+          )}
+
+          {/* AI Study Buddy Clone */}
+          {isLoggedIn && (
+            <div className="mb-6 md:mb-8 animate-fade-in" style={{ animationDelay: '0.35s' }}>
+              <StudyBuddyClone />
             </div>
           )}
         
