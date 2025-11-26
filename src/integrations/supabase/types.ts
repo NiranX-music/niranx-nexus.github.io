@@ -4047,6 +4047,149 @@ export type Database = {
         }
         Relationships: []
       }
+      spotify_favorites: {
+        Row: {
+          album_image_url: string | null
+          album_name: string | null
+          artist_name: string
+          created_at: string | null
+          duration_ms: number | null
+          id: string
+          spotify_track_id: string
+          track_name: string
+          user_id: string
+        }
+        Insert: {
+          album_image_url?: string | null
+          album_name?: string | null
+          artist_name: string
+          created_at?: string | null
+          duration_ms?: number | null
+          id?: string
+          spotify_track_id: string
+          track_name: string
+          user_id: string
+        }
+        Update: {
+          album_image_url?: string | null
+          album_name?: string | null
+          artist_name?: string
+          created_at?: string | null
+          duration_ms?: number | null
+          id?: string
+          spotify_track_id?: string
+          track_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      spotify_playlist_tracks: {
+        Row: {
+          added_at: string | null
+          album_image_url: string | null
+          album_name: string | null
+          artist_name: string
+          duration_ms: number | null
+          id: string
+          playlist_id: string
+          spotify_track_id: string
+          track_name: string
+        }
+        Insert: {
+          added_at?: string | null
+          album_image_url?: string | null
+          album_name?: string | null
+          artist_name: string
+          duration_ms?: number | null
+          id?: string
+          playlist_id: string
+          spotify_track_id: string
+          track_name: string
+        }
+        Update: {
+          added_at?: string | null
+          album_image_url?: string | null
+          album_name?: string | null
+          artist_name?: string
+          duration_ms?: number | null
+          id?: string
+          playlist_id?: string
+          spotify_track_id?: string
+          track_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "spotify_playlist_tracks_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "spotify_playlists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      spotify_playlists: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_public: boolean | null
+          name: string
+          spotify_playlist_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          name: string
+          spotify_playlist_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          name?: string
+          spotify_playlist_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      spotify_tokens: {
+        Row: {
+          access_token: string
+          created_at: string | null
+          expires_at: string
+          id: string
+          refresh_token: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          refresh_token: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          refresh_token?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       store_items: {
         Row: {
           category: string | null
