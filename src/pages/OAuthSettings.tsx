@@ -101,6 +101,9 @@ const OAuthSettings = () => {
         provider,
         options: {
           redirectTo: `${window.location.origin}/niranx/oauth-settings`,
+          scopes: provider === 'spotify'
+            ? 'user-read-email user-library-read user-library-modify playlist-read-private playlist-modify-public playlist-modify-private'
+            : undefined,
         },
       });
 
