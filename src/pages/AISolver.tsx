@@ -166,6 +166,29 @@ export default function AISolver() {
     }
   };
 
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.type.indexOf('image') !== -1) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        if (file) {
+          setSelectedImage(file);
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            setImagePreview(reader.result as string);
+            toast.success("Image pasted! Ready to analyze.");
+          };
+          reader.readAsDataURL(file);
+        }
+        break;
+      }
+    }
+  };
+
   const removeImage = () => {
     setSelectedImage(null);
     setImagePreview(null);
@@ -468,7 +491,8 @@ export default function AISolver() {
               <Textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Type your problem here..."
+                onPaste={handlePaste}
+                placeholder="Type your problem here or paste an image (Ctrl+V)..."
                 className="flex-1 min-h-[60px]"
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
