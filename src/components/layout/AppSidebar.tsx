@@ -59,6 +59,7 @@ import {
   Palette,
   Layout,
   Route as RouteIcon,
+  HelpCircle,
 } from "lucide-react";
 import {
   Sidebar,
@@ -242,6 +243,7 @@ const archiveNavigation = [
 // More Pages
 const morePages = [
   { title: "Website Guide", url: "/niranx/guide", icon: BookOpen },
+  { title: "App Guide", url: "#", icon: HelpCircle, onClick: () => window.dispatchEvent(new Event("restart-guide")) },
   { title: "Sitemap", url: "/niranx/sitemap", icon: Map },
   { title: "Old Pages", url: "/niranx/old-pages", icon: Archive },
   { title: "Feature Ideas", url: "/niranx/feature-suggestions", icon: Sparkles },
