@@ -14,7 +14,8 @@ import {
   Mic,
   Presentation,
   Archive,
-  Bot
+  Bot,
+  Cloud
 } from "lucide-react";
 
 const aiTools = [
@@ -114,6 +115,14 @@ const aiTools = [
     icon: Bot,
     route: "/niranx/openrouter-chat",
     color: "text-emerald-500",
+  },
+  {
+    id: "weather",
+    title: "Weather",
+    description: "Get real-time weather forecasts and conditions for any location",
+    icon: Cloud,
+    route: "/niranx/weather",
+    color: "text-sky-500",
   },
 ];
 
