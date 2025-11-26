@@ -12,7 +12,9 @@ import {
   Music,
   Brain,
   Mic,
-  Presentation
+  Presentation,
+  Archive,
+  Bot
 } from "lucide-react";
 
 const aiTools = [
@@ -81,14 +83,6 @@ const aiTools = [
     color: "text-amber-500",
   },
   {
-    id: "image-generator",
-    title: "AI Image Generator",
-    description: "Create stunning images with SubNP AI",
-    icon: Sparkles,
-    route: "/niranx/ai-image-generator",
-    color: "text-amber-500",
-  },
-  {
     id: "song-generator",
     title: "AI Song Generator",
     description: "Create custom songs with Sonauto AI",
@@ -104,6 +98,22 @@ const aiTools = [
     route: "/niranx",
     color: "text-indigo-500",
     note: "Available on all pages via the mic button"
+  },
+  {
+    id: "ai-library",
+    title: "AI Library",
+    description: "Access all your AI-generated content in one place",
+    icon: Archive,
+    route: "/niranx/ai-library",
+    color: "text-slate-500",
+  },
+  {
+    id: "openrouter-chat",
+    title: "OpenRouter Chat",
+    description: "Access hundreds of AI models from OpenAI, Anthropic, Google, Meta, and more",
+    icon: Bot,
+    route: "/niranx/openrouter-chat",
+    color: "text-emerald-500",
   },
 ];
 
