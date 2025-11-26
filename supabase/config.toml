@@ -73,3 +73,6 @@ verify_jwt = true
 [functions.summarize-youtube]
 verify_jwt = true
 
+[functions.generate-song]
+verify_jwt = true
+
