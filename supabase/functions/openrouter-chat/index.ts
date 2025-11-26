@@ -20,43 +20,68 @@ serve(async (req) => {
       throw new Error("OPENROUTER_API_KEY is not configured");
     }
 
-    // Get user from JWT
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
-      );
-    }
-
-    const supabaseClient = createClient(
+    // Create service role client to check admin settings
+    const serviceClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: authHeader } } }
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    // Check if unauthorized access is allowed
+    const { data: unauthorizedSetting } = await serviceClient.rpc('get_admin_setting', {
+      p_setting_key: 'allow_unauthorized_ai'
+    });
     
-    if (userError || !user) {
+    const allowUnauthorized = unauthorizedSetting?.enabled || false;
+
+    // Get user from JWT
+    const authHeader = req.headers.get('Authorization');
+    let user = null;
+    let supabaseClient = null;
+
+    if (authHeader) {
+      supabaseClient = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+        { global: { headers: { Authorization: authHeader } } }
+      );
+
+      const { data: { user: authenticatedUser }, error: userError } = await supabaseClient.auth.getUser();
+      
+      if (!userError && authenticatedUser) {
+        user = authenticatedUser;
+      }
+    }
+
+    // Check if user is required but not authenticated
+    if (!allowUnauthorized && !user) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
       );
     }
 
-    // Check and deduct credits
-    const { data: hasCredits, error: creditError } = await supabaseClient.rpc('deduct_credits', {
-      _user_id: user.id,
-      _amount: 1
+    // Check if unlimited credits are enabled
+    const { data: unlimitedSetting } = await serviceClient.rpc('get_admin_setting', {
+      p_setting_key: 'unlimited_credits_enabled'
     });
+    
+    const unlimitedCredits = unlimitedSetting?.enabled || false;
 
-    if (creditError) {
-      console.error('Credit deduction error:', creditError);
-    } else if (!hasCredits) {
-      return new Response(
-        JSON.stringify({ error: 'Insufficient credits. You need 1 credit to use OpenRouter.' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 402 }
-      );
+    // Only deduct credits if user is authenticated and unlimited credits are disabled
+    if (user && !unlimitedCredits && supabaseClient) {
+      const { data: hasCredits, error: creditError } = await supabaseClient.rpc('deduct_credits', {
+        _user_id: user.id,
+        _amount: 1
+      });
+
+      if (creditError) {
+        console.error('Credit deduction error:', creditError);
+      } else if (!hasCredits) {
+        return new Response(
+          JSON.stringify({ error: 'Insufficient credits. You need 1 credit to use OpenRouter.' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 402 }
+        );
+      }
     }
 
     console.log('Calling OpenRouter with model:', model);

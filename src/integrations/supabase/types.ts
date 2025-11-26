@@ -182,6 +182,30 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_settings: {
+        Row: {
+          id: string
+          setting_key: string
+          setting_value: Json
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          setting_key: string
+          setting_value: Json
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          setting_key?: string
+          setting_value?: Json
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       ai_conversations: {
         Row: {
           created_at: string | null
@@ -5430,6 +5454,7 @@ export type Database = {
       generate_class_code: { Args: never; Returns: string }
       generate_share_token: { Args: never; Returns: string }
       generate_theme_share_token: { Args: never; Returns: string }
+      get_admin_setting: { Args: { p_setting_key: string }; Returns: Json }
       get_current_streak: { Args: { p_user_id: string }; Returns: number }
       get_public_user_info: {
         Args: { target_user_id: string }

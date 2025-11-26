@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Users, FileText, MessageSquare, Activity, TrendingUp, Clock, Award, BarChart3 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -52,9 +53,13 @@ export default function AdminDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [roleSearchQuery, setRoleSearchQuery] = useState("");
   const [requestStatusFilter, setRequestStatusFilter] = useState<string>("all");
+  const [unlimitedCreditsEnabled, setUnlimitedCreditsEnabled] = useState(false);
+  const [allowUnauthorizedAI, setAllowUnauthorizedAI] = useState(false);
+  const [settingsLoading, setSettingsLoading] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
+    loadAdminSettings();
   }, []);
 
   const loadDashboardData = async () => {
@@ -77,6 +82,61 @@ export default function AdminDashboard() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadAdminSettings = async () => {
+    try {
+      const { data: unlimitedData } = await supabase.rpc('get_admin_setting', {
+        p_setting_key: 'unlimited_credits_enabled'
+      });
+      
+      const { data: unauthorizedData } = await supabase.rpc('get_admin_setting', {
+        p_setting_key: 'allow_unauthorized_ai'
+      });
+
+      if (unlimitedData && typeof unlimitedData === 'object' && 'enabled' in unlimitedData) {
+        setUnlimitedCreditsEnabled((unlimitedData as { enabled: boolean }).enabled || false);
+      }
+      
+      if (unauthorizedData && typeof unauthorizedData === 'object' && 'enabled' in unauthorizedData) {
+        setAllowUnauthorizedAI((unauthorizedData as { enabled: boolean }).enabled || false);
+      }
+    } catch (error) {
+      console.error('Error loading admin settings:', error);
+    }
+  };
+
+  const updateAdminSetting = async (key: string, enabled: boolean) => {
+    setSettingsLoading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      const { error } = await supabase
+        .from('admin_settings')
+        .update({
+          setting_value: { enabled },
+          updated_at: new Date().toISOString(),
+          updated_by: user?.id
+        })
+        .eq('setting_key', key);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Setting updated successfully",
+      });
+
+      loadAdminSettings();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update setting",
+        variant: "destructive",
+      });
+    } finally {
+      setSettingsLoading(false);
     }
   };
 
@@ -354,6 +414,63 @@ export default function AdminDashboard() {
           Monitor platform activity, manage feedback, and analyze usage statistics
         </p>
       </div>
+
+      {/* Global AI Settings Card */}
+      <Card className="border-primary/50">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Activity className="h-5 w-5" />
+            Global AI Settings
+          </CardTitle>
+          <CardDescription>
+            Control AI tool access and credit system for all users
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="space-y-1">
+              <div className="font-medium flex items-center gap-2">
+                <Award className="h-4 w-4" />
+                Unlimited Credits for All Users
+              </div>
+              <p className="text-sm text-muted-foreground">
+                When enabled, all users can use AI tools without credit limits
+              </p>
+            </div>
+            <Button
+              onClick={() => updateAdminSetting('unlimited_credits_enabled', !unlimitedCreditsEnabled)}
+              disabled={settingsLoading}
+              variant={unlimitedCreditsEnabled ? "default" : "outline"}
+              size="lg"
+            >
+              {unlimitedCreditsEnabled ? "Enabled ✓" : "Disabled"}
+            </Button>
+          </div>
+
+          <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="space-y-1">
+              <div className="font-medium flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                Allow Unauthorized AI Access
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Allow users who are not logged in to use AI tools
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="allow-unauthorized"
+                checked={allowUnauthorizedAI}
+                onCheckedChange={(checked) => updateAdminSetting('allow_unauthorized_ai', checked === true)}
+                disabled={settingsLoading}
+              />
+              <label htmlFor="allow-unauthorized" className="text-sm font-medium cursor-pointer">
+                {allowUnauthorizedAI ? "Enabled" : "Disabled"}
+              </label>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="grid w-full grid-cols-7 lg:w-auto">
