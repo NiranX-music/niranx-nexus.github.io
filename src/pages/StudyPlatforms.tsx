@@ -111,7 +111,7 @@ const StudyPlatforms = () => {
             <CardContent>
               <div className="flex gap-2">
                 <Input
-                  placeholder="Enter website URL (e.g., example.com)"
+                  placeholder="Type URL here"
                   value={customUrl}
                   onChange={(e) => setCustomUrl(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleCustomEmbed()}
