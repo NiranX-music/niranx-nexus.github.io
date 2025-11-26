@@ -15,7 +15,8 @@ import {
   Presentation,
   Archive,
   Bot,
-  Cloud
+  Cloud,
+  Network
 } from "lucide-react";
 
 const aiTools = [
@@ -123,6 +124,14 @@ const aiTools = [
     icon: Cloud,
     route: "/niranx/weather",
     color: "text-sky-500",
+  },
+  {
+    id: "topic-map-generator",
+    title: "AI Topic-Map Generator",
+    description: "Auto-generate concept maps, flowcharts, definitions, and formula relations",
+    icon: Network,
+    route: "/niranx/ai-topic-map-generator",
+    color: "text-teal-500",
   },
 ];
 
