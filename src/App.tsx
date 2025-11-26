@@ -128,6 +128,7 @@ import JoinClassroom from "./pages/teacher/JoinClassroom";
 import RoleManagement from "./pages/admin/RoleManagement";
 import FeedbackSubmission from "./pages/FeedbackSubmission";
 import FeedbackList from "./pages/admin/FeedbackList";
+import ManageUserControls from "./pages/ManageUserControls";
 import LiveClassSession from "./pages/teacher/LiveClassSession";
 import AIWebsiteGenerator from "./pages/AIWebsiteGenerator";
 import GeneratedWebsite from "./pages/GeneratedWebsite";
@@ -298,6 +299,11 @@ const App = () => (
                           <Route path="/admin/roles" element={
                             <AdminRoute>
                               <RoleManagement />
+                            </AdminRoute>
+                          } />
+                          <Route path="/admin/user-controls" element={
+                            <AdminRoute>
+                              <ManageUserControls />
                             </AdminRoute>
                           } />
                           <Route path="teacher/dashboard" element={
