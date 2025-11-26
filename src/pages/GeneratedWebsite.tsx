@@ -394,24 +394,117 @@ export default function GeneratedWebsite() {
 
           {/* Preview Tab */}
           <TabsContent value="preview" className="space-y-4 mt-0">
-            <Card className="overflow-hidden border-2">
-              <div className="bg-muted/50 border-b px-4 py-2 flex items-center gap-2">
-                <div className="flex gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                </div>
-                <span className="text-sm text-muted-foreground ml-4">Live Preview</span>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {/* Preview Section */}
+              <div className="lg:col-span-2">
+                <Card className="overflow-hidden border-2">
+                  <div className="bg-muted/50 border-b px-4 py-2 flex items-center gap-2">
+                    <div className="flex gap-2">
+                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                      <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    </div>
+                    <span className="text-sm text-muted-foreground ml-4">Live Preview</span>
+                  </div>
+                  <div className="bg-white">
+                    <iframe
+                      srcDoc={fullHTML}
+                      className="w-full h-[calc(100vh-280px)] border-0"
+                      title="Website Preview"
+                      sandbox="allow-scripts"
+                    />
+                  </div>
+                </Card>
               </div>
-              <div className="bg-white">
-                <iframe
-                  srcDoc={fullHTML}
-                  className="w-full h-[calc(100vh-280px)] border-0"
-                  title="Website Preview"
-                  sandbox="allow-scripts"
-                />
+
+              {/* AI Chat Section */}
+              <div className="lg:col-span-1">
+                <Card className="overflow-hidden h-full flex flex-col">
+                  <div className="bg-gradient-to-r from-primary/10 to-primary/5 border-b px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="h-5 w-5 text-primary" />
+                      <h3 className="font-semibold">AI Assistant</h3>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Ask me to upgrade your website!
+                    </p>
+                  </div>
+                  
+                  <ScrollArea className="flex-1 p-4">
+                    {chatMessages.length === 0 ? (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <Sparkles className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm font-medium mb-2">How can I help?</p>
+                        <div className="mt-4 space-y-2 text-xs text-left">
+                          <p className="font-medium">Try asking:</p>
+                          <ul className="space-y-1.5">
+                            <li className="bg-muted/50 p-2 rounded">💬 "Add a contact form"</li>
+                            <li className="bg-muted/50 p-2 rounded">🎨 "Make it more colorful"</li>
+                            <li className="bg-muted/50 p-2 rounded">📊 "Add a pricing section"</li>
+                            <li className="bg-muted/50 p-2 rounded">✨ "Add animations"</li>
+                          </ul>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {chatMessages.map((msg, idx) => (
+                          <div
+                            key={idx}
+                            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                          >
+                            <div
+                              className={`max-w-[85%] rounded-lg px-3 py-2 ${
+                                msg.role === "user"
+                                  ? "bg-primary text-primary-foreground"
+                                  : "bg-muted"
+                              }`}
+                            >
+                              <p className="text-xs whitespace-pre-wrap">{msg.content}</p>
+                            </div>
+                          </div>
+                        ))}
+                        {isAIProcessing && (
+                          <div className="flex justify-start">
+                            <div className="bg-muted rounded-lg px-3 py-2">
+                              <div className="flex items-center gap-2">
+                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-primary"></div>
+                                <span className="text-xs">Thinking...</span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        <div ref={chatEndRef} />
+                      </div>
+                    )}
+                  </ScrollArea>
+
+                  <div className="border-t p-3">
+                    <div className="flex gap-2">
+                      <Input
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            handleAIUpgrade();
+                          }
+                        }}
+                        placeholder="Ask AI to upgrade..."
+                        disabled={isAIProcessing}
+                        className="text-sm"
+                      />
+                      <Button
+                        size="icon"
+                        onClick={handleAIUpgrade}
+                        disabled={!chatInput.trim() || isAIProcessing}
+                      >
+                        <Send className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
               </div>
-            </Card>
+            </div>
           </TabsContent>
 
           {/* Code Tab */}
