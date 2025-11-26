@@ -66,6 +66,19 @@ const Weather = () => {
       if (error) throw error;
 
       setWeatherData(data);
+      
+      // Save to AI generations history
+      const { data: userData } = await supabase.auth.getUser();
+      if (userData.user) {
+        await supabase.from("ai_generations").insert({
+          user_id: userData.user.id,
+          tool_type: "weather",
+          prompt: query.trim(),
+          result_data: data,
+          status: "completed",
+        });
+      }
+      
       toast.success("Weather data loaded!");
     } catch (error: any) {
       console.error("Weather fetch error:", error);

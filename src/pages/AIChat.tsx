@@ -75,6 +75,18 @@ export default function AIChat() {
 
       if (error) throw error;
       setConversationId(data.id);
+      
+      // Save to AI generations history
+      await supabase.from("ai_generations").insert({
+        user_id: user.id,
+        tool_type: "ai_chat",
+        prompt: "New AI Chat Conversation",
+        result_data: {
+          conversation_id: data.id,
+          title: "New Chat",
+        },
+        status: "completed",
+      });
     } catch (error) {
       console.error("Error creating conversation:", error);
       toast.error("Failed to create conversation");

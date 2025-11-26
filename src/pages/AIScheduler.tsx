@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, BookOpen, Target, Sparkles, Loader2, Plus, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ScheduleItem {
   time: string;
@@ -79,6 +80,27 @@ export default function AIScheduler() {
 
       setSchedule(mockSchedule);
       setGeneratedOn(new Date().toLocaleString());
+      
+      // Save to AI generations history
+      try {
+        const { data: userData } = await supabase.auth.getUser();
+        if (userData?.user) {
+          const { error: historyError } = await supabase.from("ai_generations").insert([{
+            user_id: userData.user.id,
+            tool_type: "scheduler",
+            prompt: prompt.trim(),
+            result_data: JSON.parse(JSON.stringify({
+              schedule: mockSchedule,
+              generated_on: new Date().toISOString(),
+            })),
+            status: "completed",
+          }]);
+          if (historyError) console.error("Error saving to history:", historyError);
+        }
+      } catch (saveError) {
+        console.error("Error saving to history:", saveError);
+      }
+      
       toast.success("Schedule generated successfully!");
     } catch (error) {
       console.error("Error generating schedule:", error);
