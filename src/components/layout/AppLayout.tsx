@@ -25,6 +25,8 @@ import {
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { cleanupInvalidFavoriteIcons } from "@/utils/cleanupFavorites";
+import { FirstTimeGuide } from "@/components/FirstTimeGuide";
+
 interface AppLayoutProps {
   children: React.ReactNode;
 }
@@ -170,6 +172,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           <KeyboardShortcutsHelp open={shortcutsHelpOpen} onOpenChange={setShortcutsHelpOpen} />
         </SidebarInset>
       </div>
+      <FirstTimeGuide />
     </SidebarProvider>
   );
 }
