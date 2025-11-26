@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { GraduationCap, Users, ExternalLink, ArrowLeft, AlertTriangle } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { GraduationCap, Users, ExternalLink, ArrowLeft, AlertTriangle, Globe } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
 const StudyPlatforms = () => {
   const [activeEmbed, setActiveEmbed] = useState<{ name: string; url: string } | null>(null);
+  const [customUrl, setCustomUrl] = useState('');
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -44,6 +46,29 @@ const StudyPlatforms = () => {
 
   const handleClearEmbed = () => {
     setActiveEmbed(null);
+    setCustomUrl('');
+  };
+
+  const handleCustomEmbed = () => {
+    if (!customUrl.trim()) {
+      toast({
+        title: "URL Required",
+        description: "Please enter a website URL to embed",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    let formattedUrl = customUrl.trim();
+    if (!formattedUrl.startsWith('http://') && !formattedUrl.startsWith('https://')) {
+      formattedUrl = 'https://' + formattedUrl;
+    }
+
+    setActiveEmbed({ name: 'Custom Website', url: formattedUrl });
+    toast({
+      title: "Website Loaded",
+      description: "Custom website embedded successfully",
+    });
   };
 
   return (
@@ -70,6 +95,36 @@ const StudyPlatforms = () => {
             </p>
           </div>
         </div>
+
+        {/* Custom Website Embedder */}
+        {!activeEmbed && (
+          <Card className="max-w-4xl mx-auto">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Globe className="w-5 h-5" />
+                Embed Any Website
+              </CardTitle>
+              <CardDescription>
+                Enter any website URL to embed it here
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Enter website URL (e.g., example.com)"
+                  value={customUrl}
+                  onChange={(e) => setCustomUrl(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleCustomEmbed()}
+                  className="flex-1"
+                />
+                <Button onClick={handleCustomEmbed} className="gap-2">
+                  <Globe className="w-4 h-4" />
+                  Embed
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Platform Selection */}
         {!activeEmbed && (
