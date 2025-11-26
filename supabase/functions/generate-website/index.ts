@@ -28,38 +28,42 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
+        max_tokens: 3500, // Reduced limit to prevent truncation
         messages: [
           { 
             role: "system", 
-            content: `You are an expert web developer. Generate a complete, modern, and responsive landing page based on the user's description. 
+            content: `You are an expert web developer. Generate a CONCISE, modern landing page.
 
-CRITICAL: You MUST return ONLY a valid JSON object. NO markdown formatting, NO code blocks, NO explanations.
+CRITICAL RULES:
+1. Return ONLY valid JSON - no markdown, no code blocks, no explanations
+2. Keep code CONCISE - minify CSS, use short class names
+3. Inline ALL styles in HTML <style> tag
+4. Response format: {"html": "...", "css": "", "js": ""}
 
-RESPONSE FORMAT (return EXACTLY this structure):
-{
-  "html": "<!DOCTYPE html><html>...</html>",
-  "css": "/* Additional CSS if needed */",
-  "js": "// Additional JavaScript if needed"
-}
+CODE EFFICIENCY:
+- Use minified/compressed CSS (remove extra spaces, combine selectors)
+- Keep HTML semantic but concise
+- Single-page design only
+- Total response must be under 3000 tokens
 
-REQUIREMENTS:
-- The HTML must be a complete page with proper <!DOCTYPE html> structure
-- Use modern CSS with flexbox/grid, animations, and responsive design
-- Include ALL styles in a <style> tag within the HTML head
-- Make it visually stunning with gradients, shadows, and smooth transitions
-- Ensure mobile responsiveness with media queries
-- Use semantic HTML5 elements (header, nav, main, section, footer)
-- Add subtle animations and hover effects
-- DO NOT wrap the response in markdown code blocks
-- DO NOT add any explanations or comments outside the JSON
-- Return ONLY the JSON object, nothing else`
+DESIGN:
+- Modern, clean, professional
+- Responsive with mobile-first approach
+- Use CSS gradients, flexbox/grid
+- Add subtle hover effects
+- Semantic HTML5 structure
+
+IMPORTANT: Keep the code SHORT and EFFICIENT. Quality over quantity.`
           },
           {
             role: "user",
-            content: `Generate a landing page for: ${title}\n\nDescription: ${description}\n\nMake it modern, beautiful, and responsive.`
+            content: `Create a concise landing page:
+Title: ${title}
+Description: ${description}
+
+Generate efficient, minified code with modern design.`
           }
         ],
-        max_tokens: 4000,
       }),
     });
 
@@ -120,16 +124,42 @@ REQUIREMENTS:
         cleanContent = jsonMatch[0];
       }
       
+      // Check for truncated JSON
+      const openBraces = (cleanContent.match(/\{/g) || []).length;
+      const closeBraces = (cleanContent.match(/\}/g) || []).length;
+      
+      if (openBraces !== closeBraces) {
+        console.error("JSON appears truncated. Open braces:", openBraces, "Close braces:", closeBraces);
+        console.error("Content length:", cleanContent.length);
+        throw new Error("Response too large and got truncated. Try a simpler description.");
+      }
+      
       generatedCode = JSON.parse(cleanContent);
       
-      // Validate that we have the required fields
+      // Validate required fields
       if (!generatedCode.html) {
         throw new Error("Generated response missing 'html' field");
       }
+      
+      // Validate HTML has minimum content
+      if (generatedCode.html.length < 200) {
+        throw new Error("Generated HTML is too short. Please try again.");
+      }
+      
+      console.log("Successfully generated website. HTML length:", generatedCode.html.length);
+      
     } catch (parseError) {
-      console.error("Failed to parse AI response. Content preview:", content.substring(0, 500));
+      console.error("Failed to parse AI response.");
+      console.error("Content length:", content.length);
+      console.error("First 400 chars:", content.substring(0, 400));
+      console.error("Last 400 chars:", content.substring(Math.max(0, content.length - 400)));
       console.error("Parse error:", parseError);
-      throw new Error("AI returned invalid format. Please try again.");
+      
+      if (content.length > 15000) {
+        throw new Error("Response too large. Please use a shorter, simpler description.");
+      }
+      
+      throw new Error("Failed to parse AI response. Please try a simpler description.");
     }
 
     return new Response(
