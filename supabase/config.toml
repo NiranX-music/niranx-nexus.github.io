@@ -88,3 +88,6 @@ verify_jwt = false
 [functions.weather-api]
 verify_jwt = false
 
+[functions.generate-topic-map]
+verify_jwt = true
+
