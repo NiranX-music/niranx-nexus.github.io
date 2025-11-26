@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Music, Loader2, Download, Play, Pause } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Music, Loader2, Download, Play, Pause, Disc3 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -12,10 +13,12 @@ export default function AISongGenerator() {
   const [prompt, setPrompt] = useState("");
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(false);
+  const [extractStems, setExtractStems] = useState(false);
   const [generatedSong, setGeneratedSong] = useState<{
     audio_url: string;
     title: string;
     prompt: string;
+    stems?: Record<string, string>;
   } | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [audio] = useState(new Audio());
@@ -43,11 +46,30 @@ export default function AISongGenerator() {
         throw new Error(data.error);
       }
 
-      setGeneratedSong({
+      const songData = {
         audio_url: data.audio_url,
         title: title.trim() || data.title || "Untitled Song",
-        prompt: prompt
-      });
+        prompt: prompt,
+        stems: data.stems
+      };
+
+      setGeneratedSong(songData);
+
+      // Save to AI library
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase.from("ai_generations").insert({
+            user_id: user.id,
+            tool_type: "song",
+            prompt: prompt,
+            result_data: songData,
+            status: "completed"
+          });
+        }
+      } catch (saveError) {
+        console.error("Error saving to library:", saveError);
+      }
 
       toast.success("Song generated successfully!");
     } catch (error: any) {
@@ -136,6 +158,21 @@ export default function AISongGenerator() {
             />
           </div>
 
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="extractStems"
+              checked={extractStems}
+              onCheckedChange={(checked) => setExtractStems(checked as boolean)}
+              disabled={loading}
+            />
+            <Label 
+              htmlFor="extractStems" 
+              className="text-sm font-normal cursor-pointer"
+            >
+              Extract stems (vocals, drums, bass, etc.) - Coming Soon
+            </Label>
+          </div>
+
           <Button 
             onClick={generateSong} 
             disabled={loading || !prompt.trim()}
@@ -196,6 +233,32 @@ export default function AISongGenerator() {
               className="w-full"
               src={generatedSong.audio_url}
             />
+
+            {generatedSong.stems && (
+              <div className="space-y-2 pt-4 border-t">
+                <div className="flex items-center gap-2 mb-2">
+                  <Disc3 className="h-4 w-4 text-primary" />
+                  <h4 className="text-sm font-medium">Available Stems</h4>
+                </div>
+                {Object.entries(generatedSong.stems).map(([name, url]) => (
+                  <div key={name} className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted">
+                    <span className="text-sm capitalize">{name}</span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = `${generatedSong.title}-${name}.mp3`;
+                        a.click();
+                      }}
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       )}

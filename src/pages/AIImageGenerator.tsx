@@ -94,6 +94,26 @@ export default function AIImageGenerator() {
                 setProgress("Generation complete!");
                 toast.success("Image generated successfully!");
                 setLoading(false);
+
+                // Save to AI library
+                try {
+                  const { data: { user } } = await supabase.auth.getUser();
+                  if (user) {
+                    await supabase.from("ai_generations").insert({
+                      user_id: user.id,
+                      tool_type: "image",
+                      prompt: prompt,
+                      result_data: {
+                        image_url: data.imageUrl,
+                        title: prompt.slice(0, 50),
+                        model: model
+                      },
+                      status: "completed"
+                    });
+                  }
+                } catch (saveError) {
+                  console.error("Error saving to library:", saveError);
+                }
               } else if (data.status === "error") {
                 throw new Error(data.message || "Generation failed");
               }

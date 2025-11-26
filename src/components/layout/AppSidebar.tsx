@@ -108,6 +108,7 @@ const coreNavigation = [
 // AI Corner
 const aiCornerNavigation = [
   { title: "AI Hub", url: "/niranx/ai-corner", icon: Sparkles },
+  { title: "AI Library", url: "/niranx/ai-library", icon: Archive },
 ];
 
 // Study & Focus

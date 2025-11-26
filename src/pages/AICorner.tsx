@@ -81,6 +81,14 @@ const aiTools = [
     color: "text-amber-500",
   },
   {
+    id: "image-generator",
+    title: "AI Image Generator",
+    description: "Create stunning images with SubNP AI",
+    icon: Sparkles,
+    route: "/niranx/ai-image-generator",
+    color: "text-amber-500",
+  },
+  {
     id: "song-generator",
     title: "AI Song Generator",
     description: "Create custom songs with Sonauto AI",
