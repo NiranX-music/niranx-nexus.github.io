@@ -137,6 +137,7 @@ import NoteSummarizer from "./pages/NoteSummarizer";
 import YouTubeLibrary from "./pages/YouTubeLibrary";
 import AICorner from "./pages/AICorner";
 import AISongGenerator from "./pages/AISongGenerator";
+import AIPresentationGenerator from "./pages/AIPresentationGenerator";
 import { TeacherRoute } from "./components/TeacherRoute";
 
 const queryClient = new QueryClient();
@@ -270,6 +271,7 @@ const App = () => (
                           <Route path="/youtube-library" element={<YouTubeLibrary />} />
                           <Route path="/ai-corner" element={<AICorner />} />
                           <Route path="/ai-song-generator" element={<AISongGenerator />} />
+                          <Route path="/ai-presentation-generator" element={<AIPresentationGenerator />} />
                           <Route path="/admin" element={
                             <AdminRoute>
                               <AdminDashboard />
