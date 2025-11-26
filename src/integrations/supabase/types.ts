@@ -212,6 +212,39 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_generations: {
+        Row: {
+          created_at: string | null
+          id: string
+          prompt: string | null
+          result_data: Json | null
+          status: string | null
+          tool_type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          prompt?: string | null
+          result_data?: Json | null
+          status?: string | null
+          tool_type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          prompt?: string | null
+          result_data?: Json | null
+          status?: string | null
+          tool_type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_messages: {
         Row: {
           category: string | null

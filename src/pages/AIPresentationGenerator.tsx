@@ -47,12 +47,37 @@ export default function AIPresentationGenerator() {
         throw new Error(data.error);
       }
 
-      setGeneratedPresentation({
+      const presentationData = {
         presentation_id: data.presentation_id,
         download_url: data.download_url,
         edit_url: data.edit_url,
         credits_consumed: data.credits_consumed,
-      });
+      };
+
+      setGeneratedPresentation(presentationData);
+
+      // Save to AI library
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase.from("ai_generations").insert({
+            user_id: user.id,
+            tool_type: "presentation",
+            prompt: content,
+            result_data: {
+              download_url: data.download_url,
+              edit_url: data.edit_url,
+              slides: parseInt(nSlides),
+              title: content.slice(0, 50),
+              language: language,
+              template: template
+            },
+            status: "completed"
+          });
+        }
+      } catch (saveError) {
+        console.error("Error saving to library:", saveError);
+      }
 
       toast.success("Presentation generated successfully!");
     } catch (error: any) {

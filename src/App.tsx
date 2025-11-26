@@ -139,6 +139,7 @@ import AICorner from "./pages/AICorner";
 import AISongGenerator from "./pages/AISongGenerator";
 import AIPresentationGenerator from "./pages/AIPresentationGenerator";
 import AIImageGenerator from "./pages/AIImageGenerator";
+import AILibrary from "./pages/AILibrary";
 import { TeacherRoute } from "./components/TeacherRoute";
 
 const queryClient = new QueryClient();
@@ -274,6 +275,7 @@ const App = () => (
                           <Route path="/ai-song-generator" element={<AISongGenerator />} />
                           <Route path="/ai-presentation-generator" element={<AIPresentationGenerator />} />
                           <Route path="/ai-image-generator" element={<AIImageGenerator />} />
+                          <Route path="/ai-library" element={<AILibrary />} />
                           <Route path="/admin" element={
                             <AdminRoute>
                               <AdminDashboard />
