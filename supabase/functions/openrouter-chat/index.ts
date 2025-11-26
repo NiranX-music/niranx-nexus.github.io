@@ -52,36 +52,11 @@ serve(async (req) => {
       }
     }
 
-    // Check if user is required but not authenticated
     if (!allowUnauthorized && !user) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
       );
-    }
-
-    // Check if unlimited credits are enabled
-    const { data: unlimitedSetting } = await serviceClient.rpc('get_admin_setting', {
-      p_setting_key: 'unlimited_credits_enabled'
-    });
-    
-    const unlimitedCredits = unlimitedSetting?.enabled || false;
-
-    // Only deduct credits if user is authenticated and unlimited credits are disabled
-    if (user && !unlimitedCredits && supabaseClient) {
-      const { data: hasCredits, error: creditError } = await supabaseClient.rpc('deduct_credits', {
-        _user_id: user.id,
-        _amount: 1
-      });
-
-      if (creditError) {
-        console.error('Credit deduction error:', creditError);
-      } else if (!hasCredits) {
-        return new Response(
-          JSON.stringify({ error: 'Insufficient credits. You need 1 credit to use OpenRouter.' }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 402 }
-        );
-      }
     }
 
     console.log('Calling OpenRouter with model:', model);

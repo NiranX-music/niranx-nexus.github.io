@@ -6,7 +6,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, Download, Image as ImageIcon, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { CreditsDisplay } from "@/components/ui/CreditsDisplay";
 
 interface Model {
   model: string;
@@ -165,8 +164,6 @@ export default function AIImageGenerator() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <CreditsDisplay />
-      
       <div className="flex items-center gap-3 mb-8">
         <div className="p-3 rounded-lg bg-primary/10">
           <ImageIcon className="h-8 w-8 text-primary" />
