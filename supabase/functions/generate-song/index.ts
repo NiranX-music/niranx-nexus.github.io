@@ -12,8 +12,11 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt, title } = await req.json();
+    const { prompt, title, duration = 180 } = await req.json();
     const SONAUTO_API_KEY = Deno.env.get("SONAUTO_API_KEY");
+
+    // Validate duration (30 seconds to 300 seconds / 5 minutes)
+    const validatedDuration = Math.max(30, Math.min(300, duration));
 
     if (!SONAUTO_API_KEY) {
       throw new Error("SONAUTO_API_KEY is not configured");
@@ -71,6 +74,7 @@ serve(async (req) => {
         instrumental: false,
         num_songs: 1,
         output_format: 'mp3',
+        duration: validatedDuration,
       }),
     });
 
