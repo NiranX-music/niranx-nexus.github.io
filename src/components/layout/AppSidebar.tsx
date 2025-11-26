@@ -171,6 +171,7 @@ const debateNavigation = [
 // Tools & Utilities
 const toolsNavigation = [
   { title: "AI Website Generator", url: "/niranx/ai-website-generator", icon: Sparkles },
+  { title: "My Websites", url: "/niranx/ai-website-generator", icon: Layout },
   { title: "Infinite Chain", url: "/niranx/infinite-chain", icon: Infinity },
   { title: "Website Manager", url: "/niranx/website-manager", icon: Globe },
   { title: "Web Search", url: "/niranx/web-search", icon: Search },
