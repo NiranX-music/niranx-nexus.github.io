@@ -1792,7 +1792,10 @@ export type Database = {
           description: string
           html_code: string
           id: string
+          is_published: boolean | null
           js_code: string | null
+          published_at: string | null
+          slug: string | null
           title: string
           updated_at: string | null
           user_id: string
@@ -1803,7 +1806,10 @@ export type Database = {
           description: string
           html_code: string
           id?: string
+          is_published?: boolean | null
           js_code?: string | null
+          published_at?: string | null
+          slug?: string | null
           title: string
           updated_at?: string | null
           user_id: string
@@ -1814,7 +1820,10 @@ export type Database = {
           description?: string
           html_code?: string
           id?: string
+          is_published?: boolean | null
           js_code?: string | null
+          published_at?: string | null
+          slug?: string | null
           title?: string
           updated_at?: string | null
           user_id?: string

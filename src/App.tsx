@@ -130,6 +130,7 @@ import FeedbackList from "./pages/admin/FeedbackList";
 import LiveClassSession from "./pages/teacher/LiveClassSession";
 import AIWebsiteGenerator from "./pages/AIWebsiteGenerator";
 import GeneratedWebsite from "./pages/GeneratedWebsite";
+import PublishedWebsite from "./pages/PublishedWebsite";
 import { TeacherRoute } from "./components/TeacherRoute";
 
 const queryClient = new QueryClient();
@@ -321,6 +322,7 @@ const App = () => (
                       </AppLayout>
                     } />
                     <Route path="/shared/resource/:token" element={<SharedResource />} />
+                    <Route path="/w/:slug" element={<PublishedWebsite />} />
                     <Route path="*" element={<Landing />} />
                     </Routes>
                   </AuthProvider>
