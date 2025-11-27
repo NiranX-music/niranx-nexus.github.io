@@ -246,44 +246,78 @@ const LiveClassSession = () => {
 
   const toggleMic = async () => {
     try {
+      console.log('Toggle mic called. Current state:', { 
+        isMicOn, 
+        hasClient: !!clientRef.current,
+        selectedAudioDevice 
+      });
+
+      if (!clientRef.current) {
+        throw new Error('Not connected to class. Please refresh and try again.');
+      }
+
       if (!isMicOn) {
+        console.log('Creating audio track...');
         localAudioTrackRef.current = await AgoraRTC.createMicrophoneAudioTrack({
           microphoneId: selectedAudioDevice || undefined
         });
-        await clientRef.current?.publish(localAudioTrackRef.current);
+        
+        console.log('Publishing audio track...');
+        await clientRef.current.publish(localAudioTrackRef.current);
+        
         setIsMicOn(true);
         toast.success('Microphone enabled');
+        console.log('Microphone enabled successfully');
       } else {
         if (localAudioTrackRef.current) {
-          await clientRef.current?.unpublish(localAudioTrackRef.current);
+          console.log('Stopping microphone...');
+          await clientRef.current.unpublish(localAudioTrackRef.current);
           localAudioTrackRef.current.close();
           localAudioTrackRef.current = null;
         }
         setIsMicOn(false);
         toast.success('Microphone disabled');
+        console.log('Microphone disabled successfully');
       }
     } catch (error) {
       console.error('Error toggling mic:', error);
-      toast.error('Failed to toggle microphone');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast.error(`Failed to toggle microphone: ${errorMessage}`);
     }
   };
 
   const toggleCamera = async () => {
     try {
+      console.log('Toggle camera called. Current state:', { 
+        isCameraOn, 
+        hasClient: !!clientRef.current,
+        selectedVideoDevice 
+      });
+
+      if (!clientRef.current) {
+        throw new Error('Not connected to class. Please refresh and try again.');
+      }
+
       if (!isCameraOn) {
+        console.log('Creating camera track...');
         localVideoTrackRef.current = await AgoraRTC.createCameraVideoTrack({
           cameraId: selectedVideoDevice || undefined
         });
-        await clientRef.current?.publish(localVideoTrackRef.current);
+        
+        console.log('Publishing camera track...');
+        await clientRef.current.publish(localVideoTrackRef.current);
         
         // Display local video
+        console.log('Playing video in local-video container...');
         localVideoTrackRef.current.play('local-video');
         
         setIsCameraOn(true);
         toast.success('Camera enabled');
+        console.log('Camera enabled successfully');
       } else {
         if (localVideoTrackRef.current) {
-          await clientRef.current?.unpublish(localVideoTrackRef.current);
+          console.log('Stopping camera...');
+          await clientRef.current.unpublish(localVideoTrackRef.current);
           localVideoTrackRef.current.close();
           localVideoTrackRef.current = null;
           
@@ -293,10 +327,12 @@ const LiveClassSession = () => {
         }
         setIsCameraOn(false);
         toast.success('Camera disabled');
+        console.log('Camera disabled successfully');
       }
     } catch (error) {
       console.error('Error toggling camera:', error);
-      toast.error('Failed to toggle camera');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast.error(`Failed to toggle camera: ${errorMessage}`);
     }
   };
 
