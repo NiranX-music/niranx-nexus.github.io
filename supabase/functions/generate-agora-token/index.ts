@@ -34,8 +34,8 @@ serve(async (req) => {
       throw new Error('Agora credentials not configured');
     }
 
-    // Convert user ID to numeric UID (Agora requirement)
-    const uid = Math.abs(userId.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) % 2147483647);
+    // Generate a random numeric UID for this session to avoid conflicts
+    const uid = Math.floor(Math.random() * 2147483000) + 1;
 
     const currentTimestamp = Math.floor(Date.now() / 1000);
     const privilegeExpiredTs = currentTimestamp + 3600; // 1 hour
