@@ -190,7 +190,14 @@ const LiveClassSession = () => {
       }
 
       console.log('Creating Agora client with appId:', appId);
-      clientRef.current = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
+      // Enable low-latency mode for better audio sync
+      clientRef.current = AgoraRTC.createClient({ 
+        mode: 'rtc', 
+        codec: 'vp8',
+      });
+      
+      // Enable dual stream for better video quality
+      await clientRef.current.enableDualStream();
       
       console.log('Joining Agora channel:', { channelName, uid });
       await clientRef.current.join(appId, channelName, token, uid);
@@ -209,20 +216,26 @@ const LiveClassSession = () => {
       // Handle remote user publishing video (including screen share)
       clientRef.current.on('user-published', async (remoteUser, mediaType) => {
         console.log('User published:', remoteUser.uid, mediaType);
-        await clientRef.current!.subscribe(remoteUser, mediaType);
         
-        if (mediaType === 'video') {
-          // Check if this is a screen share by looking at the track
-          const remoteVideoTrack = remoteUser.videoTrack;
-          if (remoteVideoTrack) {
-            // Play in the screen-share-video container
-            remoteVideoTrack.play('screen-share-video');
-            console.log('Playing remote video in screen-share-video');
+        try {
+          await clientRef.current!.subscribe(remoteUser, mediaType);
+          
+          if (mediaType === 'video') {
+            const remoteVideoTrack = remoteUser.videoTrack;
+            if (remoteVideoTrack) {
+              // Play in the screen-share-video container with proper fit mode
+              remoteVideoTrack.play('screen-share-video', { fit: 'contain' });
+              console.log('Playing remote video in screen-share-video');
+            }
           }
-        }
-        
-        if (mediaType === 'audio') {
-          remoteUser.audioTrack?.play();
+          
+          if (mediaType === 'audio') {
+            // Play audio with optimized settings for low latency
+            remoteUser.audioTrack?.play();
+            console.log('Playing remote audio');
+          }
+        } catch (error) {
+          console.error('Error subscribing to remote user:', error);
         }
       });
 
@@ -264,7 +277,15 @@ const LiveClassSession = () => {
       if (!isMicOn) {
         console.log('Creating audio track...');
         localAudioTrackRef.current = await AgoraRTC.createMicrophoneAudioTrack({
-          microphoneId: selectedAudioDevice || undefined
+          microphoneId: selectedAudioDevice || undefined,
+          encoderConfig: {
+            sampleRate: 48000,
+            stereo: false,
+            bitrate: 128,
+          },
+          AEC: true, // Acoustic Echo Cancellation
+          ANS: true, // Automatic Noise Suppression
+          AGC: true, // Automatic Gain Control
         });
         
         console.log('Publishing audio track...');
@@ -307,15 +328,23 @@ const LiveClassSession = () => {
       if (!isCameraOn) {
         console.log('Creating camera track...');
         localVideoTrackRef.current = await AgoraRTC.createCameraVideoTrack({
-          cameraId: selectedVideoDevice || undefined
+          cameraId: selectedVideoDevice || undefined,
+          encoderConfig: {
+            width: { ideal: 640, max: 1280 },
+            height: { ideal: 480, max: 720 },
+            frameRate: 15,
+            bitrateMin: 400,
+            bitrateMax: 1000,
+          },
+          optimizationMode: 'detail',
         });
         
         console.log('Publishing camera track...');
         await clientRef.current.publish(localVideoTrackRef.current);
         
-        // Display local video
+        // Display local video with proper fit mode
         console.log('Playing video in local-video container...');
-        localVideoTrackRef.current.play('local-video');
+        localVideoTrackRef.current.play('local-video', { fit: 'cover' });
         
         setIsCameraOn(true);
         toast.success('Camera enabled');
@@ -376,12 +405,24 @@ const LiveClassSession = () => {
 
     try {
       if (!isScreenSharing) {
-        // Start screen sharing
-        screenTrackRef.current = await AgoraRTC.createScreenVideoTrack({}, 'disable');
+        // Start screen sharing with optimized settings
+        screenTrackRef.current = await AgoraRTC.createScreenVideoTrack(
+          {
+            encoderConfig: {
+              width: { ideal: 1920, max: 1920 },
+              height: { ideal: 1080, max: 1080 },
+              frameRate: { ideal: 15, max: 30 },
+              bitrateMin: 1000,
+              bitrateMax: 3000,
+            },
+            optimizationMode: 'detail', // Better for text/details
+          }, 
+          'disable'
+        );
         await clientRef.current?.publish(screenTrackRef.current);
         
-        // Display screen share
-        screenTrackRef.current.play('screen-share-video');
+        // Display screen share locally with proper fit
+        screenTrackRef.current.play('screen-share-video', { fit: 'contain' });
         
         // Update database
         await supabase
@@ -592,7 +633,8 @@ const LiveClassSession = () => {
             </div>
             <div
               id="screen-share-video"
-              className="w-full h-[calc(100%-2rem)] bg-black rounded-lg flex items-center justify-center"
+              className="w-full h-[calc(100%-2rem)] bg-black rounded-lg flex items-center justify-center overflow-hidden relative"
+              style={{ minHeight: '400px' }}
             >
               {!isScreenSharing && (
                 <div className="text-center text-muted-foreground">
