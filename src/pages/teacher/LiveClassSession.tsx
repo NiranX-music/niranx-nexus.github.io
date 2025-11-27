@@ -125,7 +125,7 @@ const LiveClassSession = () => {
       // Get Agora token and initialize client with determined role
       const tokenData = await getAgoraToken(channelName, user!.id, userIsTeacher);
       if (tokenData) {
-        await initializeAgora(channelName, tokenData.token, tokenData.appId);
+        await initializeAgora(channelName, tokenData.token, tokenData.appId, tokenData.uid);
       }
 
       // Record attendance
@@ -152,7 +152,7 @@ const LiveClassSession = () => {
     }
   };
 
-  const getAgoraToken = async (channelName: string, userId: string, userIsTeacher: boolean): Promise<{ token: string; appId: string } | null> => {
+  const getAgoraToken = async (channelName: string, userId: string, userIsTeacher: boolean): Promise<{ token: string; appId: string; uid: number } | null> => {
     try {
       const role = userIsTeacher ? 'host' : 'audience';
       console.log('Requesting Agora token for:', { channelName, userId, role });
@@ -166,14 +166,14 @@ const LiveClassSession = () => {
         throw error;
       }
       
-      if (!data || !data.token || !data.appId) {
+      if (!data || !data.token || !data.appId || typeof data.uid !== 'number') {
         console.error('Invalid response from token endpoint:', data);
         throw new Error('Invalid token response');
       }
 
-      console.log('Token and appId received successfully');
+      console.log('Token, appId and uid received successfully');
       setAgoraToken(data.token);
-      return { token: data.token, appId: data.appId };
+      return { token: data.token, appId: data.appId, uid: data.uid };
     } catch (error) {
       console.error('Error getting Agora token:', error);
       toast.error(`Failed to get video token: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -181,7 +181,7 @@ const LiveClassSession = () => {
     }
   };
 
-  const initializeAgora = async (channelName: string, token: string, appId: string) => {
+  const initializeAgora = async (channelName: string, token: string, appId: string, uid: number) => {
     try {
       if (!appId || !token) {
         console.error('Missing Agora credentials', { appId: !!appId, token: !!token });
@@ -191,9 +191,6 @@ const LiveClassSession = () => {
 
       console.log('Creating Agora client with appId:', appId);
       clientRef.current = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
-
-      // Convert userId to numeric UID (same as edge function)
-      const uid = Math.abs(user!.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) % 2147483647);
       
       console.log('Joining Agora channel:', { channelName, uid });
       await clientRef.current.join(appId, channelName, token, uid);
