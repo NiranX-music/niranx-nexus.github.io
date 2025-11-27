@@ -55,6 +55,54 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     loadDashboardData();
+
+    // Set up realtime subscriptions
+    const feedbackChannel = supabase
+      .channel('admin-feedback-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'feedback_suggestions' }, () => {
+        loadFeedback();
+        loadStats();
+      })
+      .subscribe();
+
+    const requestsChannel = supabase
+      .channel('admin-requests-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'admin_requests' }, () => {
+        loadAdminRequests();
+      })
+      .subscribe();
+
+    const rolesChannel = supabase
+      .channel('user-roles-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_roles' }, () => {
+        loadUserRoles();
+      })
+      .subscribe();
+
+    const resourcesChannel = supabase
+      .channel('resources-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'exam_resources' }, () => {
+        loadResources();
+        loadStats();
+      })
+      .subscribe();
+
+    const profilesChannel = supabase
+      .channel('profiles-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+        loadUsers();
+        loadUserRoles();
+        loadStats();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(feedbackChannel);
+      supabase.removeChannel(requestsChannel);
+      supabase.removeChannel(rolesChannel);
+      supabase.removeChannel(resourcesChannel);
+      supabase.removeChannel(profilesChannel);
+    };
   }, []);
 
   const loadDashboardData = async () => {
