@@ -43,6 +43,11 @@ const LiveClassSession = () => {
   const [selectedAudioDevice, setSelectedAudioDevice] = useState<string>('');
   const [selectedVideoDevice, setSelectedVideoDevice] = useState<string>('');
   
+  const [showChat, setShowChat] = useState(false);
+  const [showQuestions, setShowQuestions] = useState(false);
+  const [showParticipants, setShowParticipants] = useState(false);
+  const [showPoll, setShowPoll] = useState(false);
+  
   const clientRef = useRef<IAgoraRTCClient | null>(null);
   const localAudioTrackRef = useRef<IMicrophoneAudioTrack | null>(null);
   const localVideoTrackRef = useRef<ICameraVideoTrack | null>(null);
@@ -483,24 +488,26 @@ const LiveClassSession = () => {
   if (!classData) return null;
 
   return (
-    <div className="h-screen flex flex-col bg-background">
-      {/* Header */}
-      <div className="border-b bg-background/95 backdrop-blur-lg p-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">{classData.title}</h1>
-            {classData.description && (
-              <p className="text-sm text-muted-foreground">{classData.description}</p>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="destructive" className="animate-pulse">
-              LIVE
-            </Badge>
-            {isTeacher && <Badge variant="secondary">Teacher</Badge>}
+    <div className="h-screen flex bg-background">
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <div className="border-b bg-background/95 backdrop-blur-lg p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold">{classData.title}</h1>
+              {classData.description && (
+                <p className="text-sm text-muted-foreground">{classData.description}</p>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="destructive" className="animate-pulse">
+                LIVE
+              </Badge>
+              {isTeacher && <Badge variant="secondary">Teacher</Badge>}
+            </div>
           </div>
         </div>
-      </div>
 
       {/* Video Grid */}
       <div className="flex-1 overflow-auto p-4 flex flex-col gap-4 mb-20">
@@ -557,31 +564,113 @@ const LiveClassSession = () => {
         <div id="remote-videos-container" className="hidden"></div>
       </div>
 
-      {/* Controls */}
-      <LiveClassControls
-        isTeacher={isTeacher}
-        isScreenSharing={isScreenSharing}
-        onToggleScreenShare={toggleScreenShare}
-        isMicOn={isMicOn}
-        onToggleMic={toggleMic}
-        isCameraOn={isCameraOn}
-        onToggleCamera={toggleCamera}
-        isRecording={isRecording}
-        onToggleRecording={toggleRecording}
-        participantCount={participants}
-        onLeaveClass={leaveClass}
-        onEndClass={endClass}
-        onShowChat={() => toast.info('Chat feature')}
-        onShowQuestions={() => toast.info('Questions feature')}
-        onShowParticipants={() => toast.info('Participants list')}
-        onShowPoll={() => toast.info('Poll feature coming soon')}
-        audioDevices={audioDevices}
-        videoDevices={videoDevices}
-        selectedAudioDevice={selectedAudioDevice}
-        selectedVideoDevice={selectedVideoDevice}
-        onAudioDeviceChange={switchAudioDevice}
-        onVideoDeviceChange={switchVideoDevice}
-      />
+        {/* Controls */}
+        <LiveClassControls
+          isTeacher={isTeacher}
+          isScreenSharing={isScreenSharing}
+          onToggleScreenShare={toggleScreenShare}
+          isMicOn={isMicOn}
+          onToggleMic={toggleMic}
+          isCameraOn={isCameraOn}
+          onToggleCamera={toggleCamera}
+          isRecording={isRecording}
+          onToggleRecording={toggleRecording}
+          participantCount={participants}
+          onLeaveClass={leaveClass}
+          onEndClass={endClass}
+          onShowChat={() => setShowChat(!showChat)}
+          onShowQuestions={() => setShowQuestions(!showQuestions)}
+          onShowParticipants={() => setShowParticipants(!showParticipants)}
+          onShowPoll={() => setShowPoll(!showPoll)}
+          audioDevices={audioDevices}
+          videoDevices={videoDevices}
+          selectedAudioDevice={selectedAudioDevice}
+          selectedVideoDevice={selectedVideoDevice}
+          onAudioDeviceChange={switchAudioDevice}
+          onVideoDeviceChange={switchVideoDevice}
+        />
+      </div>
+
+      {/* Right Sidebar Panels */}
+      {(showChat || showQuestions || showParticipants || showPoll) && (
+        <div className="w-80 border-l bg-background/95 backdrop-blur-lg flex flex-col">
+          {/* Tabs */}
+          <div className="flex border-b">
+            {showChat && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex-1 rounded-none border-b-2 border-primary"
+              >
+                Chat
+              </Button>
+            )}
+            {showQuestions && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex-1 rounded-none"
+              >
+                Questions
+              </Button>
+            )}
+            {showParticipants && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex-1 rounded-none"
+              >
+                Participants
+              </Button>
+            )}
+            {showPoll && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex-1 rounded-none"
+              >
+                Poll
+              </Button>
+            )}
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 overflow-auto p-4">
+            {showChat && (
+              <div className="space-y-4">
+                <h3 className="font-semibold">Class Chat</h3>
+                <p className="text-sm text-muted-foreground">
+                  Chat functionality will be available here
+                </p>
+              </div>
+            )}
+            {showQuestions && (
+              <div className="space-y-4">
+                <h3 className="font-semibold">Questions & Doubts</h3>
+                <p className="text-sm text-muted-foreground">
+                  Raised questions will appear here
+                </p>
+              </div>
+            )}
+            {showParticipants && (
+              <div className="space-y-4">
+                <h3 className="font-semibold">Participants ({participants})</h3>
+                <p className="text-sm text-muted-foreground">
+                  List of participants in the class
+                </p>
+              </div>
+            )}
+            {showPoll && (
+              <div className="space-y-4">
+                <h3 className="font-semibold">Create Poll</h3>
+                <p className="text-sm text-muted-foreground">
+                  Poll creation interface for teachers
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
