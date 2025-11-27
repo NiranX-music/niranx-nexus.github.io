@@ -141,16 +141,28 @@ const LiveClassSession = () => {
 
   const getAgoraToken = async (channelName: string, userId: string): Promise<string | null> => {
     try {
+      console.log('Requesting Agora token for:', { channelName, userId, role: isTeacher ? 'host' : 'audience' });
+      
       const { data, error } = await supabase.functions.invoke('generate-agora-token', {
         body: { channelName, userId, role: isTeacher ? 'host' : 'audience' },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
+      }
+      
+      if (!data || !data.token) {
+        console.error('No token received:', data);
+        throw new Error('No token in response');
+      }
+
+      console.log('Token received successfully');
       setAgoraToken(data.token);
       return data.token as string;
     } catch (error) {
       console.error('Error getting Agora token:', error);
-      toast.error('Failed to get video token');
+      toast.error(`Failed to get video token: ${error instanceof Error ? error.message : 'Unknown error'}`);
       return null;
     }
   };
@@ -160,15 +172,19 @@ const LiveClassSession = () => {
       const appId = import.meta.env.VITE_AGORA_APP_ID;
 
       if (!appId || !token) {
-        console.error('Missing Agora credentials');
+        console.error('Missing Agora credentials', { appId: !!appId, token: !!token });
         toast.error('Video configuration is missing');
         return;
       }
 
+      console.log('Creating Agora client...');
       clientRef.current = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
 
-      // Join channel
-      await clientRef.current.join(appId, channelName, token, user!.id);
+      // Convert userId to numeric UID (same as edge function)
+      const uid = Math.abs(user!.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) % 2147483647);
+      
+      console.log('Joining Agora channel:', { channelName, uid });
+      await clientRef.current.join(appId, channelName, token, uid);
 
       // Track participant count
       clientRef.current.on('user-joined', (remoteUser) => {
