@@ -109,11 +109,11 @@ const LiveClassSession = () => {
       setClassData(data as any);
       setIsTeacher(data.teacher_id === user?.id);
 
-      // Get Agora token
-      await getAgoraToken(data.agora_channel_name, user!.id);
-
-      // Initialize Agora
-      await initializeAgora(data.agora_channel_name);
+      // Get Agora token and initialize client
+      const token = await getAgoraToken(data.agora_channel_name, user!.id);
+      if (token) {
+        await initializeAgora(data.agora_channel_name, token);
+      }
 
       // Record attendance
       await supabase
@@ -139,7 +139,7 @@ const LiveClassSession = () => {
     }
   };
 
-  const getAgoraToken = async (channelName: string, userId: string) => {
+  const getAgoraToken = async (channelName: string, userId: string): Promise<string | null> => {
     try {
       const { data, error } = await supabase.functions.invoke('generate-agora-token', {
         body: { channelName, userId, role: isTeacher ? 'host' : 'audience' },
@@ -147,25 +147,28 @@ const LiveClassSession = () => {
 
       if (error) throw error;
       setAgoraToken(data.token);
+      return data.token as string;
     } catch (error) {
       console.error('Error getting Agora token:', error);
       toast.error('Failed to get video token');
+      return null;
     }
   };
 
-  const initializeAgora = async (channelName: string) => {
+  const initializeAgora = async (channelName: string, token: string) => {
     try {
       const appId = import.meta.env.VITE_AGORA_APP_ID;
 
-      if (!appId || !agoraToken) {
+      if (!appId || !token) {
         console.error('Missing Agora credentials');
+        toast.error('Video configuration is missing');
         return;
       }
 
       clientRef.current = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
 
       // Join channel
-      await clientRef.current.join(appId, channelName, agoraToken, user!.id);
+      await clientRef.current.join(appId, channelName, token, user!.id);
 
       // Track participant count
       clientRef.current.on('user-joined', (remoteUser) => {
