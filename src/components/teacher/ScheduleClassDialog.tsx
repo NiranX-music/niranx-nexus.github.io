@@ -57,10 +57,15 @@ export const ScheduleClassDialog = ({ classroomId, onClassScheduled }: ScheduleC
 
       const { error } = await supabase.from('live_classes').insert({
         user_id: user.id,
+        classroom_id: classroomId,
+        teacher_id: user.id,
         title: formData.title,
+        description: formData.description || null,
         subject: formData.title,
         start_time: scheduledStart.toISOString(),
         end_time: scheduledEnd.toISOString(),
+        scheduled_start: scheduledStart.toISOString(),
+        scheduled_end: scheduledEnd.toISOString(),
         status: 'scheduled',
         agora_channel_name: channelName,
       } as any);
