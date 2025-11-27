@@ -24,19 +24,26 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
-    const { channelName, uid, role } = await req.json();
+    const { channelName, userId, role } = await req.json();
 
     const appId = Deno.env.get('AGORA_APP_ID');
     const appCertificate = Deno.env.get('AGORA_APP_CERTIFICATE');
 
     if (!appId || !appCertificate) {
+      console.error('Missing Agora credentials');
       throw new Error('Agora credentials not configured');
     }
+
+    // Convert user ID to numeric UID (Agora requirement)
+    const uid = Math.abs(userId.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) % 2147483647);
 
     const currentTimestamp = Math.floor(Date.now() / 1000);
     const privilegeExpiredTs = currentTimestamp + 3600; // 1 hour
 
-    const agoraRole = role === 'publisher' ? RtcRole.PUBLISHER : RtcRole.SUBSCRIBER;
+    // Map role: host/publisher -> PUBLISHER, audience/subscriber -> SUBSCRIBER
+    const agoraRole = (role === 'host' || role === 'publisher') ? RtcRole.PUBLISHER : RtcRole.SUBSCRIBER;
+    
+    console.log('Generating token:', { channelName, uid, role, agoraRole });
 
     const token = RtcTokenBuilder.buildTokenWithUid(
       appId,
