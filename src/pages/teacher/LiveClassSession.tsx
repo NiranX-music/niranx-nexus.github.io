@@ -244,7 +244,8 @@ const LiveClassSession = () => {
       setIsJoined(true);
     } catch (error) {
       console.error('Error initializing Agora:', error);
-      toast.error('Failed to join class');
+      const errMessage = error instanceof Error ? error.message : (error as any)?.code || 'Unknown error';
+      toast.error(`Failed to join class: ${errMessage}`);
       setIsJoined(false);
       clientRef.current = null;
     }
