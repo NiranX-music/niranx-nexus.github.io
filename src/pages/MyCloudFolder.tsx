@@ -130,7 +130,7 @@ export default function MyCloudFolder() {
       const filePath = `${user.id}/${driveId}${currentFolder}${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from("user-cloud")
+        .from("my-cloud")
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
@@ -138,7 +138,7 @@ export default function MyCloudFolder() {
       setUploadProgress(50);
 
       const { data: { publicUrl } } = supabase.storage
-        .from("user-cloud")
+        .from("my-cloud")
         .getPublicUrl(filePath);
 
       const { error: dbError } = await supabase
@@ -195,12 +195,12 @@ export default function MyCloudFolder() {
         const filePath = `${user.id}/${driveId}${folderPath}${fileName}`;
 
         const { error: uploadError } = await supabase.storage
-          .from("user-cloud")
+          .from("my-cloud")
           .upload(filePath, file);
 
         if (uploadError) throw uploadError;
 
-        const { data: urlData } = supabase.storage.from("user-cloud").getPublicUrl(filePath);
+        const { data: urlData } = supabase.storage.from("my-cloud").getPublicUrl(filePath);
 
         const { error: dbError } = await supabase.from("user_cloud_files").insert({
           user_id: user.id,
@@ -295,10 +295,10 @@ export default function MyCloudFolder() {
     if (!user || !confirm("Are you sure you want to delete this file?")) return;
 
     try {
-      const storagePath = filePath.split("/user-cloud/")[1];
+      const storagePath = filePath.split("/my-cloud/")[1];
       
       const { error: storageError } = await supabase.storage
-        .from("user-cloud")
+        .from("my-cloud")
         .remove([storagePath]);
 
       if (storageError) throw storageError;
