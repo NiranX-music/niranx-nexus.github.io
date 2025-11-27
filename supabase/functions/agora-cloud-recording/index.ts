@@ -30,9 +30,11 @@ serve(async (req) => {
     const customerSecret = Deno.env.get('AGORA_CUSTOMER_SECRET');
     
     if (!customerKey || !customerSecret) {
-      throw new Error('Agora Customer credentials not configured');
+      console.error('Missing Agora customer credentials');
+      throw new Error('Agora Cloud Recording credentials not configured. Please add AGORA_CUSTOMER_KEY and AGORA_CUSTOMER_SECRET secrets.');
     }
 
+    console.log('Using credentials for appId:', appId);
     const auth = btoa(`${customerKey}:${customerSecret}`);
     const baseUrl = `https://api.agora.io/v1/apps/${appId}/cloud_recording`;
 
