@@ -40,8 +40,8 @@ serve(async (req) => {
     const currentTimestamp = Math.floor(Date.now() / 1000);
     const privilegeExpiredTs = currentTimestamp + 3600; // 1 hour
 
-    // Map role: host/publisher -> PUBLISHER, audience/subscriber -> SUBSCRIBER
-    const agoraRole = (role === 'host' || role === 'publisher') ? RtcRole.PUBLISHER : RtcRole.SUBSCRIBER;
+    // For this classroom experience, allow all participants to publish
+    const agoraRole = RtcRole.PUBLISHER;
     
     console.log('Generating token:', { channelName, uid, role, agoraRole });
 
