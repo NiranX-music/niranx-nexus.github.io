@@ -121,9 +121,9 @@ const LiveClassSession = () => {
       }
 
       // Get Agora token and initialize client
-      const token = await getAgoraToken(channelName, user!.id);
-      if (token) {
-        await initializeAgora(channelName, token);
+      const tokenData = await getAgoraToken(channelName, user!.id);
+      if (tokenData) {
+        await initializeAgora(channelName, tokenData.token, tokenData.appId);
       }
 
       // Record attendance
@@ -150,7 +150,7 @@ const LiveClassSession = () => {
     }
   };
 
-  const getAgoraToken = async (channelName: string, userId: string): Promise<string | null> => {
+  const getAgoraToken = async (channelName: string, userId: string): Promise<{ token: string; appId: string } | null> => {
     try {
       console.log('Requesting Agora token for:', { channelName, userId, role: isTeacher ? 'host' : 'audience' });
       
@@ -163,14 +163,14 @@ const LiveClassSession = () => {
         throw error;
       }
       
-      if (!data || !data.token) {
-        console.error('No token received:', data);
-        throw new Error('No token in response');
+      if (!data || !data.token || !data.appId) {
+        console.error('Invalid response from token endpoint:', data);
+        throw new Error('Invalid token response');
       }
 
-      console.log('Token received successfully');
+      console.log('Token and appId received successfully');
       setAgoraToken(data.token);
-      return data.token as string;
+      return { token: data.token, appId: data.appId };
     } catch (error) {
       console.error('Error getting Agora token:', error);
       toast.error(`Failed to get video token: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -178,17 +178,15 @@ const LiveClassSession = () => {
     }
   };
 
-  const initializeAgora = async (channelName: string, token: string) => {
+  const initializeAgora = async (channelName: string, token: string, appId: string) => {
     try {
-      const appId = import.meta.env.VITE_AGORA_APP_ID;
-
       if (!appId || !token) {
         console.error('Missing Agora credentials', { appId: !!appId, token: !!token });
         toast.error('Video configuration is missing');
         return;
       }
 
-      console.log('Creating Agora client...');
+      console.log('Creating Agora client with appId:', appId);
       clientRef.current = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
 
       // Convert userId to numeric UID (same as edge function)
