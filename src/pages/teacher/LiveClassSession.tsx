@@ -109,10 +109,21 @@ const LiveClassSession = () => {
       setClassData(data as any);
       setIsTeacher(data.teacher_id === user?.id);
 
+      // Ensure we have a valid Agora channel name
+      const channelName = data.agora_channel_name || data.id;
+
+      // If the channel name was missing, persist it for future sessions
+      if (!data.agora_channel_name) {
+        await supabase
+          .from('live_classes')
+          .update({ agora_channel_name: channelName })
+          .eq('id', data.id);
+      }
+
       // Get Agora token and initialize client
-      const token = await getAgoraToken(data.agora_channel_name, user!.id);
+      const token = await getAgoraToken(channelName, user!.id);
       if (token) {
-        await initializeAgora(data.agora_channel_name, token);
+        await initializeAgora(channelName, token);
       }
 
       // Record attendance
