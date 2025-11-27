@@ -133,7 +133,7 @@ export default function Upload() {
         const filePath = `${fileName}`;
 
         const { error: uploadError } = await supabase.storage
-          .from('study-materials')
+          .from('files')
           .upload(filePath, file);
 
         if (uploadError) throw uploadError;
@@ -142,7 +142,7 @@ export default function Upload() {
 
         // Get public URL
         const { data: { publicUrl } } = supabase.storage
-          .from('study-materials')
+          .from('files')
           .getPublicUrl(filePath);
 
         // Determine category
