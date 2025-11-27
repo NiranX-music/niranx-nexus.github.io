@@ -107,7 +107,8 @@ const LiveClassSession = () => {
       }
 
       setClassData(data as any);
-      setIsTeacher(data.teacher_id === user?.id);
+      const userIsTeacher = data.teacher_id === user?.id;
+      setIsTeacher(userIsTeacher);
 
       // Ensure we have a valid Agora channel name
       const channelName = data.agora_channel_name || data.id;
@@ -120,8 +121,8 @@ const LiveClassSession = () => {
           .eq('id', data.id);
       }
 
-      // Get Agora token and initialize client
-      const tokenData = await getAgoraToken(channelName, user!.id);
+      // Get Agora token and initialize client with determined role
+      const tokenData = await getAgoraToken(channelName, user!.id, userIsTeacher);
       if (tokenData) {
         await initializeAgora(channelName, tokenData.token, tokenData.appId);
       }
@@ -150,12 +151,13 @@ const LiveClassSession = () => {
     }
   };
 
-  const getAgoraToken = async (channelName: string, userId: string): Promise<{ token: string; appId: string } | null> => {
+  const getAgoraToken = async (channelName: string, userId: string, userIsTeacher: boolean): Promise<{ token: string; appId: string } | null> => {
     try {
-      console.log('Requesting Agora token for:', { channelName, userId, role: isTeacher ? 'host' : 'audience' });
+      const role = userIsTeacher ? 'host' : 'audience';
+      console.log('Requesting Agora token for:', { channelName, userId, role });
       
       const { data, error } = await supabase.functions.invoke('generate-agora-token', {
-        body: { channelName, userId, role: isTeacher ? 'host' : 'audience' },
+        body: { channelName, userId, role },
       });
 
       if (error) {
