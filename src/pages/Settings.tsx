@@ -48,7 +48,8 @@ const Settings = () => {
     darkMode: theme === 'dark',
     dataCollection: false,
     emailUpdates: true,
-    pushNotifications: false
+    pushNotifications: false,
+    showQuickAccess: true
   });
 
   const [showMasterPasswordDialog, setShowMasterPasswordDialog] = useState(false);
@@ -157,6 +158,20 @@ const Settings = () => {
                 id="darkMode"
                 checked={settings.darkMode}
                 onCheckedChange={(checked) => updateSetting('darkMode', checked)}
+              />
+            </div>
+
+            <Separator />
+
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="showQuickAccess">Quick Access Button</Label>
+                <p className="text-sm text-muted-foreground">Show floating quick access dock at the bottom</p>
+              </div>
+              <Switch
+                id="showQuickAccess"
+                checked={settings.showQuickAccess}
+                onCheckedChange={(checked) => updateSetting('showQuickAccess', checked)}
               />
             </div>
 
