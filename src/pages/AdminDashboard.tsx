@@ -131,24 +131,30 @@ export default function AdminDashboard() {
 
   const loadStats = async () => {
     const [userStats, resourceStats, feedbackStats, studyStats] = await Promise.all([
-      supabase.from('admin_user_stats').select('*').single(),
-      supabase.from('admin_resource_stats').select('*').single(),
-      supabase.from('admin_feedback_stats').select('*').single(),
-      supabase.from('admin_study_stats').select('*').single(),
+      supabase.rpc('get_admin_user_stats'),
+      supabase.rpc('get_admin_resource_stats'),
+      supabase.rpc('get_admin_feedback_stats'),
+      supabase.rpc('get_admin_study_stats'),
     ]);
 
+    // Functions return arrays, so we take the first element
+    const userStatsData = userStats.data?.[0];
+    const resourceStatsData = resourceStats.data?.[0];
+    const feedbackStatsData = feedbackStats.data?.[0];
+    const studyStatsData = studyStats.data?.[0];
+
     setStats({
-      totalUsers: userStats.data?.total_users || 0,
-      activeUsersWeek: userStats.data?.active_users_week || 0,
-      newUsersMonth: userStats.data?.new_users_month || 0,
-      avgXp: Math.round(userStats.data?.avg_xp || 0),
-      totalResources: resourceStats.data?.total_resources || 0,
-      totalViews: resourceStats.data?.total_views || 0,
-      totalDownloads: resourceStats.data?.total_downloads || 0,
-      totalFeedback: feedbackStats.data?.total_feedback || 0,
-      pendingFeedback: feedbackStats.data?.pending || 0,
-      totalSessions: studyStats.data?.total_sessions || 0,
-      totalMinutes: studyStats.data?.total_minutes || 0,
+      totalUsers: Number(userStatsData?.total_users || 0),
+      activeUsersWeek: Number(userStatsData?.active_users_week || 0),
+      newUsersMonth: Number(userStatsData?.new_users_month || 0),
+      avgXp: Math.round(Number(userStatsData?.avg_xp || 0)),
+      totalResources: Number(resourceStatsData?.total_resources || 0),
+      totalViews: Number(resourceStatsData?.total_views || 0),
+      totalDownloads: Number(resourceStatsData?.total_downloads || 0),
+      totalFeedback: Number(feedbackStatsData?.total_feedback || 0),
+      pendingFeedback: Number(feedbackStatsData?.pending || 0),
+      totalSessions: Number(studyStatsData?.total_sessions || 0),
+      totalMinutes: Number(studyStatsData?.total_minutes || 0),
     });
   };
 

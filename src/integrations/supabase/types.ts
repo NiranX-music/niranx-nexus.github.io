@@ -5663,67 +5663,7 @@ export type Database = {
       }
     }
     Views: {
-      admin_feedback_stats: {
-        Row: {
-          avg_upvotes: number | null
-          completed: number | null
-          in_progress: number | null
-          pending: number | null
-          total_feedback: number | null
-          unique_submitters: number | null
-        }
-        Relationships: []
-      }
-      admin_resource_stats: {
-        Row: {
-          active_uploaders: number | null
-          shared_resources: number | null
-          total_downloads: number | null
-          total_resources: number | null
-          total_views: number | null
-        }
-        Relationships: []
-      }
-      admin_study_stats: {
-        Row: {
-          active_students: number | null
-          avg_session_duration: number | null
-          total_minutes: number | null
-          total_sessions: number | null
-        }
-        Relationships: []
-      }
-      admin_user_stats: {
-        Row: {
-          active_users_week: number | null
-          avg_level: number | null
-          avg_xp: number | null
-          new_users_month: number | null
-          total_users: number | null
-        }
-        Relationships: []
-      }
-      leaderboard_rankings: {
-        Row: {
-          alltime_rank: number | null
-          avatar_url: string | null
-          category: string | null
-          created_at: string | null
-          full_name: string | null
-          id: string | null
-          leaderboard_type: string | null
-          metadata: Json | null
-          monthly_rank: number | null
-          period_end: string | null
-          period_start: string | null
-          rank: number | null
-          score: number | null
-          updated_at: string | null
-          user_id: string | null
-          weekly_rank: number | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       calculate_level: { Args: { xp_amount: number }; Returns: number }
@@ -5732,8 +5672,71 @@ export type Database = {
       generate_class_code: { Args: never; Returns: string }
       generate_share_token: { Args: never; Returns: string }
       generate_theme_share_token: { Args: never; Returns: string }
+      get_admin_feedback_stats: {
+        Args: never
+        Returns: {
+          avg_upvotes: number
+          completed: number
+          in_progress: number
+          pending: number
+          total_feedback: number
+          unique_submitters: number
+        }[]
+      }
+      get_admin_resource_stats: {
+        Args: never
+        Returns: {
+          active_uploaders: number
+          shared_resources: number
+          total_downloads: number
+          total_resources: number
+          total_views: number
+        }[]
+      }
       get_admin_setting: { Args: { p_setting_key: string }; Returns: Json }
+      get_admin_study_stats: {
+        Args: never
+        Returns: {
+          active_students: number
+          avg_session_duration: number
+          total_minutes: number
+          total_sessions: number
+        }[]
+      }
+      get_admin_user_stats: {
+        Args: never
+        Returns: {
+          active_users_week: number
+          avg_level: number
+          avg_xp: number
+          new_users_month: number
+          total_users: number
+        }[]
+      }
       get_current_streak: { Args: { p_user_id: string }; Returns: number }
+      get_leaderboard_rankings: {
+        Args: {
+          p_category?: string
+          p_leaderboard_type?: string
+          p_limit?: number
+        }
+        Returns: {
+          alltime_rank: number
+          avatar_url: string
+          category: string
+          created_at: string
+          full_name: string
+          id: string
+          leaderboard_type: string
+          metadata: Json
+          monthly_rank: number
+          period_end: string
+          period_start: string
+          score: number
+          user_id: string
+          weekly_rank: number
+        }[]
+      }
       get_public_user_info: {
         Args: { target_user_id: string }
         Returns: {
