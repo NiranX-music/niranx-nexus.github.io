@@ -61,7 +61,7 @@ const MacDock = () => {
   }, []);
 
   useEffect(() => {
-    const handleStorageChange = () => {
+    const handleSettingsChange = () => {
       const savedSettings = localStorage.getItem('appSettings');
       if (savedSettings) {
         const settings = JSON.parse(savedSettings);
@@ -69,8 +69,12 @@ const MacDock = () => {
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('storage', handleSettingsChange);
+    window.addEventListener('appSettingsChanged', handleSettingsChange as EventListener);
+    return () => {
+      window.removeEventListener('storage', handleSettingsChange);
+      window.removeEventListener('appSettingsChanged', handleSettingsChange as EventListener);
+    };
   }, []);
 
   const handleItemClick = (route: string) => {

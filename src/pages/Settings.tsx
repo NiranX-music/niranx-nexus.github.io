@@ -65,6 +65,9 @@ const Settings = () => {
     const newSettings = { ...settings, [key]: value };
     setSettings(newSettings);
     localStorage.setItem('appSettings', JSON.stringify(newSettings));
+
+    // Notify other components (like MacDock) in the same tab
+    window.dispatchEvent(new Event('appSettingsChanged'));
     
     if (key === 'darkMode') {
       setTheme(value ? 'dark' : 'light');
