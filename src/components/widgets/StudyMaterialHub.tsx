@@ -129,14 +129,14 @@ const StudyMaterialHub = () => {
         // Upload file to Supabase Storage
         const filePath = `${Date.now()}-${file.name}`;
         const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('study-materials')
+          .from('files')
           .upload(filePath, file);
 
         if (uploadError) throw uploadError;
 
         // Get public URL
         const { data: { publicUrl } } = supabase.storage
-          .from('study-materials')
+          .from('files')
           .getPublicUrl(filePath);
 
         // Save metadata to database

@@ -171,13 +171,13 @@ const FolderFileManager = () => {
       try {
         const filePath = `${Date.now()}-${file.name}`;
         const { error: uploadError } = await supabase.storage
-          .from('study-materials')
+          .from('files')
           .upload(filePath, file);
 
         if (uploadError) throw uploadError;
 
         const { data: { publicUrl } } = supabase.storage
-          .from('study-materials')
+          .from('files')
           .getPublicUrl(filePath);
 
         const fileType = getFileType(file.type, file.name);
