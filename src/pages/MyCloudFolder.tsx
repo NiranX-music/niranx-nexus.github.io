@@ -30,12 +30,20 @@ interface CloudFile {
   tags?: string[];
 }
 
+interface CloudFolder {
+  id: string;
+  folder_name: string;
+  folder_path: string;
+  parent_path: string | null;
+  created_at: string;
+}
+
 export default function MyCloudFolder() {
   const { user } = useAuth();
   const { driveId, "*": folderPath = "" } = useParams();
   const navigate = useNavigate();
   const [files, setFiles] = useState<CloudFile[]>([]);
-  const [folders, setFolders] = useState<string[]>([]);
+  const [folders, setFolders] = useState<CloudFolder[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -82,7 +90,8 @@ export default function MyCloudFolder() {
     if (!user || !driveId) return;
 
     try {
-      const { data, error } = await supabase
+      // Fetch files in current folder
+      const { data: filesData, error: filesError } = await supabase
         .from("user_cloud_files")
         .select("*")
         .eq("user_id", user.id)
@@ -90,19 +99,20 @@ export default function MyCloudFolder() {
         .eq("folder_path", currentFolder)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      setFiles(data || []);
+      if (filesError) throw filesError;
+      setFiles(filesData || []);
 
-      // Extract unique folders
-      const folderSet = new Set<string>();
-      (data || []).forEach((file) => {
-        const path = file.folder_path.replace(currentFolder, "");
-        const parts = path.split("/").filter(Boolean);
-        if (parts.length > 0) {
-          folderSet.add(parts[0]);
-        }
-      });
-      setFolders(Array.from(folderSet));
+      // Fetch folders in current path
+      const { data: foldersData, error: foldersError } = await supabase
+        .from("user_cloud_folders")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("drive_id", driveId)
+        .eq("parent_path", currentFolder)
+        .order("created_at", { ascending: false });
+
+      if (foldersError) throw foldersError;
+      setFolders(foldersData || []);
     } catch (error) {
       console.error("Error fetching files:", error);
       toast({
@@ -234,18 +244,73 @@ export default function MyCloudFolder() {
     }
   };
 
-  const handleCreateFolder = () => {
-    if (!newFolderName.trim()) return;
+  const handleCreateFolder = async () => {
+    if (!newFolderName.trim() || !user || !driveId) return;
     
-    const newPath = currentFolder + newFolderName + "/";
-    navigate(`/niranx/my-cloud/${driveId}${newPath.slice(1)}`);
-    setNewFolderName("");
-    setFolderDialogOpen(false);
+    try {
+      const newPath = currentFolder === "/" 
+        ? `/${newFolderName}/`
+        : `${currentFolder}${newFolderName}/`;
+
+      const { error } = await supabase
+        .from("user_cloud_folders")
+        .insert({
+          user_id: user.id,
+          drive_id: driveId,
+          folder_name: newFolderName,
+          folder_path: newPath,
+          parent_path: currentFolder,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success!",
+        description: `Folder "${newFolderName}" created`,
+      });
+
+      setNewFolderName("");
+      setFolderDialogOpen(false);
+      fetchFiles();
+    } catch (error: any) {
+      console.error("Create folder error:", error);
+      toast({
+        title: "Failed to create folder",
+        description: error.message || "Failed to create folder",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleFolderClick = (folderName: string) => {
-    const newPath = currentFolder + folderName + "/";
-    navigate(`/niranx/my-cloud/${driveId}${newPath.slice(1)}`);
+  const handleFolderClick = (folderPath: string) => {
+    navigate(`/niranx/my-cloud/${driveId}${folderPath.slice(1)}`);
+  };
+
+  const handleDeleteFolder = async (folderId: string, folderName: string) => {
+    if (!confirm(`Delete "${folderName}" and all its contents?`)) return;
+
+    try {
+      const { error } = await supabase
+        .from("user_cloud_folders")
+        .delete()
+        .eq("id", folderId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Deleted",
+        description: "Folder deleted successfully",
+      });
+
+      fetchFiles();
+    } catch (error: any) {
+      console.error("Delete folder error:", error);
+      toast({
+        title: "Delete failed",
+        description: error.message || "Failed to delete folder",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleGoBack = () => {
@@ -404,18 +469,18 @@ export default function MyCloudFolder() {
             {folders.length > 0 && (
               <>
                 <div className="pt-4 pb-2 px-2 text-xs font-semibold text-muted-foreground">
-                  Current Folder
+                  Folders
                 </div>
                 {folders.map((folder) => (
                   <Button
-                    key={folder}
+                    key={folder.id}
                     variant="ghost"
                     size="sm"
                     className="w-full justify-start gap-2"
-                    onClick={() => handleFolderClick(folder)}
+                    onClick={() => handleFolderClick(folder.folder_path)}
                   >
                     <Folder className="w-4 h-4 text-yellow-500" />
-                    {folder}
+                    {folder.folder_name}
                   </Button>
                 ))}
               </>
@@ -495,6 +560,34 @@ export default function MyCloudFolder() {
               </div>
               
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                {/* Folders */}
+                {folders.map((folder) => (
+                  <div key={folder.id} className="group cursor-pointer">
+                    <div 
+                      className="aspect-square rounded-lg border border-border/50 bg-card/50 hover:bg-accent/10 transition-colors flex flex-col items-center justify-center gap-2 p-4"
+                      onClick={() => handleFolderClick(folder.folder_path)}
+                    >
+                      <FolderOpen className="w-8 h-8 text-primary" />
+                    </div>
+                    <div className="mt-2 text-center">
+                      <p className="text-sm font-medium truncate">{folder.folder_name}</p>
+                      <div className="flex items-center justify-center gap-1 mt-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 px-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteFolder(folder.id, folder.folder_name);
+                          }}
+                        >
+                          <Trash2 className="w-3 h-3 text-destructive" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
                 {/* Desktop folder */}
                 <div className="group cursor-pointer">
                   <div className="aspect-square rounded-lg border border-border/50 bg-card/50 hover:bg-accent/10 transition-colors flex flex-col items-center justify-center gap-2 p-4">
@@ -506,13 +599,13 @@ export default function MyCloudFolder() {
                 {/* Dynamic folders */}
                 {folders.map((folder) => (
                   <div
-                    key={folder}
+                    key={folder.id}
                     className="group cursor-pointer"
-                    onClick={() => handleFolderClick(folder)}
+                    onClick={() => handleFolderClick(folder.folder_path)}
                   >
                     <div className="aspect-square rounded-lg border border-border/50 bg-card/50 hover:bg-accent/10 transition-colors flex flex-col items-center justify-center gap-2 p-4">
                       <Folder className="w-12 h-12 text-yellow-500" />
-                      <span className="text-xs text-center truncate w-full">{folder}</span>
+                      <span className="text-xs text-center truncate w-full">{folder.folder_name}</span>
                     </div>
                   </div>
                 ))}

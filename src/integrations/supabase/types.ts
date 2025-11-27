@@ -5011,6 +5011,47 @@ export type Database = {
         }
         Relationships: []
       }
+      user_cloud_folders: {
+        Row: {
+          created_at: string | null
+          drive_id: string
+          folder_name: string
+          folder_path: string
+          id: string
+          parent_path: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          drive_id: string
+          folder_name: string
+          folder_path: string
+          id?: string
+          parent_path?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          drive_id?: string
+          folder_name?: string
+          folder_path?: string
+          id?: string
+          parent_path?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_cloud_folders_drive_id_fkey"
+            columns: ["drive_id"]
+            isOneToOne: false
+            referencedRelation: "user_cloud_drives"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_currency: {
         Row: {
           coins: number | null
