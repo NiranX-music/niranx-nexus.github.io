@@ -31,6 +31,7 @@ const LiveClassSession = () => {
   const [agoraToken, setAgoraToken] = useState<string>('');
   const [isTeacher, setIsTeacher] = useState(false);
   const [participants, setParticipants] = useState<number>(0);
+  const [isJoined, setIsJoined] = useState(false);
   
   const [isMicOn, setIsMicOn] = useState(false);
   const [isCameraOn, setIsCameraOn] = useState(false);
@@ -240,9 +241,12 @@ const LiveClassSession = () => {
       });
 
       setParticipants(clientRef.current.remoteUsers.length + 1);
+      setIsJoined(true);
     } catch (error) {
       console.error('Error initializing Agora:', error);
       toast.error('Failed to join class');
+      setIsJoined(false);
+      clientRef.current = null;
     }
   };
 
@@ -251,11 +255,12 @@ const LiveClassSession = () => {
       console.log('Toggle mic called. Current state:', { 
         isMicOn, 
         hasClient: !!clientRef.current,
+        isJoined,
         selectedAudioDevice 
       });
 
-      if (!clientRef.current) {
-        throw new Error('Not connected to class. Please refresh and try again.');
+      if (!clientRef.current || !isJoined) {
+        throw new Error('Class is still connecting. Please wait a few seconds and try again.');
       }
 
       if (!isMicOn) {
@@ -293,11 +298,12 @@ const LiveClassSession = () => {
       console.log('Toggle camera called. Current state:', { 
         isCameraOn, 
         hasClient: !!clientRef.current,
+        isJoined,
         selectedVideoDevice 
       });
 
-      if (!clientRef.current) {
-        throw new Error('Not connected to class. Please refresh and try again.');
+      if (!clientRef.current || !isJoined) {
+        throw new Error('Class is still connecting. Please wait a few seconds and try again.');
       }
 
       if (!isCameraOn) {
