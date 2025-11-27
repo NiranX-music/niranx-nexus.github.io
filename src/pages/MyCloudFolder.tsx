@@ -494,7 +494,7 @@ export default function MyCloudFolder() {
         {/* Top Toolbar */}
         <div className="h-14 border-b border-border px-4 flex items-center justify-between bg-card/50">
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" onClick={() => setFolderDialogOpen(true)}>
               <Plus className="w-4 h-4 mr-2" />
               New
             </Button>
