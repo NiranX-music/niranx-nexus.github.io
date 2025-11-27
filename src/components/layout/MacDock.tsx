@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ChevronUp, 
@@ -49,11 +49,35 @@ const dockItems: DockItem[] = [
 
 const MacDock = () => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const savedSettings = localStorage.getItem('appSettings');
+    if (savedSettings) {
+      const settings = JSON.parse(savedSettings);
+      setIsVisible(settings.showQuickAccess !== false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const savedSettings = localStorage.getItem('appSettings');
+      if (savedSettings) {
+        const settings = JSON.parse(savedSettings);
+        setIsVisible(settings.showQuickAccess !== false);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const handleItemClick = (route: string) => {
     navigate(route);
   };
+
+  if (!isVisible) return null;
 
   return (
     <>
