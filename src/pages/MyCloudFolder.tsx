@@ -283,7 +283,7 @@ export default function MyCloudFolder() {
   };
 
   const handleFolderClick = (folderPath: string) => {
-    navigate(`/niranx/my-cloud/${driveId}${folderPath.slice(1)}`);
+    navigate(`/niranx/my-cloud/${driveId}/${folderPath.slice(1)}`);
   };
 
   const handleDeleteFolder = async (folderId: string, folderName: string) => {
@@ -320,7 +320,7 @@ export default function MyCloudFolder() {
     } else {
       parts.pop();
       const newPath = parts.length > 0 ? "/" + parts.join("/") + "/" : "/";
-      navigate(`/niranx/my-cloud/${driveId}${newPath.slice(1)}`);
+      navigate(`/niranx/my-cloud/${driveId}/${newPath.slice(1)}`);
     }
   };
 
