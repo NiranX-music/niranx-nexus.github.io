@@ -438,10 +438,20 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
         setLocalScreenTrack(null);
         setIsSharingScreen(false);
         
+        // Clear the video element
+        if (localVideoRef.current) {
+          localVideoRef.current.innerHTML = '';
+        }
+        
         // Resume camera
-        if (localVideoTrack && localVideoRef.current) {
+        if (localVideoTrack) {
           await client.publish([localVideoTrack]);
-          localVideoTrack.play(localVideoRef.current);
+          if (localVideoRef.current) {
+            // Small delay to ensure clean transition
+            setTimeout(() => {
+              localVideoTrack.play(localVideoRef.current!);
+            }, 100);
+          }
         }
         
         toast({ title: "Screen sharing stopped", description: "Camera is now active" });
@@ -452,6 +462,11 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
           optimizationMode: "detail"
         });
         
+        // Clear video element first
+        if (localVideoRef.current) {
+          localVideoRef.current.innerHTML = '';
+        }
+        
         // Unpublish camera before publishing screen
         if (localVideoTrack) {
           await client.unpublish([localVideoTrack]);
@@ -459,6 +474,7 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
         
         // Handle screen sharing cancellation
         (screenTrack as ILocalVideoTrack).on("track-ended", async () => {
+          console.log("Screen sharing ended by user");
           await toggleScreenShare(); // Auto-stop when user stops sharing
         });
         
@@ -475,6 +491,11 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
     } catch (error: any) {
       console.error('Error toggling screen share:', error);
       
+      // Clear video element on error
+      if (localVideoRef.current) {
+        localVideoRef.current.innerHTML = '';
+      }
+      
       // Reset state if error occurs
       if (localScreenTrack) {
         localScreenTrack.close();
@@ -483,9 +504,13 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
       setIsSharingScreen(false);
       
       // Resume camera if available
-      if (localVideoTrack && localVideoRef.current) {
+      if (localVideoTrack) {
         await client.publish([localVideoTrack]);
-        localVideoTrack.play(localVideoRef.current);
+        if (localVideoRef.current) {
+          setTimeout(() => {
+            localVideoTrack.play(localVideoRef.current!);
+          }, 100);
+        }
       }
       
       toast({ 
