@@ -6,8 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Calendar, Clock, BookOpen, Target } from 'lucide-react';
+import { Checkbox } from "@/components/ui/checkbox";
+import { Plus, Calendar, Clock, BookOpen, Target, Settings } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ScheduledClass {
   id: string;
@@ -25,6 +27,8 @@ const Scheduler = () => {
   const [classes, setClasses] = useState<ScheduledClass[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<{day: string, time: string} | null>(null);
+  const [columnSettingsOpen, setColumnSettingsOpen] = useState(false);
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(['subject', 'time', 'duration', 'type', 'professor', 'room']);
   const { toast } = useToast();
 
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -41,6 +45,12 @@ const Scheduler = () => {
 
   useEffect(() => {
     const savedClasses = localStorage.getItem('scheduledClasses');
+    const savedColumns = localStorage.getItem('schedulerColumns');
+    
+    if (savedColumns) {
+      setVisibleColumns(JSON.parse(savedColumns));
+    }
+    
     if (savedClasses) {
       setClasses(JSON.parse(savedClasses));
     } else {
@@ -87,9 +97,20 @@ const Scheduler = () => {
 
   useEffect(() => {
     localStorage.setItem('scheduledClasses', JSON.stringify(classes));
-    // Also save to a separate key for dashboard access
     localStorage.setItem('upcomingClasses', JSON.stringify(classes));
   }, [classes]);
+
+  useEffect(() => {
+    localStorage.setItem('schedulerColumns', JSON.stringify(visibleColumns));
+  }, [visibleColumns]);
+
+  const toggleColumn = (column: string) => {
+    setVisibleColumns(prev => 
+      prev.includes(column) 
+        ? prev.filter(col => col !== column)
+        : [...prev, column]
+    );
+  };
 
   const addNewClass = (formData: {
     subject: string;
@@ -148,19 +169,53 @@ const Scheduler = () => {
             <h1 className="text-3xl font-bold mb-2">Class Scheduler</h1>
             <p className="text-muted-foreground">Manage your weekly class schedule</p>
           </div>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Class
-              </Button>
-            </DialogTrigger>
-            <AddClassDialog 
-              onAddClass={addNewClass} 
-              selectedTimeSlot={selectedTimeSlot}
-              onClose={() => setIsDialogOpen(false)}
-            />
-          </Dialog>
+          <div className="flex gap-2">
+            <Dialog open={columnSettingsOpen} onOpenChange={setColumnSettingsOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Columns
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Customize Columns</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  {[
+                    { id: 'subject', label: 'Subject' },
+                    { id: 'time', label: 'Time' },
+                    { id: 'duration', label: 'Duration' },
+                    { id: 'type', label: 'Type' },
+                    { id: 'professor', label: 'Professor' },
+                    { id: 'room', label: 'Room' }
+                  ].map(column => (
+                    <div key={column.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={column.id}
+                        checked={visibleColumns.includes(column.id)}
+                        onCheckedChange={() => toggleColumn(column.id)}
+                      />
+                      <Label htmlFor={column.id}>{column.label}</Label>
+                    </div>
+                  ))}
+                </div>
+              </DialogContent>
+            </Dialog>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Class
+                </Button>
+              </DialogTrigger>
+              <AddClassDialog 
+                onAddClass={addNewClass} 
+                selectedTimeSlot={selectedTimeSlot}
+                onClose={() => setIsDialogOpen(false)}
+              />
+            </Dialog>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -278,19 +333,31 @@ const Scheduler = () => {
                         className="w-4 h-4 rounded"
                         style={{ backgroundColor: cls.color }}
                       />
-                      <div>
-                        <h4 className="font-medium">{cls.subject}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          {cls.day} at {formatTime12Hour(cls.time)} ({cls.duration} min)
-                        </p>
-                        {cls.professor && (
-                          <p className="text-xs text-muted-foreground">{cls.professor} • {cls.room}</p>
+                      <div className="flex-1">
+                        {visibleColumns.includes('subject') && (
+                          <h4 className="font-medium">{cls.subject}</h4>
                         )}
+                        <div className="text-sm text-muted-foreground space-y-1">
+                          {visibleColumns.includes('time') && (
+                            <p>{cls.day} at {formatTime12Hour(cls.time)}</p>
+                          )}
+                          {visibleColumns.includes('duration') && (
+                            <p>Duration: {cls.duration} min</p>
+                          )}
+                          {visibleColumns.includes('professor') && cls.professor && (
+                            <p>{cls.professor}</p>
+                          )}
+                          {visibleColumns.includes('room') && cls.room && (
+                            <p>Room: {cls.room}</p>
+                          )}
+                        </div>
                       </div>
                     </div>
-                    <Badge variant={cls.type === 'main' ? 'default' : 'secondary'}>
-                      {cls.type}
-                    </Badge>
+                    {visibleColumns.includes('type') && (
+                      <Badge variant={cls.type === 'main' ? 'default' : 'secondary'}>
+                        {cls.type}
+                      </Badge>
+                    )}
                   </div>
                 ))
               )}

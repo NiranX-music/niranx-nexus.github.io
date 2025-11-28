@@ -3143,6 +3143,7 @@ export type Database = {
           recurring_pattern: string | null
           scheduled_end: string | null
           scheduled_start: string | null
+          scheduler_task_id: string | null
           screen_share_active: boolean | null
           screen_share_enabled: boolean | null
           screen_share_user_id: string | null
@@ -3176,6 +3177,7 @@ export type Database = {
           recurring_pattern?: string | null
           scheduled_end?: string | null
           scheduled_start?: string | null
+          scheduler_task_id?: string | null
           screen_share_active?: boolean | null
           screen_share_enabled?: boolean | null
           screen_share_user_id?: string | null
@@ -3209,6 +3211,7 @@ export type Database = {
           recurring_pattern?: string | null
           scheduled_end?: string | null
           scheduled_start?: string | null
+          scheduler_task_id?: string | null
           screen_share_active?: boolean | null
           screen_share_enabled?: boolean | null
           screen_share_user_id?: string | null
@@ -3975,6 +3978,7 @@ export type Database = {
           level: number | null
           location: string | null
           phone_number: string | null
+          scheduler_columns: Json | null
           social_links: Json | null
           updated_at: string | null
           user_id: string
@@ -4000,6 +4004,7 @@ export type Database = {
           level?: number | null
           location?: string | null
           phone_number?: string | null
+          scheduler_columns?: Json | null
           social_links?: Json | null
           updated_at?: string | null
           user_id: string
@@ -4025,6 +4030,7 @@ export type Database = {
           level?: number | null
           location?: string | null
           phone_number?: string | null
+          scheduler_columns?: Json | null
           social_links?: Json | null
           updated_at?: string | null
           user_id?: string
