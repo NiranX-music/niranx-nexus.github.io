@@ -463,6 +463,16 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
       return;
     }
 
+    // Require active class connection before sharing
+    if (!isJoined) {
+      toast({
+        title: "Join class first",
+        description: "Start or join the live class before sharing your screen",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       if (isSharingScreen && localScreenTrack) {
         // Stop screen sharing
@@ -507,11 +517,20 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
         // Handle screen sharing cancellation from browser UI
         (screenTrack as ILocalVideoTrack).on("track-ended", async () => {
           console.log("Screen sharing track ended event triggered");
+
+          let mediaStreamTrack: MediaStreamTrack | null = null;
+          try {
+            const getter = (screenTrack as any).getMediaStreamTrack;
+            if (typeof getter === "function") {
+              mediaStreamTrack = getter.call(screenTrack);
+            }
+          } catch (err) {
+            console.error("Error accessing screen share MediaStreamTrack:", err);
+          }
           
-          // Check if track is actually ended vs just paused due to tab switching
-          const mediaStreamTrack = (screenTrack as ILocalVideoTrack).getMediaStreamTrack();
-          if (mediaStreamTrack && mediaStreamTrack.readyState === 'live') {
-            console.log("Track is still live, ignoring track-ended (likely tab switch)");
+          // If we can inspect the underlying track and it's still live, treat this as a transient state (e.g., tab switch)
+          if (mediaStreamTrack && mediaStreamTrack.readyState === "live") {
+            console.log("Underlying track is still live, ignoring track-ended (likely tab switch)");
             return;
           }
           
@@ -564,33 +583,41 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
         toast({ title: "Screen sharing started", description: "Your screen is now visible to students" });
       }
     } catch (error: any) {
-      console.error('Error toggling screen share:', error);
+      console.error("Error toggling screen share:", error);
       
       // Clear video element on error
       if (localVideoRef.current) {
-        localVideoRef.current.innerHTML = '';
+        localVideoRef.current.innerHTML = "";
       }
       
       // Reset state if error occurs
       if (localScreenTrack) {
-        localScreenTrack.close();
+        try {
+          localScreenTrack.close();
+        } catch (closeError) {
+          console.error("Error closing screen track after failure:", closeError);
+        }
         setLocalScreenTrack(null);
       }
       setIsSharingScreen(false);
       
-      // Resume camera if available
-      if (localVideoTrack) {
-        await client.publish([localVideoTrack]);
-        if (localVideoRef.current) {
-          setTimeout(() => {
-            localVideoTrack.play(localVideoRef.current!);
-          }, 100);
+      // Resume camera if available and still in class
+      if (localVideoTrack && isJoined) {
+        try {
+          await client.publish([localVideoTrack]);
+          if (localVideoRef.current) {
+            setTimeout(() => {
+              localVideoTrack.play(localVideoRef.current!);
+            }, 100);
+          }
+        } catch (camError: any) {
+          console.error("Error republishing camera after screen share failure:", camError);
         }
       }
       
       toast({ 
         title: "Screen sharing failed", 
-        description: error.message || "Could not start screen sharing", 
+        description: error?.message || (error?.code as string) || "Could not start screen sharing", 
         variant: "destructive" 
       });
     }
