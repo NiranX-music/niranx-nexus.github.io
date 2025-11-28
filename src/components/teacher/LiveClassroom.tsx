@@ -506,10 +506,22 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
         
         // Handle screen sharing cancellation from browser UI
         (screenTrack as ILocalVideoTrack).on("track-ended", async () => {
-          console.log("Screen sharing track ended by browser");
+          console.log("Screen sharing track ended event triggered");
+          
+          // Check if track is actually ended vs just paused due to tab switching
+          const mediaStreamTrack = (screenTrack as ILocalVideoTrack).getMediaStreamTrack();
+          if (mediaStreamTrack && mediaStreamTrack.readyState === 'live') {
+            console.log("Track is still live, ignoring track-ended (likely tab switch)");
+            return;
+          }
           
           // Only handle if still in screen sharing state
-          if (!isSharingScreen) return;
+          if (!isSharingScreen) {
+            console.log("Already stopped screen sharing, ignoring event");
+            return;
+          }
+          
+          console.log("Screen share actually ended, cleaning up");
           
           try {
             await client.unpublish([screenTrack as ILocalVideoTrack]);
