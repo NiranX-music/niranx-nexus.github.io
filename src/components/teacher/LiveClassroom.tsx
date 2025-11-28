@@ -447,7 +447,6 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
         if (localVideoTrack) {
           await client.publish([localVideoTrack]);
           if (localVideoRef.current) {
-            // Small delay to ensure clean transition
             setTimeout(() => {
               localVideoTrack.play(localVideoRef.current!);
             }, 100);
@@ -475,6 +474,10 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
         // Handle screen sharing cancellation from browser UI
         (screenTrack as ILocalVideoTrack).on("track-ended", async () => {
           console.log("Screen sharing track ended by browser");
+          
+          // Only handle if still in screen sharing state
+          if (!isSharingScreen) return;
+          
           try {
             await client.unpublish([screenTrack as ILocalVideoTrack]);
           } catch (err) {
