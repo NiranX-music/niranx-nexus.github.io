@@ -25,12 +25,67 @@ export default function MyCloudDrives() {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newDrive, setNewDrive] = useState({ name: "", description: "" });
+  const [storageUsed, setStorageUsed] = useState(0);
+  const [storageLimit, setStorageLimit] = useState(5368709120); // Default 5GB
 
   useEffect(() => {
     if (user) {
       fetchDrives();
+      fetchStorageInfo();
     }
   }, [user]);
+
+  // Realtime subscription for storage updates
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('storage-changes-drives')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_cloud_storage',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          if (payload.new && typeof payload.new === 'object' && 'total_bytes' in payload.new) {
+            setStorageUsed((payload.new as any).total_bytes || 0);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
+  const fetchStorageInfo = async () => {
+    if (!user) return;
+
+    try {
+      // Get storage usage
+      const { data: storageData } = await supabase
+        .from("user_cloud_storage")
+        .select("total_bytes")
+        .eq("user_id", user.id)
+        .single();
+
+      if (storageData) {
+        setStorageUsed(storageData.total_bytes || 0);
+      }
+
+      // Get storage limit
+      const { data: limitData } = await supabase.rpc("get_user_storage_limit", { p_user_id: user.id });
+      if (limitData) {
+        setStorageLimit(limitData);
+      }
+    } catch (error) {
+      console.error("Error fetching storage info:", error);
+    }
+  };
 
   const fetchDrives = async () => {
     if (!user) return;
@@ -115,6 +170,14 @@ export default function MyCloudDrives() {
     }
   };
 
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + " " + sizes[i];
+  };
+
   return (
     <div className="container mx-auto p-6 max-w-6xl">
       <div className="mb-6 flex items-center justify-between">
@@ -126,6 +189,32 @@ export default function MyCloudDrives() {
           <p className="text-muted-foreground">
             Select a drive or create a new one to organize your files
           </p>
+          {/* Storage Info */}
+          <div className="mt-4 bg-card/50 border border-border rounded-lg p-3 inline-block">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <HardDrive className="w-4 h-4 text-primary" />
+                <span className="text-sm font-medium">Storage:</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  {formatFileSize(storageUsed)} / {formatFileSize(storageLimit)}
+                </span>
+                <div className="w-24 bg-muted rounded-full h-2">
+                  <div
+                    className={`h-2 rounded-full transition-all ${
+                      (storageUsed / storageLimit) > 0.9 ? 'bg-destructive' : 
+                      (storageUsed / storageLimit) > 0.7 ? 'bg-yellow-500' : 'bg-primary'
+                    }`}
+                    style={{ width: `${Math.min((storageUsed / storageLimit) * 100, 100)}%` }}
+                  />
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {Math.round((storageUsed / storageLimit) * 100)}%
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
