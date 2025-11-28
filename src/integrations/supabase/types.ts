@@ -2700,6 +2700,7 @@ export type Database = {
           question: string
           session_id: string
           user_id: string
+          user_name: string | null
         }
         Insert: {
           answer?: string | null
@@ -2710,6 +2711,7 @@ export type Database = {
           question: string
           session_id: string
           user_id: string
+          user_name?: string | null
         }
         Update: {
           answer?: string | null
@@ -2720,6 +2722,7 @@ export type Database = {
           question?: string
           session_id?: string
           user_id?: string
+          user_name?: string | null
         }
         Relationships: [
           {
