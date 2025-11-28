@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
@@ -22,7 +23,8 @@ import {
   AlertCircle,
   CheckCircle2,
   PlayCircle,
-  Upload
+  Upload,
+  Settings
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -38,7 +40,7 @@ interface ScheduleTask {
   classLink?: string;
   notes?: string;
   recordingLink?: string;
-  taskType: 'main' | 'optional' | 'subtask' | 'revision';
+  taskType: string;
   priority: 'high' | 'medium' | 'low';
   day: string;
   isRecurring: boolean;
@@ -69,6 +71,10 @@ const EnhancedScheduler = () => {
   const [editingTask, setEditingTask] = useState<ScheduleTask | null>(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('');
   const [loading, setLoading] = useState(true);
+  const [columnSettingsOpen, setColumnSettingsOpen] = useState(false);
+  const [taskColumns, setTaskColumns] = useState<string[]>(['main', 'optional', 'subtask', 'revision']);
+  const [visibleTaskColumns, setVisibleTaskColumns] = useState<string[]>(['main', 'optional', 'subtask', 'revision']);
+  const [newColumnName, setNewColumnName] = useState('');
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -89,7 +95,27 @@ const EnhancedScheduler = () => {
   // Load tasks from Supabase
   useEffect(() => {
     fetchTasks();
+    
+    // Load saved column preferences
+    const savedTaskColumns = localStorage.getItem('enhancedSchedulerTaskColumns');
+    const savedVisibleTaskColumns = localStorage.getItem('enhancedSchedulerVisibleTaskColumns');
+    
+    if (savedTaskColumns) {
+      setTaskColumns(JSON.parse(savedTaskColumns));
+    }
+    if (savedVisibleTaskColumns) {
+      setVisibleTaskColumns(JSON.parse(savedVisibleTaskColumns));
+    }
   }, []);
+
+  // Save column preferences
+  useEffect(() => {
+    localStorage.setItem('enhancedSchedulerTaskColumns', JSON.stringify(taskColumns));
+  }, [taskColumns]);
+
+  useEffect(() => {
+    localStorage.setItem('enhancedSchedulerVisibleTaskColumns', JSON.stringify(visibleTaskColumns));
+  }, [visibleTaskColumns]);
 
   const fetchTasks = async () => {
     try {
@@ -414,23 +440,46 @@ const EnhancedScheduler = () => {
     return `${endHours.toString().padStart(2, '0')}:${endMins.toString().padStart(2, '0')}`;
   };
 
-  const getTasksForTimeSlot = (time: string) => {
+  const getTasksForTimeSlot = (time: string, typeFilter?: string) => {
     return tasks.filter(task => {
       if (task.day !== selectedDay) return false;
       const taskStart = task.startTime;
       const taskEnd = task.endTime;
-      return time >= taskStart && time < taskEnd;
+      const matchesTime = time >= taskStart && time < taskEnd;
+      const matchesType = !typeFilter || task.taskType === typeFilter;
+      return matchesTime && matchesType;
     });
   };
 
-  const getTaskTypeColor = (type: ScheduleTask['taskType']) => {
-    switch (type) {
-      case 'main': return 'bg-primary';
-      case 'optional': return 'bg-secondary';
-      case 'subtask': return 'bg-accent';
-      case 'revision': return 'bg-muted';
-      default: return 'bg-primary';
+  const toggleTaskColumn = (column: string) => {
+    setVisibleTaskColumns(prev => 
+      prev.includes(column) 
+        ? prev.filter(col => col !== column)
+        : [...prev, column]
+    );
+  };
+
+  const addNewTaskColumn = () => {
+    if (newColumnName.trim() && !taskColumns.includes(newColumnName.trim())) {
+      const newColumn = newColumnName.trim();
+      setTaskColumns(prev => [...prev, newColumn]);
+      setVisibleTaskColumns(prev => [...prev, newColumn]);
+      setNewColumnName('');
+      toast({
+        title: "Column Added",
+        description: `Task column "${newColumn}" has been added`,
+      });
     }
+  };
+
+  const getTaskTypeColor = (type: string) => {
+    const colors: Record<string, string> = {
+      main: 'bg-primary',
+      optional: 'bg-secondary',
+      subtask: 'bg-accent',
+      revision: 'bg-muted'
+    };
+    return colors[type] || 'bg-primary';
   };
 
   const getPriorityBadge = (priority: ScheduleTask['priority']) => {
@@ -465,10 +514,54 @@ const EnhancedScheduler = () => {
             <h1 className="text-3xl font-bold">Enhanced Scheduler</h1>
             <p className="text-muted-foreground">Manage your schedule with 10-minute precision</p>
           </div>
-          <Button onClick={() => openAddDialog()}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Task
-          </Button>
+          <div className="flex gap-2">
+            <Dialog open={columnSettingsOpen} onOpenChange={setColumnSettingsOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Columns
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Customize Task Columns</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="font-semibold mb-3">Visible Task Type Columns</h3>
+                    <div className="space-y-2">
+                      {taskColumns.map(column => (
+                        <div key={column} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`task-${column}`}
+                            checked={visibleTaskColumns.includes(column)}
+                            onCheckedChange={() => toggleTaskColumn(column)}
+                          />
+                          <Label htmlFor={`task-${column}`} className="capitalize">{column}</Label>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div className="mt-4 flex gap-2">
+                      <Input
+                        placeholder="New column name"
+                        value={newColumnName}
+                        onChange={(e) => setNewColumnName(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && addNewTaskColumn()}
+                      />
+                      <Button onClick={addNewTaskColumn}>
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+            <Button onClick={() => openAddDialog()}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Task
+            </Button>
+          </div>
         </div>
 
         {/* Day Selector */}
@@ -498,60 +591,85 @@ const EnhancedScheduler = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-1 max-h-[600px] overflow-y-auto">
-              {timeSlots.map(time => {
-                const tasksAtTime = getTasksForTimeSlot(time);
-                return (
-                  <div key={time} className="flex items-center border-b border-border/30 hover:bg-muted/50 transition-colors">
-                    <div className="w-16 text-xs text-muted-foreground py-2 px-2">
-                      {time}
-                    </div>
-                    <div className="flex-1 py-1 px-2 min-h-[40px] flex items-center cursor-pointer" onClick={() => openAddDialog(time)}>
-                      {tasksAtTime.length > 0 ? (
-                        <div className="w-full space-y-1">
-                          {tasksAtTime.map(task => (
-                            <div
-                              key={task.id}
-                              className={`p-2 rounded text-xs text-white ${getTaskTypeColor(task.taskType)} flex items-center justify-between`}
-                            >
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium truncate">{task.taskName}</div>
-                                <div className="opacity-90 truncate">{task.subject} • {task.topic}</div>
-                              </div>
-                              <div className="flex gap-1 ml-2">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-6 w-6 p-0 text-white hover:bg-white/20"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    editTask(task);
-                                  }}
-                                >
-                                  <Edit className="w-3 h-3" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-6 w-6 p-0 text-white hover:bg-white/20"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    deleteTask(task.id);
-                                  }}
-                                >
-                                  <Trash2 className="w-3 h-3" />
-                                </Button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-muted-foreground text-xs opacity-50">Click to add task</div>
-                      )}
-                    </div>
+            <div className="overflow-x-auto">
+              <div className="min-w-[800px]">
+                {/* Column Headers */}
+                <div className="flex border-b-2 border-border">
+                  <div className="w-16 text-xs font-semibold text-muted-foreground py-2 px-2">
+                    Time
                   </div>
-                );
-              })}
+                  {visibleTaskColumns.map(column => (
+                    <div key={column} className="flex-1 text-xs font-semibold text-center py-2 px-2 border-l border-border capitalize">
+                      {column}
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Time Slot Rows */}
+                <div className="space-y-0 max-h-[600px] overflow-y-auto">
+                  {timeSlots.map(time => {
+                    return (
+                      <div key={time} className="flex items-stretch border-b border-border/30 hover:bg-muted/50 transition-colors">
+                        <div className="w-16 text-xs text-muted-foreground py-2 px-2 flex items-center">
+                          {time}
+                        </div>
+                        {visibleTaskColumns.map(taskType => {
+                          const tasksInSlot = getTasksForTimeSlot(time, taskType);
+                          return (
+                            <div
+                              key={`${time}-${taskType}`}
+                              className="flex-1 py-1 px-2 min-h-[40px] flex items-center cursor-pointer border-l border-border/30"
+                              onClick={() => openAddDialog(time)}
+                            >
+                              {tasksInSlot.length > 0 ? (
+                                <div className="w-full space-y-1">
+                                  {tasksInSlot.map(task => (
+                                    <div
+                                      key={task.id}
+                                      className={`p-2 rounded text-xs text-white ${getTaskTypeColor(task.taskType)} flex items-center justify-between`}
+                                    >
+                                      <div className="flex-1 min-w-0">
+                                        <div className="font-medium truncate">{task.taskName}</div>
+                                        <div className="opacity-90 truncate text-[10px]">{task.subject}</div>
+                                      </div>
+                                      <div className="flex gap-1 ml-2">
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          className="h-6 w-6 p-0 text-white hover:bg-white/20"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            editTask(task);
+                                          }}
+                                        >
+                                          <Edit className="w-3 h-3" />
+                                        </Button>
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          className="h-6 w-6 p-0 text-white hover:bg-white/20"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            deleteTask(task.id);
+                                          }}
+                                        >
+                                          <Trash2 className="w-3 h-3" />
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <div className="text-muted-foreground text-xs opacity-50 text-center w-full">+</div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -741,10 +859,11 @@ const EnhancedScheduler = () => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="main">Main Task</SelectItem>
-                        <SelectItem value="optional">Optional</SelectItem>
-                        <SelectItem value="subtask">Sub Task</SelectItem>
-                        <SelectItem value="revision">Revision</SelectItem>
+                        {taskColumns.map(column => (
+                          <SelectItem key={column} value={column} className="capitalize">
+                            {column}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
