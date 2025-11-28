@@ -151,27 +151,57 @@ const EnhancedScheduler = () => {
         throw new Error('User not authenticated');
       }
 
-      const { error } = await supabase
-        .from('schedule_tasks')
-        .insert({
-          user_id: user.id,
-          task_name: task.taskName,
-          subject: task.subject,
-          topic: task.topic,
-          start_time: task.startTime,
-          end_time: task.endTime,
-          class_duration: task.classDuration,
-          class_link: task.classLink,
-          notes: task.notes,
-          recording_link: task.recordingLink,
-          task_type: task.taskType,
-          priority: task.priority,
-          day_of_week: task.day,
-          is_recurring: task.isRecurring,
-          status: task.status
-        });
+      // Handle recurring tasks by creating multiple entries for different weeks
+      if (task.isRecurring) {
+        // For recurring tasks, insert with upsert to avoid duplicates
+        const { error } = await supabase
+          .from('schedule_tasks')
+          .upsert({
+            id: task.id,
+            user_id: user.id,
+            task_name: task.taskName,
+            subject: task.subject,
+            topic: task.topic,
+            start_time: task.startTime,
+            end_time: task.endTime,
+            class_duration: task.classDuration,
+            class_link: task.classLink,
+            notes: task.notes,
+            recording_link: task.recordingLink,
+            task_type: task.taskType,
+            priority: task.priority,
+            day_of_week: task.day,
+            is_recurring: task.isRecurring,
+            status: task.status
+          }, {
+            onConflict: 'id'
+          });
 
-      if (error) throw error;
+        if (error) throw error;
+      } else {
+        // Regular insert for non-recurring tasks
+        const { error } = await supabase
+          .from('schedule_tasks')
+          .insert({
+            user_id: user.id,
+            task_name: task.taskName,
+            subject: task.subject,
+            topic: task.topic,
+            start_time: task.startTime,
+            end_time: task.endTime,
+            class_duration: task.classDuration,
+            class_link: task.classLink,
+            notes: task.notes,
+            recording_link: task.recordingLink,
+            task_type: task.taskType,
+            priority: task.priority,
+            day_of_week: task.day,
+            is_recurring: task.isRecurring,
+            status: task.status
+          });
+
+        if (error) throw error;
+      }
     } catch (error) {
       console.error('Error saving task:', error);
       throw error;
@@ -250,7 +280,32 @@ const EnhancedScheduler = () => {
 
     try {
       if (editingTask) {
+        // Update in database
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase
+            .from('schedule_tasks')
+            .update({
+              task_name: taskData.taskName,
+              subject: taskData.subject,
+              topic: taskData.topic,
+              start_time: taskData.startTime,
+              end_time: taskData.endTime,
+              class_duration: taskData.classDuration,
+              class_link: taskData.classLink,
+              notes: taskData.notes,
+              recording_link: taskData.recordingLink,
+              task_type: taskData.taskType,
+              priority: taskData.priority,
+              day_of_week: taskData.day,
+              is_recurring: taskData.isRecurring,
+              status: taskData.status
+            })
+            .eq('id', editingTask.id);
+        }
+        
         setTasks(prev => prev.map(task => task.id === editingTask.id ? taskData : task));
+        
         // If recording link was added, save to library
         if (formData.recordingLink && !editingTask.recordingLink) {
           await saveRecordingToLibrary(taskData);
@@ -266,21 +321,41 @@ const EnhancedScheduler = () => {
       });
 
       resetForm();
-    } catch (error) {
+    } catch (error: any) {
+      const errorMessage = error?.message?.includes('duplicate') 
+        ? "A task with this schedule already exists. Please choose a different time or day."
+        : "Failed to save task";
+      
       toast({
         title: "Error",
-        description: "Failed to save task",
+        description: errorMessage,
         variant: "destructive",
       });
     }
   };
 
-  const deleteTask = (taskId: string) => {
-    setTasks(prev => prev.filter(task => task.id !== taskId));
-    toast({
-      title: "Task Deleted",
-      description: "Task removed from schedule",
-    });
+  const deleteTask = async (taskId: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase
+          .from('schedule_tasks')
+          .delete()
+          .eq('id', taskId);
+      }
+      
+      setTasks(prev => prev.filter(task => task.id !== taskId));
+      toast({
+        title: "Task Deleted",
+        description: "Task removed from schedule",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete task",
+        variant: "destructive",
+      });
+    }
   };
 
   const editTask = (task: ScheduleTask) => {
