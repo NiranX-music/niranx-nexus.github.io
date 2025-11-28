@@ -226,17 +226,14 @@ export default function MyCloudFolder() {
 
         if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage
-          .from("my-cloud")
-          .getPublicUrl(filePath);
-
+        // Store the storage path instead of public URL
         const { error: dbError } = await supabase
           .from("user_cloud_files")
           .insert({
             user_id: user.id,
             drive_id: driveId,
             file_name: file.name,
-            file_path: publicUrl,
+            file_path: filePath, // Store storage path
             file_size: file.size,
             file_type: file.type,
             folder_path: currentFolder,
@@ -292,15 +289,14 @@ export default function MyCloudFolder() {
 
         if (uploadError) throw uploadError;
 
-        const { data: urlData } = supabase.storage.from("my-cloud").getPublicUrl(filePath);
-
+        // Store storage path instead of public URL
         const { error: dbError } = await supabase.from("user_cloud_files").insert({
           user_id: user.id,
           drive_id: driveId,
           file_name: file.name,
           file_type: fileExt,
           file_size: file.size,
-          file_path: urlData.publicUrl,
+          file_path: filePath, // Store storage path
           folder_path: folderPath,
         });
 
@@ -442,11 +438,10 @@ export default function MyCloudFolder() {
     if (!user || !confirm("Are you sure you want to delete this file?")) return;
 
     try {
-      const storagePath = filePath.split("/my-cloud/")[1];
-      
+      // filePath is already the storage path
       const { error: storageError } = await supabase.storage
         .from("my-cloud")
-        .remove([storagePath]);
+        .remove([filePath]);
 
       if (storageError) throw storageError;
 
@@ -869,7 +864,23 @@ export default function MyCloudFolder() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => window.open(file.file_path, "_blank")}
+                                onClick={async () => {
+                                  // Generate signed URL for download
+                                  const { data, error } = await supabase.storage
+                                    .from("my-cloud")
+                                    .createSignedUrl(file.file_path, 60); // 60 seconds expiry
+                                  
+                                  if (error) {
+                                    toast({
+                                      title: "Error",
+                                      description: "Failed to download file",
+                                      variant: "destructive",
+                                    });
+                                    return;
+                                  }
+                                  
+                                  window.open(data.signedUrl, "_blank");
+                                }}
                               >
                                 <Download className="w-4 h-4" />
                               </Button>
