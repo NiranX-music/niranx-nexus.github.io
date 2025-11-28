@@ -425,24 +425,42 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
   };
 
   const toggleScreenShare = async () => {
-    if (!client || !isTeacher) return;
+    if (!client || !isTeacher) {
+      toast({ title: "Error", description: "Only teachers can share screen", variant: "destructive" });
+      return;
+    }
 
     try {
       if (isSharingScreen && localScreenTrack) {
+        // Stop screen sharing
         await client.unpublish([localScreenTrack]);
         localScreenTrack.close();
         setLocalScreenTrack(null);
         setIsSharingScreen(false);
         
-        if (localVideoTrack) {
+        // Resume camera
+        if (localVideoTrack && localVideoRef.current) {
           await client.publish([localVideoTrack]);
+          localVideoTrack.play(localVideoRef.current);
         }
-      } else {
-        const screenTrack = await AgoraRTC.createScreenVideoTrack({});
         
+        toast({ title: "Screen sharing stopped", description: "Camera is now active" });
+      } else {
+        // Start screen sharing
+        const screenTrack = await AgoraRTC.createScreenVideoTrack({
+          encoderConfig: "1080p_1",
+          optimizationMode: "detail"
+        });
+        
+        // Unpublish camera before publishing screen
         if (localVideoTrack) {
           await client.unpublish([localVideoTrack]);
         }
+        
+        // Handle screen sharing cancellation
+        (screenTrack as ILocalVideoTrack).on("track-ended", async () => {
+          await toggleScreenShare(); // Auto-stop when user stops sharing
+        });
         
         await client.publish([screenTrack as ILocalVideoTrack]);
         setLocalScreenTrack(screenTrack as ILocalVideoTrack);
@@ -451,10 +469,30 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
         if (localVideoRef.current) {
           (screenTrack as ILocalVideoTrack).play(localVideoRef.current);
         }
+        
+        toast({ title: "Screen sharing started", description: "Your screen is now visible to students" });
       }
     } catch (error: any) {
       console.error('Error toggling screen share:', error);
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      
+      // Reset state if error occurs
+      if (localScreenTrack) {
+        localScreenTrack.close();
+        setLocalScreenTrack(null);
+      }
+      setIsSharingScreen(false);
+      
+      // Resume camera if available
+      if (localVideoTrack && localVideoRef.current) {
+        await client.publish([localVideoTrack]);
+        localVideoTrack.play(localVideoRef.current);
+      }
+      
+      toast({ 
+        title: "Screen sharing failed", 
+        description: error.message || "Could not start screen sharing", 
+        variant: "destructive" 
+      });
     }
   };
 
