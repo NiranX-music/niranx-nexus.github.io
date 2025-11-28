@@ -41,6 +41,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { encryptMessage, decryptMessage } from "@/lib/security";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -342,11 +343,14 @@ export default function ChatRoom() {
 
       if (uploadError) throw uploadError;
 
+      // Encrypt voice message content
+      const encryptedContent = await encryptMessage("🎤 Voice message", user.id);
+
       // Send message with voice attachment
       const { error: messageError } = await supabase
         .from('messages')
         .insert({
-          content: "🎤 Voice message",
+          content: encryptedContent,
           sender_id: user.id,
           receiver_id: chatId,
           attachments: [{
@@ -502,10 +506,14 @@ export default function ChatRoom() {
 
       const attachments = await uploadFiles();
 
+      // Encrypt message content
+      const contentToSend = newMessage.trim() || "Sent an attachment";
+      const encryptedContent = await encryptMessage(contentToSend, user.id);
+
       const { error } = await supabase
         .from('messages')
         .insert({
-          content: newMessage.trim() || "Sent an attachment",
+          content: encryptedContent,
           sender_id: user.id,
           receiver_id: chatId,
           attachments: attachments as any,

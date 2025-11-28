@@ -22,6 +22,7 @@ import { useNavigate } from 'react-router-dom';
 import { formatDistance } from 'date-fns';
 import { useAuth } from '@/contexts/AuthContext';
 import { NewChatDialog } from '@/components/NewChatDialog';
+import { encryptMessage, decryptMessage } from '@/lib/security';
 
 interface Profile {
   id: string;
@@ -142,7 +143,16 @@ const Messages = () => {
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      setMessages(data || []);
+      
+      // Decrypt messages
+      const decryptedMessages = await Promise.all(
+        (data || []).map(async (msg) => ({
+          ...msg,
+          content: await decryptMessage(msg.content, user.id)
+        }))
+      );
+      
+      setMessages(decryptedMessages);
 
       // Mark as read
       await supabase
@@ -162,10 +172,13 @@ const Messages = () => {
     setLoading(true);
 
     try {
+      // Encrypt message content
+      const encryptedContent = await encryptMessage(newMessage.trim(), user.id);
+      
       const { error } = await supabase
         .from('messages')
         .insert({
-          content: newMessage.trim(),
+          content: encryptedContent,
           sender_id: user.id,
           receiver_id: selectedChat.user_id,
         });

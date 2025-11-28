@@ -150,3 +150,99 @@ export const validateEnvironmentKey = (key: string): boolean => {
   if (key.length < 20) return false; // Most API keys are longer
   return true;
 };
+
+// Message Encryption Utilities
+const ENCRYPTION_PREFIX = 'ENC:';
+
+/**
+ * Derives an encryption key from the user's session
+ */
+async function deriveEncryptionKey(userId: string): Promise<CryptoKey> {
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(userId.padEnd(32, '0')),
+    'PBKDF2',
+    false,
+    ['deriveKey']
+  );
+  
+  return crypto.subtle.deriveKey(
+    {
+      name: 'PBKDF2',
+      salt: new TextEncoder().encode('niranx-secure-messages'),
+      iterations: 100000,
+      hash: 'SHA-256'
+    },
+    keyMaterial,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+/**
+ * Encrypts message content using AES-GCM
+ */
+export async function encryptMessage(content: string, userId: string): Promise<string> {
+  try {
+    const key = await deriveEncryptionKey(userId);
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const encodedContent = new TextEncoder().encode(content);
+    
+    const encryptedData = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv },
+      key,
+      encodedContent
+    );
+    
+    // Combine IV and encrypted data
+    const combined = new Uint8Array(iv.length + encryptedData.byteLength);
+    combined.set(iv);
+    combined.set(new Uint8Array(encryptedData), iv.length);
+    
+    // Convert to base64 and add prefix
+    return ENCRYPTION_PREFIX + btoa(String.fromCharCode(...combined));
+  } catch (error) {
+    console.error('Encryption failed:', error);
+    return content; // Fallback to unencrypted on error
+  }
+}
+
+/**
+ * Decrypts message content using AES-GCM
+ */
+export async function decryptMessage(encryptedContent: string, userId: string): Promise<string> {
+  try {
+    // Check if message is encrypted
+    if (!encryptedContent.startsWith(ENCRYPTION_PREFIX)) {
+      return encryptedContent; // Return as-is if not encrypted
+    }
+    
+    const base64Data = encryptedContent.slice(ENCRYPTION_PREFIX.length);
+    const combined = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+    
+    // Extract IV and encrypted data
+    const iv = combined.slice(0, 12);
+    const encryptedData = combined.slice(12);
+    
+    const key = await deriveEncryptionKey(userId);
+    
+    const decryptedData = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv },
+      key,
+      encryptedData
+    );
+    
+    return new TextDecoder().decode(decryptedData);
+  } catch (error) {
+    console.error('Decryption failed:', error);
+    return '[Encrypted message - unable to decrypt]';
+  }
+}
+
+/**
+ * Checks if content is encrypted
+ */
+export function isEncryptedMessage(content: string): boolean {
+  return content.startsWith(ENCRYPTION_PREFIX);
+}
