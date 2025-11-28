@@ -61,6 +61,25 @@ interface Participant {
   online_at: string;
 }
 
+interface Poll {
+  id: string;
+  session_id: string;
+  created_by: string;
+  question: string;
+  options: any;
+  is_active: boolean;
+  created_at: string;
+}
+
+interface PollResponse {
+  id: string;
+  poll_id: string;
+  user_id: string;
+  user_name: string;
+  selected_option: string;
+  created_at: string;
+}
+
 interface Message {
   id: string;
   user_id: string;
@@ -88,10 +107,16 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
   const [doubts, setDoubts] = useState<Doubt[]>([]);
   const [raisedHands, setRaisedHands] = useState<RaisedHand[]>([]);
   const [hasRaisedHand, setHasRaisedHand] = useState(false);
-  const [activeTab, setActiveTab] = useState<"chat" | "doubts" | "attendance" | "participants">("chat");
+  const [activeTab, setActiveTab] = useState<"chat" | "doubts" | "attendance" | "participants" | "polls">("chat");
   const [presentStudents, setPresentStudents] = useState<string[]>([]);
   const [allStudents, setAllStudents] = useState<any[]>([]);
   const [participants, setParticipants] = useState<Participant[]>([]);
+  const [polls, setPolls] = useState<Poll[]>([]);
+  const [pollResponses, setPollResponses] = useState<PollResponse[]>([]);
+  const [chatMode, setChatMode] = useState<'public' | 'teacher-only'>('public');
+  const [showCreatePoll, setShowCreatePoll] = useState(false);
+  const [newPollQuestion, setNewPollQuestion] = useState('');
+  const [newPollOptions, setNewPollOptions] = useState(['', '', '', '']);
   const presenceChannelRef = useRef<any>(null);
   
   const localVideoRef = useRef<HTMLDivElement>(null);
@@ -282,6 +307,35 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
 
     presenceChannelRef.current = presenceChannel;
 
+    // Polls channel for real-time poll updates
+    const pollsChannel = supabase
+      .channel(`session-${sessionId}-polls`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'live_class_polls',
+        filter: `session_id=eq.${sessionId}`
+      }, (payload) => {
+        if (payload.eventType === 'INSERT') {
+          setPolls(prev => [...prev, payload.new as Poll]);
+        } else if (payload.eventType === 'UPDATE') {
+          setPolls(prev => prev.map(p => p.id === payload.new.id ? payload.new as Poll : p));
+        }
+      })
+      .subscribe();
+
+    // Poll responses channel
+    const pollResponsesChannel = supabase
+      .channel(`session-${sessionId}-poll-responses`)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'live_class_poll_responses'
+      }, (payload) => {
+        setPollResponses(prev => [...prev, payload.new as PollResponse]);
+      })
+      .subscribe();
+
     const handsChannel = supabase
       .channel(`session-${sessionId}-hands`)
       .on('postgres_changes', {
@@ -310,6 +364,8 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
       supabase.removeChannel(messagesChannel);
       supabase.removeChannel(doubtsChannel);
       supabase.removeChannel(handsChannel);
+      supabase.removeChannel(pollsChannel);
+      supabase.removeChannel(pollResponsesChannel);
       if (presenceChannelRef.current) {
         supabase.removeChannel(presenceChannelRef.current);
       }
@@ -390,11 +446,19 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
   };
 
   const loadSessionData = async (sessionId: string) => {
-    const [messagesRes, doubtsRes, handsRes] = await Promise.all([
+    const [messagesRes, doubtsRes, handsRes, pollsRes, pollResponsesRes, sessionRes] = await Promise.all([
       supabase.from('live_class_messages').select('*').eq('session_id', sessionId).order('created_at'),
       supabase.from('live_class_doubts').select('*').eq('session_id', sessionId).order('created_at'),
-      supabase.from('live_class_raised_hands').select('*').eq('session_id', sessionId).eq('acknowledged', false)
+      supabase.from('live_class_raised_hands').select('*').eq('session_id', sessionId).eq('acknowledged', false),
+      supabase.from('live_class_polls').select('*').eq('session_id', sessionId).order('created_at'),
+      supabase.from('live_class_poll_responses').select('*'),
+      supabase.from('live_class_sessions').select('chat_mode').eq('id', sessionId).single()
     ]);
+
+    // Set chat mode
+    if (sessionRes.data?.chat_mode) {
+      setChatMode(sessionRes.data.chat_mode as 'public' | 'teacher-only');
+    }
 
     // Fetch profile data separately
     const userIds = new Set([
@@ -429,6 +493,12 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
       }));
       setRaisedHands(hands);
       setHasRaisedHand(hands.some(h => h.user_id === user?.id));
+    }
+    if (pollsRes.data) {
+      setPolls(pollsRes.data);
+    }
+    if (pollResponsesRes.data) {
+      setPollResponses(pollResponsesRes.data);
     }
   };
 
@@ -835,6 +905,97 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
 
   const absentStudents = allStudents.filter(s => !presentStudents.includes(s.id));
 
+  const createPoll = async () => {
+    if (!sessionId || !user || !newPollQuestion.trim()) return;
+    
+    const validOptions = newPollOptions.filter(opt => opt.trim());
+    if (validOptions.length < 2) {
+      toast({ title: "Error", description: "Please provide at least 2 options", variant: "destructive" });
+      return;
+    }
+
+    try {
+      await supabase.from('live_class_polls').insert({
+        session_id: sessionId,
+        created_by: user.id,
+        question: newPollQuestion,
+        options: validOptions.map(text => ({ text }))
+      });
+
+      setNewPollQuestion('');
+      setNewPollOptions(['', '', '', '']);
+      setShowCreatePoll(false);
+      toast({ title: "Poll created", description: "Students can now vote" });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const submitPollResponse = async (pollId: string, option: string) => {
+    if (!user) return;
+
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('display_name, username')
+        .eq('id', user.id)
+        .single();
+
+      await supabase.from('live_class_poll_responses').insert({
+        poll_id: pollId,
+        user_id: user.id,
+        user_name: profile?.display_name || profile?.username || 'Unknown',
+        selected_option: option
+      });
+
+      toast({ title: "Vote submitted", description: "Your response has been recorded" });
+    } catch (error: any) {
+      if (error.code === '23505') {
+        toast({ title: "Already voted", description: "You have already voted on this poll", variant: "destructive" });
+      } else {
+        toast({ title: "Error", description: error.message, variant: "destructive" });
+      }
+    }
+  };
+
+  const closePoll = async (pollId: string) => {
+    try {
+      await supabase
+        .from('live_class_polls')
+        .update({ is_active: false })
+        .eq('id', pollId);
+
+      toast({ title: "Poll closed", description: "No more votes will be accepted" });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const toggleChatMode = async () => {
+    if (!sessionId || !isTeacher) return;
+
+    const newMode = chatMode === 'public' ? 'teacher-only' : 'public';
+    
+    try {
+      await supabase
+        .from('live_class_sessions')
+        .update({ chat_mode: newMode })
+        .eq('id', sessionId);
+
+      setChatMode(newMode);
+      toast({ 
+        title: "Chat mode updated", 
+        description: newMode === 'public' ? "Everyone can send messages" : "Only teacher messages visible" 
+      });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const filteredMessages = chatMode === 'teacher-only' 
+    ? messages.filter(m => m.user_id === (isTeacher ? user?.id : messages.find(msg => msg.user_id !== user?.id)?.user_id))
+    : messages;
+
   if (!isJoined) {
     return (
       <Card className="p-12 text-center">
@@ -944,6 +1105,15 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
             Chat
           </Button>
           <Button
+            variant={activeTab === "polls" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setActiveTab("polls")}
+            className="flex-1"
+          >
+            <HelpCircle className="w-4 h-4 mr-2" />
+            Polls
+          </Button>
+          <Button
             variant={activeTab === "doubts" ? "default" : "outline"}
             size="sm"
             onClick={() => setActiveTab("doubts")}
@@ -978,8 +1148,20 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
 
         {activeTab === "chat" ? (
           <>
+            {isTeacher && (
+              <div className="mb-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={toggleChatMode}
+                  className="w-full"
+                >
+                  {chatMode === 'public' ? '🔓 Public Chat' : '🔒 Teacher Only'}
+                </Button>
+              </div>
+            )}
             <ScrollArea className="flex-1 pr-4">
-              {messages.map((msg) => (
+              {filteredMessages.map((msg) => (
                 <div key={msg.id} className="mb-3">
                   <div className="flex items-start gap-2">
                     <Badge variant="secondary" className="text-xs">
@@ -998,13 +1180,105 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
               <Input
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="Type a message..."
+                placeholder={chatMode === 'teacher-only' && !isTeacher ? "Only teacher can send messages" : "Type a message..."}
                 onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                disabled={chatMode === 'teacher-only' && !isTeacher}
               />
-              <Button size="icon" onClick={sendMessage}>
+              <Button size="icon" onClick={sendMessage} disabled={chatMode === 'teacher-only' && !isTeacher}>
                 <Send className="w-4 h-4" />
               </Button>
             </div>
+          </>
+        ) : activeTab === "polls" ? (
+          <>
+            <ScrollArea className="flex-1 pr-4">
+              {isTeacher && !showCreatePoll && (
+                <Button onClick={() => setShowCreatePoll(true)} className="w-full mb-4">
+                  Create New Poll
+                </Button>
+              )}
+              
+              {showCreatePoll && isTeacher && (
+                <Card className="p-4 mb-4">
+                  <Input
+                    value={newPollQuestion}
+                    onChange={(e) => setNewPollQuestion(e.target.value)}
+                    placeholder="Enter poll question..."
+                    className="mb-3"
+                  />
+                  {newPollOptions.map((option, idx) => (
+                    <Input
+                      key={idx}
+                      value={option}
+                      onChange={(e) => {
+                        const updated = [...newPollOptions];
+                        updated[idx] = e.target.value;
+                        setNewPollOptions(updated);
+                      }}
+                      placeholder={`Option ${idx + 1}`}
+                      className="mb-2"
+                    />
+                  ))}
+                  <div className="flex gap-2">
+                    <Button onClick={createPoll} className="flex-1">Create</Button>
+                    <Button onClick={() => setShowCreatePoll(false)} variant="outline" className="flex-1">Cancel</Button>
+                  </div>
+                </Card>
+              )}
+
+              {polls.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <HelpCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No polls yet</p>
+                </div>
+              ) : (
+                polls.map((poll) => {
+                  const responses = pollResponses.filter(r => r.poll_id === poll.id);
+                  const userVoted = responses.some(r => r.user_id === user?.id);
+                  
+                  return (
+                    <Card key={poll.id} className="mb-4 p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <h4 className="font-semibold">{poll.question}</h4>
+                        {!poll.is_active && <Badge variant="secondary">Closed</Badge>}
+                      </div>
+                      
+                      {poll.options.map((option: any, idx: number) => {
+                        const optionResponses = responses.filter(r => r.selected_option === option.text);
+                        const percentage = responses.length > 0 
+                          ? Math.round((optionResponses.length / responses.length) * 100) 
+                          : 0;
+                        
+                        return (
+                          <div key={idx} className="mb-2">
+                            <Button
+                              variant={userVoted ? "outline" : "default"}
+                              className="w-full justify-between"
+                              onClick={() => submitPollResponse(poll.id, option.text)}
+                              disabled={!poll.is_active || userVoted}
+                            >
+                              <span>{option.text}</span>
+                              <Badge variant="secondary">{optionResponses.length} ({percentage}%)</Badge>
+                            </Button>
+                          </div>
+                        );
+                      })}
+                      
+                      {isTeacher && poll.is_active && (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => closePoll(poll.id)}
+                          className="mt-2 w-full"
+                        >
+                          Close Poll
+                        </Button>
+                      )}
+                    </Card>
+                  );
+                })
+              )}
+            </ScrollArea>
           </>
         ) : activeTab === "doubts" ? (
           <>

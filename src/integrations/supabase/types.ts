@@ -2833,6 +2833,79 @@ export type Database = {
           },
         ]
       }
+      live_class_poll_responses: {
+        Row: {
+          created_at: string | null
+          id: string
+          poll_id: string
+          selected_option: string
+          user_id: string
+          user_name: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          poll_id: string
+          selected_option: string
+          user_id: string
+          user_name: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          poll_id?: string
+          selected_option?: string
+          user_id?: string
+          user_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_class_poll_responses_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "live_class_polls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_class_polls: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          id: string
+          is_active: boolean | null
+          options: Json
+          question: string
+          session_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          id?: string
+          is_active?: boolean | null
+          options: Json
+          question: string
+          session_id: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          id?: string
+          is_active?: boolean | null
+          options?: Json
+          question?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_class_polls_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "live_class_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       live_class_qa: {
         Row: {
           answer: string | null
@@ -2965,6 +3038,7 @@ export type Database = {
       live_class_sessions: {
         Row: {
           channel_name: string
+          chat_mode: string | null
           classroom_id: string
           created_at: string | null
           ended_at: string | null
@@ -2975,6 +3049,7 @@ export type Database = {
         }
         Insert: {
           channel_name: string
+          chat_mode?: string | null
           classroom_id: string
           created_at?: string | null
           ended_at?: string | null
@@ -2985,6 +3060,7 @@ export type Database = {
         }
         Update: {
           channel_name?: string
+          chat_mode?: string | null
           classroom_id?: string
           created_at?: string | null
           ended_at?: string | null
