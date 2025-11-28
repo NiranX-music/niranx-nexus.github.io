@@ -97,3 +97,6 @@ verify_jwt = true
 [functions.summarize-pdf]
 verify_jwt = true
 
+[functions.coqui-tts]
+verify_jwt = true
+
