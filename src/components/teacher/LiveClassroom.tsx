@@ -472,10 +472,37 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
           await client.unpublish([localVideoTrack]);
         }
         
-        // Handle screen sharing cancellation
+        // Handle screen sharing cancellation from browser UI
         (screenTrack as ILocalVideoTrack).on("track-ended", async () => {
-          console.log("Screen sharing ended by user");
-          await toggleScreenShare(); // Auto-stop when user stops sharing
+          console.log("Screen sharing track ended by browser");
+          try {
+            await client.unpublish([screenTrack as ILocalVideoTrack]);
+          } catch (err) {
+            console.error("Error unpublishing screen track on end:", err);
+          }
+
+          (screenTrack as ILocalVideoTrack).close();
+          setLocalScreenTrack(null);
+          setIsSharingScreen(false);
+
+          // Clear video element
+          if (localVideoRef.current) {
+            localVideoRef.current.innerHTML = '';
+          }
+
+          // Resume camera if available
+          if (localVideoTrack) {
+            try {
+              await client.publish([localVideoTrack]);
+              if (localVideoRef.current) {
+                setTimeout(() => {
+                  localVideoTrack.play(localVideoRef.current!);
+                }, 100);
+              }
+            } catch (err) {
+              console.error("Error republishing camera after screen share end:", err);
+            }
+          }
         });
         
         await client.publish([screenTrack as ILocalVideoTrack]);
