@@ -17,7 +17,7 @@ interface ScheduledClass {
   time: string;
   duration: number;
   day: string;
-  type: 'main' | 'optional';
+  type: 'main' | 'subsidiary' | 'optional' | string;
   color: string;
   professor?: string;
   room?: string;
@@ -29,6 +29,9 @@ const Scheduler = () => {
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<{day: string, time: string} | null>(null);
   const [columnSettingsOpen, setColumnSettingsOpen] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState<string[]>(['subject', 'time', 'duration', 'type', 'professor', 'room']);
+  const [taskColumns, setTaskColumns] = useState<string[]>(['main', 'subsidiary', 'optional']);
+  const [visibleTaskColumns, setVisibleTaskColumns] = useState<string[]>(['main', 'subsidiary', 'optional']);
+  const [newColumnName, setNewColumnName] = useState('');
   const { toast } = useToast();
 
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -38,17 +41,31 @@ const Scheduler = () => {
     '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30'
   ];
 
-  const classColors = {
-    main: 'hsl(var(--primary))',
-    optional: 'hsl(var(--secondary))'
+  const getColorForType = (type: string) => {
+    const colors: Record<string, string> = {
+      main: 'hsl(var(--primary))',
+      subsidiary: 'hsl(var(--accent))',
+      optional: 'hsl(var(--secondary))'
+    };
+    return colors[type] || 'hsl(var(--muted))';
   };
 
   useEffect(() => {
     const savedClasses = localStorage.getItem('scheduledClasses');
     const savedColumns = localStorage.getItem('schedulerColumns');
+    const savedTaskColumns = localStorage.getItem('schedulerTaskColumns');
+    const savedVisibleTaskColumns = localStorage.getItem('schedulerVisibleTaskColumns');
     
     if (savedColumns) {
       setVisibleColumns(JSON.parse(savedColumns));
+    }
+    
+    if (savedTaskColumns) {
+      setTaskColumns(JSON.parse(savedTaskColumns));
+    }
+    
+    if (savedVisibleTaskColumns) {
+      setVisibleTaskColumns(JSON.parse(savedVisibleTaskColumns));
     }
     
     if (savedClasses) {
@@ -63,7 +80,7 @@ const Scheduler = () => {
           duration: 90,
           day: 'Monday',
           type: 'main',
-          color: classColors.main,
+          color: getColorForType('main'),
           professor: 'Dr. Smith',
           room: 'Room 101'
         },
@@ -74,7 +91,7 @@ const Scheduler = () => {
           duration: 60,
           day: 'Tuesday',
           type: 'main',
-          color: classColors.main,
+          color: getColorForType('main'),
           professor: 'Prof. Johnson',
           room: 'Lab A'
         },
@@ -85,7 +102,7 @@ const Scheduler = () => {
           duration: 120,
           day: 'Wednesday',
           type: 'optional',
-          color: classColors.optional,
+          color: getColorForType('optional'),
           professor: 'Ms. Davis',
           room: 'Art Studio'
         }
@@ -104,12 +121,41 @@ const Scheduler = () => {
     localStorage.setItem('schedulerColumns', JSON.stringify(visibleColumns));
   }, [visibleColumns]);
 
+  useEffect(() => {
+    localStorage.setItem('schedulerTaskColumns', JSON.stringify(taskColumns));
+  }, [taskColumns]);
+
+  useEffect(() => {
+    localStorage.setItem('schedulerVisibleTaskColumns', JSON.stringify(visibleTaskColumns));
+  }, [visibleTaskColumns]);
+
   const toggleColumn = (column: string) => {
     setVisibleColumns(prev => 
       prev.includes(column) 
         ? prev.filter(col => col !== column)
         : [...prev, column]
     );
+  };
+
+  const toggleTaskColumn = (column: string) => {
+    setVisibleTaskColumns(prev => 
+      prev.includes(column) 
+        ? prev.filter(col => col !== column)
+        : [...prev, column]
+    );
+  };
+
+  const addNewTaskColumn = () => {
+    if (newColumnName.trim() && !taskColumns.includes(newColumnName.trim())) {
+      const newColumn = newColumnName.trim();
+      setTaskColumns(prev => [...prev, newColumn]);
+      setVisibleTaskColumns(prev => [...prev, newColumn]);
+      setNewColumnName('');
+      toast({
+        title: "Column Added",
+        description: `Task column "${newColumn}" has been added`,
+      });
+    }
   };
 
   const addNewClass = (formData: {
@@ -124,7 +170,7 @@ const Scheduler = () => {
     const newClass: ScheduledClass = {
       id: Date.now().toString(),
       ...formData,
-      color: classColors[formData.type]
+      color: getColorForType(formData.type)
     };
 
     setClasses(prev => [...prev, newClass]);
@@ -137,13 +183,16 @@ const Scheduler = () => {
     });
   };
 
-  const getClassesForTimeSlot = (day: string, time: string) => {
+  const getClassesForTimeSlot = (day: string, time: string, typeFilter?: string) => {
     return classes.filter(cls => {
       const classTime = parseInt(cls.time.replace(':', ''));
       const slotTime = parseInt(time.replace(':', ''));
       const classEndTime = classTime + (cls.duration / 60 * 100);
       
-      return cls.day === day && slotTime >= classTime && slotTime < classEndTime;
+      const matchesTime = cls.day === day && slotTime >= classTime && slotTime < classEndTime;
+      const matchesType = !typeFilter || cls.type === typeFilter;
+      
+      return matchesTime && matchesType;
     });
   };
 
@@ -177,28 +226,61 @@ const Scheduler = () => {
                   Columns
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="max-w-2xl">
                 <DialogHeader>
                   <DialogTitle>Customize Columns</DialogTitle>
                 </DialogHeader>
-                <div className="space-y-4">
-                  {[
-                    { id: 'subject', label: 'Subject' },
-                    { id: 'time', label: 'Time' },
-                    { id: 'duration', label: 'Duration' },
-                    { id: 'type', label: 'Type' },
-                    { id: 'professor', label: 'Professor' },
-                    { id: 'room', label: 'Room' }
-                  ].map(column => (
-                    <div key={column.id} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={column.id}
-                        checked={visibleColumns.includes(column.id)}
-                        onCheckedChange={() => toggleColumn(column.id)}
-                      />
-                      <Label htmlFor={column.id}>{column.label}</Label>
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="font-semibold mb-3">Class Details Columns</h3>
+                    <div className="space-y-2">
+                      {[
+                        { id: 'subject', label: 'Subject' },
+                        { id: 'time', label: 'Time' },
+                        { id: 'duration', label: 'Duration' },
+                        { id: 'type', label: 'Type' },
+                        { id: 'professor', label: 'Professor' },
+                        { id: 'room', label: 'Room' }
+                      ].map(column => (
+                        <div key={column.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={column.id}
+                            checked={visibleColumns.includes(column.id)}
+                            onCheckedChange={() => toggleColumn(column.id)}
+                          />
+                          <Label htmlFor={column.id}>{column.label}</Label>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
+                  
+                  <div>
+                    <h3 className="font-semibold mb-3">Task Type Columns</h3>
+                    <div className="space-y-2">
+                      {taskColumns.map(column => (
+                        <div key={column} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`task-${column}`}
+                            checked={visibleTaskColumns.includes(column)}
+                            onCheckedChange={() => toggleTaskColumn(column)}
+                          />
+                          <Label htmlFor={`task-${column}`} className="capitalize">{column}</Label>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div className="mt-4 flex gap-2">
+                      <Input
+                        placeholder="New column name"
+                        value={newColumnName}
+                        onChange={(e) => setNewColumnName(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && addNewTaskColumn()}
+                      />
+                      <Button onClick={addNewTaskColumn}>
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </DialogContent>
             </Dialog>
@@ -219,7 +301,7 @@ const Scheduler = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
@@ -231,28 +313,19 @@ const Scheduler = () => {
               </div>
             </CardContent>
           </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-2">
-                <Target className="h-5 w-5 text-primary" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Main Classes</p>
-                  <p className="text-2xl font-bold">{classes.filter(c => c.type === 'main').length}</p>
+          {visibleTaskColumns.slice(0, 3).map((type) => (
+            <Card key={type}>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-2">
+                  <Target className="h-5 w-5" style={{ color: getColorForType(type) }} />
+                  <div>
+                    <p className="text-sm text-muted-foreground capitalize">{type} Classes</p>
+                    <p className="text-2xl font-bold">{classes.filter(c => c.type === type).length}</p>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-2">
-                <Calendar className="h-5 w-5 text-secondary" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Optional Classes</p>
-                  <p className="text-2xl font-bold">{classes.filter(c => c.type === 'optional').length}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
         {/* Weekly Schedule Grid */}
@@ -265,7 +338,7 @@ const Scheduler = () => {
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
-              <div className="grid grid-cols-8 gap-1 min-w-[800px]">
+              <div className="grid gap-1 min-w-[800px]" style={{ gridTemplateColumns: `80px repeat(${days.length}, 1fr)` }}>
                 {/* Header row */}
                 <div className="p-3 font-semibold text-center border-b">Time</div>
                 {days.map(day => (
@@ -280,35 +353,33 @@ const Scheduler = () => {
                     <div className="p-2 text-xs text-muted-foreground text-center border-r">
                       {formatTime12Hour(time)}
                     </div>
-                    {days.map(day => {
-                      const classesInSlot = getClassesForTimeSlot(day, time);
-                      return (
-                        <div
-                          key={`${day}-${time}`}
-                          className="relative min-h-[40px] border border-border/50 cursor-pointer hover:bg-muted/50 transition-colors"
-                          onClick={() => handleTimeSlotClick(day, time)}
-                        >
-                          {classesInSlot.map(cls => (
+                    {days.map(day => (
+                      <div key={`${day}-${time}`} className="grid gap-1" style={{ gridTemplateColumns: `repeat(${visibleTaskColumns.length}, 1fr)` }}>
+                        {visibleTaskColumns.map(taskType => {
+                          const classesInSlot = getClassesForTimeSlot(day, time, taskType);
+                          return (
                             <div
-                              key={cls.id}
-                              className="absolute inset-1 rounded text-xs p-1 text-white font-medium overflow-hidden"
-                              style={{ 
-                                backgroundColor: cls.color,
-                                height: `${Math.min(cls.duration / 30 * 20, 60)}px`
-                              }}
+                              key={`${day}-${time}-${taskType}`}
+                              className="relative min-h-[40px] border border-border/50 cursor-pointer hover:bg-muted/50 transition-colors"
+                              onClick={() => handleTimeSlotClick(day, time)}
                             >
-                              <div className="truncate">{cls.subject}</div>
-                              <Badge 
-                                variant={cls.type === 'main' ? 'default' : 'secondary'} 
-                                className="text-xs mt-1"
-                              >
-                                {cls.type}
-                              </Badge>
+                              {classesInSlot.map(cls => (
+                                <div
+                                  key={cls.id}
+                                  className="absolute inset-1 rounded text-xs p-1 text-white font-medium overflow-hidden"
+                                  style={{ 
+                                    backgroundColor: cls.color,
+                                    height: `${Math.min(cls.duration / 30 * 20, 60)}px`
+                                  }}
+                                >
+                                  <div className="truncate">{cls.subject}</div>
+                                </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
-                      );
-                    })}
+                          );
+                        })}
+                      </div>
+                    ))}
                   </React.Fragment>
                 ))}
               </div>
@@ -384,10 +455,12 @@ const AddClassDialog = ({
     time: selectedTimeSlot?.time || '09:00',
     duration: 60,
     day: selectedTimeSlot?.day || 'Monday',
-    type: 'main' as 'main' | 'optional',
+    type: 'main' as string,
     professor: '',
     room: ''
   });
+
+  const taskColumns = ['main', 'subsidiary', 'optional', ...JSON.parse(localStorage.getItem('schedulerTaskColumns') || '[]').filter((c: string) => !['main', 'subsidiary', 'optional'].includes(c))];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -471,14 +544,17 @@ const AddClassDialog = ({
             <Label htmlFor="type">Type</Label>
             <Select 
               value={formData.type} 
-              onValueChange={(value: 'main' | 'optional') => setFormData(prev => ({ ...prev, type: value }))}
+              onValueChange={(value: string) => setFormData(prev => ({ ...prev, type: value }))}
             >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="main">Main</SelectItem>
-                <SelectItem value="optional">Optional</SelectItem>
+                {taskColumns.map(column => (
+                  <SelectItem key={column} value={column} className="capitalize">
+                    {column}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
