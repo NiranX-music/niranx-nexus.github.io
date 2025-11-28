@@ -141,7 +141,18 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
     setClient(agoraClient);
 
     return () => {
-      agoraClient.leave();
+      // Cleanup on unmount
+      if (localVideoTrack) {
+        localVideoTrack.close();
+      }
+      if (localAudioTrack) {
+        localAudioTrack.close();
+      }
+      if (localScreenTrack) {
+        localScreenTrack.close();
+      }
+      agoraClient.leave().catch(err => console.error("Error leaving on unmount:", err));
+      setIsJoined(false);
     };
   }, []);
 
@@ -260,6 +271,11 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
       return;
     }
 
+    if (isJoined) {
+      toast({ title: "Already started", description: "Class is already live" });
+      return;
+    }
+
     try {
       const channel = `class-${classroomId}-${Date.now()}`;
       
@@ -289,6 +305,11 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
   };
 
   const joinClass = async () => {
+    if (isJoined) {
+      toast({ title: "Already joined", description: "You are already in a live class" });
+      return;
+    }
+
     try {
       const { data: sessions, error } = await supabase
         .from('live_class_sessions')
@@ -313,7 +334,7 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
       loadSessionData(session.id);
     } catch (error: any) {
       console.error('Error joining class:', error);
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: "Failed to join class", description: error.message, variant: "destructive" });
     }
   };
 
@@ -366,6 +387,12 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
       return;
     }
 
+    // Prevent multiple simultaneous join attempts
+    if (isJoined) {
+      console.log("Already joined, skipping duplicate join attempt");
+      return;
+    }
+
     try {
       // Set up event listeners BEFORE joining
       client.on("user-published", async (remoteUser: IAgoraRTCRemoteUser, mediaType: "audio" | "video") => {
@@ -385,6 +412,12 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
       });
 
       if (error) throw error;
+
+      // Check again before join in case state changed during async operation
+      if (isJoined) {
+        console.log("State changed during token fetch, aborting join");
+        return;
+      }
 
       await client.join(data.appId, channel, data.token, 0);
 
@@ -552,33 +585,53 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
   };
 
   const leaveClass = async () => {
-    if (localVideoTrack) {
-      localVideoTrack.close();
-      setLocalVideoTrack(null);
-    }
-    if (localAudioTrack) {
-      localAudioTrack.close();
-      setLocalAudioTrack(null);
-    }
-    if (localScreenTrack) {
-      localScreenTrack.close();
-      setLocalScreenTrack(null);
-    }
-    if (client) {
-      await client.leave();
-    }
+    try {
+      if (localVideoTrack) {
+        localVideoTrack.close();
+        setLocalVideoTrack(null);
+      }
+      if (localAudioTrack) {
+        localAudioTrack.close();
+        setLocalAudioTrack(null);
+      }
+      if (localScreenTrack) {
+        localScreenTrack.close();
+        setLocalScreenTrack(null);
+      }
+      
+      // Clear video elements
+      if (localVideoRef.current) {
+        localVideoRef.current.innerHTML = '';
+      }
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.innerHTML = '';
+      }
 
-    if (isTeacher && sessionId) {
-      await supabase
-        .from('live_class_sessions')
-        .update({ status: 'ended', ended_at: new Date().toISOString() })
-        .eq('id', sessionId);
-    }
+      if (client && isJoined) {
+        await client.leave();
+      }
 
-    setIsJoined(false);
-    setSessionId(null);
-    setChannelName("");
-    toast({ title: "Left class", description: "You have left the live class" });
+      if (isTeacher && sessionId) {
+        await supabase
+          .from('live_class_sessions')
+          .update({ status: 'ended', ended_at: new Date().toISOString() })
+          .eq('id', sessionId);
+      }
+
+      setIsJoined(false);
+      setSessionId(null);
+      setChannelName("");
+      setIsVideoOn(true);
+      setIsAudioOn(true);
+      setIsSharingScreen(false);
+      
+      toast({ title: "Left class", description: "You have left the live class" });
+    } catch (error: any) {
+      console.error("Error leaving class:", error);
+      // Reset state even if there's an error
+      setIsJoined(false);
+      toast({ title: "Error leaving", description: error.message, variant: "destructive" });
+    }
   };
 
   const sendMessage = async () => {
