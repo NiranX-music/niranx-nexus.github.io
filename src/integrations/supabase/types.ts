@@ -5172,6 +5172,30 @@ export type Database = {
           },
         ]
       }
+      user_cloud_storage: {
+        Row: {
+          created_at: string | null
+          id: string
+          total_bytes: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          total_bytes?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          total_bytes?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_currency: {
         Row: {
           coins: number | null
@@ -5872,6 +5896,7 @@ export type Database = {
         Args: { p_student_id: string; p_week_start: string }
         Returns: Json
       }
+      get_user_storage_limit: { Args: { p_user_id: string }; Returns: number }
       get_user_website_count: { Args: { p_user_id: string }; Returns: number }
       has_role: {
         Args: {

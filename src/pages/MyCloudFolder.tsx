@@ -53,6 +53,8 @@ export default function MyCloudFolder() {
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
   const [editingFile, setEditingFile] = useState<CloudFile | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [storageUsed, setStorageUsed] = useState(0);
+  const [storageLimit, setStorageLimit] = useState(5368709120); // Default 5GB
 
   useEffect(() => {
     if (folderPath) {
@@ -66,8 +68,61 @@ export default function MyCloudFolder() {
     if (user && driveId) {
       fetchDrive();
       fetchFiles();
+      fetchStorageInfo();
     }
   }, [user, driveId, currentFolder]);
+
+  // Realtime subscription for storage updates
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('storage-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_cloud_storage',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          if (payload.new && typeof payload.new === 'object' && 'total_bytes' in payload.new) {
+            setStorageUsed((payload.new as any).total_bytes || 0);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
+  const fetchStorageInfo = async () => {
+    if (!user) return;
+
+    try {
+      // Get storage usage
+      const { data: storageData } = await supabase
+        .from("user_cloud_storage")
+        .select("total_bytes")
+        .eq("user_id", user.id)
+        .single();
+
+      if (storageData) {
+        setStorageUsed(storageData.total_bytes || 0);
+      }
+
+      // Get storage limit
+      const { data: limitData } = await supabase.rpc("get_user_storage_limit", { p_user_id: user.id });
+      if (limitData) {
+        setStorageLimit(limitData);
+      }
+    } catch (error) {
+      console.error("Error fetching storage info:", error);
+    }
+  };
 
   const fetchDrive = async () => {
     if (!driveId) return;
@@ -128,47 +183,74 @@ export default function MyCloudFolder() {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !user || !driveId) return;
 
-    const file = e.target.files[0];
-    if (!file) return;
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    // Check storage limit before upload
+    const totalUploadSize = files.reduce((sum, f) => sum + f.size, 0);
+    const { data: storageData } = await supabase
+      .from("user_cloud_storage")
+      .select("total_bytes")
+      .eq("user_id", user.id)
+      .single();
+
+    const currentUsage = storageData?.total_bytes || 0;
+    const { data: limitData } = await supabase.rpc("get_user_storage_limit", { p_user_id: user.id });
+    const storageLimit = limitData || 5368709120; // Default 5GB
+
+    if (currentUsage + totalUploadSize > storageLimit) {
+      toast({
+        title: "Storage limit exceeded",
+        description: `You need ${formatFileSize(currentUsage + totalUploadSize - storageLimit)} more storage`,
+        variant: "destructive",
+      });
+      return;
+    }
 
     setUploading(true);
     setUploadProgress(0);
 
     try {
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${Date.now()}_${file.name}`;
-      const filePath = `${user.id}/${driveId}${currentFolder}${fileName}`;
+      let successCount = 0;
+      const totalFiles = files.length;
 
-      const { error: uploadError } = await supabase.storage
-        .from("my-cloud")
-        .upload(filePath, file);
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileExt = file.name.split(".").pop();
+        const fileName = `${Date.now()}_${file.name}`;
+        const filePath = `${user.id}/${driveId}${currentFolder}${fileName}`;
 
-      if (uploadError) throw uploadError;
+        const { error: uploadError } = await supabase.storage
+          .from("my-cloud")
+          .upload(filePath, file);
 
-      setUploadProgress(50);
+        if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from("my-cloud")
-        .getPublicUrl(filePath);
+        const { data: { publicUrl } } = supabase.storage
+          .from("my-cloud")
+          .getPublicUrl(filePath);
 
-      const { error: dbError } = await supabase
-        .from("user_cloud_files")
-        .insert({
-          user_id: user.id,
-          drive_id: driveId,
-          file_name: file.name,
-          file_path: publicUrl,
-          file_size: file.size,
-          file_type: file.type,
-          folder_path: currentFolder,
-        });
+        const { error: dbError } = await supabase
+          .from("user_cloud_files")
+          .insert({
+            user_id: user.id,
+            drive_id: driveId,
+            file_name: file.name,
+            file_path: publicUrl,
+            file_size: file.size,
+            file_type: file.type,
+            folder_path: currentFolder,
+          });
 
-      if (dbError) throw dbError;
+        if (dbError) throw dbError;
 
-      setUploadProgress(100);
+        successCount++;
+        setUploadProgress(Math.round(((i + 1) / totalFiles) * 100));
+      }
+
       toast({
         title: "Success!",
-        description: `${file.name} uploaded successfully`,
+        description: `${successCount} file(s) uploaded successfully`,
       });
 
       fetchFiles();
@@ -176,7 +258,7 @@ export default function MyCloudFolder() {
       console.error("Upload error:", error);
       toast({
         title: "Upload failed",
-        description: error.message || "Failed to upload file",
+        description: error.message || "Failed to upload files",
         variant: "destructive",
       });
     } finally {
@@ -413,7 +495,7 @@ export default function MyCloudFolder() {
   return (
     <div className="flex h-screen bg-background">
       {/* Left Sidebar - Folder Navigation */}
-      <div className="w-64 border-r border-border bg-sidebar">
+        <div className="w-64 border-r border-border bg-sidebar">
         <div className="p-4 border-b border-border">
           <Button
             variant="ghost"
@@ -427,6 +509,32 @@ export default function MyCloudFolder() {
           <div className="flex items-center gap-2 mb-4">
             <HardDrive className="w-5 h-5 text-primary" />
             <h2 className="font-semibold truncate">{driveName}</h2>
+          </div>
+          
+          {/* Storage Usage Widget */}
+          <div className="bg-card/50 border border-border rounded-lg p-3 mt-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-medium">Storage</span>
+              <HardDrive className="w-3 h-3 text-primary" />
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>{formatFileSize(storageUsed)}</span>
+                <span>{formatFileSize(storageLimit)}</span>
+              </div>
+              <div className="w-full bg-muted rounded-full h-1.5">
+                <div
+                  className={`h-1.5 rounded-full transition-all ${
+                    (storageUsed / storageLimit) > 0.9 ? 'bg-destructive' : 
+                    (storageUsed / storageLimit) > 0.7 ? 'bg-yellow-500' : 'bg-primary'
+                  }`}
+                  style={{ width: `${Math.min((storageUsed / storageLimit) * 100, 100)}%` }}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {Math.round((storageUsed / storageLimit) * 100)}% used
+              </p>
+            </div>
           </div>
         </div>
 
@@ -499,8 +607,22 @@ export default function MyCloudFolder() {
               New
             </Button>
             <div className="w-px h-6 bg-border" />
-            <Button variant="ghost" size="icon">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => document.getElementById('fileUpload')?.click()}
+              disabled={uploading}
+            >
               <Upload className="w-4 h-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => document.getElementById('folderUpload')?.click()}
+              disabled={uploading}
+              title="Upload folder"
+            >
+              <FolderUp className="w-4 h-4" />
             </Button>
             <Button variant="ghost" size="icon">
               <Trash2 className="w-4 h-4" />
@@ -790,6 +912,53 @@ export default function MyCloudFolder() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Hidden File Upload Inputs */}
+      <input
+        type="file"
+        multiple
+        id="fileUpload"
+        className="hidden"
+        onChange={handleFileUpload}
+        disabled={uploading}
+      />
+      <input
+        type="file"
+        multiple
+        id="folderUpload"
+        className="hidden"
+        onChange={handleFolderUpload}
+        disabled={uploading}
+        {...({ webkitdirectory: "" } as any)}
+      />
+
+      {/* Storage Usage Display */}
+      <div className="fixed bottom-4 right-4 z-50">
+        <div className="bg-card border border-border rounded-lg shadow-lg p-4 min-w-[280px]">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium">Cloud Storage</span>
+            <HardDrive className="w-4 h-4 text-primary" />
+          </div>
+          <div className="space-y-2">
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>{formatFileSize(storageUsed)} used</span>
+              <span>{formatFileSize(storageLimit)} total</span>
+            </div>
+            <div className="w-full bg-muted rounded-full h-2">
+              <div
+                className={`h-2 rounded-full transition-all ${
+                  (storageUsed / storageLimit) > 0.9 ? 'bg-destructive' : 
+                  (storageUsed / storageLimit) > 0.7 ? 'bg-yellow-500' : 'bg-primary'
+                }`}
+                style={{ width: `${Math.min((storageUsed / storageLimit) * 100, 100)}%` }}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {Math.round((storageUsed / storageLimit) * 100)}% used • {formatFileSize(storageLimit - storageUsed)} remaining
+            </p>
+          </div>
+        </div>
+      </div>
 
       {/* Edit File Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
