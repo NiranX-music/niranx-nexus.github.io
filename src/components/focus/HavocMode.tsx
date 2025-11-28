@@ -44,11 +44,20 @@ export default function HavocMode({ isOpen, onClose, duration, subject }: HavocM
         }
       };
 
+      // Prevent page refresh/exit
+      const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+        e.preventDefault();
+        e.returnValue = '🔒 Havoc Mode is active. Leaving will lose your progress!';
+        return e.returnValue;
+      };
+
       document.addEventListener('keydown', handleKeyDown);
+      window.addEventListener('beforeunload', handleBeforeUnload);
 
       return () => {
         if (intervalRef.current) clearInterval(intervalRef.current);
         document.removeEventListener('keydown', handleKeyDown);
+        window.removeEventListener('beforeunload', handleBeforeUnload);
       };
     }
   }, [isOpen, isLocked]);
