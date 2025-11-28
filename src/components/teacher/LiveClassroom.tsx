@@ -361,9 +361,25 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
   };
 
   const joinChannel = async (channel: string, role: 'publisher' | 'subscriber') => {
-    if (!client || !user) return;
+    if (!client || !user) {
+      toast({ title: "Error", description: "Client not initialized", variant: "destructive" });
+      return;
+    }
 
     try {
+      // Set up event listeners BEFORE joining
+      client.on("user-published", async (remoteUser: IAgoraRTCRemoteUser, mediaType: "audio" | "video") => {
+        if (!client) return;
+        await client.subscribe(remoteUser, mediaType);
+        
+        if (mediaType === "video" && remoteVideoRef.current) {
+          remoteUser.videoTrack?.play(remoteVideoRef.current);
+        }
+        if (mediaType === "audio") {
+          remoteUser.audioTrack?.play();
+        }
+      });
+
       const { data, error } = await supabase.functions.invoke('generate-agora-token', {
         body: { channelName: channel, uid: 0, role }
       });
@@ -386,22 +402,11 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
         }
       }
 
-      client.on("user-published", async (remoteUser: IAgoraRTCRemoteUser, mediaType: "audio" | "video") => {
-        await client.subscribe(remoteUser, mediaType);
-        
-        if (mediaType === "video" && remoteVideoRef.current) {
-          remoteUser.videoTrack?.play(remoteVideoRef.current);
-        }
-        if (mediaType === "audio") {
-          remoteUser.audioTrack?.play();
-        }
-      });
-
       setIsJoined(true);
       toast({ title: "Joined class", description: "You are now in the live class" });
     } catch (error: any) {
       console.error('Error joining channel:', error);
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: "Failed to join class", description: error.message, variant: "destructive" });
     }
   };
 
