@@ -47,11 +47,18 @@ interface RaisedHand {
 interface Doubt {
   id: string;
   user_id: string;
+  user_name?: string;
   question: string;
   answered: boolean;
   answer: string | null;
   created_at: string;
-  profiles: { display_name: string; username: string };
+}
+
+interface Participant {
+  user_id: string;
+  display_name: string;
+  username: string;
+  online_at: string;
 }
 
 interface Message {
@@ -81,9 +88,11 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
   const [doubts, setDoubts] = useState<Doubt[]>([]);
   const [raisedHands, setRaisedHands] = useState<RaisedHand[]>([]);
   const [hasRaisedHand, setHasRaisedHand] = useState(false);
-  const [activeTab, setActiveTab] = useState<"chat" | "doubts" | "attendance">("chat");
+  const [activeTab, setActiveTab] = useState<"chat" | "doubts" | "attendance" | "participants">("chat");
   const [presentStudents, setPresentStudents] = useState<string[]>([]);
   const [allStudents, setAllStudents] = useState<any[]>([]);
+  const [participants, setParticipants] = useState<Participant[]>([]);
+  const presenceChannelRef = useRef<any>(null);
   
   const localVideoRef = useRef<HTMLDivElement>(null);
   const remoteVideoRef = useRef<HTMLDivElement>(null);
@@ -219,20 +228,59 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
         filter: `session_id=eq.${sessionId}`
       }, async (payload) => {
         if (payload.eventType === 'INSERT') {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('display_name, username')
-            .eq('id', payload.new.user_id)
-            .single();
           setDoubts(prev => [...prev, {
             ...payload.new,
-            profiles: profile || { display_name: 'Unknown', username: 'unknown' }
+            user_name: payload.new.user_name
           } as Doubt]);
         } else if (payload.eventType === 'UPDATE') {
           setDoubts(prev => prev.map(d => d.id === payload.new.id ? { ...d, ...payload.new } as Doubt : d));
         }
       })
       .subscribe();
+
+    // Presence channel for real-time participant tracking
+    const presenceChannel = supabase.channel(`session-${sessionId}-presence`, {
+      config: { presence: { key: user?.id || '' } }
+    });
+
+    presenceChannel
+      .on('presence', { event: 'sync' }, () => {
+        const state = presenceChannel.presenceState();
+        const participantsList: Participant[] = [];
+        
+        Object.keys(state).forEach(key => {
+          const presences = state[key] as any[];
+          presences.forEach(presence => {
+            participantsList.push(presence);
+          });
+        });
+        
+        setParticipants(participantsList);
+      })
+      .on('presence', { event: 'join' }, ({ newPresences }) => {
+        console.log('User joined:', newPresences);
+      })
+      .on('presence', { event: 'leave' }, ({ leftPresences }) => {
+        console.log('User left:', leftPresences);
+      })
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED' && user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('display_name, username')
+            .eq('id', user.id)
+            .single();
+
+          await presenceChannel.track({
+            user_id: user.id,
+            display_name: profile?.display_name || 'Unknown',
+            username: profile?.username || 'unknown',
+            online_at: new Date().toISOString()
+          });
+        }
+      });
+
+    presenceChannelRef.current = presenceChannel;
 
     const handsChannel = supabase
       .channel(`session-${sessionId}-hands`)
@@ -262,6 +310,9 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
       supabase.removeChannel(messagesChannel);
       supabase.removeChannel(doubtsChannel);
       supabase.removeChannel(handsChannel);
+      if (presenceChannelRef.current) {
+        supabase.removeChannel(presenceChannelRef.current);
+      }
     };
   }, [sessionId]);
 
@@ -368,7 +419,7 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
     if (doubtsRes.data) {
       setDoubts(doubtsRes.data.map(d => ({
         ...d,
-        profiles: profileMap.get(d.user_id) || { display_name: 'Unknown', username: 'unknown' }
+        user_name: d.user_name
       })));
     }
     if (handsRes.data) {
@@ -706,14 +757,14 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
     }
   };
 
-  const answerDoubt = async (doubtId: string, answer: string) => {
+  const resolveDoubt = async (doubtId: string) => {
     try {
       await supabase
         .from('live_class_doubts')
-        .update({ answered: true, answer, answered_at: new Date().toISOString() })
+        .update({ answered: true })
         .eq('id', doubtId);
 
-      toast({ title: "Answered", description: "Doubt has been answered" });
+      toast({ title: "Resolved", description: "Doubt has been marked as resolved" });
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     }
@@ -901,6 +952,15 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
             <HelpCircle className="w-4 h-4 mr-2" />
             Doubts ({doubts.filter(d => !d.answered).length})
           </Button>
+          <Button
+            variant={activeTab === "participants" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setActiveTab("participants")}
+            className="flex-1"
+          >
+            <Users className="w-4 h-4 mr-2" />
+            Live ({participants.length})
+          </Button>
           {isTeacher && (
             <Button
               variant={activeTab === "attendance" ? "default" : "outline"}
@@ -908,7 +968,7 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
               onClick={() => setActiveTab("attendance")}
               className="flex-1"
             >
-              <Users className="w-4 h-4 mr-2" />
+              <UserCheck className="w-4 h-4 mr-2" />
               Attendance
             </Button>
           )}
@@ -949,47 +1009,85 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
         ) : activeTab === "doubts" ? (
           <>
             <ScrollArea className="flex-1 pr-4">
-              {doubts.map((doubt) => (
-                <Card key={doubt.id} className="mb-3 p-3">
-                  <div className="flex items-start gap-2 mb-2">
-                    <Badge variant="secondary" className="text-xs">
-                      {doubt.profiles?.display_name || doubt.profiles?.username}
-                    </Badge>
-                    {doubt.answered && <Badge variant="default" className="text-xs">Answered</Badge>}
-                  </div>
-                  <p className="text-sm mb-2">{doubt.question}</p>
-                  {doubt.answered && doubt.answer && (
-                    <div className="bg-muted p-2 rounded text-sm">
-                      <strong>Answer:</strong> {doubt.answer}
+              {doubts.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <HelpCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No doubts yet. Post your questions!</p>
+                </div>
+              ) : (
+                doubts.map((doubt) => (
+                  <Card key={doubt.id} className="mb-3 p-3">
+                    <div className="flex items-start gap-2 mb-2">
+                      <Badge variant="secondary" className="text-xs">
+                        {doubt.user_name || 'Unknown'}
+                      </Badge>
+                      {doubt.answered && <Badge variant="default" className="text-xs">Resolved</Badge>}
                     </div>
-                  )}
-                  {isTeacher && !doubt.answered && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        const answer = prompt("Enter your answer:");
-                        if (answer) answerDoubt(doubt.id, answer);
-                      }}
-                    >
-                      Answer
-                    </Button>
-                  )}
-                </Card>
-              ))}
+                    <p className="text-sm mb-2">{doubt.question}</p>
+                    {doubt.answered && doubt.answer && (
+                      <div className="bg-muted p-2 rounded text-sm mt-2">
+                        <strong>Answer:</strong> {doubt.answer}
+                      </div>
+                    )}
+                    {!doubt.answered && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => resolveDoubt(doubt.id)}
+                      >
+                        Mark as Resolved
+                      </Button>
+                    )}
+                  </Card>
+                ))
+              )}
             </ScrollArea>
 
             <div className="flex gap-2 mt-4">
               <Input
                 value={doubt}
                 onChange={(e) => setDoubt(e.target.value)}
-                placeholder="Ask a question..."
+                placeholder="Type your doubt/question..."
                 onKeyPress={(e) => e.key === 'Enter' && postDoubt()}
               />
               <Button size="icon" onClick={postDoubt}>
                 <Send className="w-4 h-4" />
               </Button>
             </div>
+          </>
+        ) : activeTab === "participants" ? (
+          <>
+            <ScrollArea className="flex-1 pr-4">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-semibold">Active Participants</h4>
+                  <Badge variant="secondary">{participants.length} online</Badge>
+                </div>
+                {participants.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Users className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No participants yet</p>
+                  </div>
+                ) : (
+                  participants.map((participant) => (
+                    <Card key={participant.user_id} className="p-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">
+                            {participant.display_name}
+                            {participant.user_id === user?.id && " (You)"}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            @{participant.username}
+                          </p>
+                        </div>
+                      </div>
+                    </Card>
+                  ))
+                )}
+              </div>
+            </ScrollArea>
           </>
         ) : activeTab === "attendance" && isTeacher ? (
           <>
