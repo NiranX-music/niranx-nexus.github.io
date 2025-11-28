@@ -146,6 +146,7 @@ import Weather from "./pages/Weather";
 import PDFSummarizer from "./pages/PDFSummarizer";
 import AITopicMapGenerator from "./pages/AITopicMapGenerator";
 import AISolver from "./pages/AISolver";
+import CoquiTTS from "./pages/CoquiTTS";
 import { TeacherRoute } from "./components/TeacherRoute";
 import PublishedContent from "./pages/PublishedContent";
 
@@ -285,6 +286,7 @@ const App = () => (
                           <Route path="/ai-topic-map-generator" element={<AITopicMapGenerator />} />
                           <Route path="/ai-solver" element={<AISolver />} />
                           <Route path="/pdf-summarizer" element={<PDFSummarizer />} />
+                          <Route path="/coqui-tts" element={<CoquiTTS />} />
                           <Route path="/ai-library" element={<AILibrary />} />
                           <Route path="/openrouter-chat" element={<OpenRouterChat />} />
                           <Route path="/weather" element={<Weather />} />

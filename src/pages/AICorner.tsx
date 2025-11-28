@@ -149,6 +149,14 @@ const aiTools = [
     route: "/niranx/pdf-summarizer",
     color: "text-rose-500",
   },
+  {
+    id: "coqui-tts",
+    title: "Coqui TTS",
+    description: "Free text-to-speech and voice cloning with multi-language support",
+    icon: Mic,
+    route: "/niranx/coqui-tts",
+    color: "text-purple-500",
+  },
 ];
 
 export default function AICorner() {
