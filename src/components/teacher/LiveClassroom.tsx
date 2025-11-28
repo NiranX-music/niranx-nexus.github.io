@@ -88,6 +88,17 @@ interface Message {
   profiles: { display_name: string; username: string };
 }
 
+interface SharedFile {
+  id: string;
+  session_id: string;
+  uploaded_by: string;
+  file_name: string;
+  file_url: string;
+  file_size: number;
+  file_type: string;
+  created_at: string;
+}
+
 export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
   const { user } = useAuth();
   const [client, setClient] = useState<IAgoraRTCClient | null>(null);
@@ -98,11 +109,14 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
   const [isVideoOn, setIsVideoOn] = useState(true);
   const [isAudioOn, setIsAudioOn] = useState(true);
   const [isSharingScreen, setIsSharingScreen] = useState(false);
+  const [isTogglingScreen, setIsTogglingScreen] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [channelName, setChannelName] = useState<string>("");
   
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
+  const [sharedFiles, setSharedFiles] = useState<SharedFile[]>([]);
+  const [uploadingFiles, setUploadingFiles] = useState(false);
   const [doubt, setDoubt] = useState("");
   const [doubts, setDoubts] = useState<Doubt[]>([]);
   const [raisedHands, setRaisedHands] = useState<RaisedHand[]>([]);
@@ -118,6 +132,7 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
   const [newPollQuestion, setNewPollQuestion] = useState('');
   const [newPollOptions, setNewPollOptions] = useState(['', '', '', '']);
   const presenceChannelRef = useRef<any>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const localVideoRef = useRef<HTMLDivElement>(null);
   const remoteVideoRef = useRef<HTMLDivElement>(null);
@@ -336,6 +351,19 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
       })
       .subscribe();
 
+    // Files channel for real-time file uploads
+    const filesChannel = supabase
+      .channel(`session-${sessionId}-files`)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'live_class_files',
+        filter: `session_id=eq.${sessionId}`
+      }, (payload) => {
+        setSharedFiles(prev => [...prev, payload.new as SharedFile]);
+      })
+      .subscribe();
+
     const handsChannel = supabase
       .channel(`session-${sessionId}-hands`)
       .on('postgres_changes', {
@@ -366,6 +394,7 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
       supabase.removeChannel(handsChannel);
       supabase.removeChannel(pollsChannel);
       supabase.removeChannel(pollResponsesChannel);
+      supabase.removeChannel(filesChannel);
       if (presenceChannelRef.current) {
         supabase.removeChannel(presenceChannelRef.current);
       }
@@ -446,13 +475,14 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
   };
 
   const loadSessionData = async (sessionId: string) => {
-    const [messagesRes, doubtsRes, handsRes, pollsRes, pollResponsesRes, sessionRes] = await Promise.all([
+    const [messagesRes, doubtsRes, handsRes, pollsRes, pollResponsesRes, sessionRes, filesRes] = await Promise.all([
       supabase.from('live_class_messages').select('*').eq('session_id', sessionId).order('created_at'),
       supabase.from('live_class_doubts').select('*').eq('session_id', sessionId).order('created_at'),
       supabase.from('live_class_raised_hands').select('*').eq('session_id', sessionId).eq('acknowledged', false),
       supabase.from('live_class_polls').select('*').eq('session_id', sessionId).order('created_at'),
       supabase.from('live_class_poll_responses').select('*'),
-      supabase.from('live_class_sessions').select('chat_mode').eq('id', sessionId).single()
+      supabase.from('live_class_sessions').select('chat_mode').eq('id', sessionId).single(),
+      supabase.from('live_class_files').select('*').eq('session_id', sessionId).order('created_at')
     ]);
 
     // Set chat mode
@@ -499,6 +529,9 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
     }
     if (pollResponsesRes.data) {
       setPollResponses(pollResponsesRes.data);
+    }
+    if (filesRes.data) {
+      setSharedFiles(filesRes.data);
     }
   };
 
@@ -593,6 +626,13 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
       });
       return;
     }
+
+    // Prevent double-clicking
+    if (isTogglingScreen) {
+      return;
+    }
+
+    setIsTogglingScreen(true);
 
     try {
       if (isSharingScreen && localScreenTrack) {
@@ -741,6 +781,61 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
         description: error?.message || (error?.code as string) || "Could not start screen sharing", 
         variant: "destructive" 
       });
+    } finally {
+      setIsTogglingScreen(false);
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0 || !sessionId || !user) return;
+
+    setUploadingFiles(true);
+
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${sessionId}/${Date.now()}_${file.name}`;
+
+        // Upload to Supabase Storage
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('class-files')
+          .upload(fileName, file);
+
+        if (uploadError) throw uploadError;
+
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('class-files')
+          .getPublicUrl(fileName);
+
+        // Save to database
+        await supabase.from('live_class_files').insert({
+          session_id: sessionId,
+          uploaded_by: user.id,
+          file_name: file.name,
+          file_url: publicUrl,
+          file_size: file.size,
+          file_type: file.type
+        });
+      }
+
+      toast({ title: "Files uploaded", description: `${files.length} file(s) uploaded successfully` });
+      
+      // Reset input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } catch (error: any) {
+      console.error('Error uploading files:', error);
+      toast({
+        title: "Upload failed",
+        description: error.message || "Could not upload files",
+        variant: "destructive"
+      });
+    } finally {
+      setUploadingFiles(false);
     }
   };
 
@@ -1177,6 +1272,22 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
             </ScrollArea>
 
             <div className="flex gap-2 mt-4">
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+              <Button
+                size="icon"
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingFiles}
+                title="Upload files"
+              >
+                📎
+              </Button>
               <Input
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
@@ -1188,6 +1299,34 @@ export function LiveClassroom({ classroomId, isTeacher }: LiveClassroomProps) {
                 <Send className="w-4 h-4" />
               </Button>
             </div>
+
+            {sharedFiles.length > 0 && (
+              <div className="mt-4 border-t pt-4">
+                <h4 className="text-xs font-semibold mb-2">Shared Files ({sharedFiles.length})</h4>
+                <ScrollArea className="max-h-32">
+                  {sharedFiles.map((file) => (
+                    <div key={file.id} className="flex items-center justify-between p-2 hover:bg-muted rounded mb-1">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <span className="text-lg">📄</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium truncate">{file.file_name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {(file.file_size / 1024).toFixed(1)} KB
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => window.open(file.file_url, '_blank')}
+                      >
+                        ⬇️
+                      </Button>
+                    </div>
+                  ))}
+                </ScrollArea>
+              </div>
+            )}
           </>
         ) : activeTab === "polls" ? (
           <>
