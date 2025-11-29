@@ -61,6 +61,7 @@ import FocusEngine from "./pages/FocusEngine";
 import MyCloudDrives from "./pages/MyCloudDrives";
 import MyCloudFolder from "./pages/MyCloudFolder";
 import BackblazeStorage from "./pages/BackblazeStorage";
+import FluxAPIImageGen from "./pages/FluxAPIImageGen";
 import ResetPassword from "./pages/ResetPassword";
 import MagicLink from "./pages/MagicLink";
 import ConfirmSignup from "./pages/ConfirmSignup";
@@ -181,6 +182,14 @@ const App = () => (
                           element={
                             <AppLayout>
                               <BackblazeStorage />
+                            </AppLayout>
+                          }
+                        />
+                        <Route
+                          path="/niranx/fluxapi-image"
+                          element={
+                            <AppLayout>
+                              <FluxAPIImageGen />
                             </AppLayout>
                           }
                         />

@@ -160,6 +160,14 @@ const aiTools = [
     route: "/niranx/groq-chat",
     color: "text-orange-500",
   },
+  {
+    id: "fluxapi-image",
+    title: "Multi-Model Image Generator",
+    description: "Create stunning images with FluxAPI.ai using multiple FLUX models",
+    icon: Sparkles,
+    route: "/niranx/fluxapi-image",
+    color: "text-fuchsia-500",
+  },
 ];
 
 export default function AICorner() {
