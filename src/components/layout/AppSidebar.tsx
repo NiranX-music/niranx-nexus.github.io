@@ -160,7 +160,7 @@ const filesNavigation = [
   { title: "File Hub", url: "/niranx/file-hub", icon: FolderOpen },
   { title: "My Cloud", url: "/niranx/my-cloud", icon: Cloud },
   { title: "Manage Drives", url: "/niranx/manage-drives", icon: HardDrive },
-  { title: "Backblaze Storage", url: "/backblaze-storage", icon: Cloud },
+  { title: "Backblaze Storage", url: "/niranx/backblaze-storage", icon: Cloud },
   { title: "Upload", url: "/niranx/upload", icon: Upload },
 ];
 
