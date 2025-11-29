@@ -174,8 +174,7 @@ export default function AdminDashboard() {
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
-      .order('created_at', { ascending: false })
-      .limit(20);
+      .order('created_at', { ascending: false });
 
     if (!error && data) {
       setUsers(data);
