@@ -370,12 +370,17 @@ const EnhancedScheduler = () => {
   const deleteTask = async (taskId: string) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        await supabase
-          .from('schedule_tasks')
-          .delete()
-          .eq('id', taskId);
+      if (!user) {
+        throw new Error('User not authenticated');
       }
+
+      const { error } = await supabase
+        .from('schedule_tasks')
+        .delete()
+        .eq('id', taskId)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
       
       setTasks(prev => prev.filter(task => task.id !== taskId));
       toast({
@@ -383,6 +388,7 @@ const EnhancedScheduler = () => {
         description: "Task removed from schedule",
       });
     } catch (error) {
+      console.error('Error deleting task:', error);
       toast({
         title: "Error",
         description: "Failed to delete task",
