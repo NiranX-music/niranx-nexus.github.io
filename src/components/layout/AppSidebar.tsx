@@ -110,8 +110,8 @@ const coreNavigation = [
 const aiCornerNavigation = [
   { title: "AI Hub", url: "/niranx/ai-corner", icon: Sparkles },
   { title: "AI Solver", url: "/niranx/ai-solver", icon: Brain },
-  { title: "Groq Chat", url: "/niranx/groq-chat", icon: Zap },
-  { title: "Groq History", url: "/niranx/groq-chat-history", icon: ScrollText },
+  { title: "AI Chat Hub", url: "/niranx/groq-chat", icon: Zap },
+  { title: "Chat History", url: "/niranx/groq-chat-history", icon: ScrollText },
   { title: "PDF Summarizer", url: "/niranx/pdf-summarizer", icon: FileText },
   { title: "AI Library", url: "/niranx/ai-library", icon: Archive },
   { title: "Topic Map Generator", url: "/niranx/ai-topic-map-generator", icon: RouteIcon },
