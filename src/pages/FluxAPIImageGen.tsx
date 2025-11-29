@@ -10,9 +10,9 @@ import { Loader2, Download, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 const MODELS = [
-  { id: "flux-dev", name: "FLUX Dev", description: "High quality, slower" },
-  { id: "flux-schnell", name: "FLUX Schnell", description: "Fast generation" },
-  { id: "flux-pro", name: "FLUX Pro", description: "Premium quality" },
+  { id: "pro", name: "FLUX Kontext Pro", description: "Standard model for most use cases" },
+  { id: "max", name: "FLUX Kontext Max", description: "Enhanced model for complex scenes" },
+  { id: "dev", name: "FLUX Dev", description: "Development model, balanced quality" },
 ];
 
 const SIZES = [
@@ -25,7 +25,7 @@ const SIZES = [
 export default function FluxAPIImageGen() {
   const { user } = useAuth();
   const [prompt, setPrompt] = useState("");
-  const [selectedModel, setSelectedModel] = useState("flux-dev");
+  const [selectedModel, setSelectedModel] = useState("dev");
   const [selectedSize, setSelectedSize] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);

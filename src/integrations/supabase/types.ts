@@ -107,6 +107,51 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_notifications: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          expires_at: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          message: string
+          priority: string | null
+          target_user_ids: string[] | null
+          target_users: string | null
+          title: string
+          type: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          expires_at?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          message: string
+          priority?: string | null
+          target_user_ids?: string[] | null
+          target_users?: string | null
+          title: string
+          type?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          expires_at?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          message?: string
+          priority?: string | null
+          target_user_ids?: string[] | null
+          target_users?: string | null
+          title?: string
+          type?: string | null
+        }
+        Relationships: []
+      }
       admin_requests: {
         Row: {
           created_at: string | null
@@ -5768,6 +5813,45 @@ export type Database = {
           metadata?: Json | null
           success?: boolean | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      whats_new: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          description: string
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          link: string | null
+          priority: number | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          description: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          link?: string | null
+          priority?: number | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          description?: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          link?: string | null
+          priority?: number | null
+          title?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
