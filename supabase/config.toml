@@ -103,3 +103,6 @@ verify_jwt = false
 [functions.aiml-chat]
 verify_jwt = false
 
+[functions.backblaze-storage]
+verify_jwt = false
+
