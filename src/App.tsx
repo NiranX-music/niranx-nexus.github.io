@@ -49,6 +49,8 @@ import AIChat from "./pages/AIChat";
 import AIChatHistory from "./pages/AIChatHistory";
 import AIScheduler from "./pages/AIScheduler";
 import Notifications from "./pages/Notifications";
+import WhatsNewPage from "./pages/WhatsNewPage";
+import NotificationsPage from "./pages/NotificationsPage";
 
 import VideoShare from "./pages/VideoShare";
 import VideoLibrary from "./pages/VideoLibrary";
@@ -263,7 +265,8 @@ const App = () => (
                           <Route path="/ai-chat" element={<AIChat />} />
                           <Route path="/ai-chat-history" element={<AIChatHistory />} />
                           <Route path="/ai-scheduler" element={<AIScheduler />} />
-                          <Route path="/notifications" element={<Notifications />} />
+                          <Route path="/whats-new" element={<WhatsNewPage />} />
+                          <Route path="/notifications" element={<NotificationsPage />} />
                           <Route path="/notification-settings" element={<NotificationSettings />} />
                           <Route path="/become-admin" element={<BecomeAdmin />} />
                           <Route path="/video-share" element={<VideoShare />} />

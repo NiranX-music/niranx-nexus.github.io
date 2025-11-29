@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useNavigate } from "react-router-dom";
-import { Keyboard } from "lucide-react";
+import { Keyboard, Sparkles, Bell } from "lucide-react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -146,6 +146,24 @@ export function AppLayout({ children }: AppLayoutProps) {
               </BreadcrumbList>
             </Breadcrumb>
             <div className="ml-auto flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate("/niranx/whats-new")}
+                className="hover:bg-accent"
+                title="What's New"
+              >
+                <Sparkles className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate("/niranx/notifications")}
+                className="hover:bg-accent"
+                title="View All Notifications"
+              >
+                <Bell className="h-5 w-5" />
+              </Button>
               <NewLaunchesPopover />
               <Button
                 variant="ghost"
