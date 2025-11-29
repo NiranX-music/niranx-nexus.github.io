@@ -117,6 +117,11 @@ const aiCornerNavigation = [
   { title: "Topic Map Generator", url: "/niranx/ai-topic-map-generator", icon: RouteIcon },
 ];
 
+// AI Development
+const aiDevelopmentNavigation = [
+  { title: "DeepSeek Coder", url: "/niranx/deepseek-chat", icon: Brain },
+];
+
 // Study & Focus
 const studyNavigation = [
   { title: "Tasks", url: "/niranx/tasks", icon: CheckSquare },
@@ -273,6 +278,7 @@ export function AppSidebar() {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     favorites: true,
     aiCorner: true,
+    aiDevelopment: true,
     study: true,
     progress: false,
     media: false,
@@ -294,6 +300,7 @@ export function AppSidebar() {
   const allNavItems = useMemo(() => [
     ...coreNavigation,
     ...aiCornerNavigation,
+    ...aiDevelopmentNavigation,
     ...studyNavigation,
     ...progressNavigation,
     ...mediaNavigation,
@@ -519,6 +526,26 @@ export function AppSidebar() {
             <CollapsibleContent>
               <SidebarGroupContent>
                 <SidebarMenu>{renderNavItems(aiCornerNavigation)}</SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
+
+        {/* AI Development */}
+        <Collapsible open={expandedSections.aiDevelopment} onOpenChange={() => toggleSection('aiDevelopment')}>
+          <SidebarGroup>
+            <CollapsibleTrigger asChild>
+              <SidebarGroupLabel className="cursor-pointer hover:bg-purple-500/20 rounded-lg px-3 -mx-2 flex items-center justify-between text-white/90 font-bold text-sm uppercase tracking-wider transition-all duration-200 py-3 bg-gradient-to-r from-purple-500/25 to-transparent border border-purple-500/20 mb-2">
+                <span className="flex items-center gap-2">
+                  <Brain className="h-4 w-4 text-purple-400" />
+                  {!isCollapsed && "AI Development"}
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform text-purple-400 ${expandedSections.aiDevelopment ? '' : '-rotate-90'}`} />
+              </SidebarGroupLabel>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>{renderNavItems(aiDevelopmentNavigation)}</SidebarMenu>
               </SidebarGroupContent>
             </CollapsibleContent>
           </SidebarGroup>
