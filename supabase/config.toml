@@ -104,5 +104,5 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.backblaze-storage]
-verify_jwt = false
+verify_jwt = true
 

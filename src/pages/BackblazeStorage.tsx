@@ -87,14 +87,22 @@ export default function BackblazeStorage() {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Function invocation error:", error);
+        throw new Error(error.message || "Failed to invoke function");
+      }
+
+      if (data?.error) {
+        console.error("Backend error:", data.error);
+        throw new Error(data.error);
+      }
 
       toast.success("File uploaded successfully");
       setSelectedFile(null);
       loadFiles();
     } catch (error: any) {
       console.error("Error uploading file:", error);
-      toast.error("Failed to upload file");
+      toast.error(error.message || "Failed to upload file");
     } finally {
       setUploading(false);
     }
@@ -109,7 +117,15 @@ export default function BackblazeStorage() {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Function invocation error:", error);
+        throw new Error(error.message || "Failed to invoke function");
+      }
+
+      if (data?.error) {
+        console.error("Backend error:", data.error);
+        throw new Error(data.error);
+      }
 
       // Create blob and download
       const blob = new Blob([data]);
@@ -125,7 +141,7 @@ export default function BackblazeStorage() {
       toast.success("File downloaded");
     } catch (error: any) {
       console.error("Error downloading file:", error);
-      toast.error("Failed to download file");
+      toast.error(error.message || "Failed to download file");
     }
   };
 
@@ -133,7 +149,7 @@ export default function BackblazeStorage() {
     if (!confirm(`Delete ${file.file_name}?`)) return;
 
     try {
-      const { error } = await supabase.functions.invoke("backblaze-storage", {
+      const { data, error } = await supabase.functions.invoke("backblaze-storage", {
         body: {
           action: "delete",
           fileId: file.file_id,
@@ -141,13 +157,21 @@ export default function BackblazeStorage() {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Function invocation error:", error);
+        throw new Error(error.message || "Failed to invoke function");
+      }
+
+      if (data?.error) {
+        console.error("Backend error:", data.error);
+        throw new Error(data.error);
+      }
 
       toast.success("File deleted");
       loadFiles();
     } catch (error: any) {
       console.error("Error deleting file:", error);
-      toast.error("Failed to delete file");
+      toast.error(error.message || "Failed to delete file");
     }
   };
 
