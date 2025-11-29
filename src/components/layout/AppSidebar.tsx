@@ -115,6 +115,7 @@ const aiCornerNavigation = [
   { title: "PDF Summarizer", url: "/niranx/pdf-summarizer", icon: FileText },
   { title: "AI Library", url: "/niranx/ai-library", icon: Archive },
   { title: "Topic Map Generator", url: "/niranx/ai-topic-map-generator", icon: RouteIcon },
+  { title: "AI Image Generator", url: "/niranx/lovable-image-gen", icon: Image },
 ];
 
 // AI Development
