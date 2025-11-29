@@ -1,237 +1,400 @@
-import { useState, useEffect, useRef } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useRef, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { useAuth } from "@/contexts/AuthContext";
+import { Input } from "@/components/ui/input";
+import { Send, Loader2, Sparkles, User, Bot, History, Paperclip, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Send, Zap } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import ReactMarkdown from "react-markdown";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
+  attachment_url?: string;
 }
 
-const MODELS = [
-  { id: "llama-3.3-70b-versatile", name: "Llama 3.3 70B", provider: "Meta" },
-  { id: "llama-3.1-70b-versatile", name: "Llama 3.1 70B", provider: "Meta" },
-  { id: "llama-3.1-8b-instant", name: "Llama 3.1 8B (Fast)", provider: "Meta" },
-  { id: "mixtral-8x7b-32768", name: "Mixtral 8x7B", provider: "Mistral" },
-  { id: "gemma2-9b-it", name: "Gemma 2 9B", provider: "Google" },
+const GROQ_MODELS = [
+  { id: "llama-3.3-70b-versatile", name: "Llama 3.3 70B" },
+  { id: "llama-3.1-70b-versatile", name: "Llama 3.1 70B" },
+  { id: "llama-3.1-8b-instant", name: "Llama 3.1 8B" },
+  { id: "mixtral-8x7b-32768", name: "Mixtral 8x7B" },
+  { id: "gemma2-9b-it", name: "Gemma 2 9B" },
 ];
 
 export default function GroqChat() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+  const [model, setModel] = useState(GROQ_MODELS[0].id);
   const [loading, setLoading] = useState(false);
-  const [selectedModel, setSelectedModel] = useState(MODELS[0].id);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollIntoView({ behavior: "smooth" });
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const sendMessage = async () => {
-    if (!input.trim() || loading) return;
+  useEffect(() => {
+    const conversationParam = searchParams.get("conversation");
+    if (conversationParam && user) {
+      loadConversation(conversationParam);
+    }
+  }, [searchParams, user]);
 
-    const userMessage: Message = { role: "user", content: input };
-    setMessages(prev => [...prev, userMessage]);
+  const loadConversation = async (id: string) => {
+    try {
+      const { data: conversation, error: convError } = await supabase
+        .from("groq_conversations")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (convError) throw convError;
+
+      const { data: msgs, error: msgsError } = await supabase
+        .from("groq_messages")
+        .select("*")
+        .eq("conversation_id", id)
+        .order("created_at", { ascending: true });
+
+      if (msgsError) throw msgsError;
+
+      setConversationId(id);
+      setModel(conversation.model);
+      setMessages(msgs.map(m => ({ 
+        role: m.role as "user" | "assistant", 
+        content: m.content, 
+        attachment_url: m.attachment_url || undefined 
+      })));
+    } catch (error: any) {
+      toast.error("Failed to load conversation");
+      console.error(error);
+    }
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!user) {
+      toast.error("Please sign in to upload files");
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File size must be less than 10MB");
+      return;
+    }
+
+    setUploadedFile(file);
+    
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from("groq_attachments")
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("groq_attachments")
+        .getPublicUrl(fileName);
+
+      setUploadedFileUrl(publicUrl);
+      toast.success("File uploaded successfully");
+    } catch (error: any) {
+      toast.error("Failed to upload file");
+      console.error(error);
+      setUploadedFile(null);
+    }
+  };
+
+  const removeFile = () => {
+    setUploadedFile(null);
+    setUploadedFileUrl(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const sendMessage = async () => {
+    if (!input.trim() || loading || !user) return;
+
+    const userMessage: Message = { 
+      role: "user", 
+      content: input,
+      attachment_url: uploadedFileUrl || undefined
+    };
+    
+    setMessages((prev) => [...prev, userMessage]);
+    const newMessages = [...messages, userMessage];
     setInput("");
     setLoading(true);
 
+    let currentConvId = conversationId;
+    if (!currentConvId) {
+      try {
+        const title = input.slice(0, 50) + (input.length > 50 ? "..." : "");
+        const { data: conv, error: convError } = await supabase
+          .from("groq_conversations")
+          .insert({ title, model, user_id: user.id })
+          .select()
+          .single();
+
+        if (convError) throw convError;
+        currentConvId = conv.id;
+        setConversationId(conv.id);
+      } catch (error) {
+        console.error("Failed to create conversation:", error);
+      }
+    }
+
+    if (currentConvId) {
+      try {
+        await supabase.from("groq_messages").insert({
+          conversation_id: currentConvId,
+          role: "user",
+          content: input,
+          attachment_url: uploadedFileUrl
+        });
+
+        await supabase
+          .from("groq_conversations")
+          .update({ updated_at: new Date().toISOString() })
+          .eq("id", currentConvId);
+      } catch (error) {
+        console.error("Failed to save message:", error);
+      }
+    }
+
+    removeFile();
+
     try {
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/groq-chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({
-          messages: [...messages, userMessage],
-          model: selectedModel,
-        }),
+      const { data, error } = await supabase.functions.invoke("groq-chat", {
+        body: { messages: newMessages, model },
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to get response');
-      }
+      if (error) throw error;
 
-      const reader = response.body?.getReader();
+      const reader = data.getReader();
       const decoder = new TextDecoder();
       let assistantMessage = "";
 
-      setMessages(prev => [...prev, { role: "assistant", content: "" }]);
+      setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
 
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-          const chunk = decoder.decode(value);
-          const lines = chunk.split('\n');
+        const chunk = decoder.decode(value);
+        const lines = chunk.split("\n");
 
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const data = line.slice(6);
-              if (data === '[DONE]') continue;
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const data = line.slice(6);
+            if (data === "[DONE]") continue;
 
-              try {
-                const parsed = JSON.parse(data);
-                const content = parsed.choices?.[0]?.delta?.content;
-                if (content) {
-                  assistantMessage += content;
-                  setMessages(prev => {
-                    const newMessages = [...prev];
-                    newMessages[newMessages.length - 1] = {
-                      role: "assistant",
-                      content: assistantMessage
-                    };
-                    return newMessages;
-                  });
-                }
-              } catch (e) {
-                console.error('Error parsing SSE data:', e);
-              }
+            try {
+              const parsed = JSON.parse(data);
+              const content = parsed.choices[0]?.delta?.content || "";
+              assistantMessage += content;
+
+              setMessages((prev) => {
+                const newMessages = [...prev];
+                newMessages[newMessages.length - 1] = {
+                  role: "assistant",
+                  content: assistantMessage,
+                };
+                return newMessages;
+              });
+            } catch (e) {
+              console.error("Parse error:", e);
             }
           }
         }
       }
-    } catch (error) {
-      console.error('Error sending message:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to send message');
-      setMessages(prev => prev.slice(0, -1));
+
+      if (currentConvId && assistantMessage) {
+        try {
+          await supabase.from("groq_messages").insert({
+            conversation_id: currentConvId,
+            role: "assistant",
+            content: assistantMessage
+          });
+        } catch (error) {
+          console.error("Failed to save assistant message:", error);
+        }
+      }
+    } catch (error: any) {
+      console.error("Error:", error);
+      toast.error(error.message || "Failed to send message");
+      setMessages((prev) => prev.slice(0, -1));
     } finally {
       setLoading(false);
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  };
-
   if (!user) {
     return (
-      <div className="container mx-auto p-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Authentication Required</CardTitle>
-            <CardDescription>Please log in to use Groq Chat</CardDescription>
-          </CardHeader>
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-6 flex items-center justify-center">
+        <Card className="max-w-md">
+          <CardContent className="p-6 text-center">
+            <Sparkles className="w-12 h-12 mx-auto mb-4 text-primary" />
+            <h2 className="text-2xl font-bold mb-2">Sign In Required</h2>
+            <p className="text-muted-foreground">Please sign in to use Groq Chat</p>
+          </CardContent>
         </Card>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-6 h-[calc(100vh-8rem)]">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
-        <div className="lg:col-span-2 flex flex-col">
-          <Card className="flex-1 flex flex-col">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Zap className="h-6 w-6 text-primary" />
-                  <CardTitle>Groq Chat</CardTitle>
-                </div>
-                <Select value={selectedModel} onValueChange={setSelectedModel}>
-                  <SelectTrigger className="w-[240px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {MODELS.map(model => (
-                      <SelectItem key={model.id} value={model.id}>
-                        {model.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <CardDescription>
-                Ultra-fast AI inference powered by Groq's LPU™ technology
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1 flex flex-col gap-4">
-              <ScrollArea className="flex-1 pr-4">
-                <div className="space-y-4">
-                  {messages.length === 0 && (
-                    <div className="text-center text-muted-foreground py-8">
-                      <Zap className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>Start a conversation with lightning-fast AI models</p>
-                    </div>
-                  )}
-                  {messages.map((msg, idx) => (
-                    <div
-                      key={idx}
-                      className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                    >
-                      <div
-                        className={`rounded-lg px-4 py-2 max-w-[80%] ${
-                          msg.role === "user"
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted"
-                        }`}
-                      >
-                        <p className="whitespace-pre-wrap">{msg.content}</p>
-                      </div>
-                    </div>
-                  ))}
-                  <div ref={scrollRef} />
-                </div>
-              </ScrollArea>
-              <div className="flex gap-2">
-                <Textarea
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Ask anything..."
-                  className="min-h-[60px]"
-                  disabled={loading}
-                />
-                <Button onClick={sendMessage} disabled={loading || !input.trim()} size="icon">
-                  {loading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Send className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-6">
+      <div className="max-w-5xl mx-auto space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-purple-400 to-blue-400 bg-clip-text text-transparent">
+              Groq Chat
+            </h1>
+            <p className="text-muted-foreground mt-2">Fast AI-powered conversations</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => navigate("/niranx/groq-chat-history")}
+              className="gap-2"
+            >
+              <History className="w-4 h-4" />
+              History
+            </Button>
+            <Select value={model} onValueChange={setModel}>
+              <SelectTrigger className="w-64">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {GROQ_MODELS.map((m) => (
+                  <SelectItem key={m.id} value={m.id}>
+                    {m.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Available Models</CardTitle>
-            <CardDescription>Lightning-fast AI inference</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {MODELS.map(model => (
-                <div key={model.id} className="p-3 rounded-lg border">
-                  <div className="font-medium">{model.name}</div>
-                  <div className="text-sm text-muted-foreground">{model.provider}</div>
-                </div>
-              ))}
-              <div className="mt-6 p-4 rounded-lg bg-primary/10 border border-primary/20">
-                <div className="flex items-start gap-2">
-                  <Zap className="h-5 w-5 text-primary mt-0.5" />
-                  <div className="text-sm">
-                    <p className="font-medium mb-1">Ultra-Fast Performance</p>
-                    <p className="text-muted-foreground">
-                      Groq's LPU™ Inference Engine delivers 10-100x faster inference than traditional GPUs
-                    </p>
+        <Card className="bg-card/50 backdrop-blur border-primary/20 min-h-[600px] max-h-[70vh] flex flex-col">
+          <CardContent className="flex-1 overflow-y-auto p-6 space-y-6">
+            {messages.length === 0 && (
+              <div className="flex flex-col items-center justify-center h-full gap-4 text-muted-foreground">
+                <Sparkles className="w-16 h-16" />
+                <p className="text-lg">Start a conversation with Groq AI</p>
+              </div>
+            )}
+            {messages.map((message, idx) => (
+              <div key={idx} className="animate-in fade-in slide-in-from-bottom-4">
+                <div className="flex items-start gap-4">
+                  {message.role === "user" ? (
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                      <User className="w-4 h-4 text-primary" />
+                    </div>
+                  ) : (
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                      <Bot className="w-4 h-4 text-white" />
+                    </div>
+                  )}
+                  <div className="flex-1 space-y-2">
+                    {message.attachment_url && (
+                      <div className="mb-2">
+                        <a
+                          href={message.attachment_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-primary hover:underline flex items-center gap-2"
+                        >
+                          <Paperclip className="w-3 h-3" />
+                          View Attachment
+                        </a>
+                      </div>
+                    )}
+                    <div className="prose prose-sm dark:prose-invert max-w-none">
+                      <ReactMarkdown>{message.content}</ReactMarkdown>
+                    </div>
                   </div>
                 </div>
               </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </CardContent>
+        </Card>
+
+        <Card className="bg-card/50 backdrop-blur border-primary/20 sticky bottom-6">
+          <CardContent className="p-4">
+            {uploadedFile && (
+              <div className="mb-3 flex items-center gap-2 p-2 bg-primary/10 rounded-lg">
+                <Paperclip className="w-4 h-4 text-primary" />
+                <span className="text-sm flex-1 truncate">{uploadedFile.name}</span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={removeFile}
+                  className="h-6 w-6"
+                >
+                  <X className="w-3 h-3" />
+                </Button>
+              </div>
+            )}
+            <div className="flex gap-2">
+              <Input
+                ref={fileInputRef}
+                type="file"
+                onChange={handleFileSelect}
+                className="hidden"
+                id="file-upload"
+              />
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={loading}
+                className="flex-shrink-0"
+              >
+                <Paperclip className="w-4 h-4" />
+              </Button>
+              <Textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                  }
+                }}
+                placeholder="Type your message..."
+                className="min-h-[60px] resize-none"
+                disabled={loading}
+              />
+              <Button
+                onClick={sendMessage}
+                disabled={loading || !input.trim()}
+                className="gap-2 flex-shrink-0"
+              >
+                {loading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Send className="w-4 h-4" />
+                )}
+              </Button>
             </div>
           </CardContent>
         </Card>

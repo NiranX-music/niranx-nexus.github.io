@@ -2024,6 +2024,68 @@ export type Database = {
         }
         Relationships: []
       }
+      groq_conversations: {
+        Row: {
+          created_at: string | null
+          id: string
+          model: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          model?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          model?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      groq_messages: {
+        Row: {
+          attachment_url: string | null
+          content: string
+          conversation_id: string
+          created_at: string | null
+          id: string
+          role: string
+        }
+        Insert: {
+          attachment_url?: string | null
+          content: string
+          conversation_id: string
+          created_at?: string | null
+          id?: string
+          role: string
+        }
+        Update: {
+          attachment_url?: string | null
+          content?: string
+          conversation_id?: string
+          created_at?: string | null
+          id?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "groq_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "groq_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guardian_access_requests: {
         Row: {
           created_at: string | null
