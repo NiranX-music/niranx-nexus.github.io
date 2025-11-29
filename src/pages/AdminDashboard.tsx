@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Users, FileText, MessageSquare, Activity, TrendingUp, Clock, Award, BarChart3 } from "lucide-react";
+import { Users, FileText, MessageSquare, Activity, TrendingUp, Clock, Award, BarChart3, Sparkles } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -488,6 +488,43 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Quick Actions */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Quick Actions</CardTitle>
+              <CardDescription>Manage platform features and communications</CardDescription>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Button 
+                onClick={() => navigate('/niranx/admin/whats-new')}
+                className="h-auto py-4 flex flex-col items-start gap-2"
+                variant="outline"
+              >
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5" />
+                  <span className="font-semibold">What's New Manager</span>
+                </div>
+                <span className="text-xs text-muted-foreground text-left">
+                  Update and manage What's New items for users
+                </span>
+              </Button>
+
+              <Button 
+                onClick={() => navigate('/niranx/admin/custom-notifications')}
+                className="h-auto py-4 flex flex-col items-start gap-2"
+                variant="outline"
+              >
+                <div className="flex items-center gap-2">
+                  <MessageSquare className="h-5 w-5" />
+                  <span className="font-semibold">Custom Notifications</span>
+                </div>
+                <span className="text-xs text-muted-foreground text-left">
+                  Send targeted notifications to users
+                </span>
+              </Button>
+            </CardContent>
+          </Card>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>

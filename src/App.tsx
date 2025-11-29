@@ -94,6 +94,8 @@ import OldPageArchive from "./pages/OldPageArchive";
 import NotificationSettings from "./pages/NotificationSettings";
 import BecomeAdmin from "./pages/BecomeAdmin";
 import AdminDashboard from "./pages/AdminDashboard";
+import WhatsNewManager from "./pages/admin/WhatsNewManager";
+import CustomNotificationsManager from "./pages/admin/CustomNotificationsManager";
 import AdminRequestAnalytics from "./pages/AdminRequestAnalytics";
 import AdminMessageReports from "./pages/AdminMessageReports";
 import OAuthSettings from "./pages/OAuthSettings";
@@ -331,6 +333,16 @@ const App = () => (
                           <Route path="/admin/roles" element={
                             <AdminRoute>
                               <RoleManagement />
+                            </AdminRoute>
+                          } />
+                          <Route path="/admin/whats-new" element={
+                            <AdminRoute>
+                              <WhatsNewManager />
+                            </AdminRoute>
+                          } />
+                          <Route path="/admin/custom-notifications" element={
+                            <AdminRoute>
+                              <CustomNotificationsManager />
                             </AdminRoute>
                           } />
                           <Route path="/admin/user-controls" element={
