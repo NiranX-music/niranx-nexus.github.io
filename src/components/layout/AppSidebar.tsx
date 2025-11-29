@@ -98,6 +98,8 @@ import niranxLogo from '@/assets/niranx-logo.jpg';
 // Core Navigation
 const coreNavigation = [
   { title: "Dashboard", url: "/niranx/dashboard", icon: Home },
+  { title: "What's New", url: "/niranx/whats-new", icon: Sparkles },
+  { title: "Notifications", url: "/niranx/notifications", icon: Bell },
   { title: "AI Chat", url: "/niranx/ai-chat", icon: Brain },
   { title: "AI Chat History", url: "/niranx/ai-chat-history", icon: ScrollText },
   { title: "AI Scheduler", url: "/niranx/ai-scheduler", icon: Calendar },
