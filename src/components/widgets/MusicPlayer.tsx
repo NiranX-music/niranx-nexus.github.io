@@ -71,10 +71,10 @@ const MusicPlayer = () => {
         id: item.id,
         name: item.name,
         url: item.url,
-        duration: 0,
+        duration: item.duration || 0,
         isLiked: false,
-        artist: item.uploaded_by || 'Unknown Artist',
-        album: item.category || 'Unknown Album',
+        artist: item.artist || 'Unknown Artist',
+        album: item.album || 'Unknown Album',
         size: item.size,
         created_at: item.created_at
       }));
@@ -139,7 +139,10 @@ const MusicPlayer = () => {
                 url: publicUrl,
                 category: 'Music',
                 tags: ['music', 'audio'],
-                uploaded_by: 'Music Player',
+                is_public: true,
+                album: 'Shared Music',
+                artist: 'Community',
+                duration: Math.round(audio.duration),
               })
               .select()
               .single();
