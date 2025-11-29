@@ -170,15 +170,25 @@ const App = () => (
                       <NotificationListener />
                       <Routes>
                         <Route path="/" element={<Landing />} />
-                      <Route path="/niranx/auth" element={<Auth />} />
-                      <Route path="/niranx/reset-password" element={<ResetPassword />} />
-                      <Route path="/niranx/magic-link" element={<MagicLink />} />
-                      <Route path="/niranx/confirm-signup" element={<ConfirmSignup />} />
-                      <Route path="/niranx/invite-user" element={<InviteUser />} />
-                      <Route path="/niranx/reauthentication" element={<Reauthentication />} />
-                      <Route path="/niranx/*" element={
-                      <AppLayout>
-                        <Routes>
+                        <Route path="/niranx/auth" element={<Auth />} />
+                        <Route path="/niranx/reset-password" element={<ResetPassword />} />
+                        <Route path="/niranx/magic-link" element={<MagicLink />} />
+                        <Route path="/niranx/confirm-signup" element={<ConfirmSignup />} />
+                        <Route path="/niranx/invite-user" element={<InviteUser />} />
+                        <Route path="/niranx/reauthentication" element={<Reauthentication />} />
+                        <Route
+                          path="/niranx/backblaze-storage"
+                          element={
+                            <AppLayout>
+                              <BackblazeStorage />
+                            </AppLayout>
+                          }
+                        />
+                        <Route
+                          path="/niranx/*"
+                          element={
+                            <AppLayout>
+                              <Routes>
                           <Route index element={<Index />} />
                           <Route path="/dashboard" element={<Index />} />
                           <Route path="/profile" element={<Profile />} />
