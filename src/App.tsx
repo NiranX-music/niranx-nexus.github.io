@@ -153,6 +153,7 @@ import AISolver from "./pages/AISolver";
 import GroqChat from "./pages/GroqChat";
 import GroqChatHistory from "./pages/GroqChatHistory";
 import DeepSeekChat from "./pages/DeepSeekChat";
+import LovableImageGen from "./pages/LovableImageGen";
 import { TeacherRoute } from "./components/TeacherRoute";
 import PublishedContent from "./pages/PublishedContent";
 
@@ -201,6 +202,14 @@ const App = () => (
                           element={
                             <AppLayout>
                               <DeepSeekChat />
+                            </AppLayout>
+                          }
+                        />
+                        <Route
+                          path="/niranx/lovable-image-gen"
+                          element={
+                            <AppLayout>
+                              <LovableImageGen />
                             </AppLayout>
                           }
                         />
