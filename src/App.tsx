@@ -146,6 +146,7 @@ import Weather from "./pages/Weather";
 import PDFSummarizer from "./pages/PDFSummarizer";
 import AITopicMapGenerator from "./pages/AITopicMapGenerator";
 import AISolver from "./pages/AISolver";
+import GroqChat from "./pages/GroqChat";
 import { TeacherRoute } from "./components/TeacherRoute";
 import PublishedContent from "./pages/PublishedContent";
 
@@ -288,6 +289,7 @@ const App = () => (
                           <Route path="/ai-library" element={<AILibrary />} />
                           <Route path="/openrouter-chat" element={<OpenRouterChat />} />
                           <Route path="/weather" element={<Weather />} />
+                          <Route path="/groq-chat" element={<GroqChat />} />
                           <Route path="/admin" element={
                             <AdminRoute>
                               <AdminDashboard />

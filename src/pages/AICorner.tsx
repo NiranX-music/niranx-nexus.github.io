@@ -149,6 +149,14 @@ const aiTools = [
     route: "/niranx/pdf-summarizer",
     color: "text-rose-500",
   },
+  {
+    id: "groq-chat",
+    title: "Groq Chat",
+    description: "Ultra-fast AI responses powered by Groq's LPU™ technology",
+    icon: Sparkles,
+    route: "/niranx/groq-chat",
+    color: "text-orange-500",
+  },
 ];
 
 export default function AICorner() {
