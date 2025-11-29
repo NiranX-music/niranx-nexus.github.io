@@ -35,6 +35,23 @@ interface Track {
   created_at: string;
 }
 
+const sanitizeFileName = (fileName: string) => {
+  const parts = fileName.split(".");
+  const extension = parts.length > 1 ? parts.pop() : "";
+  const baseName = parts.join(".") || "audio";
+
+  const normalizedBase = baseName
+    .normalize("NFKD")
+    .replace(/[^\w\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .toLowerCase();
+
+  return extension
+    ? `${normalizedBase || "audio"}.${extension.toLowerCase()}`
+    : normalizedBase || "audio";
+};
+
 const MusicPlayer = () => {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
@@ -111,7 +128,8 @@ const MusicPlayer = () => {
 
       try {
         // Upload file to Supabase Storage
-        const filePath = `${Date.now()}-${file.name}`;
+        const safeFileName = sanitizeFileName(file.name);
+        const filePath = `uploads/${Date.now()}-${safeFileName}`;
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('music-files')
           .upload(filePath, file);
@@ -154,10 +172,10 @@ const MusicPlayer = () => {
               id: dbData.id,
               name: dbData.name,
               url: dbData.url,
-              duration: audio.duration,
+              duration: dbData.duration || audio.duration,
               isLiked: false,
-              artist: 'Music Player',
-              album: 'Music',
+              artist: dbData.artist || 'Community',
+              album: dbData.album || 'Shared Music',
               size: dbData.size,
               created_at: dbData.created_at
             };
@@ -386,6 +404,11 @@ const MusicPlayer = () => {
       audio.removeEventListener('ended', handleEnded);
     };
   }, [currentTrackIndex, isRepeat, volume]);
+
+  const queue =
+    tracks.length > 1
+      ? [...tracks.slice(currentTrackIndex + 1), ...tracks.slice(0, currentTrackIndex)]
+      : [];
 
   if (isLoading) {
     return (
@@ -647,6 +670,30 @@ const MusicPlayer = () => {
             </div>
           )}
         </div>
+
+        {/* Up Next Queue */}
+        {queue.length > 0 && (
+          <div className="space-y-2 mt-4">
+            <h4 className="text-sm font-semibold">Up Next</h4>
+            <div className="space-y-1 max-h-40 overflow-y-auto">
+              {queue.slice(0, 10).map((track) => {
+                const originalIndex = tracks.findIndex((t) => t.id === track.id);
+                return (
+                  <div
+                    key={track.id}
+                    className="flex items-center justify-between px-3 py-2 rounded-md bg-muted/30 hover:bg-muted/50 cursor-pointer text-xs"
+                    onClick={() => playTrack(originalIndex)}
+                  >
+                    <span className="truncate flex-1 mr-2">{track.name}</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      {formatTime(track.duration || 0)}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Audio Element */}
         <audio ref={audioRef} preload="metadata" />
