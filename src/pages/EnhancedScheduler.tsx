@@ -64,6 +64,13 @@ const generateTimeSlots = () => {
 
 const timeSlots = generateTimeSlots();
 
+// Normalize time strings (e.g., "08:20:00" -> "08:20") for consistent comparisons
+const normalizeTime = (time: string) => {
+  if (!time) return time;
+  return time.length >= 5 ? time.slice(0, 5) : time;
+};
+
+
 const EnhancedScheduler = () => {
   const [tasks, setTasks] = useState<ScheduleTask[]>([]);
   const [selectedDay, setSelectedDay] = useState('Monday');
@@ -146,8 +153,8 @@ const EnhancedScheduler = () => {
         taskName: item.task_name,
         subject: item.subject,
         topic: item.topic || '',
-        startTime: item.start_time,
-        endTime: item.end_time,
+        startTime: normalizeTime(item.start_time),
+        endTime: normalizeTime(item.end_time),
         classDuration: item.class_duration,
         classLink: item.class_link,
         notes: item.notes,
