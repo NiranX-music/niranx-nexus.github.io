@@ -486,6 +486,39 @@ export type Database = {
         }
         Relationships: []
       }
+      backblaze_files: {
+        Row: {
+          content_type: string | null
+          created_at: string | null
+          file_id: string
+          file_name: string
+          file_size: number
+          id: string
+          upload_timestamp: string | null
+          user_id: string
+        }
+        Insert: {
+          content_type?: string | null
+          created_at?: string | null
+          file_id: string
+          file_name: string
+          file_size: number
+          id?: string
+          upload_timestamp?: string | null
+          user_id: string
+        }
+        Update: {
+          content_type?: string | null
+          created_at?: string | null
+          file_id?: string
+          file_name?: string
+          file_size?: number
+          id?: string
+          upload_timestamp?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       blocked_sites: {
         Row: {
           created_at: string | null

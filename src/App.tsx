@@ -60,6 +60,7 @@ import BlogSettings from "./pages/settings/BlogSettings";
 import FocusEngine from "./pages/FocusEngine";
 import MyCloudDrives from "./pages/MyCloudDrives";
 import MyCloudFolder from "./pages/MyCloudFolder";
+import BackblazeStorage from "./pages/BackblazeStorage";
 import ResetPassword from "./pages/ResetPassword";
 import MagicLink from "./pages/MagicLink";
 import ConfirmSignup from "./pages/ConfirmSignup";
@@ -235,6 +236,7 @@ const App = () => (
                           <Route path="/my-cloud" element={<MyCloudDrives />} />
                           <Route path="/my-cloud/:driveId/*" element={<MyCloudFolder />} />
                           <Route path="/manage-drives" element={<ManageDrives />} />
+                          <Route path="/backblaze-storage" element={<BackblazeStorage />} />
                           <Route path="/pwa-download" element={<PWADownload />} />
                           <Route path="/twa-setup" element={<TWASetup />} />
                           <Route path="/security/2fa" element={<TwoFactorAuth />} />
