@@ -22,7 +22,7 @@ export default function BackblazeStorage() {
   const [files, setFiles] = useState<BackblazeFile[]>([]);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
   useEffect(() => {
     if (user) {
@@ -52,57 +52,67 @@ export default function BackblazeStorage() {
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 100 * 1024 * 1024) {
-        toast.error("File size must be less than 100MB");
-        return;
-      }
-      setSelectedFile(file);
+    const fileList = Array.from(e.target.files || []);
+    if (!fileList.length) {
+      setSelectedFiles([]);
+      return;
     }
+
+    const tooBig = fileList.find((file) => file.size > 100 * 1024 * 1024);
+    if (tooBig) {
+      toast.error("Each file must be less than 100MB");
+      return;
+    }
+
+    setSelectedFiles(fileList);
+  };
+
+  const fileToBase64 = (file: File) => {
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        resolve(result.split(",")[1]);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   };
 
   const handleUpload = async () => {
-    if (!selectedFile || !user) return;
+    if (!selectedFiles.length || !user) return;
 
     try {
       setUploading(true);
 
-      // Convert file to base64
-      const reader = new FileReader();
-      reader.readAsDataURL(selectedFile);
-      
-      await new Promise((resolve, reject) => {
-        reader.onload = resolve;
-        reader.onerror = reject;
-      });
+      for (const file of selectedFiles) {
+        const base64Data = await fileToBase64(file);
 
-      const base64Data = (reader.result as string).split(",")[1];
+        const { data, error } = await supabase.functions.invoke("backblaze-storage", {
+          body: {
+            action: "upload",
+            fileName: file.name,
+            fileData: base64Data,
+          },
+        });
 
-      const { data, error } = await supabase.functions.invoke("backblaze-storage", {
-        body: {
-          action: "upload",
-          fileName: selectedFile.name,
-          fileData: base64Data,
-        },
-      });
+        if (error) {
+          console.error("Function invocation error:", error);
+          throw new Error(error.message || "Failed to invoke function");
+        }
 
-      if (error) {
-        console.error("Function invocation error:", error);
-        throw new Error(error.message || "Failed to invoke function");
+        if (data?.error) {
+          console.error("Backend error:", data.error);
+          throw new Error(data.error);
+        }
       }
 
-      if (data?.error) {
-        console.error("Backend error:", data.error);
-        throw new Error(data.error);
-      }
-
-      toast.success("File uploaded successfully");
-      setSelectedFile(null);
+      toast.success(`${selectedFiles.length} file${selectedFiles.length > 1 ? "s" : ""} uploaded successfully`);
+      setSelectedFiles([]);
       loadFiles();
     } catch (error: any) {
-      console.error("Error uploading file:", error);
-      toast.error(error.message || "Failed to upload file");
+      console.error("Error uploading files:", error);
+      toast.error(error.message || "Failed to upload files");
     } finally {
       setUploading(false);
     }
@@ -221,13 +231,14 @@ export default function BackblazeStorage() {
             <div className="flex gap-2 flex-wrap">
               <Input
                 type="file"
+                multiple
                 onChange={handleFileSelect}
                 className="flex-1"
                 disabled={uploading}
               />
               <Button
                 onClick={handleUpload}
-                disabled={!selectedFile || uploading}
+                disabled={selectedFiles.length === 0 || uploading}
                 className="gap-2"
               >
                 {uploading ? (
@@ -243,9 +254,15 @@ export default function BackblazeStorage() {
                 )}
               </Button>
             </div>
-            {selectedFile && (
+            {selectedFiles.length > 0 && (
               <p className="text-sm text-muted-foreground">
-                Selected: {selectedFile.name} ({formatFileSize(selectedFile.size)})
+                Selected {selectedFiles.length} file{selectedFiles.length > 1 ? "s" : ""}:
+                {" "}
+                {selectedFiles
+                  .slice(0, 3)
+                  .map((file) => file.name)
+                  .join(", ")}
+                {selectedFiles.length > 3 ? "..." : ""}
               </p>
             )}
           </CardContent>
