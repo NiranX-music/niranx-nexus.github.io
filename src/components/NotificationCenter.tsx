@@ -24,9 +24,23 @@ interface Notification {
   created_at: string;
 }
 
+interface AdminNotification {
+  id: string;
+  title: string;
+  message: string;
+  type: string;
+  icon?: string;
+  priority: string;
+  target_users: string;
+  expires_at?: string;
+  is_active: boolean;
+  created_at: string;
+}
+
 export function NotificationCenter() {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [adminNotifications, setAdminNotifications] = useState<AdminNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
 
@@ -34,9 +48,10 @@ export function NotificationCenter() {
     if (!user) return;
 
     loadNotifications();
+    loadAdminNotifications();
 
-    // Subscribe to real-time updates
-    const channel = supabase
+    // Subscribe to real-time updates for regular notifications
+    const notifChannel = supabase
       .channel('notifications')
       .on(
         'postgres_changes',
@@ -60,8 +75,25 @@ export function NotificationCenter() {
       )
       .subscribe();
 
+    // Subscribe to admin notifications
+    const adminChannel = supabase
+      .channel('admin_notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'admin_notifications'
+        },
+        () => {
+          loadAdminNotifications();
+        }
+      )
+      .subscribe();
+
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(notifChannel);
+      supabase.removeChannel(adminChannel);
     };
   }, [user]);
 
@@ -82,6 +114,46 @@ export function NotificationCenter() {
 
     setNotifications(data || []);
     setUnreadCount(data?.filter(n => !n.is_read).length || 0);
+  };
+
+  const loadAdminNotifications = async () => {
+    if (!user) return;
+
+    const { data: userRoles } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id);
+
+    const isAdmin = userRoles?.some(r => r.role === 'admin');
+    const isTeacher = userRoles?.some(r => r.role === 'teacher');
+
+    const now = new Date().toISOString();
+    let query = supabase
+      .from('admin_notifications')
+      .select('*')
+      .eq('is_active', true)
+      .or(`expires_at.is.null,expires_at.gt.${now}`)
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    // Filter by target_users based on user role
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('Error loading admin notifications:', error);
+      return;
+    }
+
+    // Client-side filtering based on target_users
+    const filtered = data?.filter(notif => {
+      if (notif.target_users === 'all') return true;
+      if (notif.target_users === 'teachers' && isTeacher) return true;
+      if (notif.target_users === 'students' && !isAdmin && !isTeacher) return true;
+      if (notif.target_users === 'specific' && notif.target_user_ids?.includes(user.id)) return true;
+      return false;
+    });
+
+    setAdminNotifications(filtered || []);
   };
 
   const markAsRead = async (id: string) => {
@@ -212,13 +284,46 @@ export function NotificationCenter() {
         </div>
         
         <ScrollArea className="h-96">
-          {notifications.length === 0 ? (
+          {notifications.length === 0 && adminNotifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
               <Bell className="h-8 w-8 mb-2 opacity-50" />
               <p className="text-sm">No notifications yet</p>
             </div>
           ) : (
             <div className="divide-y">
+              {/* Admin Notifications (shown first) */}
+              {adminNotifications.map((notification) => (
+                <div
+                  key={`admin-${notification.id}`}
+                  className="p-4 bg-primary/5 border-l-4 border-primary"
+                >
+                  <div className="flex items-start gap-3">
+                    <Bell className="h-5 w-5 text-primary" />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-sm">
+                          {notification.title}
+                        </p>
+                        <Badge variant={
+                          notification.priority === 'urgent' ? 'destructive' :
+                          notification.priority === 'high' ? 'default' :
+                          'secondary'
+                        } className="text-xs">
+                          {notification.priority}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {notification.message}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {formatTime(notification.created_at)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              {/* Regular Notifications */}
               {notifications.map((notification) => {
                 const link = getNotificationLink(notification);
                 const content = (
