@@ -5,7 +5,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Send, Loader2, Sparkles, User, Bot, History, Paperclip, X } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Send, Loader2, Sparkles, User, Bot, History, Paperclip, X, Zap, Brain } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -25,6 +26,15 @@ const GROQ_MODELS = [
   { id: "gemma2-9b-it", name: "Gemma 2 9B" },
 ];
 
+const AIML_MODELS = [
+  { id: "gpt-4o", name: "GPT-4o" },
+  { id: "gpt-4o-mini", name: "GPT-4o Mini" },
+  { id: "claude-3.5-sonnet", name: "Claude 3.5 Sonnet" },
+  { id: "claude-3-opus", name: "Claude 3 Opus" },
+  { id: "mistral-large-latest", name: "Mistral Large" },
+  { id: "gemini-2.0-flash-exp", name: "Gemini 2.0 Flash" },
+];
+
 export default function GroqChat() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -32,12 +42,15 @@ export default function GroqChat() {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+  const [provider, setProvider] = useState<"groq" | "aiml">("groq");
   const [model, setModel] = useState(GROQ_MODELS[0].id);
   const [loading, setLoading] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const currentModels = provider === "groq" ? GROQ_MODELS : AIML_MODELS;
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -49,6 +62,12 @@ export default function GroqChat() {
       loadConversation(conversationParam);
     }
   }, [searchParams, user]);
+
+  useEffect(() => {
+    // Reset model when provider changes
+    const newModels = provider === "groq" ? GROQ_MODELS : AIML_MODELS;
+    setModel(newModels[0].id);
+  }, [provider]);
 
   const loadConversation = async (id: string) => {
     try {
@@ -181,7 +200,8 @@ export default function GroqChat() {
     removeFile();
 
     try {
-      const { data, error } = await supabase.functions.invoke("groq-chat", {
+      const functionName = provider === "groq" ? "groq-chat" : "aiml-chat";
+      const { data, error } = await supabase.functions.invoke(functionName, {
         body: { messages: newMessages, model },
       });
 
@@ -252,7 +272,7 @@ export default function GroqChat() {
           <CardContent className="p-6 text-center">
             <Sparkles className="w-12 h-12 mx-auto mb-4 text-primary" />
             <h2 className="text-2xl font-bold mb-2">Sign In Required</h2>
-            <p className="text-muted-foreground">Please sign in to use Groq Chat</p>
+            <p className="text-muted-foreground">Please sign in to use AI Chat</p>
           </CardContent>
         </Card>
       </div>
@@ -262,14 +282,26 @@ export default function GroqChat() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-6">
       <div className="max-w-5xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-purple-400 to-blue-400 bg-clip-text text-transparent">
-              Groq Chat
+              AI Chat Hub
             </h1>
             <p className="text-muted-foreground mt-2">Fast AI-powered conversations</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Tabs value={provider} onValueChange={(v) => setProvider(v as "groq" | "aiml")}>
+              <TabsList>
+                <TabsTrigger value="groq" className="gap-2">
+                  <Zap className="w-4 h-4" />
+                  Groq
+                </TabsTrigger>
+                <TabsTrigger value="aiml" className="gap-2">
+                  <Brain className="w-4 h-4" />
+                  AIML API
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
             <Button
               variant="outline"
               onClick={() => navigate("/niranx/groq-chat-history")}
@@ -283,7 +315,7 @@ export default function GroqChat() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {GROQ_MODELS.map((m) => (
+                {currentModels.map((m) => (
                   <SelectItem key={m.id} value={m.id}>
                     {m.name}
                   </SelectItem>
@@ -298,7 +330,10 @@ export default function GroqChat() {
             {messages.length === 0 && (
               <div className="flex flex-col items-center justify-center h-full gap-4 text-muted-foreground">
                 <Sparkles className="w-16 h-16" />
-                <p className="text-lg">Start a conversation with Groq AI</p>
+                <p className="text-lg">Start a conversation with AI</p>
+                <p className="text-sm">
+                  {provider === "groq" ? "Powered by Groq LPU" : "Powered by AIML API"}
+                </p>
               </div>
             )}
             {messages.map((message, idx) => (

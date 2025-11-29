@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { 
   Sparkles, 
   FileText, 
@@ -16,7 +17,9 @@ import {
   Archive,
   Bot,
   Cloud,
-  Network
+  Network,
+  Grid3x3,
+  List
 } from "lucide-react";
 
 const aiTools = [
@@ -150,9 +153,9 @@ const aiTools = [
     color: "text-rose-500",
   },
   {
-    id: "groq-chat",
-    title: "Groq Chat",
-    description: "Ultra-fast AI responses powered by Groq's LPU™ technology",
+    id: "ai-chat-hub",
+    title: "AI Chat Hub",
+    description: "Ultra-fast AI responses from Groq and AIML API with multiple models",
     icon: Sparkles,
     route: "/niranx/groq-chat",
     color: "text-orange-500",
@@ -161,25 +164,44 @@ const aiTools = [
 
 export default function AICorner() {
   const navigate = useNavigate();
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center gap-3 mb-8">
-        <div className="p-3 rounded-lg bg-primary/10">
-          <Brain className="h-8 w-8 text-primary" />
+      <div className="flex items-center justify-between flex-wrap gap-4 mb-8">
+        <div className="flex items-center gap-3">
+          <div className="p-3 rounded-lg bg-primary/10">
+            <Brain className="h-8 w-8 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold">AI Corner</h1>
+            <p className="text-muted-foreground">
+              Explore all AI-powered tools to supercharge your learning
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-3xl font-bold">AI Corner</h1>
-          <p className="text-muted-foreground">
-            Explore all AI-powered tools to supercharge your learning
-          </p>
+        <div className="flex gap-2">
+          <Button
+            variant={viewMode === "grid" ? "default" : "outline"}
+            size="icon"
+            onClick={() => setViewMode("grid")}
+          >
+            <Grid3x3 className="h-4 w-4" />
+          </Button>
+          <Button
+            variant={viewMode === "list" ? "default" : "outline"}
+            size="icon"
+            onClick={() => setViewMode("list")}
+          >
+            <List className="h-4 w-4" />
+          </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
         {aiTools.map((tool) => {
           const Icon = tool.icon;
-          return (
+          return viewMode === "grid" ? (
             <Card 
               key={tool.id} 
               className="hover:shadow-lg transition-shadow cursor-pointer group"
@@ -208,6 +230,35 @@ export default function AICorner() {
                   Launch Tool
                 </Button>
               </CardContent>
+            </Card>
+          ) : (
+            <Card 
+              key={tool.id} 
+              className="hover:shadow-lg transition-shadow cursor-pointer group"
+              onClick={() => navigate(tool.route)}
+            >
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className={`p-3 rounded-lg bg-background ${tool.color}`}>
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1">
+                    <CardTitle className="text-lg">{tool.title}</CardTitle>
+                    <CardDescription className="mt-1">{tool.description}</CardDescription>
+                    {tool.note && (
+                      <p className="text-xs text-muted-foreground italic mt-1">
+                        {tool.note}
+                      </p>
+                    )}
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    className="group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
+                  >
+                    Launch
+                  </Button>
+                </div>
+              </CardHeader>
             </Card>
           );
         })}
