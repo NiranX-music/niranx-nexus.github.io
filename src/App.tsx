@@ -236,7 +236,7 @@ const App = () => (
                           <Route path="/my-cloud" element={<MyCloudDrives />} />
                           <Route path="/my-cloud/:driveId/*" element={<MyCloudFolder />} />
                           <Route path="/manage-drives" element={<ManageDrives />} />
-                          <Route path="/niranx/backblaze-storage" element={<BackblazeStorage />} />
+                          <Route path="backblaze-storage" element={<BackblazeStorage />} />
                           <Route path="/pwa-download" element={<PWADownload />} />
                           <Route path="/twa-setup" element={<TWASetup />} />
                           <Route path="/security/2fa" element={<TwoFactorAuth />} />
