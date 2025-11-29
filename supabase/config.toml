@@ -109,3 +109,6 @@ verify_jwt = true
 [functions.fluxapi-image]
 verify_jwt = true
 
+[functions.deepseek-chat]
+verify_jwt = false
+

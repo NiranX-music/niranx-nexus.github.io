@@ -152,6 +152,7 @@ import AITopicMapGenerator from "./pages/AITopicMapGenerator";
 import AISolver from "./pages/AISolver";
 import GroqChat from "./pages/GroqChat";
 import GroqChatHistory from "./pages/GroqChatHistory";
+import DeepSeekChat from "./pages/DeepSeekChat";
 import { TeacherRoute } from "./components/TeacherRoute";
 import PublishedContent from "./pages/PublishedContent";
 
@@ -192,6 +193,14 @@ const App = () => (
                           element={
                             <AppLayout>
                               <FluxAPIImageGen />
+                            </AppLayout>
+                          }
+                        />
+                        <Route
+                          path="/niranx/deepseek-chat"
+                          element={
+                            <AppLayout>
+                              <DeepSeekChat />
                             </AppLayout>
                           }
                         />
