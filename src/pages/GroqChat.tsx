@@ -29,10 +29,10 @@ const GROQ_MODELS = [
 const AIML_MODELS = [
   { id: "gpt-4o", name: "GPT-4o" },
   { id: "gpt-4o-mini", name: "GPT-4o Mini" },
-  { id: "claude-3.5-sonnet", name: "Claude 3.5 Sonnet" },
-  { id: "claude-3-opus", name: "Claude 3 Opus" },
-  { id: "mistral-large-latest", name: "Mistral Large" },
-  { id: "gemini-2.0-flash-exp", name: "Gemini 2.0 Flash" },
+  { id: "anthropic/claude-3-5-sonnet-20241022", name: "Claude 3.5 Sonnet" },
+  { id: "anthropic/claude-3-opus-20240229", name: "Claude 3 Opus" },
+  { id: "mistralai/mistral-large-latest", name: "Mistral Large" },
+  { id: "google/gemini-2.0-flash-exp", name: "Gemini 2.0 Flash" },
 ];
 
 export default function GroqChat() {
@@ -201,13 +201,26 @@ export default function GroqChat() {
 
     try {
       const functionName = provider === "groq" ? "groq-chat" : "aiml-chat";
-      const { data, error } = await supabase.functions.invoke(functionName, {
-        body: { messages: newMessages, model },
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${functionName}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ messages: newMessages, model }),
+        }
+      );
 
-      if (error) throw error;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to get response");
+      }
 
-      const reader = data.getReader();
+      if (!response.body) throw new Error("No response body");
+
+      const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let assistantMessage = "";
 
