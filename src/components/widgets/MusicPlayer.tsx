@@ -530,84 +530,108 @@ const MusicPlayer = () => {
         )}
 
         {/* Player Controls */}
-        <div className="space-y-4">
-          {/* Progress Bar */}
-          <div className="space-y-2">
-            <Slider
-              value={[currentTime]}
-              max={duration || 100}
-              step={1}
-              onValueChange={handleSeek}
-              className="w-full"
-            />
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>{formatTime(currentTime)}</span>
-              <span>{formatTime(duration)}</span>
+        <div className="space-y-6">
+          {/* Enhanced Progress Bar */}
+          <div className="space-y-3">
+            <div className="relative group">
+              <Slider
+                value={[currentTime]}
+                max={duration || 100}
+                step={1}
+                onValueChange={handleSeek}
+                className="w-full cursor-pointer"
+              />
+              <div 
+                className="absolute -top-8 left-0 bg-primary text-primary-foreground px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                style={{ left: `${(currentTime / (duration || 100)) * 100}%`, transform: 'translateX(-50%)' }}
+              >
+                {formatTime(currentTime)}
+              </div>
+            </div>
+            <div className="flex justify-between text-xs font-medium">
+              <span className="text-foreground/80">{formatTime(currentTime)}</span>
+              <span className="text-muted-foreground">{formatTime(duration)}</span>
             </div>
           </div>
 
-          {/* Control Buttons */}
-          <div className="flex items-center justify-center gap-4">
+          {/* Enhanced Control Buttons */}
+          <div className="flex items-center justify-center gap-3">
             <Button
               variant="ghost"
-              size="sm"
+              size="icon"
               onClick={() => setIsShuffle(!isShuffle)}
-              className={isShuffle ? 'text-primary' : ''}
+              className={`hover-scale transition-all duration-200 ${
+                isShuffle 
+                  ? 'text-primary bg-primary/10 hover:bg-primary/20' 
+                  : 'hover:bg-muted/50'
+              }`}
             >
               <Shuffle className="w-4 h-4" />
             </Button>
             
             <Button
               variant="ghost"
-              size="sm"
+              size="icon"
               onClick={previousTrack}
               disabled={tracks.length === 0}
+              className="hover-scale transition-all duration-200 hover:bg-muted/50 disabled:opacity-30"
             >
-              <SkipBack className="w-4 h-4" />
+              <SkipBack className="w-5 h-5" />
             </Button>
             
             <Button
               size="lg"
               onClick={togglePlayPause}
               disabled={tracks.length === 0}
-              className="w-12 h-12 rounded-full"
+              className={`w-16 h-16 rounded-full shadow-lg transition-all duration-300 hover-scale ${
+                isPlaying 
+                  ? 'bg-gradient-to-br from-primary to-primary/80 hover:shadow-primary/50 hover:shadow-xl' 
+                  : 'bg-gradient-to-br from-primary to-primary/70'
+              } disabled:opacity-30 disabled:cursor-not-allowed`}
             >
               {isPlaying ? 
-                <Pause className="w-6 h-6" /> : 
-                <Play className="w-6 h-6" />
+                <Pause className="w-7 h-7 animate-scale-in" /> : 
+                <Play className="w-7 h-7 ml-1 animate-scale-in" />
               }
             </Button>
             
             <Button
               variant="ghost"
-              size="sm"
+              size="icon"
               onClick={nextTrack}
               disabled={tracks.length === 0}
+              className="hover-scale transition-all duration-200 hover:bg-muted/50 disabled:opacity-30"
             >
-              <SkipForward className="w-4 h-4" />
+              <SkipForward className="w-5 h-5" />
             </Button>
             
             <Button
               variant="ghost"
-              size="sm"
+              size="icon"
               onClick={() => setIsRepeat(!isRepeat)}
-              className={isRepeat ? 'text-primary' : ''}
+              className={`hover-scale transition-all duration-200 ${
+                isRepeat 
+                  ? 'text-primary bg-primary/10 hover:bg-primary/20' 
+                  : 'hover:bg-muted/50'
+              }`}
             >
               <Repeat className="w-4 h-4" />
             </Button>
           </div>
 
-          {/* Volume Control */}
-          <div className="flex items-center gap-3">
-            <Volume2 className="w-4 h-4" />
-            <Slider
-              value={[volume]}
-              max={100}
-              step={1}
-              onValueChange={handleVolumeChange}
-              className="flex-1"
-            />
-            <span className="text-xs text-muted-foreground w-8">{volume}%</span>
+          {/* Enhanced Volume Control */}
+          <div className="flex items-center gap-4 px-2">
+            <Volume2 className="w-5 h-5 text-muted-foreground" />
+            <div className="flex-1 relative group">
+              <Slider
+                value={[volume]}
+                max={100}
+                step={1}
+                onValueChange={handleVolumeChange}
+                className="cursor-pointer"
+              />
+            </div>
+            <span className="text-sm font-medium text-foreground/70 w-10 text-right">{volume}%</span>
           </div>
         </div>
 
