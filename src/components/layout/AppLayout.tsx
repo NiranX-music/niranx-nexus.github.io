@@ -27,6 +27,7 @@ import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { cleanupInvalidFavoriteIcons } from "@/utils/cleanupFavorites";
 import { FirstTimeGuide } from "@/components/FirstTimeGuide";
+import { MiniPlayer } from "./MiniPlayer";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -185,6 +186,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           </main>
 
           <NowPlaying />
+          <MiniPlayer />
           <MobileBottomNav />
           {/* MacDock temporarily disabled to avoid overlapping live class controls */}
           <AISolverWidget />
