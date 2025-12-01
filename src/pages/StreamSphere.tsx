@@ -18,7 +18,7 @@ interface VideoResult {
 }
 
 export default function StreamSphere() {
-  const [currentVideoId, setCurrentVideoId] = useState("dQw4w9WgXcQ");
+  const [currentVideoId, setCurrentVideoId] = useState("jfKfPfyJRdk");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<VideoResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
