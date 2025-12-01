@@ -242,19 +242,22 @@ export default function CustomNotificationsManager() {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="target_users">Target Users</Label>
-                  <Select value={formData.target_users} onValueChange={(value) => setFormData({ ...formData, target_users: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Users</SelectItem>
-                      <SelectItem value="students">Students Only</SelectItem>
-                      <SelectItem value="teachers">Teachers Only</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="target_users">Target Users</Label>
+                <Select value={formData.target_users} onValueChange={(value) => setFormData({ ...formData, target_users: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Users</SelectItem>
+                    <SelectItem value="students">Students Only</SelectItem>
+                    <SelectItem value="teachers">Teachers Only</SelectItem>
+                    <SelectItem value="admins">All Admins</SelectItem>
+                    <SelectItem value="guardians">All Guardians</SelectItem>
+                    <SelectItem value="specific">Select Specific Users</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="icon">Icon (Lucide icon name)</Label>
