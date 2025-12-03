@@ -129,7 +129,7 @@ export default function ArtistPage() {
           <p className="text-muted-foreground mb-4">
             This artist doesn't exist or has been removed.
           </p>
-          <Button onClick={() => navigate("/music/library")}>Browse Library</Button>
+          <Button onClick={() => navigate("/niranx/music/library")}>Browse Library</Button>
         </Card>
       </div>
     );
@@ -229,7 +229,7 @@ export default function ArtistPage() {
             <Card
               key={track.id}
               className="cursor-pointer hover:bg-accent/50 transition-colors overflow-hidden"
-              onClick={() => navigate(`/music/track/${track.id}`)}
+              onClick={() => navigate(`/niranx/music/track/${track.id}`)}
             >
               <img
                 src={track.artwork_url || track.cover_url || "/placeholder.svg"}

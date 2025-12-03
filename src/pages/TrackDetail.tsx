@@ -188,7 +188,7 @@ export default function TrackDetail() {
           <p className="text-muted-foreground mb-4">
             This track doesn't exist or has been removed.
           </p>
-          <Button onClick={() => navigate("/music/library")}>Browse Library</Button>
+          <Button onClick={() => navigate("/niranx/music/library")}>Browse Library</Button>
         </Card>
       </div>
     );
@@ -214,7 +214,7 @@ export default function TrackDetail() {
                 {track.artist_id && (
                   <Button
                     variant="link"
-                    onClick={() => navigate(`/music/artist/${track.artist_id}`)}
+                    onClick={() => navigate(`/niranx/music/artist/${track.artist_id}`)}
                     className="p-0 h-auto"
                   >
                     <User className="h-4 w-4 mr-1" />
@@ -312,7 +312,7 @@ export default function TrackDetail() {
               <Card
                 key={rec.id}
                 className="cursor-pointer hover:bg-accent/50 transition-colors overflow-hidden"
-                onClick={() => navigate(`/music/track/${rec.id}`)}
+                onClick={() => navigate(`/niranx/music/track/${rec.id}`)}
               >
                 <img
                   src={rec.artwork_url || rec.cover_url || "/placeholder.svg"}

@@ -215,7 +215,7 @@ export default function MusicLibrary() {
           <h1 className="text-4xl font-bold gradient-text mb-2">Music Library</h1>
           <p className="text-muted-foreground">Discover and play your favorite tracks</p>
         </div>
-        <Button onClick={() => navigate("/music/upload")}>
+        <Button onClick={() => navigate("/niranx/music/upload")}>
           <Plus className="h-4 w-4 mr-2" />
           Upload Track
         </Button>
@@ -282,11 +282,11 @@ export default function MusicLibrary() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => navigate(`/music/track/${track.id}`)}>
+                      <DropdownMenuItem onClick={() => navigate(`/niranx/music/track/${track.id}`)}>
                         View Track Details
                       </DropdownMenuItem>
                       {track.artist_id && (
-                        <DropdownMenuItem onClick={() => navigate(`/music/artist/${track.artist_id}`)}>
+                        <DropdownMenuItem onClick={() => navigate(`/niranx/music/artist/${track.artist_id}`)}>
                           Go to Artist
                         </DropdownMenuItem>
                       )}
@@ -317,7 +317,7 @@ export default function MusicLibrary() {
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
             <Card
               className="p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-accent/50 transition-colors min-h-[200px]"
-              onClick={() => navigate("/music/playlists/create")}
+              onClick={() => navigate("/niranx/music/playlists/create")}
             >
               <Plus className="h-12 w-12 mb-2 text-muted-foreground" />
               <p className="font-medium">Create Playlist</p>
@@ -326,7 +326,7 @@ export default function MusicLibrary() {
               <Card
                 key={playlist.id}
                 className="cursor-pointer hover:bg-accent/50 transition-colors overflow-hidden"
-                onClick={() => navigate(`/music/playlist/${playlist.id}`)}
+                onClick={() => navigate(`/niranx/music/playlist/${playlist.id}`)}
               >
                 <img
                   src={playlist.cover_image_url || "/placeholder.svg"}
