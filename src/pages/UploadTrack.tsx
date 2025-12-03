@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { Music, Upload, Image, Video } from "lucide-react";
+import { Music, Upload, Link } from "lucide-react";
 
 interface UploadForm {
   title: string;
@@ -21,40 +21,20 @@ interface UploadForm {
   lyrics?: string;
   description?: string;
   custom_url?: string;
+  audio_url: string;
+  artwork_url?: string;
+  video_url?: string;
+  duration?: number;
 }
 
 export default function UploadTrack() {
-  const [audioFile, setAudioFile] = useState<File | null>(null);
-  const [artworkFile, setArtworkFile] = useState<File | null>(null);
-  const [videoFile, setVideoFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const { register, handleSubmit, formState: { errors } } = useForm<UploadForm>();
   const navigate = useNavigate();
 
-  const uploadFile = async (file: File, bucket: string, userId: string) => {
-    const fileExt = file.name.split(".").pop();
-    const fileName = `${Math.random()}.${fileExt}`;
-    const filePath = `${userId}/${fileName}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from(bucket)
-      .upload(filePath, file);
-
-    if (uploadError) {
-      console.error(`Upload error for ${bucket}:`, uploadError);
-      throw uploadError;
-    }
-
-    const { data: { publicUrl } } = supabase.storage
-      .from(bucket)
-      .getPublicUrl(filePath);
-
-    return publicUrl;
-  };
-
   const onSubmit = async (data: UploadForm) => {
-    if (!audioFile) {
-      toast.error("Please select an audio file");
+    if (!data.audio_url) {
+      toast.error("Please provide an audio URL");
       return;
     }
 
@@ -69,62 +49,8 @@ export default function UploadTrack() {
       }
 
       const userId = session.session.user.id;
-      console.log("Starting upload for user:", userId);
 
-      // Upload audio file
-      let audioUrl: string;
-      try {
-        audioUrl = await uploadFile(audioFile, "music-files", userId);
-        console.log("Audio uploaded:", audioUrl);
-      } catch (e: any) {
-        console.error("Audio upload failed:", e);
-        toast.error(`Audio upload failed: ${e.message}`);
-        setIsUploading(false);
-        return;
-      }
-
-      // Upload artwork if provided
-      let artworkUrl: string | null = null;
-      if (artworkFile) {
-        try {
-          artworkUrl = await uploadFile(artworkFile, "images", userId);
-          console.log("Artwork uploaded:", artworkUrl);
-        } catch (e: any) {
-          console.error("Artwork upload failed:", e);
-          toast.error(`Artwork upload failed: ${e.message}`);
-          setIsUploading(false);
-          return;
-        }
-      }
-
-      // Upload video if provided
-      let videoUrl: string | null = null;
-      if (videoFile) {
-        if (videoFile.size > 50 * 1024 * 1024) {
-          toast.error("Video file must be less than 50MB");
-          setIsUploading(false);
-          return;
-        }
-        try {
-          videoUrl = await uploadFile(videoFile, "videos", userId);
-          console.log("Video uploaded:", videoUrl);
-        } catch (e: any) {
-          console.error("Video upload failed:", e);
-          toast.error(`Video upload failed: ${e.message}`);
-          setIsUploading(false);
-          return;
-        }
-      }
-
-      // Get duration of audio file
-      const audio = new Audio();
-      audio.src = URL.createObjectURL(audioFile);
-      await new Promise(resolve => {
-        audio.onloadedmetadata = resolve;
-      });
-      const duration = Math.floor(audio.duration);
-
-      // Insert track into database
+      // Insert track directly into database
       const trackData = {
         title: data.title,
         artist: data.artist,
@@ -136,24 +62,25 @@ export default function UploadTrack() {
         lyrics: data.lyrics || null,
         description: data.description || null,
         custom_url: data.custom_url || null,
-        audio_url: audioUrl,
-        artwork_url: artworkUrl,
-        video_url: videoUrl,
-        duration: duration,
+        audio_url: data.audio_url,
+        artwork_url: data.artwork_url || null,
+        video_url: data.video_url || null,
+        duration: data.duration || null,
         uploaded_by: userId,
         is_approved: false,
       };
-      
-      console.log("Inserting track:", trackData);
+
       const { error: insertError } = await supabase.from("tracks").insert(trackData);
 
       if (insertError) {
         console.error("Database insert error:", insertError);
-        throw insertError;
+        toast.error(`Failed to save track: ${insertError.message}`);
+        setIsUploading(false);
+        return;
       }
 
       toast.success("Track uploaded successfully! Awaiting moderation.");
-      navigate("/music/library");
+      navigate("/niranx/music/library");
     } catch (error: any) {
       console.error("Error uploading track:", error);
       toast.error(error.message || "Failed to upload track");
@@ -167,29 +94,24 @@ export default function UploadTrack() {
       <div className="mb-6">
         <h1 className="text-4xl font-bold gradient-text mb-2">Upload Track</h1>
         <p className="text-muted-foreground">
-          Share your music with the community. All uploads are reviewed before publishing.
+          Share your music with the community. Provide direct URLs to your audio files.
         </p>
       </div>
 
       <Card className="p-6">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="audio">Audio File *</Label>
-            <div className="flex items-center gap-4">
+            <Label htmlFor="audio_url">Audio URL *</Label>
+            <div className="flex items-center gap-2">
+              <Link className="h-4 w-4 text-muted-foreground" />
               <Input
-                id="audio"
-                type="file"
-                accept="audio/*"
-                onChange={e => setAudioFile(e.target.files?.[0] || null)}
-                required
+                id="audio_url"
+                {...register("audio_url", { required: true })}
+                placeholder="https://example.com/audio.mp3"
+                className="flex-1"
               />
-              {audioFile && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Music className="h-4 w-4" />
-                  {audioFile.name}
-                </div>
-              )}
             </div>
+            {errors.audio_url && <p className="text-sm text-destructive">Audio URL is required</p>}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -200,7 +122,7 @@ export default function UploadTrack() {
                 {...register("title", { required: true })}
                 placeholder="Enter track title"
               />
-              {errors.title && <p className="text-sm text-red-500">Title is required</p>}
+              {errors.title && <p className="text-sm text-destructive">Title is required</p>}
             </div>
 
             <div className="space-y-2">
@@ -210,7 +132,7 @@ export default function UploadTrack() {
                 {...register("artist", { required: true })}
                 placeholder="Enter artist name"
               />
-              {errors.artist && <p className="text-sm text-red-500">Artist is required</p>}
+              {errors.artist && <p className="text-sm text-destructive">Artist is required</p>}
             </div>
           </div>
 
@@ -238,45 +160,39 @@ export default function UploadTrack() {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="release_date">Release Date</Label>
-            <Input id="release_date" type="date" {...register("release_date")} />
-          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="release_date">Release Date</Label>
+              <Input id="release_date" type="date" {...register("release_date")} />
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="artwork">Artwork</Label>
-            <div className="flex items-center gap-4">
-              <Input
-                id="artwork"
-                type="file"
-                accept="image/*"
-                onChange={e => setArtworkFile(e.target.files?.[0] || null)}
+            <div className="space-y-2">
+              <Label htmlFor="duration">Duration (seconds)</Label>
+              <Input 
+                id="duration" 
+                type="number" 
+                {...register("duration", { valueAsNumber: true })} 
+                placeholder="e.g., 180" 
               />
-              {artworkFile && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Image className="h-4 w-4" />
-                  {artworkFile.name}
-                </div>
-              )}
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="video">Preview Video (10-15 seconds, max 50MB)</Label>
-            <div className="flex items-center gap-4">
-              <Input
-                id="video"
-                type="file"
-                accept="video/*"
-                onChange={e => setVideoFile(e.target.files?.[0] || null)}
-              />
-              {videoFile && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Video className="h-4 w-4" />
-                  {videoFile.name}
-                </div>
-              )}
-            </div>
+            <Label htmlFor="artwork_url">Artwork URL</Label>
+            <Input
+              id="artwork_url"
+              {...register("artwork_url")}
+              placeholder="https://example.com/artwork.jpg"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="video_url">Preview Video URL</Label>
+            <Input
+              id="video_url"
+              {...register("video_url")}
+              placeholder="https://example.com/preview.mp4"
+            />
           </div>
 
           <div className="space-y-2">
@@ -319,7 +235,7 @@ export default function UploadTrack() {
               </>
             ) : (
               <>
-                <Upload className="h-4 w-4 mr-2" />
+                <Music className="h-4 w-4 mr-2" />
                 Upload Track
               </>
             )}
