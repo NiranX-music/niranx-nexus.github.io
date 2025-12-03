@@ -64,28 +64,56 @@ export default function UploadTrack() {
       const { data: session } = await supabase.auth.getSession();
       if (!session.session) {
         toast.error("Please sign in to upload tracks");
+        setIsUploading(false);
         return;
       }
 
       const userId = session.session.user.id;
+      console.log("Starting upload for user:", userId);
 
       // Upload audio file
-      const audioUrl = await uploadFile(audioFile, "music-files", userId);
+      let audioUrl: string;
+      try {
+        audioUrl = await uploadFile(audioFile, "music-files", userId);
+        console.log("Audio uploaded:", audioUrl);
+      } catch (e: any) {
+        console.error("Audio upload failed:", e);
+        toast.error(`Audio upload failed: ${e.message}`);
+        setIsUploading(false);
+        return;
+      }
 
       // Upload artwork if provided
-      let artworkUrl = null;
+      let artworkUrl: string | null = null;
       if (artworkFile) {
-        artworkUrl = await uploadFile(artworkFile, "images", userId);
+        try {
+          artworkUrl = await uploadFile(artworkFile, "images", userId);
+          console.log("Artwork uploaded:", artworkUrl);
+        } catch (e: any) {
+          console.error("Artwork upload failed:", e);
+          toast.error(`Artwork upload failed: ${e.message}`);
+          setIsUploading(false);
+          return;
+        }
       }
 
       // Upload video if provided
-      let videoUrl = null;
+      let videoUrl: string | null = null;
       if (videoFile) {
         if (videoFile.size > 50 * 1024 * 1024) {
           toast.error("Video file must be less than 50MB");
+          setIsUploading(false);
           return;
         }
-        videoUrl = await uploadFile(videoFile, "videos", userId);
+        try {
+          videoUrl = await uploadFile(videoFile, "videos", userId);
+          console.log("Video uploaded:", videoUrl);
+        } catch (e: any) {
+          console.error("Video upload failed:", e);
+          toast.error(`Video upload failed: ${e.message}`);
+          setIsUploading(false);
+          return;
+        }
       }
 
       // Get duration of audio file
@@ -97,32 +125,38 @@ export default function UploadTrack() {
       const duration = Math.floor(audio.duration);
 
       // Insert track into database
-      const { error: insertError } = await supabase.from("tracks").insert({
+      const trackData = {
         title: data.title,
         artist: data.artist,
-        album: data.album,
-        genre: data.genre,
-        songwriter: data.songwriter,
-        producer: data.producer,
-        release_date: data.release_date,
-        lyrics: data.lyrics,
-        description: data.description,
-        custom_url: data.custom_url,
+        album: data.album || null,
+        genre: data.genre || null,
+        songwriter: data.songwriter || null,
+        producer: data.producer || null,
+        release_date: data.release_date || null,
+        lyrics: data.lyrics || null,
+        description: data.description || null,
+        custom_url: data.custom_url || null,
         audio_url: audioUrl,
         artwork_url: artworkUrl,
         video_url: videoUrl,
         duration: duration,
         uploaded_by: userId,
-        is_approved: false, // Requires moderation
-      });
+        is_approved: false,
+      };
+      
+      console.log("Inserting track:", trackData);
+      const { error: insertError } = await supabase.from("tracks").insert(trackData);
 
-      if (insertError) throw insertError;
+      if (insertError) {
+        console.error("Database insert error:", insertError);
+        throw insertError;
+      }
 
       toast.success("Track uploaded successfully! Awaiting moderation.");
       navigate("/music/library");
     } catch (error: any) {
       console.error("Error uploading track:", error);
-      toast.error("Failed to upload track");
+      toast.error(error.message || "Failed to upload track");
     } finally {
       setIsUploading(false);
     }
