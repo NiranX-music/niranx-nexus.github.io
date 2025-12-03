@@ -266,6 +266,26 @@ export default function InfiniteChainManager() {
     }));
   };
 
+  // Update category title
+  const updateCategoryTitle = (categoryId: string, newTitle: string, categories: TaskCategory[] = state.categories): TaskCategory[] => {
+    return categories.map(category => {
+      if (category.id === categoryId) {
+        return { ...category, title: newTitle };
+      }
+      return {
+        ...category,
+        children: updateCategoryTitle(categoryId, newTitle, category.children)
+      };
+    });
+  };
+
+  const handleUpdateTitle = (categoryId: string, newTitle: string) => {
+    setState(prev => ({
+      ...prev,
+      categories: updateCategoryTitle(categoryId, newTitle, prev.categories)
+    }));
+  };
+
   // Render category item
   const renderCategory = (category: TaskCategory) => {
     const hasChildren = category.children.length > 0;
@@ -298,7 +318,13 @@ export default function InfiniteChainManager() {
             {!hasChildren && <div className="w-6" />}
             
             <div className="w-3 h-3 bg-primary rounded-sm" />
-            <span className="text-sm font-medium">{category.title}</span>
+            <input
+              type="text"
+              value={category.title}
+              onChange={(e) => handleUpdateTitle(category.id, e.target.value)}
+              className="text-sm font-medium bg-transparent border-none outline-none focus:ring-1 focus:ring-primary rounded px-1 min-w-[100px]"
+              onClick={(e) => e.stopPropagation()}
+            />
           </div>
 
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

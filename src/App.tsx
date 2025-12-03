@@ -37,6 +37,15 @@ import EnhancedScheduler from "./pages/EnhancedScheduler";
 import InfiniteChainManager from "./pages/InfiniteChainManager";
 import FileHub from "./pages/FileHub";
 import MusicHub from "./pages/MusicHub";
+import MusicLibrary from "./pages/MusicLibrary";
+import UploadTrack from "./pages/UploadTrack";
+import TrackDetail from "./pages/TrackDetail";
+import ArtistPage from "./pages/ArtistPage";
+import PlaylistPage from "./pages/PlaylistPage";
+import PlaylistCreate from "./pages/PlaylistCreate";
+import MusicModeration from "./pages/admin/MusicModeration";
+import { MusicPlayerProvider } from "./contexts/MusicPlayerContext";
+import UniversalMusicPlayer from "./components/music/UniversalMusicPlayer";
 import Upload from "./pages/Upload";
 import PDFViewer from "./pages/PDFViewer";
 import VideoPlayer from "./pages/VideoPlayer";
@@ -168,7 +177,8 @@ const App = () => (
         <XPProvider>
           <MoodProvider>
             <FocusProvider>
-              <NowPlayingProvider>
+                <NowPlayingProvider>
+                <MusicPlayerProvider>
                 <TooltipProvider>
                   <Toaster />
                   <Sonner />
@@ -254,6 +264,12 @@ const App = () => (
                           <Route path="/infinite-chain" element={<InfiniteChainManager />} />
                           <Route path="/file-hub" element={<FileHub />} />
                           <Route path="/music-hub" element={<MusicHub />} />
+                          <Route path="/music/library" element={<MusicLibrary />} />
+                          <Route path="/music/upload" element={<UploadTrack />} />
+                          <Route path="/music/track/:trackId" element={<TrackDetail />} />
+                          <Route path="/music/artist/:artistId" element={<ArtistPage />} />
+                          <Route path="/music/playlist/:playlistId" element={<PlaylistPage />} />
+                          <Route path="/music/playlists/create" element={<PlaylistCreate />} />
                           <Route path="/upload" element={<Upload />} />
                           <Route path="/pdf-viewer" element={<PDFViewer />} />
                           <Route path="/video-player" element={<VideoPlayer />} />
@@ -411,6 +427,11 @@ const App = () => (
                               <FeedbackList />
                             </ModeratorRoute>
                           } />
+                          <Route path="/admin/music-moderation" element={
+                            <AdminRoute>
+                              <MusicModeration />
+                            </AdminRoute>
+                          } />
                           <Route path="*" element={<NotFound />} />
                           </Routes>
                           <VoiceCommand />
@@ -423,8 +444,10 @@ const App = () => (
                     </Routes>
                   </AuthProvider>
                 </BrowserRouter>
-              </TooltipProvider>
-            </NowPlayingProvider>
+                <UniversalMusicPlayer />
+                </TooltipProvider>
+                </MusicPlayerProvider>
+              </NowPlayingProvider>
           </FocusProvider>
         </MoodProvider>
       </XPProvider>

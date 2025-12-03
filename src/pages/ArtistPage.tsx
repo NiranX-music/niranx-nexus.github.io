@@ -136,48 +136,49 @@ export default function ArtistPage() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <Card className="p-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="md:col-span-1">
-            <img
-              src={artist.avatar_url || "/placeholder.svg"}
-              alt={artist.name}
-              className="w-full aspect-square object-cover rounded-full shadow-lg"
-            />
-          </div>
-
-          <div className="md:col-span-3 space-y-4">
-            <div>
-              <p className="text-sm text-muted-foreground mb-2">Artist</p>
-              <h1 className="text-5xl font-bold mb-2">{artist.name}</h1>
-              {artist.is_verified && (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-blue-500/20 text-blue-500">
-                  Verified Artist
-                </span>
-              )}
-            </div>
-
-            {artist.bio && (
-              <p className="text-muted-foreground text-lg">{artist.bio}</p>
+    <div className="min-h-screen pb-32">
+      {/* Hero Header with gradient */}
+      <div 
+        className="relative h-80 bg-gradient-to-b from-primary/40 to-background"
+        style={{
+          backgroundImage: artist.avatar_url ? `linear-gradient(to bottom, rgba(0,0,0,0.3), hsl(var(--background))), url(${artist.avatar_url})` : undefined,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        <div className="absolute bottom-0 left-0 right-0 p-8 flex items-end gap-6">
+          <img
+            src={artist.avatar_url || "/placeholder.svg"}
+            alt={artist.name}
+            className="w-48 h-48 object-cover rounded-full shadow-2xl border-4 border-background"
+          />
+          <div className="space-y-2 pb-4">
+            {artist.is_verified && (
+              <div className="flex items-center gap-1 text-sm">
+                <span className="bg-blue-500 rounded-full p-0.5">✓</span>
+                <span>Verified Artist</span>
+              </div>
             )}
-
-            <div className="flex items-center gap-4 pt-4">
-              <div>
-                <p className="text-2xl font-bold">{tracks.length}</p>
-                <p className="text-sm text-muted-foreground">Tracks</p>
-              </div>
-              <Separator orientation="vertical" className="h-12" />
-              <div>
-                <p className="text-2xl font-bold">
-                  {tracks.reduce((acc, t) => acc + (t.play_count || 0), 0).toLocaleString()}
-                </p>
-                <p className="text-sm text-muted-foreground">Total Plays</p>
-              </div>
-            </div>
+            <h1 className="text-6xl font-black">{artist.name}</h1>
+            <p className="text-muted-foreground">
+              {tracks.reduce((acc, t) => acc + (t.play_count || 0), 0).toLocaleString()} monthly listeners
+            </p>
           </div>
         </div>
-      </Card>
+      </div>
+
+      {/* Actions */}
+      <div className="px-8 py-6 flex items-center gap-4">
+        <Button
+          size="lg"
+          className="rounded-full w-14 h-14 bg-primary hover:scale-105 transition-transform"
+          onClick={() => popularTracks.length > 0 && handlePlayTrack(popularTracks[0])}
+        >
+          <Play className="h-6 w-6 fill-current ml-1" />
+        </Button>
+        <Button variant="outline" className="rounded-full">Following</Button>
+        <Button variant="ghost" size="icon"><Music className="h-5 w-5" /></Button>
+      </div>
 
       {popularTracks.length > 0 && (
         <Card className="p-6">
