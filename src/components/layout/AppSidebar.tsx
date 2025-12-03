@@ -157,6 +157,8 @@ const progressNavigation = [
 const mediaNavigation = [
   { title: "Music Player", url: "/niranx/music", icon: Music },
   { title: "Music Hub", url: "/niranx/music-hub", icon: FileMusic },
+  { title: "Music Library", url: "/niranx/music/library", icon: Headphones },
+  { title: "Upload Track", url: "/niranx/music/upload", icon: Upload },
   { title: "Listening Library", url: "/niranx/listening-library", icon: Headphones },
   { title: "Video Player", url: "/niranx/video-player", icon: Video },
   { title: "Video Library", url: "/niranx/video-library", icon: Video },
@@ -220,6 +222,7 @@ const externalPlatforms = [
 const adminNavigation = [
   { title: "Admin Dashboard", url: "/niranx/admin", icon: UserCog },
   { title: "User Controls", url: "/niranx/admin/user-controls", icon: Settings },
+  { title: "Music Moderation", url: "/niranx/admin/music-moderation", icon: Music },
   { title: "Feedback List", url: "/niranx/admin/feedback-list", icon: MessagesSquare },
   { title: "What's New Manager", url: "/niranx/admin/whats-new", icon: Sparkles },
   { title: "Custom Notifications", url: "/niranx/admin/custom-notifications", icon: Bell },

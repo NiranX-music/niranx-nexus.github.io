@@ -9,9 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Users, FileText, MessageSquare, Activity, TrendingUp, Clock, Award, BarChart3, Sparkles } from "lucide-react";
+import { Users, FileText, MessageSquare, Activity, TrendingUp, Clock, Award, BarChart3, Sparkles, UserPlus, Music } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { CreateUserForm } from "@/components/admin/CreateUserForm";
 
 interface Stats {
   totalUsers: number;
@@ -416,10 +417,11 @@ export default function AdminDashboard() {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-7 lg:w-auto">
+        <TabsList className="grid w-full grid-cols-8 lg:w-auto">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="feedback">Feedback</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
+          <TabsTrigger value="create-user">Create User</TabsTrigger>
           <TabsTrigger value="roles">Roles</TabsTrigger>
           <TabsTrigger value="requests">
             Admin Requests
@@ -711,6 +713,46 @@ export default function AdminDashboard() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="create-user" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <CreateUserForm />
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Actions</CardTitle>
+                <CardDescription>Additional user management options</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Button 
+                  onClick={() => navigate('/niranx/admin/music-moderation')}
+                  className="w-full h-auto py-4 flex flex-col items-start gap-2"
+                  variant="outline"
+                >
+                  <div className="flex items-center gap-2">
+                    <Music className="h-5 w-5" />
+                    <span className="font-semibold">Music Moderation</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground text-left">
+                    Review and approve uploaded tracks and artists
+                  </span>
+                </Button>
+                <Button 
+                  onClick={() => navigate('/niranx/admin/roles')}
+                  className="w-full h-auto py-4 flex flex-col items-start gap-2"
+                  variant="outline"
+                >
+                  <div className="flex items-center gap-2">
+                    <UserPlus className="h-5 w-5" />
+                    <span className="font-semibold">Role Management</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground text-left">
+                    Manage user roles and permissions
+                  </span>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
         <TabsContent value="roles" className="space-y-4">
           <Card>
             <CardHeader>
@@ -847,6 +889,26 @@ export default function AdminDashboard() {
                                 className="border-green-500"
                               >
                                 Remove Guardian
+                              </Button>
+                            )}
+                            {!user.roles.includes('music_moderator') && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => updateUserRole(user.user_id, 'music_moderator' as any, 'add')}
+                                className="border-purple-500 hover:bg-purple-50"
+                              >
+                                Make Music Mod
+                              </Button>
+                            )}
+                            {user.roles.includes('music_moderator') && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => updateUserRole(user.user_id, 'music_moderator' as any, 'remove')}
+                                className="border-purple-500"
+                              >
+                                Remove Music Mod
                               </Button>
                             )}
                           </div>
