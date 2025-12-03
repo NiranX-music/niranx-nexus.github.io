@@ -31,16 +31,19 @@ export default function UploadTrack() {
   const { register, handleSubmit, formState: { errors } } = useForm<UploadForm>();
   const navigate = useNavigate();
 
-  const uploadFile = async (file: File, bucket: string) => {
+  const uploadFile = async (file: File, bucket: string, userId: string) => {
     const fileExt = file.name.split(".").pop();
     const fileName = `${Math.random()}.${fileExt}`;
-    const filePath = `${fileName}`;
+    const filePath = `${userId}/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
       .from(bucket)
       .upload(filePath, file);
 
-    if (uploadError) throw uploadError;
+    if (uploadError) {
+      console.error(`Upload error for ${bucket}:`, uploadError);
+      throw uploadError;
+    }
 
     const { data: { publicUrl } } = supabase.storage
       .from(bucket)
@@ -64,13 +67,15 @@ export default function UploadTrack() {
         return;
       }
 
+      const userId = session.session.user.id;
+
       // Upload audio file
-      const audioUrl = await uploadFile(audioFile, "music-files");
+      const audioUrl = await uploadFile(audioFile, "music-files", userId);
 
       // Upload artwork if provided
       let artworkUrl = null;
       if (artworkFile) {
-        artworkUrl = await uploadFile(artworkFile, "images");
+        artworkUrl = await uploadFile(artworkFile, "images", userId);
       }
 
       // Upload video if provided
@@ -80,7 +85,7 @@ export default function UploadTrack() {
           toast.error("Video file must be less than 50MB");
           return;
         }
-        videoUrl = await uploadFile(videoFile, "videos");
+        videoUrl = await uploadFile(videoFile, "videos", userId);
       }
 
       // Get duration of audio file
@@ -107,7 +112,7 @@ export default function UploadTrack() {
         artwork_url: artworkUrl,
         video_url: videoUrl,
         duration: duration,
-        uploaded_by: session.session.user.id,
+        uploaded_by: userId,
         is_approved: false, // Requires moderation
       });
 
