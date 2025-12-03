@@ -178,11 +178,11 @@ const App = () => (
           <MoodProvider>
             <FocusProvider>
                 <NowPlayingProvider>
-                <MusicPlayerProvider>
                 <TooltipProvider>
                   <Toaster />
                   <Sonner />
                   <BrowserRouter>
+                    <MusicPlayerProvider>
                     <AuthProvider>
                       <NotificationListener />
                       <Routes>
@@ -443,10 +443,10 @@ const App = () => (
                     <Route path="*" element={<Landing />} />
                     </Routes>
                   </AuthProvider>
+                  <UniversalMusicPlayer />
+                  </MusicPlayerProvider>
                 </BrowserRouter>
-                <UniversalMusicPlayer />
                 </TooltipProvider>
-                </MusicPlayerProvider>
               </NowPlayingProvider>
           </FocusProvider>
         </MoodProvider>
