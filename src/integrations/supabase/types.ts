@@ -6333,7 +6333,13 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user" | "parent" | "teacher"
+      app_role:
+        | "admin"
+        | "moderator"
+        | "user"
+        | "parent"
+        | "teacher"
+        | "music_moderator"
       debate_award_rarity: "common" | "rare" | "epic" | "legendary"
       debate_report_status: "pending" | "reviewed" | "dismissed" | "actioned"
       debate_source_type: "url" | "citation" | "image" | "document"
@@ -6467,7 +6473,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user", "parent", "teacher"],
+      app_role: [
+        "admin",
+        "moderator",
+        "user",
+        "parent",
+        "teacher",
+        "music_moderator",
+      ],
       debate_award_rarity: ["common", "rare", "epic", "legendary"],
       debate_report_status: ["pending", "reviewed", "dismissed", "actioned"],
       debate_source_type: ["url", "citation", "image", "document"],
