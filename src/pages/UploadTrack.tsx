@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -6,13 +6,19 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { Music, Upload, Link } from "lucide-react";
+import { Music, Upload, Link, Plus } from "lucide-react";
+
+interface Artist {
+  id: string;
+  name: string;
+  is_verified: boolean;
+}
 
 interface UploadForm {
   title: string;
-  artist: string;
   album?: string;
   genre?: string;
   songwriter?: string;
@@ -29,12 +35,39 @@ interface UploadForm {
 
 export default function UploadTrack() {
   const [isUploading, setIsUploading] = useState(false);
+  const [artists, setArtists] = useState<Artist[]>([]);
+  const [selectedArtistId, setSelectedArtistId] = useState<string>("");
+  const [customArtistName, setCustomArtistName] = useState("");
+  const [useCustomArtist, setUseCustomArtist] = useState(false);
   const { register, handleSubmit, formState: { errors } } = useForm<UploadForm>();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchArtists();
+  }, []);
+
+  const fetchArtists = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("artists")
+        .select("id, name, is_verified")
+        .order("name", { ascending: true });
+
+      if (error) throw error;
+      setArtists(data || []);
+    } catch (error) {
+      console.error("Error fetching artists:", error);
+    }
+  };
 
   const onSubmit = async (data: UploadForm) => {
     if (!data.audio_url) {
       toast.error("Please provide an audio URL");
+      return;
+    }
+
+    if (!selectedArtistId && !customArtistName) {
+      toast.error("Please select an artist or enter a custom artist name");
       return;
     }
 
@@ -50,10 +83,20 @@ export default function UploadTrack() {
 
       const userId = session.session.user.id;
 
+      // Get artist name
+      let artistName = customArtistName;
+      let artistId = selectedArtistId || null;
+      
+      if (selectedArtistId && !useCustomArtist) {
+        const selectedArtist = artists.find(a => a.id === selectedArtistId);
+        artistName = selectedArtist?.name || customArtistName;
+      }
+
       // Insert track directly into database
       const trackData = {
         title: data.title,
-        artist: data.artist,
+        artist: artistName,
+        artist_id: useCustomArtist ? null : artistId,
         album: data.album || null,
         genre: data.genre || null,
         songwriter: data.songwriter || null,
@@ -126,13 +169,53 @@ export default function UploadTrack() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="artist">Artist *</Label>
-              <Input
-                id="artist"
-                {...register("artist", { required: true })}
-                placeholder="Enter artist name"
-              />
-              {errors.artist && <p className="text-sm text-destructive">Artist is required</p>}
+              <Label>Artist *</Label>
+              {!useCustomArtist ? (
+                <div className="space-y-2">
+                  <Select value={selectedArtistId} onValueChange={setSelectedArtistId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select an artist" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {artists.map((artist) => (
+                        <SelectItem key={artist.id} value={artist.id}>
+                          {artist.name} {artist.is_verified && "✓"}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    type="button"
+                    variant="link"
+                    size="sm"
+                    className="p-0 h-auto text-xs"
+                    onClick={() => setUseCustomArtist(true)}
+                  >
+                    <Plus className="h-3 w-3 mr-1" />
+                    Or add custom artist name
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Input
+                    value={customArtistName}
+                    onChange={(e) => setCustomArtistName(e.target.value)}
+                    placeholder="Enter artist name"
+                  />
+                  <Button
+                    type="button"
+                    variant="link"
+                    size="sm"
+                    className="p-0 h-auto text-xs"
+                    onClick={() => {
+                      setUseCustomArtist(false);
+                      setCustomArtistName("");
+                    }}
+                  >
+                    Select from existing artists
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
 

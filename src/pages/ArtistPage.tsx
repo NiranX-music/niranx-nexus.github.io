@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Play, User, Music } from "lucide-react";
+import { Play, User, Music, Edit } from "lucide-react";
 import { useMusicPlayer } from "@/contexts/MusicPlayerContext";
 import { toast } from "sonner";
 
@@ -178,6 +178,13 @@ export default function ArtistPage() {
         </Button>
         <Button variant="outline" className="rounded-full">Following</Button>
         <Button variant="ghost" size="icon"><Music className="h-5 w-5" /></Button>
+        <Button 
+          variant="outline" 
+          onClick={() => navigate(`/niranx/music/artist/${artistId}/edit`)}
+        >
+          <Edit className="h-4 w-4 mr-2" />
+          Edit Artist
+        </Button>
       </div>
 
       {popularTracks.length > 0 && (
