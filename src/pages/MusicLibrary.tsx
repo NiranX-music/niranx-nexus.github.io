@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Music, Play, Heart, Plus, MoreVertical, Search } from "lucide-react";
+import { Music, Play, Heart, Plus, MoreVertical, Search, Disc, Trash2 } from "lucide-react";
 import { useMusicPlayer } from "@/contexts/MusicPlayerContext";
 import { useNavigate } from "react-router-dom";
 import {
@@ -15,6 +15,17 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface Track {
   id: string;
@@ -37,20 +48,51 @@ interface Playlist {
   track_count?: number;
 }
 
+interface Album {
+  id: string;
+  title: string;
+  artist_name: string;
+  cover_url?: string;
+}
+
 export default function MusicLibrary() {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
+  const [albums, setAlbums] = useState<Album[]>([]);
   const [likedTracks, setLikedTracks] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const { playTrack } = useMusicPlayer();
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchTracks();
     fetchPlaylists();
+    fetchAlbums();
     fetchLikedTracks();
+    getCurrentUser();
   }, []);
+
+  const getCurrentUser = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    setCurrentUserId(session?.user?.id || null);
+  };
+
+  const fetchAlbums = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("albums")
+        .select("id, title, artist_name, cover_url")
+        .eq("is_approved", true)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setAlbums(data || []);
+    } catch (error: any) {
+      console.error("Error fetching albums:", error);
+    }
+  };
 
   const fetchTracks = async () => {
     try {
@@ -186,6 +228,23 @@ export default function MusicLibrary() {
     }
   };
 
+  const deleteTrack = async (trackId: string) => {
+    try {
+      const { error } = await supabase
+        .from("tracks")
+        .delete()
+        .eq("id", trackId);
+
+      if (error) throw error;
+      
+      setTracks(tracks.filter(t => t.id !== trackId));
+      toast.success("Track deleted successfully");
+    } catch (error: any) {
+      console.error("Error deleting track:", error);
+      toast.error("Failed to delete track");
+    }
+  };
+
   const filteredTracks = tracks.filter(
     track =>
       track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -215,10 +274,14 @@ export default function MusicLibrary() {
           <h1 className="text-4xl font-bold gradient-text mb-2">Music Library</h1>
           <p className="text-muted-foreground">Discover and play your favorite tracks</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button variant="outline" onClick={() => navigate("/niranx/music/artist/create")}>
             <Plus className="h-4 w-4 mr-2" />
             Add Artist
+          </Button>
+          <Button variant="outline" onClick={() => navigate("/niranx/music/album/create")}>
+            <Disc className="h-4 w-4 mr-2" />
+            Create Album
           </Button>
           <Button onClick={() => navigate("/niranx/music/upload")}>
             <Plus className="h-4 w-4 mr-2" />
@@ -240,6 +303,7 @@ export default function MusicLibrary() {
       <Tabs defaultValue="tracks" className="w-full">
         <TabsList>
           <TabsTrigger value="tracks">All Tracks</TabsTrigger>
+          <TabsTrigger value="albums">Albums</TabsTrigger>
           <TabsTrigger value="playlists">Playlists</TabsTrigger>
           <TabsTrigger value="liked">Liked Songs</TabsTrigger>
         </TabsList>
@@ -306,13 +370,54 @@ export default function MusicLibrary() {
                               key={playlist.id}
                               onClick={() => addToPlaylist(track.id, playlist.id)}
                             >
-                              Add to {playlist.name}
+                          Add to {playlist.name}
                             </DropdownMenuItem>
                           ))}
                         </>
                       )}
+                      {currentUserId && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            className="text-destructive"
+                            onClick={() => deleteTrack(track.id)}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete Track
+                          </DropdownMenuItem>
+                        </>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="albums" className="mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <Card
+              className="p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-accent/50 transition-colors min-h-[200px]"
+              onClick={() => navigate("/niranx/music/album/create")}
+            >
+              <Plus className="h-12 w-12 mb-2 text-muted-foreground" />
+              <p className="font-medium">Create Album</p>
+            </Card>
+            {albums.map(album => (
+              <Card
+                key={album.id}
+                className="cursor-pointer hover:bg-accent/50 transition-colors overflow-hidden"
+                onClick={() => navigate(`/niranx/music/album/${album.id}`)}
+              >
+                <img
+                  src={album.cover_url || "/placeholder.svg"}
+                  alt={album.title}
+                  className="w-full aspect-square object-cover"
+                />
+                <div className="p-4">
+                  <p className="font-medium truncate">{album.title}</p>
+                  <p className="text-sm text-muted-foreground truncate">{album.artist_name}</p>
                 </div>
               </Card>
             ))}

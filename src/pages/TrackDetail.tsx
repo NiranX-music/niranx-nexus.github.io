@@ -4,9 +4,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Play, Heart, Share, Music2, User, Edit } from "lucide-react";
+import { Play, Heart, Share, Music2, User, Edit, Trash2 } from "lucide-react";
 import { useMusicPlayer } from "@/contexts/MusicPlayerContext";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface Track {
   id: string;
@@ -42,6 +53,8 @@ export default function TrackDetail() {
   const [recommended, setRecommended] = useState<RecommendedTrack[]>([]);
   const [isLiked, setIsLiked] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isOwner, setIsOwner] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { playTrack } = useMusicPlayer();
   const navigate = useNavigate();
 
@@ -50,8 +63,41 @@ export default function TrackDetail() {
       fetchTrack();
       fetchRecommended();
       checkIfLiked();
+      checkOwnership();
     }
   }, [trackId]);
+
+  const checkOwnership = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session && trackId) {
+      const { data } = await supabase
+        .from("tracks")
+        .select("uploaded_by")
+        .eq("id", trackId)
+        .single();
+      setIsOwner(data?.uploaded_by === session.user.id);
+    }
+  };
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      const { error } = await supabase
+        .from("tracks")
+        .delete()
+        .eq("id", trackId);
+
+      if (error) throw error;
+
+      toast.success("Track deleted successfully");
+      navigate("/niranx/music/library");
+    } catch (error: any) {
+      console.error("Error deleting track:", error);
+      toast.error("Failed to delete track");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const fetchTrack = async () => {
     try {
@@ -251,6 +297,30 @@ export default function TrackDetail() {
                 <Edit className="h-5 w-5 mr-2" />
                 Edit
               </Button>
+              {isOwner && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button size="lg" variant="destructive">
+                      <Trash2 className="h-5 w-5 mr-2" />
+                      Delete
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Track</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete "{track.title}"? This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+                        {isDeleting ? "Deleting..." : "Delete"}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
             </div>
 
             {track.video_url && (

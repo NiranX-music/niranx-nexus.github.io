@@ -418,6 +418,98 @@ export type Database = {
           },
         ]
       }
+      album_tracks: {
+        Row: {
+          album_id: string
+          created_at: string | null
+          id: string
+          track_id: string
+          track_number: number
+        }
+        Insert: {
+          album_id: string
+          created_at?: string | null
+          id?: string
+          track_id: string
+          track_number?: number
+        }
+        Update: {
+          album_id?: string
+          created_at?: string | null
+          id?: string
+          track_id?: string
+          track_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "album_tracks_album_id_fkey"
+            columns: ["album_id"]
+            isOneToOne: false
+            referencedRelation: "albums"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "album_tracks_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      albums: {
+        Row: {
+          artist_id: string | null
+          artist_name: string
+          cover_url: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          genre: string | null
+          id: string
+          is_approved: boolean | null
+          release_date: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          artist_id?: string | null
+          artist_name: string
+          cover_url?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          genre?: string | null
+          id?: string
+          is_approved?: boolean | null
+          release_date?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          artist_id?: string | null
+          artist_name?: string
+          cover_url?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          genre?: string | null
+          id?: string
+          is_approved?: boolean | null
+          release_date?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "albums_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       analytics_snapshots: {
         Row: {
           created_at: string | null
@@ -5251,6 +5343,7 @@ export type Database = {
       tracks: {
         Row: {
           album: string | null
+          album_id: string | null
           artist: string
           artist_id: string | null
           artwork_url: string | null
@@ -5276,6 +5369,7 @@ export type Database = {
         }
         Insert: {
           album?: string | null
+          album_id?: string | null
           artist: string
           artist_id?: string | null
           artwork_url?: string | null
@@ -5301,6 +5395,7 @@ export type Database = {
         }
         Update: {
           album?: string | null
+          album_id?: string | null
           artist?: string
           artist_id?: string | null
           artwork_url?: string | null
@@ -5324,7 +5419,15 @@ export type Database = {
           uploaded_by?: string | null
           video_url?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tracks_album_id_fkey"
+            columns: ["album_id"]
+            isOneToOne: false
+            referencedRelation: "albums"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_2fa: {
         Row: {
