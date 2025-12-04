@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -9,7 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { Music, Upload, Link, Plus } from "lucide-react";
+import { Music, Upload, Link, Plus, HardDrive, FileAudio } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Artist {
   id: string;
@@ -39,7 +40,11 @@ export default function UploadTrack() {
   const [selectedArtistId, setSelectedArtistId] = useState<string>("");
   const [customArtistName, setCustomArtistName] = useState("");
   const [useCustomArtist, setUseCustomArtist] = useState(false);
-  const { register, handleSubmit, formState: { errors } } = useForm<UploadForm>();
+  const [audioSource, setAudioSource] = useState<"url" | "local">("url");
+  const [localFile, setLocalFile] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<UploadForm>();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -60,9 +65,51 @@ export default function UploadTrack() {
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith("audio/")) {
+        toast.error("Please select an audio file");
+        return;
+      }
+      if (file.size > 50 * 1024 * 1024) {
+        toast.error("File size must be less than 50MB");
+        return;
+      }
+      setLocalFile(file);
+    }
+  };
+
+  const uploadLocalFile = async (userId: string): Promise<string | null> => {
+    if (!localFile) return null;
+
+    const fileExt = localFile.name.split(".").pop();
+    const fileName = `${userId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+    const { data, error } = await supabase.storage
+      .from("music")
+      .upload(fileName, localFile, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+
+    if (error) {
+      console.error("Upload error:", error);
+      throw new Error("Failed to upload audio file");
+    }
+
+    const { data: urlData } = supabase.storage.from("music").getPublicUrl(fileName);
+    return urlData.publicUrl;
+  };
+
   const onSubmit = async (data: UploadForm) => {
-    if (!data.audio_url) {
+    if (audioSource === "url" && !data.audio_url) {
       toast.error("Please provide an audio URL");
+      return;
+    }
+
+    if (audioSource === "local" && !localFile) {
+      toast.error("Please select an audio file");
       return;
     }
 
@@ -82,6 +129,17 @@ export default function UploadTrack() {
       }
 
       const userId = session.session.user.id;
+
+      // Get audio URL
+      let audioUrl = data.audio_url;
+      if (audioSource === "local") {
+        audioUrl = await uploadLocalFile(userId) || "";
+        if (!audioUrl) {
+          toast.error("Failed to upload audio file");
+          setIsUploading(false);
+          return;
+        }
+      }
 
       // Get artist name
       let artistName = customArtistName;
@@ -105,7 +163,7 @@ export default function UploadTrack() {
         lyrics: data.lyrics || null,
         description: data.description || null,
         custom_url: data.custom_url || null,
-        audio_url: data.audio_url,
+        audio_url: audioUrl,
         artwork_url: data.artwork_url || null,
         video_url: data.video_url || null,
         duration: data.duration || null,
@@ -137,24 +195,67 @@ export default function UploadTrack() {
       <div className="mb-6">
         <h1 className="text-4xl font-bold gradient-text mb-2">Upload Track</h1>
         <p className="text-muted-foreground">
-          Share your music with the community. Provide direct URLs to your audio files.
+          Share your music with the community. Upload a local file or provide a URL.
         </p>
       </div>
 
       <Card className="p-6">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="audio_url">Audio URL *</Label>
-            <div className="flex items-center gap-2">
-              <Link className="h-4 w-4 text-muted-foreground" />
-              <Input
-                id="audio_url"
-                {...register("audio_url", { required: true })}
-                placeholder="https://example.com/audio.mp3"
-                className="flex-1"
-              />
-            </div>
-            {errors.audio_url && <p className="text-sm text-destructive">Audio URL is required</p>}
+          <div className="space-y-4">
+            <Label>Audio Source *</Label>
+            <Tabs value={audioSource} onValueChange={(v) => setAudioSource(v as "url" | "local")}>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="url" className="flex items-center gap-2">
+                  <Link className="h-4 w-4" />
+                  URL
+                </TabsTrigger>
+                <TabsTrigger value="local" className="flex items-center gap-2">
+                  <HardDrive className="h-4 w-4" />
+                  Local File
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="url" className="mt-4">
+                <div className="flex items-center gap-2">
+                  <Link className="h-4 w-4 text-muted-foreground" />
+                  <Input
+                    {...register("audio_url")}
+                    placeholder="https://example.com/audio.mp3"
+                    className="flex-1"
+                  />
+                </div>
+              </TabsContent>
+              <TabsContent value="local" className="mt-4">
+                <div 
+                  className="border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:border-primary transition-colors"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="audio/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  {localFile ? (
+                    <div className="flex items-center justify-center gap-3">
+                      <FileAudio className="h-8 w-8 text-primary" />
+                      <div className="text-left">
+                        <p className="font-medium">{localFile.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {(localFile.size / (1024 * 1024)).toFixed(2)} MB
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <Upload className="h-10 w-10 mx-auto mb-2 text-muted-foreground" />
+                      <p className="text-muted-foreground">Click to select audio file</p>
+                      <p className="text-xs text-muted-foreground mt-1">Max 50MB, MP3/WAV/OGG/M4A</p>
+                    </>
+                  )}
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
