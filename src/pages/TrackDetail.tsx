@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Play, Heart, Share, Music2, User } from "lucide-react";
+import { Play, Heart, Share, Music2, User, Edit } from "lucide-react";
 import { useMusicPlayer } from "@/contexts/MusicPlayerContext";
 import { toast } from "sonner";
 
@@ -246,6 +246,10 @@ export default function TrackDetail() {
               </Button>
               <Button size="lg" variant="outline" onClick={handleShare}>
                 <Share className="h-5 w-5" />
+              </Button>
+              <Button size="lg" variant="outline" onClick={() => navigate(`/niranx/music/track/${track.id}/edit`)}>
+                <Edit className="h-5 w-5 mr-2" />
+                Edit
               </Button>
             </div>
 
