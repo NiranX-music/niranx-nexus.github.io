@@ -215,10 +215,16 @@ export default function MusicLibrary() {
           <h1 className="text-4xl font-bold gradient-text mb-2">Music Library</h1>
           <p className="text-muted-foreground">Discover and play your favorite tracks</p>
         </div>
-        <Button onClick={() => navigate("/niranx/music/upload")}>
-          <Plus className="h-4 w-4 mr-2" />
-          Upload Track
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => navigate("/niranx/music/artist/create")}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Artist
+          </Button>
+          <Button onClick={() => navigate("/niranx/music/upload")}>
+            <Plus className="h-4 w-4 mr-2" />
+            Upload Track
+          </Button>
+        </div>
       </div>
 
       <div className="relative">
