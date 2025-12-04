@@ -6,9 +6,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Music, User, Check, X, Search, Play, ExternalLink } from "lucide-react";
+import { Music, User, Check, X, Search, Play, ExternalLink, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface PendingTrack {
   id: string;
@@ -136,6 +147,28 @@ export default function MusicModeration() {
       fetchData();
     } catch (error) {
       toast.error("Failed to reject artist");
+    }
+  };
+
+  const deleteTrack = async (trackId: string) => {
+    try {
+      const { error } = await supabase.from("tracks").delete().eq("id", trackId);
+      if (error) throw error;
+      toast.success("Track deleted successfully");
+      fetchData();
+    } catch (error) {
+      toast.error("Failed to delete track");
+    }
+  };
+
+  const deleteArtist = async (artistId: string) => {
+    try {
+      const { error } = await supabase.from("artists").delete().eq("id", artistId);
+      if (error) throw error;
+      toast.success("Artist deleted successfully");
+      fetchData();
+    } catch (error) {
+      toast.error("Failed to delete artist");
     }
   };
 
@@ -381,14 +414,38 @@ export default function MusicModeration() {
                       <TableCell>{track.artist}</TableCell>
                       <TableCell>{track.album || "-"}</TableCell>
                       <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => navigate(`/niranx/music/track/${track.id}`)}
-                        >
-                          <ExternalLink className="h-4 w-4 mr-1" />
-                          View
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => navigate(`/niranx/music/track/${track.id}`)}
+                          >
+                            <ExternalLink className="h-4 w-4 mr-1" />
+                            View
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="destructive" size="sm">
+                                <Trash2 className="h-4 w-4 mr-1" />
+                                Delete
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Track</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete "{track.title}"? This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => deleteTrack(track.id)}>
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -429,14 +486,38 @@ export default function MusicModeration() {
                         {artist.bio || "-"}
                       </TableCell>
                       <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => navigate(`/niranx/music/artist/${artist.id}`)}
-                        >
-                          <ExternalLink className="h-4 w-4 mr-1" />
-                          View
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => navigate(`/niranx/music/artist/${artist.id}`)}
+                          >
+                            <ExternalLink className="h-4 w-4 mr-1" />
+                            View
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="destructive" size="sm">
+                                <Trash2 className="h-4 w-4 mr-1" />
+                                Delete
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Artist</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete "{artist.name}"? This will also remove their association with any tracks. This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => deleteArtist(artist.id)}>
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
