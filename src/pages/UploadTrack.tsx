@@ -9,13 +9,20 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { Music, Upload, Link, Plus, HardDrive, FileAudio } from "lucide-react";
+import { Music, Upload, Link, Plus, HardDrive, FileAudio, X, Users } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 
 interface Artist {
   id: string;
   name: string;
   is_verified: boolean;
+}
+
+interface SelectedArtist {
+  id: string;
+  name: string;
+  role: "primary" | "featured" | "producer";
 }
 
 interface UploadForm {
@@ -37,14 +44,15 @@ interface UploadForm {
 export default function UploadTrack() {
   const [isUploading, setIsUploading] = useState(false);
   const [artists, setArtists] = useState<Artist[]>([]);
-  const [selectedArtistId, setSelectedArtistId] = useState<string>("");
+  const [selectedArtists, setSelectedArtists] = useState<SelectedArtist[]>([]);
+  const [currentArtistId, setCurrentArtistId] = useState<string>("");
+  const [currentRole, setCurrentRole] = useState<"primary" | "featured" | "producer">("primary");
   const [customArtistName, setCustomArtistName] = useState("");
-  const [useCustomArtist, setUseCustomArtist] = useState(false);
+  const [showCustomInput, setShowCustomInput] = useState(false);
   const [audioSource, setAudioSource] = useState<"url" | "local">("url");
   const [localFile, setLocalFile] = useState<File | null>(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm<UploadForm>();
+  const { register, handleSubmit, formState: { errors } } = useForm<UploadForm>();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -63,6 +71,30 @@ export default function UploadTrack() {
     } catch (error) {
       console.error("Error fetching artists:", error);
     }
+  };
+
+  const addArtist = () => {
+    if (showCustomInput && customArtistName) {
+      const newArtist: SelectedArtist = {
+        id: `custom-${Date.now()}`,
+        name: customArtistName,
+        role: currentRole,
+      };
+      setSelectedArtists([...selectedArtists, newArtist]);
+      setCustomArtistName("");
+      setShowCustomInput(false);
+    } else if (currentArtistId) {
+      const artist = artists.find(a => a.id === currentArtistId);
+      if (artist && !selectedArtists.find(sa => sa.id === artist.id)) {
+        setSelectedArtists([...selectedArtists, { id: artist.id, name: artist.name, role: currentRole }]);
+      }
+      setCurrentArtistId("");
+    }
+    setCurrentRole("primary");
+  };
+
+  const removeArtist = (id: string) => {
+    setSelectedArtists(selectedArtists.filter(a => a.id !== id));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,7 +118,7 @@ export default function UploadTrack() {
     const fileExt = localFile.name.split(".").pop();
     const fileName = `${userId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from("music")
       .upload(fileName, localFile, {
         cacheControl: "3600",
@@ -113,8 +145,8 @@ export default function UploadTrack() {
       return;
     }
 
-    if (!selectedArtistId && !customArtistName) {
-      toast.error("Please select an artist or enter a custom artist name");
+    if (selectedArtists.length === 0) {
+      toast.error("Please add at least one artist");
       return;
     }
 
@@ -130,7 +162,6 @@ export default function UploadTrack() {
 
       const userId = session.session.user.id;
 
-      // Get audio URL
       let audioUrl = data.audio_url;
       if (audioSource === "local") {
         audioUrl = await uploadLocalFile(userId) || "";
@@ -141,20 +172,20 @@ export default function UploadTrack() {
         }
       }
 
-      // Get artist name
-      let artistName = customArtistName;
-      let artistId = selectedArtistId || null;
-      
-      if (selectedArtistId && !useCustomArtist) {
-        const selectedArtist = artists.find(a => a.id === selectedArtistId);
-        artistName = selectedArtist?.name || customArtistName;
+      // Build artist display name (e.g., "Artist1, Artist2 ft. Artist3")
+      const primaryArtists = selectedArtists.filter(a => a.role === "primary").map(a => a.name);
+      const featuredArtists = selectedArtists.filter(a => a.role === "featured").map(a => a.name);
+      let artistDisplayName = primaryArtists.join(", ");
+      if (featuredArtists.length > 0) {
+        artistDisplayName += ` ft. ${featuredArtists.join(", ")}`;
       }
 
-      // Insert track directly into database
+      const primaryArtist = selectedArtists.find(a => a.role === "primary" && !a.id.startsWith("custom-"));
+
       const trackData = {
         title: data.title,
-        artist: artistName,
-        artist_id: useCustomArtist ? null : artistId,
+        artist: artistDisplayName,
+        artist_id: primaryArtist?.id || null,
         album: data.album || null,
         genre: data.genre || null,
         songwriter: data.songwriter || null,
@@ -171,13 +202,37 @@ export default function UploadTrack() {
         is_approved: false,
       };
 
-      const { error: insertError } = await supabase.from("tracks").insert(trackData);
+      const { data: newTrack, error: insertError } = await supabase
+        .from("tracks")
+        .insert(trackData)
+        .select()
+        .single();
 
       if (insertError) {
         console.error("Database insert error:", insertError);
         toast.error(`Failed to save track: ${insertError.message}`);
         setIsUploading(false);
         return;
+      }
+
+      // Insert track_artists entries for non-custom artists
+      const trackArtistsData = selectedArtists
+        .filter(a => !a.id.startsWith("custom-"))
+        .map(a => ({
+          track_id: newTrack.id,
+          artist_id: a.id,
+          artist_name: a.name,
+          role: a.role,
+        }));
+
+      if (trackArtistsData.length > 0) {
+        const { error: trackArtistsError } = await (supabase as any)
+          .from("track_artists")
+          .insert(trackArtistsData);
+
+        if (trackArtistsError) {
+          console.error("Error linking artists:", trackArtistsError);
+        }
       }
 
       toast.success("Track uploaded successfully! Awaiting moderation.");
@@ -258,66 +313,85 @@ export default function UploadTrack() {
             </Tabs>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="title">Track Title *</Label>
-              <Input
-                id="title"
-                {...register("title", { required: true })}
-                placeholder="Enter track title"
-              />
-              {errors.title && <p className="text-sm text-destructive">Title is required</p>}
+          <div className="space-y-2">
+            <Label htmlFor="title">Track Title *</Label>
+            <Input
+              id="title"
+              {...register("title", { required: true })}
+              placeholder="Enter track title"
+            />
+            {errors.title && <p className="text-sm text-destructive">Title is required</p>}
+          </div>
+
+          {/* Multiple Artists Selection */}
+          <div className="space-y-3">
+            <Label className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Artists *
+            </Label>
+            
+            {selectedArtists.length > 0 && (
+              <div className="flex flex-wrap gap-2 p-3 bg-muted/50 rounded-lg">
+                {selectedArtists.map((artist) => (
+                  <Badge key={artist.id} variant="secondary" className="flex items-center gap-1 py-1">
+                    {artist.name}
+                    <span className="text-xs opacity-70">({artist.role})</span>
+                    <button type="button" onClick={() => removeArtist(artist.id)} className="ml-1 hover:text-destructive">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            )}
+
+            <div className="flex flex-col sm:flex-row gap-2">
+              {!showCustomInput ? (
+                <Select value={currentArtistId} onValueChange={setCurrentArtistId}>
+                  <SelectTrigger className="flex-1">
+                    <SelectValue placeholder="Select an artist" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {artists.map((artist) => (
+                      <SelectItem key={artist.id} value={artist.id}>
+                        {artist.name} {artist.is_verified && "✓"}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input
+                  value={customArtistName}
+                  onChange={(e) => setCustomArtistName(e.target.value)}
+                  placeholder="Enter custom artist name"
+                  className="flex-1"
+                />
+              )}
+              
+              <Select value={currentRole} onValueChange={(v) => setCurrentRole(v as any)}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="primary">Primary</SelectItem>
+                  <SelectItem value="featured">Featured</SelectItem>
+                  <SelectItem value="producer">Producer</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Button type="button" onClick={addArtist} variant="outline" size="icon">
+                <Plus className="h-4 w-4" />
+              </Button>
             </div>
 
-            <div className="space-y-2">
-              <Label>Artist *</Label>
-              {!useCustomArtist ? (
-                <div className="space-y-2">
-                  <Select value={selectedArtistId} onValueChange={setSelectedArtistId}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select an artist" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {artists.map((artist) => (
-                        <SelectItem key={artist.id} value={artist.id}>
-                          {artist.name} {artist.is_verified && "✓"}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button
-                    type="button"
-                    variant="link"
-                    size="sm"
-                    className="p-0 h-auto text-xs"
-                    onClick={() => setUseCustomArtist(true)}
-                  >
-                    <Plus className="h-3 w-3 mr-1" />
-                    Or add custom artist name
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <Input
-                    value={customArtistName}
-                    onChange={(e) => setCustomArtistName(e.target.value)}
-                    placeholder="Enter artist name"
-                  />
-                  <Button
-                    type="button"
-                    variant="link"
-                    size="sm"
-                    className="p-0 h-auto text-xs"
-                    onClick={() => {
-                      setUseCustomArtist(false);
-                      setCustomArtistName("");
-                    }}
-                  >
-                    Select from existing artists
-                  </Button>
-                </div>
-              )}
-            </div>
+            <Button
+              type="button"
+              variant="link"
+              size="sm"
+              className="p-0 h-auto text-xs"
+              onClick={() => setShowCustomInput(!showCustomInput)}
+            >
+              {showCustomInput ? "Select from existing artists" : "Or add custom artist name"}
+            </Button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

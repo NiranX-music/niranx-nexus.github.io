@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Disc, Save, ArrowLeft, Plus, X, Upload, Music } from "lucide-react";
+import { Disc, Save, ArrowLeft, Plus, X, Upload, Music, Users } from "lucide-react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 
 interface TrackEntry {
   id: string;
@@ -20,12 +21,24 @@ interface TrackEntry {
 interface Artist {
   id: string;
   name: string;
+  is_verified?: boolean;
+}
+
+interface SelectedArtist {
+  id: string;
+  name: string;
+  role: "primary" | "featured" | "producer";
 }
 
 export default function CreateAlbum() {
   const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false);
   const [artists, setArtists] = useState<Artist[]>([]);
+  const [selectedArtists, setSelectedArtists] = useState<SelectedArtist[]>([]);
+  const [currentArtistId, setCurrentArtistId] = useState<string>("");
+  const [currentRole, setCurrentRole] = useState<"primary" | "featured" | "producer">("primary");
+  const [customArtistName, setCustomArtistName] = useState("");
+  const [showCustomInput, setShowCustomInput] = useState(false);
   const [tracks, setTracks] = useState<TrackEntry[]>([
     { id: crypto.randomUUID(), title: "", file: null, audioUrl: "" }
   ]);
@@ -35,23 +48,46 @@ export default function CreateAlbum() {
   
   const [form, setForm] = useState({
     title: "",
-    artist_id: "",
-    artist_name: "",
     genre: "",
     description: "",
     release_date: "",
   });
 
-  useState(() => {
+  useEffect(() => {
     fetchArtists();
-  });
+  }, []);
 
   const fetchArtists = async () => {
+    const { data: userData } = await supabase.auth.getUser();
     const { data } = await supabase
       .from("artists")
-      .select("id, name")
-      .or("is_verified.eq.true,created_by.eq." + (await supabase.auth.getUser()).data.user?.id);
+      .select("id, name, is_verified")
+      .or(`is_verified.eq.true,created_by.eq.${userData.user?.id}`);
     setArtists(data || []);
+  };
+
+  const addArtist = () => {
+    if (showCustomInput && customArtistName) {
+      const newArtist: SelectedArtist = {
+        id: `custom-${Date.now()}`,
+        name: customArtistName,
+        role: currentRole,
+      };
+      setSelectedArtists([...selectedArtists, newArtist]);
+      setCustomArtistName("");
+      setShowCustomInput(false);
+    } else if (currentArtistId) {
+      const artist = artists.find(a => a.id === currentArtistId);
+      if (artist && !selectedArtists.find(sa => sa.id === artist.id)) {
+        setSelectedArtists([...selectedArtists, { id: artist.id, name: artist.name, role: currentRole }]);
+      }
+      setCurrentArtistId("");
+    }
+    setCurrentRole("primary");
+  };
+
+  const removeArtist = (id: string) => {
+    setSelectedArtists(selectedArtists.filter(a => a.id !== id));
   };
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,6 +123,12 @@ export default function CreateAlbum() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (selectedArtists.length === 0) {
+      toast.error("Please add at least one artist");
+      return;
+    }
+
     setIsSaving(true);
 
     try {
@@ -108,18 +150,23 @@ export default function CreateAlbum() {
         coverUrl = publicUrl;
       }
 
-      // Get artist name
-      const artistName = form.artist_id 
-        ? artists.find(a => a.id === form.artist_id)?.name || form.artist_name
-        : form.artist_name;
+      // Build artist display name
+      const primaryArtists = selectedArtists.filter(a => a.role === "primary").map(a => a.name);
+      const featuredArtists = selectedArtists.filter(a => a.role === "featured").map(a => a.name);
+      let artistDisplayName = primaryArtists.join(", ");
+      if (featuredArtists.length > 0) {
+        artistDisplayName += ` ft. ${featuredArtists.join(", ")}`;
+      }
+
+      const primaryArtist = selectedArtists.find(a => a.role === "primary" && !a.id.startsWith("custom-"));
 
       // Create album
       const { data: album, error: albumError } = await supabase
         .from("albums")
         .insert({
           title: form.title,
-          artist_id: form.artist_id || null,
-          artist_name: artistName,
+          artist_id: primaryArtist?.id || null,
+          artist_name: artistDisplayName,
           cover_url: coverUrl,
           genre: form.genre || null,
           description: form.description || null,
@@ -130,6 +177,26 @@ export default function CreateAlbum() {
         .single();
 
       if (albumError) throw albumError;
+
+      // Insert album_artists entries for non-custom artists
+      const albumArtistsData = selectedArtists
+        .filter(a => !a.id.startsWith("custom-"))
+        .map(a => ({
+          album_id: album.id,
+          artist_id: a.id,
+          artist_name: a.name,
+          role: a.role,
+        }));
+
+      if (albumArtistsData.length > 0) {
+        const { error: albumArtistsError } = await (supabase as any)
+          .from("album_artists")
+          .insert(albumArtistsData);
+
+        if (albumArtistsError) {
+          console.error("Error linking album artists:", albumArtistsError);
+        }
+      }
 
       // Upload and create tracks
       for (let i = 0; i < tracks.length; i++) {
@@ -156,8 +223,8 @@ export default function CreateAlbum() {
           .from("tracks")
           .insert({
             title: track.title,
-            artist: artistName,
-            artist_id: form.artist_id || null,
+            artist: artistDisplayName,
+            artist_id: primaryArtist?.id || null,
             album: form.title,
             album_id: album.id,
             audio_url: audioUrl,
@@ -176,6 +243,20 @@ export default function CreateAlbum() {
           track_id: newTrack.id,
           track_number: i + 1,
         });
+
+        // Insert track_artists entries
+        const trackArtistsData = selectedArtists
+          .filter(a => !a.id.startsWith("custom-"))
+          .map(a => ({
+            track_id: newTrack.id,
+            artist_id: a.id,
+            artist_name: a.name,
+            role: a.role,
+          }));
+
+        if (trackArtistsData.length > 0) {
+          await (supabase as any).from("track_artists").insert(trackArtistsData);
+        }
       }
 
       toast.success("Album created successfully! It will be visible after approval.");
@@ -219,39 +300,6 @@ export default function CreateAlbum() {
             </div>
 
             <div className="space-y-2">
-              <Label>Artist</Label>
-              <Select
-                value={form.artist_id}
-                onValueChange={(value) => setForm({ ...form, artist_id: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select artist" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="custom">Enter custom name</SelectItem>
-                  {artists.map((artist) => (
-                    <SelectItem key={artist.id} value={artist.id}>
-                      {artist.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {form.artist_id === "custom" && (
-              <div className="space-y-2">
-                <Label htmlFor="artist_name">Custom Artist Name *</Label>
-                <Input
-                  id="artist_name"
-                  value={form.artist_name}
-                  onChange={(e) => setForm({ ...form, artist_name: e.target.value })}
-                  placeholder="Enter artist name"
-                  required={form.artist_id === "custom"}
-                />
-              </div>
-            )}
-
-            <div className="space-y-2">
               <Label htmlFor="genre">Genre</Label>
               <Input
                 id="genre"
@@ -270,6 +318,77 @@ export default function CreateAlbum() {
                 onChange={(e) => setForm({ ...form, release_date: e.target.value })}
               />
             </div>
+          </div>
+
+          {/* Multiple Artists Selection */}
+          <div className="space-y-3">
+            <Label className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Artists *
+            </Label>
+            
+            {selectedArtists.length > 0 && (
+              <div className="flex flex-wrap gap-2 p-3 bg-muted/50 rounded-lg">
+                {selectedArtists.map((artist) => (
+                  <Badge key={artist.id} variant="secondary" className="flex items-center gap-1 py-1">
+                    {artist.name}
+                    <span className="text-xs opacity-70">({artist.role})</span>
+                    <button type="button" onClick={() => removeArtist(artist.id)} className="ml-1 hover:text-destructive">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            )}
+
+            <div className="flex flex-col sm:flex-row gap-2">
+              {!showCustomInput ? (
+                <Select value={currentArtistId} onValueChange={setCurrentArtistId}>
+                  <SelectTrigger className="flex-1">
+                    <SelectValue placeholder="Select an artist" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {artists.map((artist) => (
+                      <SelectItem key={artist.id} value={artist.id}>
+                        {artist.name} {artist.is_verified && "✓"}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input
+                  value={customArtistName}
+                  onChange={(e) => setCustomArtistName(e.target.value)}
+                  placeholder="Enter custom artist name"
+                  className="flex-1"
+                />
+              )}
+              
+              <Select value={currentRole} onValueChange={(v) => setCurrentRole(v as any)}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="primary">Primary</SelectItem>
+                  <SelectItem value="featured">Featured</SelectItem>
+                  <SelectItem value="producer">Producer</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Button type="button" onClick={addArtist} variant="outline" size="icon">
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <Button
+              type="button"
+              variant="link"
+              size="sm"
+              className="p-0 h-auto text-xs"
+              onClick={() => setShowCustomInput(!showCustomInput)}
+            >
+              {showCustomInput ? "Select from existing artists" : "Or add custom artist name"}
+            </Button>
           </div>
 
           <div className="space-y-2">

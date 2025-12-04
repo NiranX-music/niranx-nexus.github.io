@@ -418,6 +418,48 @@ export type Database = {
           },
         ]
       }
+      album_artists: {
+        Row: {
+          album_id: string
+          artist_id: string
+          artist_name: string
+          created_at: string | null
+          id: string
+          role: string | null
+        }
+        Insert: {
+          album_id: string
+          artist_id: string
+          artist_name: string
+          created_at?: string | null
+          id?: string
+          role?: string | null
+        }
+        Update: {
+          album_id?: string
+          artist_id?: string
+          artist_name?: string
+          created_at?: string | null
+          id?: string
+          role?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "album_artists_album_id_fkey"
+            columns: ["album_id"]
+            isOneToOne: false
+            referencedRelation: "albums"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "album_artists_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       album_tracks: {
         Row: {
           album_id: string
