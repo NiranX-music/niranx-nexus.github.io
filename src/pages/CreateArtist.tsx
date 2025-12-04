@@ -31,9 +31,11 @@ export default function CreateArtist() {
     setIsSaving(true);
 
     try {
-      const { data: session } = await supabase.auth.getSession();
-      if (!session.session) {
+      const { data: { session }, error: authError } = await supabase.auth.getSession();
+      
+      if (authError || !session) {
         toast.error("Please sign in to create an artist");
+        setIsSaving(false);
         return;
       }
 
@@ -44,18 +46,22 @@ export default function CreateArtist() {
           bio: form.bio || null,
           avatar_url: form.avatar_url || null,
           custom_url: form.custom_url || null,
-          created_by: session.session.user.id,
+          created_by: session.user.id,
         })
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error creating artist:", error);
+        toast.error(error.message || "Failed to create artist");
+        return;
+      }
 
-      toast.success("Artist created successfully!");
+      toast.success("Artist created successfully! It will be visible after verification.");
       navigate(`/niranx/music/artist/${data.id}`);
     } catch (error: any) {
       console.error("Error creating artist:", error);
-      toast.error("Failed to create artist");
+      toast.error(error.message || "Failed to create artist");
     } finally {
       setIsSaving(false);
     }
