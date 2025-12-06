@@ -8,10 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Music, Upload, Link, Plus, HardDrive, FileAudio, X, Users } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface Artist {
   id: string;
@@ -41,7 +42,14 @@ interface UploadForm {
   duration?: number;
 }
 
+interface LocationState {
+  prefilledUrl?: string;
+  prefilledTitle?: string;
+}
+
 export default function UploadTrack() {
+  const location = useLocation();
+  const state = location.state as LocationState | null;
   const [isUploading, setIsUploading] = useState(false);
   const [artists, setArtists] = useState<Artist[]>([]);
   const [selectedArtists, setSelectedArtists] = useState<SelectedArtist[]>([]);
@@ -49,10 +57,15 @@ export default function UploadTrack() {
   const [currentRole, setCurrentRole] = useState<"primary" | "featured" | "producer">("primary");
   const [customArtistName, setCustomArtistName] = useState("");
   const [showCustomInput, setShowCustomInput] = useState(false);
-  const [audioSource, setAudioSource] = useState<"url" | "local">("url");
+  const [audioSource, setAudioSource] = useState<"url" | "local">(state?.prefilledUrl ? "url" : "url");
   const [localFile, setLocalFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { register, handleSubmit, formState: { errors } } = useForm<UploadForm>();
+  const { register, handleSubmit, formState: { errors }, setValue } = useForm<UploadForm>({
+    defaultValues: {
+      audio_url: state?.prefilledUrl || "",
+      title: state?.prefilledTitle || "",
+    }
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -253,6 +266,15 @@ export default function UploadTrack() {
           Share your music with the community. Upload a local file or provide a URL.
         </p>
       </div>
+
+      {state?.prefilledUrl && (
+        <Alert className="mb-6">
+          <Music className="h-4 w-4" />
+          <AlertDescription>
+            Publishing from Listed Songs. Edit details below and submit for moderation.
+          </AlertDescription>
+        </Alert>
+      )}
 
       <Card className="p-6">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
