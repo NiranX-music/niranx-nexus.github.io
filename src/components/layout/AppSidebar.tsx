@@ -153,13 +153,18 @@ const progressNavigation = [
   { title: "Games", url: "/niranx/games", icon: Gamepad2 },
 ];
 
-// Media & Entertainment
-const mediaNavigation = [
+// EcoFuse - Music & Audio
+const ecoFuseNavigation = [
+  { title: "Listed Songs", url: "/niranx/music/listed-songs", icon: FileMusic },
   { title: "Music Player", url: "/niranx/music", icon: Music },
   { title: "Music Hub", url: "/niranx/music-hub", icon: FileMusic },
   { title: "Music Library", url: "/niranx/music/library", icon: Headphones },
   { title: "Upload Track", url: "/niranx/music/upload", icon: Upload },
   { title: "Listening Library", url: "/niranx/listening-library", icon: Headphones },
+];
+
+// Media & Entertainment
+const mediaNavigation = [
   { title: "Video Player", url: "/niranx/video-player", icon: Video },
   { title: "Video Library", url: "/niranx/video-library", icon: Video },
   { title: "StreamSphere", url: "/niranx/stream-sphere", icon: Youtube },
@@ -289,6 +294,7 @@ export function AppSidebar() {
     aiDevelopment: true,
     study: true,
     progress: false,
+    ecoFuse: true,
     media: false,
     files: false,
     social: false,
@@ -311,6 +317,7 @@ export function AppSidebar() {
     ...aiDevelopmentNavigation,
     ...studyNavigation,
     ...progressNavigation,
+    ...ecoFuseNavigation,
     ...mediaNavigation,
     ...filesNavigation,
     ...socialNavigation,
@@ -599,14 +606,34 @@ export function AppSidebar() {
           </SidebarGroup>
         </Collapsible>
 
+        {/* EcoFuse - Music & Audio */}
+        <Collapsible open={expandedSections.ecoFuse} onOpenChange={() => toggleSection('ecoFuse')}>
+          <SidebarGroup>
+            <CollapsibleTrigger asChild>
+              <SidebarGroupLabel className="cursor-pointer hover:bg-emerald-500/20 rounded-lg px-3 -mx-2 flex items-center justify-between text-white/90 font-bold text-sm uppercase tracking-wider transition-all duration-200 py-3 bg-gradient-to-r from-emerald-500/25 to-teal-500/15 border border-emerald-500/20 mb-2">
+                <span className="flex items-center gap-2">
+                  <Headphones className="h-4 w-4 text-emerald-400" />
+                  {!isCollapsed && "EcoFuse"}
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform text-emerald-400 ${expandedSections.ecoFuse ? '' : '-rotate-90'}`} />
+              </SidebarGroupLabel>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>{renderNavItems(ecoFuseNavigation)}</SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
+
         {/* Media */}
         <Collapsible open={expandedSections.media} onOpenChange={() => toggleSection('media')}>
           <SidebarGroup>
             <CollapsibleTrigger asChild>
               <SidebarGroupLabel className="cursor-pointer hover:bg-primary/20 rounded-lg px-2 -mx-2 flex items-center justify-between text-white/90 font-bold text-sm uppercase tracking-wider transition-all duration-200 py-3 bg-gradient-to-r from-purple-500/20 to-transparent">
                 <span className="flex items-center gap-2">
-                  <Music className="h-4 w-4 text-purple-400" />
-                  {!isCollapsed && "Media"}
+                  <Video className="h-4 w-4 text-purple-400" />
+                  {!isCollapsed && "Video & Streaming"}
                 </span>
                 <ChevronDown className={`h-4 w-4 transition-transform text-white/70 ${expandedSections.media ? '' : '-rotate-90'}`} />
               </SidebarGroupLabel>
