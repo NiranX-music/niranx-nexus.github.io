@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,15 +25,20 @@ import {
   FolderUp,
   Shuffle,
   Repeat,
-  ExternalLink
+  ExternalLink,
+  Globe,
+  User,
+  Users
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Slider } from '@/components/ui/slider';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 interface ListedSong {
   id: string;
+  user_id: string;
   title: string;
   file_url: string;
   file_name: string;
@@ -45,7 +51,8 @@ export default function ListedSongs() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [songs, setSongs] = useState<ListedSong[]>([]);
+  const [personalSongs, setPersonalSongs] = useState<ListedSong[]>([]);
+  const [publicSongs, setPublicSongs] = useState<ListedSong[]>([]);
   const [currentSong, setCurrentSong] = useState<ListedSong | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -56,10 +63,12 @@ export default function ListedSongs() {
   const [repeatMode, setRepeatMode] = useState<'none' | 'all' | 'one'>('none');
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [activeTab, setActiveTab] = useState<'personal' | 'public'>('personal');
 
   useEffect(() => {
+    fetchPublicSongs();
     if (user) {
-      fetchSongs();
+      fetchPersonalSongs();
     }
   }, [user]);
 
@@ -80,9 +89,9 @@ export default function ListedSongs() {
       audio.removeEventListener('durationchange', handleDurationChange);
       audio.removeEventListener('ended', handleEnded);
     };
-  }, [songs, currentSong, isShuffled, repeatMode]);
+  }, [personalSongs, publicSongs, currentSong, isShuffled, repeatMode, activeTab]);
 
-  const fetchSongs = async () => {
+  const fetchPersonalSongs = async () => {
     const { data, error } = await supabase
       .from('listed_songs')
       .select('*')
@@ -90,14 +99,30 @@ export default function ListedSongs() {
       .order('created_at', { ascending: false });
 
     if (error) {
-      toast.error('Failed to fetch songs');
+      console.error('Failed to fetch personal songs:', error);
       return;
     }
-    setSongs(data || []);
+    setPersonalSongs(data || []);
+  };
+
+  const fetchPublicSongs = async () => {
+    const { data, error } = await supabase
+      .from('listed_songs')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Failed to fetch public songs:', error);
+      return;
+    }
+    setPublicSongs(data || []);
   };
 
   const handleFileUpload = async (files: FileList | null) => {
-    if (!files || !user) return;
+    if (!files || !user) {
+      toast.error('Please log in to upload songs');
+      return;
+    }
 
     setUploading(true);
     const audioFiles = Array.from(files).filter(f => f.type.startsWith('audio/'));
@@ -147,7 +172,12 @@ export default function ListedSongs() {
     toast.success(`Uploaded ${uploaded} song(s)`);
     setUploading(false);
     setUploadProgress(0);
-    fetchSongs();
+    fetchPersonalSongs();
+    fetchPublicSongs();
+  };
+
+  const getCurrentSongList = () => {
+    return activeTab === 'personal' ? personalSongs : publicSongs;
   };
 
   const playSong = (song: ListedSong) => {
@@ -171,6 +201,7 @@ export default function ListedSongs() {
   };
 
   const handleNextSong = () => {
+    const songs = getCurrentSongList();
     if (!currentSong || songs.length === 0) return;
 
     if (repeatMode === 'one') {
@@ -196,6 +227,7 @@ export default function ListedSongs() {
   };
 
   const handlePrevSong = () => {
+    const songs = getCurrentSongList();
     if (!currentSong || songs.length === 0) return;
 
     if (audioRef.current && audioRef.current.currentTime > 3) {
@@ -232,6 +264,11 @@ export default function ListedSongs() {
   };
 
   const deleteSong = async (song: ListedSong) => {
+    if (song.user_id !== user?.id) {
+      toast.error('You can only delete your own songs');
+      return;
+    }
+
     const fileName = song.file_url.split('/').slice(-2).join('/');
     
     await supabase.storage.from('listed-songs').remove([fileName]);
@@ -252,11 +289,12 @@ export default function ListedSongs() {
     }
 
     toast.success('Song deleted');
-    fetchSongs();
+    fetchPersonalSongs();
+    fetchPublicSongs();
   };
 
   const publishToHub = (song: ListedSong) => {
-    navigate('/upload-track', { 
+    navigate('/niranx/music/upload', { 
       state: { 
         prefilledUrl: song.file_url,
         prefilledTitle: song.title 
@@ -271,15 +309,89 @@ export default function ListedSongs() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Card className="p-8">
-          <p className="text-muted-foreground">Please log in to access Listed Songs</p>
-        </Card>
+  const renderSongList = (songs: ListedSong[], isPersonal: boolean) => (
+    <ScrollArea className="h-[400px]">
+      <div className="space-y-1">
+        {songs.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground">
+            <Music className="w-12 h-12 mx-auto mb-4 opacity-50" />
+            <p>{isPersonal ? 'No personal songs uploaded yet' : 'No public songs available'}</p>
+            {isPersonal && <p className="text-sm">Upload songs or folders to get started</p>}
+          </div>
+        ) : (
+          songs.map((song, index) => (
+            <div
+              key={song.id}
+              className={`flex items-center gap-4 p-3 rounded-lg hover:bg-accent/50 cursor-pointer transition-colors ${
+                currentSong?.id === song.id ? 'bg-accent' : ''
+              }`}
+              onClick={() => playSong(song)}
+            >
+              <div className="w-8 text-center text-muted-foreground text-sm">
+                {currentSong?.id === song.id && isPlaying ? (
+                  <div className="flex items-center justify-center gap-0.5">
+                    <span className="w-1 h-3 bg-primary animate-pulse rounded-full" />
+                    <span className="w-1 h-4 bg-primary animate-pulse rounded-full delay-75" />
+                    <span className="w-1 h-2 bg-primary animate-pulse rounded-full delay-150" />
+                  </div>
+                ) : (
+                  index + 1
+                )}
+              </div>
+              
+              <div className="flex-1 min-w-0">
+                <p className="font-medium truncate">{song.title}</p>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <span className="truncate">{song.file_name}</span>
+                  {!isPersonal && song.user_id !== user?.id && (
+                    <span className="flex items-center gap-1">
+                      <Users className="w-3 h-3" />
+                      Shared
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="text-sm text-muted-foreground">
+                {song.file_size ? `${(song.file_size / 1024 / 1024).toFixed(1)} MB` : ''}
+              </div>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <MoreVertical className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {user && (
+                    <DropdownMenuItem onClick={(e) => {
+                      e.stopPropagation();
+                      publishToHub(song);
+                    }}>
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Publish to Music Hub
+                    </DropdownMenuItem>
+                  )}
+                  {song.user_id === user?.id && (
+                    <DropdownMenuItem 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteSong(song);
+                      }}
+                      className="text-destructive"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          ))
+        )}
       </div>
-    );
-  }
+    </ScrollArea>
+  );
 
   return (
     <div className="container mx-auto p-4 md:p-6 space-y-6 pb-40">
@@ -288,44 +400,46 @@ export default function ListedSongs() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold">Listed Songs</h1>
-          <p className="text-muted-foreground">Your personal music collection</p>
+          <p className="text-muted-foreground">Personal & public music collection</p>
         </div>
         
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => document.getElementById('folder-upload')?.click()}
-            disabled={uploading}
-          >
-            <FolderUp className="w-4 h-4 mr-2" />
-            Upload Folder
-          </Button>
-          <Button
-            onClick={() => document.getElementById('file-upload')?.click()}
-            disabled={uploading}
-          >
-            <Upload className="w-4 h-4 mr-2" />
-            Upload Songs
-          </Button>
-          <input
-            id="file-upload"
-            type="file"
-            accept="audio/*"
-            multiple
-            className="hidden"
-            onChange={(e) => handleFileUpload(e.target.files)}
-          />
-          <input
-            id="folder-upload"
-            type="file"
-            accept="audio/*"
-            multiple
-            // @ts-ignore
-            webkitdirectory=""
-            className="hidden"
-            onChange={(e) => handleFileUpload(e.target.files)}
-          />
-        </div>
+        {user && (
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => document.getElementById('folder-upload')?.click()}
+              disabled={uploading}
+            >
+              <FolderUp className="w-4 h-4 mr-2" />
+              Upload Folder
+            </Button>
+            <Button
+              onClick={() => document.getElementById('file-upload')?.click()}
+              disabled={uploading}
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              Upload Songs
+            </Button>
+            <input
+              id="file-upload"
+              type="file"
+              accept="audio/*"
+              multiple
+              className="hidden"
+              onChange={(e) => handleFileUpload(e.target.files)}
+            />
+            <input
+              id="folder-upload"
+              type="file"
+              accept="audio/*"
+              multiple
+              // @ts-ignore
+              webkitdirectory=""
+              className="hidden"
+              onChange={(e) => handleFileUpload(e.target.files)}
+            />
+          </div>
+        )}
       </div>
 
       {uploading && (
@@ -335,87 +449,53 @@ export default function ListedSongs() {
         </Card>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Music className="w-5 h-5" />
-            Your Songs ({songs.length})
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {songs.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <Music className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>No songs uploaded yet</p>
-              <p className="text-sm">Upload songs or folders to get started</p>
-            </div>
-          ) : (
-            <ScrollArea className="h-[400px]">
-              <div className="space-y-1">
-                {songs.map((song, index) => (
-                  <div
-                    key={song.id}
-                    className={`flex items-center gap-4 p-3 rounded-lg hover:bg-accent/50 cursor-pointer transition-colors ${
-                      currentSong?.id === song.id ? 'bg-accent' : ''
-                    }`}
-                    onClick={() => playSong(song)}
-                  >
-                    <div className="w-8 text-center text-muted-foreground text-sm">
-                      {currentSong?.id === song.id && isPlaying ? (
-                        <div className="flex items-center justify-center gap-0.5">
-                          <span className="w-1 h-3 bg-primary animate-pulse rounded-full" />
-                          <span className="w-1 h-4 bg-primary animate-pulse rounded-full delay-75" />
-                          <span className="w-1 h-2 bg-primary animate-pulse rounded-full delay-150" />
-                        </div>
-                      ) : (
-                        index + 1
-                      )}
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{song.title}</p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {song.file_name}
-                      </p>
-                    </div>
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'personal' | 'public')}>
+        <TabsList className="grid w-full grid-cols-2 max-w-md">
+          <TabsTrigger value="personal" className="flex items-center gap-2">
+            <User className="w-4 h-4" />
+            Personal ({personalSongs.length})
+          </TabsTrigger>
+          <TabsTrigger value="public" className="flex items-center gap-2">
+            <Globe className="w-4 h-4" />
+            Public ({publicSongs.length})
+          </TabsTrigger>
+        </TabsList>
 
-                    <div className="text-sm text-muted-foreground">
-                      {song.file_size ? `${(song.file_size / 1024 / 1024).toFixed(1)} MB` : ''}
-                    </div>
+        <TabsContent value="personal" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="w-5 h-5" />
+                Your Songs
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {!user ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <User className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>Please log in to view your personal songs</p>
+                </div>
+              ) : (
+                renderSongList(personalSongs, true)
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreVertical className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={(e) => {
-                          e.stopPropagation();
-                          publishToHub(song);
-                        }}>
-                          <ExternalLink className="w-4 h-4 mr-2" />
-                          Publish to Music Hub
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deleteSong(song);
-                          }}
-                          className="text-destructive"
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-          )}
-        </CardContent>
-      </Card>
+        <TabsContent value="public" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Globe className="w-5 h-5" />
+                Public Songs
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {renderSongList(publicSongs, false)}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       {/* Player Bar */}
       {currentSong && (
