@@ -302,6 +302,23 @@ export default function ListedSongs() {
     });
   };
 
+  const publishAllToHub = () => {
+    if (personalSongs.length === 0) {
+      toast.error('No songs to publish');
+      return;
+    }
+    
+    // Navigate to upload page with first song, show info about bulk
+    navigate('/niranx/music/upload', { 
+      state: { 
+        prefilledUrl: personalSongs[0].file_url,
+        prefilledTitle: personalSongs[0].title,
+        bulkSongs: personalSongs.map(s => ({ url: s.file_url, title: s.title }))
+      } 
+    });
+    toast.info(`Navigate to upload ${personalSongs.length} songs. Upload each song one by one from the form.`);
+  };
+
   const formatTime = (time: number) => {
     if (!time || isNaN(time)) return '0:00';
     const mins = Math.floor(time / 60);
@@ -463,11 +480,21 @@ export default function ListedSongs() {
 
         <TabsContent value="personal" className="mt-4">
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <User className="w-5 h-5" />
                 Your Songs
               </CardTitle>
+              {user && personalSongs.length > 0 && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={publishAllToHub}
+                >
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  Publish All to Music Hub
+                </Button>
+              )}
             </CardHeader>
             <CardContent>
               {!user ? (
