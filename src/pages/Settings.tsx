@@ -30,7 +30,7 @@ import { useState, useEffect } from 'react';
 import { useNowPlaying } from '@/contexts/NowPlayingContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { MasterPasswordDialog } from '@/components/MasterPasswordDialog';
+
 import { useAdminCheck } from '@/hooks/useAdminCheck';
 
 const Settings = () => {
@@ -52,7 +52,7 @@ const Settings = () => {
     showQuickAccess: true
   });
 
-  const [showMasterPasswordDialog, setShowMasterPasswordDialog] = useState(false);
+  
 
   useEffect(() => {
     const savedSettings = localStorage.getItem('appSettings');
@@ -427,46 +427,6 @@ const Settings = () => {
           </CardContent>
         </Card>
 
-        {/* Admin Access (Master Password) */}
-        {!isAdmin && (
-          <Card className="border-destructive/20">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-destructive" />
-                Admin Access (Development Only)
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Security Warning */}
-              <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
-                <div className="flex items-start gap-3">
-                  <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
-                  <div className="text-sm">
-                    <p className="font-semibold text-destructive mb-1">Security Warning</p>
-                    <p className="text-muted-foreground">
-                      This feature uses a hardcoded master password and should ONLY be used for development/testing. 
-                      For production, use the secure admin request workflow.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <Button
-                onClick={() => setShowMasterPasswordDialog(true)}
-                variant="outline"
-                className="w-full border-destructive/50 hover:bg-destructive/10"
-              >
-                <ShieldCheck className="w-4 h-4 mr-2" />
-                Become Admin (Master Password)
-              </Button>
-              
-              <p className="text-sm text-muted-foreground">
-                Enter the master password to gain instant admin privileges. This bypasses the normal admin request process.
-              </p>
-            </CardContent>
-          </Card>
-        )}
-
         {/* Account Management */}
         <Card>
           <CardHeader>
@@ -525,11 +485,6 @@ const Settings = () => {
         </Card>
       </div>
 
-      {/* Master Password Dialog */}
-      <MasterPasswordDialog
-        open={showMasterPasswordDialog}
-        onOpenChange={setShowMasterPasswordDialog}
-      />
     </div>
   );
 };
