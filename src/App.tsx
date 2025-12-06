@@ -172,6 +172,7 @@ import DeepSeekChat from "./pages/DeepSeekChat";
 import LovableImageGen from "./pages/LovableImageGen";
 import { TeacherRoute } from "./components/TeacherRoute";
 import PublishedContent from "./pages/PublishedContent";
+import ListedSongs from "./pages/ListedSongs";
 
 const queryClient = new QueryClient();
 
@@ -280,6 +281,7 @@ const App = () => (
                           <Route path="/music/album/:albumId" element={<AlbumDetail />} />
                           <Route path="/music/playlist/:playlistId" element={<PlaylistPage />} />
                           <Route path="/music/playlists/create" element={<PlaylistCreate />} />
+                          <Route path="/music/listed-songs" element={<ListedSongs />} />
                           <Route path="/upload" element={<Upload />} />
                           <Route path="/pdf-viewer" element={<PDFViewer />} />
                           <Route path="/video-player" element={<VideoPlayer />} />

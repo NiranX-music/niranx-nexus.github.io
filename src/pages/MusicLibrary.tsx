@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Music, Play, Heart, Plus, MoreVertical, Search, Disc, Trash2 } from "lucide-react";
+import { Music, Play, Heart, Plus, MoreVertical, Search, Disc, Trash2, ListMusic } from "lucide-react";
 import { useMusicPlayer } from "@/contexts/MusicPlayerContext";
 import { useNavigate } from "react-router-dom";
 import {
@@ -275,6 +275,10 @@ export default function MusicLibrary() {
           <p className="text-muted-foreground">Discover and play your favorite tracks</p>
         </div>
         <div className="flex gap-2 flex-wrap">
+          <Button variant="outline" onClick={() => navigate("/niranx/music/listed-songs")}>
+            <ListMusic className="h-4 w-4 mr-2" />
+            Listed Songs
+          </Button>
           <Button variant="outline" onClick={() => navigate("/niranx/music/artist/create")}>
             <Plus className="h-4 w-4 mr-2" />
             Add Artist

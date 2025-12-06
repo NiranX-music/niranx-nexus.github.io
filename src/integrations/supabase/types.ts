@@ -2915,6 +2915,42 @@ export type Database = {
         }
         Relationships: []
       }
+      listed_songs: {
+        Row: {
+          created_at: string
+          duration: number | null
+          file_name: string
+          file_size: number | null
+          file_url: string
+          id: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration?: number | null
+          file_name: string
+          file_size?: number | null
+          file_url: string
+          id?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration?: number | null
+          file_name?: string
+          file_size?: number | null
+          file_url?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       listening_history: {
         Row: {
           context: string | null
