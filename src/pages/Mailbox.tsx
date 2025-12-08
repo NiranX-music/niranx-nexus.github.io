@@ -116,7 +116,7 @@ interface Email {
   priority?: string;
   snoozed_until?: string;
   thread_id?: string;
-  attachments?: any[];
+  attachments?: any;
 }
 
 interface EmailTemplate {
