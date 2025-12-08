@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.51.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,12 +13,34 @@ serve(async (req) => {
 
   try {
     const { messages } = await req.json();
-    console.log('DeepSeek Chat request received:', { messages });
+    console.log('DeepSeek Chat request received');
 
     const DEEPSEEK_API_KEY = Deno.env.get('DEEPSEEK_API_KEY');
     if (!DEEPSEEK_API_KEY) {
       throw new Error('DEEPSEEK_API_KEY is not configured');
     }
+
+    // Create Supabase client and verify user authentication
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: { Authorization: req.headers.get('Authorization')! },
+        },
+      }
+    );
+
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+    if (authError || !user) {
+      console.error("Authentication failed:", authError?.message);
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('DeepSeek Chat request from user:', user.id);
 
     const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
       method: 'POST',
