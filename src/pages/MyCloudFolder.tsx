@@ -269,16 +269,70 @@ export default function MyCloudFolder() {
     const files = e.target.files;
     if (!files || !user || !driveId) return;
 
+    // Calculate total upload size
+    const totalUploadSize = Array.from(files).reduce((sum, file) => sum + file.size, 0);
+    const currentUsage = storageUsed;
+
+    if (currentUsage + totalUploadSize > storageLimit) {
+      toast({
+        title: "Storage limit exceeded",
+        description: `You need ${formatFileSize(currentUsage + totalUploadSize - storageLimit)} more storage`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setUploading(true);
+    setUploadProgress(0);
     let successCount = 0;
+    const totalFiles = files.length;
+    const createdFolders = new Set<string>();
 
     try {
-      for (const file of Array.from(files)) {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
         // Extract folder structure from file path
         const relativePath = (file as any).webkitRelativePath || file.name;
         const pathParts = relativePath.split("/");
-        const folderPath = currentFolder + pathParts.slice(0, -1).join("/") + "/";
+        
+        // Create all intermediate folders
+        let accumulatedPath = currentFolder;
+        for (let j = 0; j < pathParts.length - 1; j++) {
+          const folderName = pathParts[j];
+          accumulatedPath = accumulatedPath === "/" 
+            ? `/${folderName}/` 
+            : `${accumulatedPath}${folderName}/`;
+          
+          // Only create folder if we haven't already
+          if (!createdFolders.has(accumulatedPath)) {
+            createdFolders.add(accumulatedPath);
+            
+            // Check if folder already exists
+            const { data: existingFolder } = await supabase
+              .from("user_cloud_folders")
+              .select("id")
+              .eq("user_id", user.id)
+              .eq("drive_id", driveId)
+              .eq("folder_path", accumulatedPath)
+              .single();
+            
+            if (!existingFolder) {
+              const parentPath = j === 0 
+                ? currentFolder 
+                : currentFolder + pathParts.slice(0, j).join("/") + "/";
+              
+              await supabase.from("user_cloud_folders").insert({
+                user_id: user.id,
+                drive_id: driveId,
+                folder_name: folderName,
+                folder_path: accumulatedPath,
+                parent_path: parentPath === "/" ? "/" : parentPath,
+              });
+            }
+          }
+        }
 
+        const folderPath = currentFolder + pathParts.slice(0, -1).join("/") + "/";
         const fileExt = file.name.split(".").pop() || "";
         const fileName = `${Date.now()}_${file.name}`;
         const filePath = `${user.id}/${driveId}${folderPath}${fileName}`;
@@ -294,31 +348,34 @@ export default function MyCloudFolder() {
           user_id: user.id,
           drive_id: driveId,
           file_name: file.name,
-          file_type: fileExt,
+          file_type: file.type || fileExt,
           file_size: file.size,
-          file_path: filePath, // Store storage path
-          folder_path: folderPath,
+          file_path: filePath,
+          folder_path: folderPath === "/" ? "/" : folderPath,
         });
 
         if (dbError) throw dbError;
         successCount++;
+        setUploadProgress(Math.round(((i + 1) / totalFiles) * 100));
       }
 
       toast({
         title: "Success",
-        description: `${successCount} file(s) uploaded successfully`,
+        description: `${successCount} file(s) and ${createdFolders.size} folder(s) uploaded successfully`,
       });
 
       fetchFiles();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error uploading folder:", error);
       toast({
         title: "Error",
-        description: "Failed to upload some files",
+        description: error.message || "Failed to upload some files",
         variant: "destructive",
       });
     } finally {
       setUploading(false);
+      setUploadProgress(0);
+      e.target.value = "";
     }
   };
 
