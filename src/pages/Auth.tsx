@@ -8,7 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Brain, Sparkles, Loader2, Shield, KeyRound, UserPlus, Users, Bug } from "lucide-react";
+import { Brain, Sparkles, Loader2, Shield, KeyRound, UserPlus, Users, Bug, Mail } from "lucide-react";
+import { CreateMailDialog } from "@/components/mail/CreateMailDialog";
 import { z } from "zod";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGuestMode } from "@/contexts/GuestModeContext";
@@ -619,6 +620,14 @@ const Auth = () => {
             </div>
             
             <div className="flex flex-wrap justify-center gap-4 text-xs text-muted-foreground pt-2 border-t">
+              <CreateMailDialog
+                trigger={
+                  <button className="hover:text-primary flex items-center gap-1">
+                    <Mail className="w-3 h-3" />
+                    Create a Mail
+                  </button>
+                }
+              />
               <Link to="/niranx/reauthentication" className="hover:text-primary flex items-center gap-1">
                 <Shield className="w-3 h-3" />
                 Reauthenticate
