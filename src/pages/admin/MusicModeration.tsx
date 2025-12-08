@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Music, User, Check, X, Search, Play, ExternalLink, Trash2 } from "lucide-react";
+import { Music, User, Check, X, Search, Play, ExternalLink, Trash2, Globe } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import {
@@ -20,6 +20,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+
+interface PublicSong {
+  id: string;
+  user_id: string;
+  title: string;
+  file_url: string;
+  file_name: string;
+  file_size: number | null;
+  created_at: string;
+  is_public: boolean;
+}
 
 interface PendingTrack {
   id: string;
@@ -46,6 +57,7 @@ export default function MusicModeration() {
   const [pendingArtists, setPendingArtists] = useState<PendingArtist[]>([]);
   const [approvedTracks, setApprovedTracks] = useState<PendingTrack[]>([]);
   const [approvedArtists, setApprovedArtists] = useState<PendingArtist[]>([]);
+  const [publicSongs, setPublicSongs] = useState<PublicSong[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
@@ -90,11 +102,40 @@ export default function MusicModeration() {
         .order("created_at", { ascending: false })
         .limit(50);
       setApprovedArtists(approvedArtistsData || []);
+
+      // Fetch public listed songs (only admins can delete these)
+      const { data: publicSongsData } = await supabase
+        .from("listed_songs")
+        .select("*")
+        .eq("is_public", true)
+        .order("created_at", { ascending: false });
+      setPublicSongs(publicSongsData || []);
     } catch (error) {
       console.error("Error fetching data:", error);
       toast.error("Failed to load data");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const deletePublicSong = async (song: PublicSong) => {
+    try {
+      // Delete from storage
+      const fileName = song.file_url.split('/').slice(-2).join('/');
+      await supabase.storage.from('listed-songs').remove([fileName]);
+
+      // Delete from database
+      const { error } = await supabase
+        .from("listed_songs")
+        .delete()
+        .eq("id", song.id);
+
+      if (error) throw error;
+      toast.success("Public song deleted successfully");
+      fetchData();
+    } catch (error) {
+      console.error("Error deleting public song:", error);
+      toast.error("Failed to delete public song");
     }
   };
 
@@ -230,9 +271,77 @@ export default function MusicModeration() {
               <Badge variant="destructive" className="ml-2">{pendingArtists.length}</Badge>
             )}
           </TabsTrigger>
+          <TabsTrigger value="public-songs">
+            Public Songs
+            <Badge variant="outline" className="ml-2">{publicSongs.length}</Badge>
+          </TabsTrigger>
           <TabsTrigger value="approved-tracks">Approved Tracks</TabsTrigger>
           <TabsTrigger value="approved-artists">Verified Artists</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="public-songs">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Globe className="h-5 w-5" />
+                Public Listed Songs (Admin Delete Only)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {publicSongs.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">
+                  No public songs
+                </p>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Title</TableHead>
+                      <TableHead>File</TableHead>
+                      <TableHead>Size</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {publicSongs.map((song) => (
+                      <TableRow key={song.id}>
+                        <TableCell className="font-medium">{song.title}</TableCell>
+                        <TableCell className="text-muted-foreground">{song.file_name}</TableCell>
+                        <TableCell>{song.file_size ? `${(song.file_size / 1024 / 1024).toFixed(1)} MB` : '-'}</TableCell>
+                        <TableCell>{new Date(song.created_at).toLocaleDateString()}</TableCell>
+                        <TableCell>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="destructive" size="sm">
+                                <Trash2 className="h-4 w-4 mr-1" />
+                                Delete
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Public Song</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete "{song.title}"? This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => deletePublicSong(song)}>
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="pending-tracks">
           <Card>
