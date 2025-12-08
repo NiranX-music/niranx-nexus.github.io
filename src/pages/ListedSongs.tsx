@@ -28,13 +28,16 @@ import {
   ExternalLink,
   Globe,
   User,
-  Users
+  Users,
+  ListPlus,
+  List,
+  X
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Slider } from '@/components/ui/slider';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 
 interface ListedSong {
   id: string;
@@ -45,6 +48,7 @@ interface ListedSong {
   file_size: number | null;
   duration: number | null;
   created_at: string;
+  is_public: boolean;
 }
 
 export default function ListedSongs() {
@@ -64,6 +68,8 @@ export default function ListedSongs() {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [activeTab, setActiveTab] = useState<'personal' | 'public'>('personal');
+  const [queue, setQueue] = useState<ListedSong[]>([]);
+  const [showQueue, setShowQueue] = useState(false);
 
   useEffect(() => {
     fetchPublicSongs();
@@ -89,13 +95,14 @@ export default function ListedSongs() {
       audio.removeEventListener('durationchange', handleDurationChange);
       audio.removeEventListener('ended', handleEnded);
     };
-  }, [personalSongs, publicSongs, currentSong, isShuffled, repeatMode, activeTab]);
+  }, [personalSongs, publicSongs, currentSong, isShuffled, repeatMode, activeTab, queue]);
 
   const fetchPersonalSongs = async () => {
     const { data, error } = await supabase
       .from('listed_songs')
       .select('*')
       .eq('user_id', user?.id)
+      .eq('is_public', false)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -109,6 +116,7 @@ export default function ListedSongs() {
     const { data, error } = await supabase
       .from('listed_songs')
       .select('*')
+      .eq('is_public', true)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -118,7 +126,7 @@ export default function ListedSongs() {
     setPublicSongs(data || []);
   };
 
-  const handleFileUpload = async (files: FileList | null) => {
+  const handleFileUpload = async (files: FileList | null, isPublic: boolean = false) => {
     if (!files || !user) {
       toast.error('Please log in to upload songs');
       return;
@@ -133,12 +141,14 @@ export default function ListedSongs() {
       return;
     }
 
+    const bucket = isPublic ? 'listed-songs' : 'personal-songs';
     let uploaded = 0;
+
     for (const file of audioFiles) {
       const fileName = `${user.id}/${Date.now()}-${file.name}`;
       
       const { error: uploadError } = await supabase.storage
-        .from('listed-songs')
+        .from(bucket)
         .upload(fileName, file);
 
       if (uploadError) {
@@ -147,7 +157,7 @@ export default function ListedSongs() {
       }
 
       const { data: urlData } = supabase.storage
-        .from('listed-songs')
+        .from(bucket)
         .getPublicUrl(fileName);
 
       const { error: dbError } = await supabase
@@ -158,6 +168,7 @@ export default function ListedSongs() {
           file_url: urlData.publicUrl,
           file_name: file.name,
           file_size: file.size,
+          is_public: isPublic,
         });
 
       if (dbError) {
@@ -189,6 +200,25 @@ export default function ListedSongs() {
     }
   };
 
+  const addToQueue = (song: ListedSong) => {
+    setQueue(prev => [...prev, song]);
+    toast.success(`Added "${song.title}" to queue`);
+  };
+
+  const removeFromQueue = (index: number) => {
+    setQueue(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const clearQueue = () => {
+    setQueue([]);
+    toast.success('Queue cleared');
+  };
+
+  const playNext = (song: ListedSong) => {
+    setQueue(prev => [song, ...prev]);
+    toast.success(`"${song.title}" will play next`);
+  };
+
   const togglePlayPause = () => {
     if (!audioRef.current || !currentSong) return;
     
@@ -201,13 +231,21 @@ export default function ListedSongs() {
   };
 
   const handleNextSong = () => {
-    const songs = getCurrentSongList();
-    if (!currentSong || songs.length === 0) return;
-
     if (repeatMode === 'one') {
       audioRef.current?.play();
       return;
     }
+
+    // Play from queue first
+    if (queue.length > 0) {
+      const [nextSong, ...rest] = queue;
+      setQueue(rest);
+      playSong(nextSong);
+      return;
+    }
+
+    const songs = getCurrentSongList();
+    if (!currentSong || songs.length === 0) return;
 
     const currentIndex = songs.findIndex(s => s.id === currentSong.id);
     let nextIndex: number;
@@ -264,14 +302,21 @@ export default function ListedSongs() {
   };
 
   const deleteSong = async (song: ListedSong) => {
+    // Only allow deletion of personal (non-public) songs by the owner
+    if (song.is_public) {
+      toast.error('Public songs can only be deleted by admins from the admin dashboard');
+      return;
+    }
+
     if (song.user_id !== user?.id) {
       toast.error('You can only delete your own songs');
       return;
     }
 
+    const bucket = song.is_public ? 'listed-songs' : 'personal-songs';
     const fileName = song.file_url.split('/').slice(-2).join('/');
     
-    await supabase.storage.from('listed-songs').remove([fileName]);
+    await supabase.storage.from(bucket).remove([fileName]);
     
     const { error } = await supabase
       .from('listed_songs')
@@ -288,6 +333,9 @@ export default function ListedSongs() {
       setIsPlaying(false);
     }
 
+    // Remove from queue if present
+    setQueue(prev => prev.filter(s => s.id !== song.id));
+
     toast.success('Song deleted');
     fetchPersonalSongs();
     fetchPublicSongs();
@@ -302,21 +350,25 @@ export default function ListedSongs() {
     });
   };
 
-  const publishAllToHub = () => {
-    if (personalSongs.length === 0) {
-      toast.error('No songs to publish');
+  const makePublic = async (song: ListedSong) => {
+    if (song.is_public) {
+      toast.info('Song is already public');
       return;
     }
-    
-    // Navigate to upload page with first song, show info about bulk
-    navigate('/niranx/music/upload', { 
-      state: { 
-        prefilledUrl: personalSongs[0].file_url,
-        prefilledTitle: personalSongs[0].title,
-        bulkSongs: personalSongs.map(s => ({ url: s.file_url, title: s.title }))
-      } 
-    });
-    toast.info(`Navigate to upload ${personalSongs.length} songs. Upload each song one by one from the form.`);
+
+    const { error } = await supabase
+      .from('listed_songs')
+      .update({ is_public: true })
+      .eq('id', song.id);
+
+    if (error) {
+      toast.error('Failed to make song public');
+      return;
+    }
+
+    toast.success('Song is now public');
+    fetchPersonalSongs();
+    fetchPublicSongs();
   };
 
   const formatTime = (time: number) => {
@@ -380,6 +432,29 @@ export default function ListedSongs() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation();
+                    addToQueue(song);
+                  }}>
+                    <ListPlus className="w-4 h-4 mr-2" />
+                    Add to Queue
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation();
+                    playNext(song);
+                  }}>
+                    <Play className="w-4 h-4 mr-2" />
+                    Play Next
+                  </DropdownMenuItem>
+                  {user && isPersonal && !song.is_public && (
+                    <DropdownMenuItem onClick={(e) => {
+                      e.stopPropagation();
+                      makePublic(song);
+                    }}>
+                      <Globe className="w-4 h-4 mr-2" />
+                      Make Public
+                    </DropdownMenuItem>
+                  )}
                   {user && (
                     <DropdownMenuItem onClick={(e) => {
                       e.stopPropagation();
@@ -389,7 +464,7 @@ export default function ListedSongs() {
                       Publish to Music Hub
                     </DropdownMenuItem>
                   )}
-                  {song.user_id === user?.id && (
+                  {isPersonal && song.user_id === user?.id && !song.is_public && (
                     <DropdownMenuItem 
                       onClick={(e) => {
                         e.stopPropagation();
@@ -443,7 +518,7 @@ export default function ListedSongs() {
               accept="audio/*"
               multiple
               className="hidden"
-              onChange={(e) => handleFileUpload(e.target.files)}
+              onChange={(e) => handleFileUpload(e.target.files, false)}
             />
             <input
               id="folder-upload"
@@ -453,7 +528,7 @@ export default function ListedSongs() {
               // @ts-ignore
               webkitdirectory=""
               className="hidden"
-              onChange={(e) => handleFileUpload(e.target.files)}
+              onChange={(e) => handleFileUpload(e.target.files, false)}
             />
           </div>
         )}
@@ -466,63 +541,111 @@ export default function ListedSongs() {
         </Card>
       )}
 
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'personal' | 'public')}>
-        <TabsList className="grid w-full grid-cols-2 max-w-md">
-          <TabsTrigger value="personal" className="flex items-center gap-2">
-            <User className="w-4 h-4" />
-            Personal ({personalSongs.length})
-          </TabsTrigger>
-          <TabsTrigger value="public" className="flex items-center gap-2">
-            <Globe className="w-4 h-4" />
-            Public ({publicSongs.length})
-          </TabsTrigger>
-        </TabsList>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'personal' | 'public')}>
+            <TabsList className="grid w-full grid-cols-2 max-w-md">
+              <TabsTrigger value="personal" className="flex items-center gap-2">
+                <User className="w-4 h-4" />
+                Personal ({personalSongs.length})
+              </TabsTrigger>
+              <TabsTrigger value="public" className="flex items-center gap-2">
+                <Globe className="w-4 h-4" />
+                Public ({publicSongs.length})
+              </TabsTrigger>
+            </TabsList>
 
-        <TabsContent value="personal" className="mt-4">
+            <TabsContent value="personal" className="mt-4">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <User className="w-5 h-5" />
+                    Your Songs
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {!user ? (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <User className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                      <p>Please log in to view your personal songs</p>
+                    </div>
+                  ) : (
+                    renderSongList(personalSongs, true)
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="public" className="mt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Globe className="w-5 h-5" />
+                    Public Songs
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {renderSongList(publicSongs, false)}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        {/* Queue Panel */}
+        <div className="lg:col-span-1">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2">
-                <User className="w-5 h-5" />
-                Your Songs
+                <List className="w-5 h-5" />
+                Up Next
+                {queue.length > 0 && (
+                  <Badge variant="secondary">{queue.length}</Badge>
+                )}
               </CardTitle>
-              {user && personalSongs.length > 0 && (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={publishAllToHub}
-                >
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  Publish All to Music Hub
+              {queue.length > 0 && (
+                <Button variant="ghost" size="sm" onClick={clearQueue}>
+                  Clear
                 </Button>
               )}
             </CardHeader>
             <CardContent>
-              {!user ? (
-                <div className="text-center py-12 text-muted-foreground">
-                  <User className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>Please log in to view your personal songs</p>
-                </div>
-              ) : (
-                renderSongList(personalSongs, true)
-              )}
+              <ScrollArea className="h-[350px]">
+                {queue.length === 0 ? (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <ListPlus className="w-10 h-10 mx-auto mb-3 opacity-50" />
+                    <p className="text-sm">Queue is empty</p>
+                    <p className="text-xs mt-1">Add songs from the menu</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {queue.map((song, index) => (
+                      <div
+                        key={`${song.id}-${index}`}
+                        className="flex items-center gap-3 p-2 rounded-lg bg-accent/30 hover:bg-accent/50 transition-colors"
+                      >
+                        <span className="text-xs text-muted-foreground w-5">{index + 1}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{song.title}</p>
+                          <p className="text-xs text-muted-foreground truncate">{song.file_name}</p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={() => removeFromQueue(index)}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </ScrollArea>
             </CardContent>
           </Card>
-        </TabsContent>
-
-        <TabsContent value="public" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Globe className="w-5 h-5" />
-                Public Songs
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {renderSongList(publicSongs, false)}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+        </div>
+      </div>
 
       {/* Player Bar */}
       {currentSong && (
@@ -578,6 +701,20 @@ export default function ListedSongs() {
                   <Repeat className="w-4 h-4" />
                   {repeatMode === 'one' && (
                     <span className="absolute text-[10px] font-bold">1</span>
+                  )}
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowQueue(!showQueue)}
+                  className={showQueue ? 'text-primary' : ''}
+                >
+                  <List className="w-4 h-4" />
+                  {queue.length > 0 && (
+                    <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 text-[10px] flex items-center justify-center">
+                      {queue.length}
+                    </Badge>
                   )}
                 </Button>
               </div>
