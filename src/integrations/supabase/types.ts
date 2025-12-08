@@ -3921,6 +3921,136 @@ export type Database = {
         }
         Relationships: []
       }
+      niranx_ai_suggestions: {
+        Row: {
+          created_at: string | null
+          email_id: string | null
+          id: string
+          model_used: string | null
+          suggestions: Json
+        }
+        Insert: {
+          created_at?: string | null
+          email_id?: string | null
+          id?: string
+          model_used?: string | null
+          suggestions?: Json
+        }
+        Update: {
+          created_at?: string | null
+          email_id?: string | null
+          id?: string
+          model_used?: string | null
+          suggestions?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "niranx_ai_suggestions_email_id_fkey"
+            columns: ["email_id"]
+            isOneToOne: false
+            referencedRelation: "niranx_emails"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      niranx_blocked_senders: {
+        Row: {
+          blocked_at: string | null
+          email_address: string
+          id: string
+          mailbox_id: string | null
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          blocked_at?: string | null
+          email_address: string
+          id?: string
+          mailbox_id?: string | null
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          blocked_at?: string | null
+          email_address?: string
+          id?: string
+          mailbox_id?: string | null
+          reason?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "niranx_blocked_senders_mailbox_id_fkey"
+            columns: ["mailbox_id"]
+            isOneToOne: false
+            referencedRelation: "niranx_mailboxes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      niranx_contact_group_members: {
+        Row: {
+          added_at: string | null
+          contact_id: string | null
+          group_id: string | null
+          id: string
+        }
+        Insert: {
+          added_at?: string | null
+          contact_id?: string | null
+          group_id?: string | null
+          id?: string
+        }
+        Update: {
+          added_at?: string | null
+          contact_id?: string | null
+          group_id?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "niranx_contact_group_members_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "niranx_email_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "niranx_contact_group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "niranx_contact_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      niranx_contact_groups: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       niranx_email_contacts: {
         Row: {
           avatar_url: string | null
@@ -3952,6 +4082,50 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "niranx_email_contacts_mailbox_id_fkey"
+            columns: ["mailbox_id"]
+            isOneToOne: false
+            referencedRelation: "niranx_mailboxes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      niranx_email_filters: {
+        Row: {
+          actions: Json
+          conditions: Json
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          mailbox_id: string | null
+          name: string
+          priority: number | null
+          user_id: string
+        }
+        Insert: {
+          actions?: Json
+          conditions?: Json
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          mailbox_id?: string | null
+          name: string
+          priority?: number | null
+          user_id: string
+        }
+        Update: {
+          actions?: Json
+          conditions?: Json
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          mailbox_id?: string | null
+          name?: string
+          priority?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "niranx_email_filters_mailbox_id_fkey"
             columns: ["mailbox_id"]
             isOneToOne: false
             referencedRelation: "niranx_mailboxes"
@@ -4029,6 +4203,97 @@ export type Database = {
           },
         ]
       }
+      niranx_email_signatures: {
+        Row: {
+          content: string
+          created_at: string | null
+          html_content: string | null
+          id: string
+          is_default: boolean | null
+          mailbox_id: string | null
+          name: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          html_content?: string | null
+          id?: string
+          is_default?: boolean | null
+          mailbox_id?: string | null
+          name: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          html_content?: string | null
+          id?: string
+          is_default?: boolean | null
+          mailbox_id?: string | null
+          name?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "niranx_email_signatures_mailbox_id_fkey"
+            columns: ["mailbox_id"]
+            isOneToOne: false
+            referencedRelation: "niranx_mailboxes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      niranx_email_templates: {
+        Row: {
+          body: string
+          category: string | null
+          created_at: string | null
+          html_body: string | null
+          id: string
+          mailbox_id: string | null
+          name: string
+          subject: string | null
+          updated_at: string | null
+          use_count: number | null
+          user_id: string
+        }
+        Insert: {
+          body: string
+          category?: string | null
+          created_at?: string | null
+          html_body?: string | null
+          id?: string
+          mailbox_id?: string | null
+          name: string
+          subject?: string | null
+          updated_at?: string | null
+          use_count?: number | null
+          user_id: string
+        }
+        Update: {
+          body?: string
+          category?: string | null
+          created_at?: string | null
+          html_body?: string | null
+          id?: string
+          mailbox_id?: string | null
+          name?: string
+          subject?: string | null
+          updated_at?: string | null
+          use_count?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "niranx_email_templates_mailbox_id_fkey"
+            columns: ["mailbox_id"]
+            isOneToOne: false
+            referencedRelation: "niranx_mailboxes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       niranx_emails: {
         Row: {
           attachments: Json | null
@@ -4036,21 +4301,30 @@ export type Database = {
           body: string | null
           cc_addresses: string[] | null
           created_at: string
+          encryption_key: string | null
           folder: string | null
           from_address: string
           html_body: string | null
           id: string
+          in_reply_to: string | null
           is_archived: boolean | null
           is_draft: boolean | null
+          is_encrypted: boolean | null
           is_read: boolean | null
+          is_read_receipt_requested: boolean | null
+          is_scheduled: boolean | null
           is_sent: boolean | null
           is_spam: boolean | null
           is_starred: boolean | null
           is_trash: boolean | null
           labels: string[] | null
           mailbox_id: string
+          priority: string | null
+          read_at: string | null
           reply_to_id: string | null
+          scheduled_at: string | null
           sent_at: string | null
+          snoozed_until: string | null
           subject: string | null
           thread_id: string | null
           to_addresses: string[]
@@ -4062,21 +4336,30 @@ export type Database = {
           body?: string | null
           cc_addresses?: string[] | null
           created_at?: string
+          encryption_key?: string | null
           folder?: string | null
           from_address: string
           html_body?: string | null
           id?: string
+          in_reply_to?: string | null
           is_archived?: boolean | null
           is_draft?: boolean | null
+          is_encrypted?: boolean | null
           is_read?: boolean | null
+          is_read_receipt_requested?: boolean | null
+          is_scheduled?: boolean | null
           is_sent?: boolean | null
           is_spam?: boolean | null
           is_starred?: boolean | null
           is_trash?: boolean | null
           labels?: string[] | null
           mailbox_id: string
+          priority?: string | null
+          read_at?: string | null
           reply_to_id?: string | null
+          scheduled_at?: string | null
           sent_at?: string | null
+          snoozed_until?: string | null
           subject?: string | null
           thread_id?: string | null
           to_addresses: string[]
@@ -4088,27 +4371,43 @@ export type Database = {
           body?: string | null
           cc_addresses?: string[] | null
           created_at?: string
+          encryption_key?: string | null
           folder?: string | null
           from_address?: string
           html_body?: string | null
           id?: string
+          in_reply_to?: string | null
           is_archived?: boolean | null
           is_draft?: boolean | null
+          is_encrypted?: boolean | null
           is_read?: boolean | null
+          is_read_receipt_requested?: boolean | null
+          is_scheduled?: boolean | null
           is_sent?: boolean | null
           is_spam?: boolean | null
           is_starred?: boolean | null
           is_trash?: boolean | null
           labels?: string[] | null
           mailbox_id?: string
+          priority?: string | null
+          read_at?: string | null
           reply_to_id?: string | null
+          scheduled_at?: string | null
           sent_at?: string | null
+          snoozed_until?: string | null
           subject?: string | null
           thread_id?: string | null
           to_addresses?: string[]
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "niranx_emails_in_reply_to_fkey"
+            columns: ["in_reply_to"]
+            isOneToOne: false
+            referencedRelation: "niranx_emails"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "niranx_emails_mailbox_id_fkey"
             columns: ["mailbox_id"]
@@ -4129,6 +4428,7 @@ export type Database = {
         Row: {
           created_at: string
           date_of_birth: string | null
+          default_signature_id: string | null
           display_name: string | null
           email_address: string
           id: string
@@ -4136,6 +4436,7 @@ export type Database = {
           linked_account_id: string | null
           mobile_number: string | null
           mobile_verified: boolean | null
+          settings: Json | null
           storage_limit: number | null
           storage_used: number | null
           updated_at: string
@@ -4144,6 +4445,7 @@ export type Database = {
         Insert: {
           created_at?: string
           date_of_birth?: string | null
+          default_signature_id?: string | null
           display_name?: string | null
           email_address: string
           id?: string
@@ -4151,6 +4453,7 @@ export type Database = {
           linked_account_id?: string | null
           mobile_number?: string | null
           mobile_verified?: boolean | null
+          settings?: Json | null
           storage_limit?: number | null
           storage_used?: number | null
           updated_at?: string
@@ -4159,6 +4462,7 @@ export type Database = {
         Update: {
           created_at?: string
           date_of_birth?: string | null
+          default_signature_id?: string | null
           display_name?: string | null
           email_address?: string
           id?: string
@@ -4166,12 +4470,91 @@ export type Database = {
           linked_account_id?: string | null
           mobile_number?: string | null
           mobile_verified?: boolean | null
+          settings?: Json | null
           storage_limit?: number | null
           storage_used?: number | null
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "niranx_mailboxes_default_signature_id_fkey"
+            columns: ["default_signature_id"]
+            isOneToOne: false
+            referencedRelation: "niranx_email_signatures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      niranx_read_receipts: {
+        Row: {
+          email_id: string | null
+          id: string
+          ip_address: string | null
+          read_at: string | null
+          read_by: string
+          user_agent: string | null
+        }
+        Insert: {
+          email_id?: string | null
+          id?: string
+          ip_address?: string | null
+          read_at?: string | null
+          read_by: string
+          user_agent?: string | null
+        }
+        Update: {
+          email_id?: string | null
+          id?: string
+          ip_address?: string | null
+          read_at?: string | null
+          read_by?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "niranx_read_receipts_email_id_fkey"
+            columns: ["email_id"]
+            isOneToOne: false
+            referencedRelation: "niranx_emails"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      niranx_shared_mailboxes: {
+        Row: {
+          id: string
+          mailbox_id: string | null
+          permission_level: string | null
+          shared_at: string | null
+          shared_by: string
+          shared_with_user_id: string
+        }
+        Insert: {
+          id?: string
+          mailbox_id?: string | null
+          permission_level?: string | null
+          shared_at?: string | null
+          shared_by: string
+          shared_with_user_id: string
+        }
+        Update: {
+          id?: string
+          mailbox_id?: string | null
+          permission_level?: string | null
+          shared_at?: string | null
+          shared_by?: string
+          shared_with_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "niranx_shared_mailboxes_mailbox_id_fkey"
+            columns: ["mailbox_id"]
+            isOneToOne: false
+            referencedRelation: "niranx_mailboxes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       note_summaries: {
         Row: {
