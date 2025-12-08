@@ -4310,6 +4310,7 @@ export type Database = {
           is_archived: boolean | null
           is_draft: boolean | null
           is_encrypted: boolean | null
+          is_public: boolean | null
           is_read: boolean | null
           is_read_receipt_requested: boolean | null
           is_scheduled: boolean | null
@@ -4324,6 +4325,7 @@ export type Database = {
           reply_to_id: string | null
           scheduled_at: string | null
           sent_at: string | null
+          slug: string | null
           snoozed_until: string | null
           subject: string | null
           thread_id: string | null
@@ -4345,6 +4347,7 @@ export type Database = {
           is_archived?: boolean | null
           is_draft?: boolean | null
           is_encrypted?: boolean | null
+          is_public?: boolean | null
           is_read?: boolean | null
           is_read_receipt_requested?: boolean | null
           is_scheduled?: boolean | null
@@ -4359,6 +4362,7 @@ export type Database = {
           reply_to_id?: string | null
           scheduled_at?: string | null
           sent_at?: string | null
+          slug?: string | null
           snoozed_until?: string | null
           subject?: string | null
           thread_id?: string | null
@@ -4380,6 +4384,7 @@ export type Database = {
           is_archived?: boolean | null
           is_draft?: boolean | null
           is_encrypted?: boolean | null
+          is_public?: boolean | null
           is_read?: boolean | null
           is_read_receipt_requested?: boolean | null
           is_scheduled?: boolean | null
@@ -4394,6 +4399,7 @@ export type Database = {
           reply_to_id?: string | null
           scheduled_at?: string | null
           sent_at?: string | null
+          slug?: string | null
           snoozed_until?: string | null
           subject?: string | null
           thread_id?: string | null
@@ -4426,6 +4432,8 @@ export type Database = {
       }
       niranx_mailboxes: {
         Row: {
+          avatar_url: string | null
+          bio: string | null
           created_at: string
           date_of_birth: string | null
           default_signature_id: string | null
@@ -4433,16 +4441,20 @@ export type Database = {
           email_address: string
           id: string
           is_primary: boolean | null
+          is_public_profile: boolean | null
           linked_account_id: string | null
           mobile_number: string | null
           mobile_verified: boolean | null
           settings: Json | null
+          slug: string | null
           storage_limit: number | null
           storage_used: number | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           date_of_birth?: string | null
           default_signature_id?: string | null
@@ -4450,16 +4462,20 @@ export type Database = {
           email_address: string
           id?: string
           is_primary?: boolean | null
+          is_public_profile?: boolean | null
           linked_account_id?: string | null
           mobile_number?: string | null
           mobile_verified?: boolean | null
           settings?: Json | null
+          slug?: string | null
           storage_limit?: number | null
           storage_used?: number | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           date_of_birth?: string | null
           default_signature_id?: string | null
@@ -4467,10 +4483,12 @@ export type Database = {
           email_address?: string
           id?: string
           is_primary?: boolean | null
+          is_public_profile?: boolean | null
           linked_account_id?: string | null
           mobile_number?: string | null
           mobile_verified?: boolean | null
           settings?: Json | null
+          slug?: string | null
           storage_limit?: number | null
           storage_used?: number | null
           updated_at?: string
@@ -7023,6 +7041,8 @@ export type Database = {
       can_create_website: { Args: { p_user_id: string }; Returns: boolean }
       generate_ai_generation_slug: { Args: never; Returns: string }
       generate_class_code: { Args: never; Returns: string }
+      generate_email_slug: { Args: never; Returns: string }
+      generate_mailbox_slug: { Args: never; Returns: string }
       generate_share_token: { Args: never; Returns: string }
       generate_theme_share_token: { Args: never; Returns: string }
       get_admin_feedback_stats: {

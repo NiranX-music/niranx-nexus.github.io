@@ -174,6 +174,8 @@ import { TeacherRoute } from "./components/TeacherRoute";
 import PublishedContent from "./pages/PublishedContent";
 import ListedSongs from "./pages/ListedSongs";
 import Mailbox from "./pages/Mailbox";
+import XmailProfile from "./pages/XmailProfile";
+import XmailView from "./pages/XmailView";
 
 const queryClient = new QueryClient();
 
@@ -366,6 +368,9 @@ const App = () => (
                           <Route path="/groq-chat" element={<GroqChat />} />
                           <Route path="/groq-chat-history" element={<GroqChatHistory />} />
                           <Route path="/mailbox" element={<Mailbox />} />
+                          <Route path="/xmail" element={<Mailbox />} />
+                          <Route path="/xmail/profile/:slug" element={<XmailProfile />} />
+                          <Route path="/xmail/view/:slug" element={<XmailView />} />
                           <Route path="/admin" element={
                             <AdminRoute>
                               <AdminDashboard />
