@@ -731,6 +731,7 @@ export default function MyCloudFolder() {
                 <label className="group cursor-pointer">
                   <input
                     type="file"
+                    multiple
                     onChange={handleFileUpload}
                     disabled={uploading}
                     className="hidden"
@@ -742,7 +743,7 @@ export default function MyCloudFolder() {
                       <Upload className="w-12 h-12 text-muted-foreground" />
                     )}
                     <span className="text-xs text-center text-muted-foreground">
-                      {uploading ? "Uploading..." : "Upload file"}
+                      {uploading ? "Uploading..." : "Upload files"}
                     </span>
                   </div>
                 </label>
