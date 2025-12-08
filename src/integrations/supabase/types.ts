@@ -3921,6 +3921,258 @@ export type Database = {
         }
         Relationships: []
       }
+      niranx_email_contacts: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string
+          id: string
+          is_favorite: boolean | null
+          mailbox_id: string
+          name: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          is_favorite?: boolean | null
+          mailbox_id: string
+          name?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          is_favorite?: boolean | null
+          mailbox_id?: string
+          name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "niranx_email_contacts_mailbox_id_fkey"
+            columns: ["mailbox_id"]
+            isOneToOne: false
+            referencedRelation: "niranx_mailboxes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      niranx_email_folders: {
+        Row: {
+          color: string | null
+          created_at: string
+          icon: string | null
+          id: string
+          is_system: boolean | null
+          mailbox_id: string
+          name: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          icon?: string | null
+          id?: string
+          is_system?: boolean | null
+          mailbox_id: string
+          name: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          icon?: string | null
+          id?: string
+          is_system?: boolean | null
+          mailbox_id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "niranx_email_folders_mailbox_id_fkey"
+            columns: ["mailbox_id"]
+            isOneToOne: false
+            referencedRelation: "niranx_mailboxes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      niranx_email_labels: {
+        Row: {
+          color: string | null
+          created_at: string
+          id: string
+          mailbox_id: string
+          name: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          mailbox_id: string
+          name: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          mailbox_id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "niranx_email_labels_mailbox_id_fkey"
+            columns: ["mailbox_id"]
+            isOneToOne: false
+            referencedRelation: "niranx_mailboxes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      niranx_emails: {
+        Row: {
+          attachments: Json | null
+          bcc_addresses: string[] | null
+          body: string | null
+          cc_addresses: string[] | null
+          created_at: string
+          folder: string | null
+          from_address: string
+          html_body: string | null
+          id: string
+          is_archived: boolean | null
+          is_draft: boolean | null
+          is_read: boolean | null
+          is_sent: boolean | null
+          is_spam: boolean | null
+          is_starred: boolean | null
+          is_trash: boolean | null
+          labels: string[] | null
+          mailbox_id: string
+          reply_to_id: string | null
+          sent_at: string | null
+          subject: string | null
+          thread_id: string | null
+          to_addresses: string[]
+          updated_at: string
+        }
+        Insert: {
+          attachments?: Json | null
+          bcc_addresses?: string[] | null
+          body?: string | null
+          cc_addresses?: string[] | null
+          created_at?: string
+          folder?: string | null
+          from_address: string
+          html_body?: string | null
+          id?: string
+          is_archived?: boolean | null
+          is_draft?: boolean | null
+          is_read?: boolean | null
+          is_sent?: boolean | null
+          is_spam?: boolean | null
+          is_starred?: boolean | null
+          is_trash?: boolean | null
+          labels?: string[] | null
+          mailbox_id: string
+          reply_to_id?: string | null
+          sent_at?: string | null
+          subject?: string | null
+          thread_id?: string | null
+          to_addresses: string[]
+          updated_at?: string
+        }
+        Update: {
+          attachments?: Json | null
+          bcc_addresses?: string[] | null
+          body?: string | null
+          cc_addresses?: string[] | null
+          created_at?: string
+          folder?: string | null
+          from_address?: string
+          html_body?: string | null
+          id?: string
+          is_archived?: boolean | null
+          is_draft?: boolean | null
+          is_read?: boolean | null
+          is_sent?: boolean | null
+          is_spam?: boolean | null
+          is_starred?: boolean | null
+          is_trash?: boolean | null
+          labels?: string[] | null
+          mailbox_id?: string
+          reply_to_id?: string | null
+          sent_at?: string | null
+          subject?: string | null
+          thread_id?: string | null
+          to_addresses?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "niranx_emails_mailbox_id_fkey"
+            columns: ["mailbox_id"]
+            isOneToOne: false
+            referencedRelation: "niranx_mailboxes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "niranx_emails_reply_to_id_fkey"
+            columns: ["reply_to_id"]
+            isOneToOne: false
+            referencedRelation: "niranx_emails"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      niranx_mailboxes: {
+        Row: {
+          created_at: string
+          date_of_birth: string | null
+          display_name: string | null
+          email_address: string
+          id: string
+          is_primary: boolean | null
+          linked_account_id: string | null
+          mobile_number: string | null
+          mobile_verified: boolean | null
+          storage_limit: number | null
+          storage_used: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date_of_birth?: string | null
+          display_name?: string | null
+          email_address: string
+          id?: string
+          is_primary?: boolean | null
+          linked_account_id?: string | null
+          mobile_number?: string | null
+          mobile_verified?: boolean | null
+          storage_limit?: number | null
+          storage_used?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date_of_birth?: string | null
+          display_name?: string | null
+          email_address?: string
+          id?: string
+          is_primary?: boolean | null
+          linked_account_id?: string | null
+          mobile_number?: string | null
+          mobile_verified?: boolean | null
+          storage_limit?: number | null
+          storage_used?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       note_summaries: {
         Row: {
           created_at: string | null

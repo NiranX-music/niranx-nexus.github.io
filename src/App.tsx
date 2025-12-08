@@ -173,6 +173,7 @@ import LovableImageGen from "./pages/LovableImageGen";
 import { TeacherRoute } from "./components/TeacherRoute";
 import PublishedContent from "./pages/PublishedContent";
 import ListedSongs from "./pages/ListedSongs";
+import Mailbox from "./pages/Mailbox";
 
 const queryClient = new QueryClient();
 
@@ -364,6 +365,7 @@ const App = () => (
                           <Route path="/weather" element={<Weather />} />
                           <Route path="/groq-chat" element={<GroqChat />} />
                           <Route path="/groq-chat-history" element={<GroqChatHistory />} />
+                          <Route path="/mailbox" element={<Mailbox />} />
                           <Route path="/admin" element={
                             <AdminRoute>
                               <AdminDashboard />
