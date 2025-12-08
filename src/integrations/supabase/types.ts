@@ -4171,6 +4171,38 @@ export type Database = {
           },
         ]
       }
+      niranx_email_forwards: {
+        Row: {
+          created_at: string | null
+          forward_to_external: string | null
+          id: string
+          is_active: boolean | null
+          mailbox_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          forward_to_external?: string | null
+          id?: string
+          is_active?: boolean | null
+          mailbox_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          forward_to_external?: string | null
+          id?: string
+          is_active?: boolean | null
+          mailbox_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "niranx_email_forwards_mailbox_id_fkey"
+            columns: ["mailbox_id"]
+            isOneToOne: false
+            referencedRelation: "niranx_mailboxes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       niranx_email_labels: {
         Row: {
           color: string | null
@@ -4302,6 +4334,8 @@ export type Database = {
           cc_addresses: string[] | null
           created_at: string
           encryption_key: string | null
+          external_headers: Json | null
+          external_message_id: string | null
           folder: string | null
           from_address: string
           html_body: string | null
@@ -4310,6 +4344,7 @@ export type Database = {
           is_archived: boolean | null
           is_draft: boolean | null
           is_encrypted: boolean | null
+          is_external: boolean | null
           is_public: boolean | null
           is_read: boolean | null
           is_read_receipt_requested: boolean | null
@@ -4318,6 +4353,7 @@ export type Database = {
           is_spam: boolean | null
           is_starred: boolean | null
           is_trash: boolean | null
+          is_verified: boolean | null
           labels: string[] | null
           mailbox_id: string
           priority: string | null
@@ -4327,6 +4363,7 @@ export type Database = {
           sent_at: string | null
           slug: string | null
           snoozed_until: string | null
+          spam_score: number | null
           subject: string | null
           thread_id: string | null
           to_addresses: string[]
@@ -4339,6 +4376,8 @@ export type Database = {
           cc_addresses?: string[] | null
           created_at?: string
           encryption_key?: string | null
+          external_headers?: Json | null
+          external_message_id?: string | null
           folder?: string | null
           from_address: string
           html_body?: string | null
@@ -4347,6 +4386,7 @@ export type Database = {
           is_archived?: boolean | null
           is_draft?: boolean | null
           is_encrypted?: boolean | null
+          is_external?: boolean | null
           is_public?: boolean | null
           is_read?: boolean | null
           is_read_receipt_requested?: boolean | null
@@ -4355,6 +4395,7 @@ export type Database = {
           is_spam?: boolean | null
           is_starred?: boolean | null
           is_trash?: boolean | null
+          is_verified?: boolean | null
           labels?: string[] | null
           mailbox_id: string
           priority?: string | null
@@ -4364,6 +4405,7 @@ export type Database = {
           sent_at?: string | null
           slug?: string | null
           snoozed_until?: string | null
+          spam_score?: number | null
           subject?: string | null
           thread_id?: string | null
           to_addresses: string[]
@@ -4376,6 +4418,8 @@ export type Database = {
           cc_addresses?: string[] | null
           created_at?: string
           encryption_key?: string | null
+          external_headers?: Json | null
+          external_message_id?: string | null
           folder?: string | null
           from_address?: string
           html_body?: string | null
@@ -4384,6 +4428,7 @@ export type Database = {
           is_archived?: boolean | null
           is_draft?: boolean | null
           is_encrypted?: boolean | null
+          is_external?: boolean | null
           is_public?: boolean | null
           is_read?: boolean | null
           is_read_receipt_requested?: boolean | null
@@ -4392,6 +4437,7 @@ export type Database = {
           is_spam?: boolean | null
           is_starred?: boolean | null
           is_trash?: boolean | null
+          is_verified?: boolean | null
           labels?: string[] | null
           mailbox_id?: string
           priority?: string | null
@@ -4401,6 +4447,7 @@ export type Database = {
           sent_at?: string | null
           slug?: string | null
           snoozed_until?: string | null
+          spam_score?: number | null
           subject?: string | null
           thread_id?: string | null
           to_addresses?: string[]
@@ -4573,6 +4620,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      niranx_webhook_logs: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          id: string
+          payload: Json | null
+          status: string | null
+          webhook_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          payload?: Json | null
+          status?: string | null
+          webhook_type: string
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          payload?: Json | null
+          status?: string | null
+          webhook_type?: string
+        }
+        Relationships: []
       }
       note_summaries: {
         Row: {
