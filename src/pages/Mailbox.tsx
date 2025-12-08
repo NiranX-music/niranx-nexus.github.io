@@ -718,9 +718,10 @@ const Mailbox = () => {
       <div className="flex flex-col items-center justify-center h-screen gap-6 p-4">
         <div className="text-center space-y-4">
           <Mail className="w-16 h-16 text-muted-foreground mx-auto" />
-          <h1 className="text-2xl font-bold">Welcome to NiranX Mail</h1>
+          <h1 className="text-2xl font-bold">Welcome to Xmail</h1>
           <p className="text-muted-foreground max-w-md">
             Create your own @niranx.com email address to start sending and receiving emails.
+            Use your Xmail address to sign up on external websites!
           </p>
         </div>
         <CreateMailDialog

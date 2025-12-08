@@ -1,6 +1,7 @@
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Home,
+  Mail,
   MessageCircle,
   CheckSquare,
   Timer,
@@ -179,6 +180,12 @@ const filesNavigation = [
   { title: "Upload", url: "/niranx/upload", icon: Upload },
 ];
 
+// Xmail - Email System
+const xmailNavigation = [
+  { title: "Xmail Inbox", url: "/niranx/xmail", icon: Mail },
+  { title: "Compose", url: "/niranx/xmail", icon: PenTool },
+];
+
 // Communication & Social
 const socialNavigation = [
   { title: "Messages", url: "/niranx/messages", icon: MessageCircle },
@@ -296,6 +303,7 @@ export function AppSidebar() {
     ecoFuse: true,
     media: false,
     files: false,
+    xmail: true,
     social: false,
     debate: false,
     tools: false,
@@ -319,6 +327,7 @@ export function AppSidebar() {
     ...ecoFuseNavigation,
     ...mediaNavigation,
     ...filesNavigation,
+    ...xmailNavigation,
     ...socialNavigation,
     ...debateNavigation,
     ...toolsNavigation,
@@ -660,6 +669,26 @@ export function AppSidebar() {
             <CollapsibleContent>
               <SidebarGroupContent>
                 <SidebarMenu>{renderNavItems(filesNavigation)}</SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
+
+        {/* Xmail */}
+        <Collapsible open={expandedSections.xmail} onOpenChange={() => toggleSection('xmail')}>
+          <SidebarGroup>
+            <CollapsibleTrigger asChild>
+              <SidebarGroupLabel className="cursor-pointer hover:bg-primary/20 rounded-lg px-2 -mx-2 flex items-center justify-between text-white/90 font-bold text-sm uppercase tracking-wider transition-all duration-200 py-3 bg-gradient-to-r from-blue-500/20 to-transparent">
+                <span className="flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-blue-400" />
+                  {!isCollapsed && "Xmail"}
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform text-white/70 ${expandedSections.xmail ? '' : '-rotate-90'}`} />
+              </SidebarGroupLabel>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>{renderNavItems(xmailNavigation)}</SidebarMenu>
               </SidebarGroupContent>
             </CollapsibleContent>
           </SidebarGroup>
