@@ -4837,6 +4837,39 @@ export type Database = {
         }
         Relationships: []
       }
+      offline_notes_sync: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          local_updated_at: string | null
+          note_id: string
+          server_updated_at: string | null
+          sync_status: string | null
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          local_updated_at?: string | null
+          note_id: string
+          server_updated_at?: string | null
+          sync_status?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          local_updated_at?: string | null
+          note_id?: string
+          server_updated_at?: string | null
+          sync_status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       page_theme_overrides: {
         Row: {
           created_at: string | null
@@ -4868,6 +4901,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      parental_controls: {
+        Row: {
+          allowed_end_time: string | null
+          allowed_start_time: string | null
+          blocked_features: string[] | null
+          created_at: string
+          daily_break_reminder_minutes: number | null
+          daily_study_limit_minutes: number | null
+          enforce_focus_sessions: boolean | null
+          guardian_id: string
+          id: string
+          is_active: boolean | null
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          allowed_end_time?: string | null
+          allowed_start_time?: string | null
+          blocked_features?: string[] | null
+          created_at?: string
+          daily_break_reminder_minutes?: number | null
+          daily_study_limit_minutes?: number | null
+          enforce_focus_sessions?: boolean | null
+          guardian_id: string
+          id?: string
+          is_active?: boolean | null
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          allowed_end_time?: string | null
+          allowed_start_time?: string | null
+          blocked_features?: string[] | null
+          created_at?: string
+          daily_break_reminder_minutes?: number | null
+          daily_study_limit_minutes?: number | null
+          enforce_focus_sessions?: boolean | null
+          guardian_id?: string
+          id?: string
+          is_active?: boolean | null
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       pdf_summary_history: {
         Row: {
@@ -5214,6 +5292,39 @@ export type Database = {
           username?: string | null
           website?: string | null
           xp?: number | null
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth_key: string | null
+          created_at: string
+          device_info: Json | null
+          endpoint: string
+          id: string
+          is_active: boolean | null
+          p256dh_key: string | null
+          user_id: string
+        }
+        Insert: {
+          auth_key?: string | null
+          created_at?: string
+          device_info?: Json | null
+          endpoint: string
+          id?: string
+          is_active?: boolean | null
+          p256dh_key?: string | null
+          user_id: string
+        }
+        Update: {
+          auth_key?: string | null
+          created_at?: string
+          device_info?: Json | null
+          endpoint?: string
+          id?: string
+          is_active?: boolean | null
+          p256dh_key?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -5814,6 +5925,42 @@ export type Database = {
         }
         Relationships: []
       }
+      study_heatmap_data: {
+        Row: {
+          created_at: string
+          focus_score: number | null
+          id: string
+          sessions_count: number | null
+          study_date: string
+          subjects_studied: string[] | null
+          total_minutes: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          focus_score?: number | null
+          id?: string
+          sessions_count?: number | null
+          study_date?: string
+          subjects_studied?: string[] | null
+          total_minutes?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          focus_score?: number | null
+          id?: string
+          sessions_count?: number | null
+          study_date?: string
+          subjects_studied?: string[] | null
+          total_minutes?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       study_materials: {
         Row: {
           album: string | null
@@ -5931,6 +6078,36 @@ export type Database = {
         }
         Relationships: []
       }
+      study_personas: {
+        Row: {
+          created_at: string
+          custom_preferences: Json | null
+          id: string
+          persona_type: string
+          updated_at: string
+          user_id: string
+          widgets_config: Json | null
+        }
+        Insert: {
+          created_at?: string
+          custom_preferences?: Json | null
+          id?: string
+          persona_type: string
+          updated_at?: string
+          user_id: string
+          widgets_config?: Json | null
+        }
+        Update: {
+          created_at?: string
+          custom_preferences?: Json | null
+          id?: string
+          persona_type?: string
+          updated_at?: string
+          user_id?: string
+          widgets_config?: Json | null
+        }
+        Relationships: []
+      }
       study_sessions: {
         Row: {
           created_at: string | null
@@ -5991,6 +6168,45 @@ export type Database = {
           study_date?: string
           user_id?: string
           xp_earned?: number | null
+        }
+        Relationships: []
+      }
+      study_templates: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string
+          description: string | null
+          downloads_count: number | null
+          id: string
+          is_active: boolean | null
+          name: string
+          template_data: Json
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          downloads_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          template_data?: Json
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          downloads_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          template_data?: Json
+          updated_at?: string
         }
         Relationships: []
       }
@@ -6282,6 +6498,42 @@ export type Database = {
           earned_at?: string | null
           id?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_activity_log: {
+        Row: {
+          action_type: string
+          created_at: string
+          device_info: Json | null
+          id: string
+          ip_address: string | null
+          is_suspicious: boolean | null
+          location: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          device_info?: Json | null
+          id?: string
+          ip_address?: string | null
+          is_suspicious?: boolean | null
+          location?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          device_info?: Json | null
+          id?: string
+          ip_address?: string | null
+          is_suspicious?: boolean | null
+          location?: string | null
+          user_agent?: string | null
+          user_id?: string
         }
         Relationships: []
       }
