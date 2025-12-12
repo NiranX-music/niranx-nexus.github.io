@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +15,10 @@ import {
   Video, 
   MoreHorizontal,
   ArrowLeft,
-  Users
+  Users,
+  Wifi,
+  WifiOff,
+  RefreshCw
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
@@ -23,6 +26,7 @@ import { formatDistance } from 'date-fns';
 import { useAuth } from '@/contexts/AuthContext';
 import { NewChatDialog } from '@/components/NewChatDialog';
 import { encryptMessage, decryptMessage } from '@/lib/security';
+import { useMessageSync } from '@/hooks/useRealtimeSync';
 
 interface Profile {
   id: string;
@@ -57,9 +61,67 @@ const Messages = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
   const [showNewChatDialog, setShowNewChatDialog] = useState(false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  // Real-time message sync across devices
+  const handleNewMessage = useCallback(async (msg: any) => {
+    if (!user) return;
+    
+    // If viewing this conversation, add message
+    if (selectedChat && (msg.sender_id === selectedChat.user_id || msg.receiver_id === selectedChat.user_id)) {
+      try {
+        const decryptedContent = await decryptMessage(msg.content, user.id);
+        setMessages((prev) => {
+          // Avoid duplicates
+          if (prev.some(m => m.id === msg.id)) return prev;
+          return [...prev, { ...msg, content: decryptedContent }];
+        });
+      } catch {
+        // If decryption fails, still add the message
+        setMessages((prev) => {
+          if (prev.some(m => m.id === msg.id)) return prev;
+          return [...prev, msg];
+        });
+      }
+    }
+    
+    // Refresh chat list
+    fetchChats();
+  }, [selectedChat, user]);
+
+  useMessageSync(selectedChat?.user_id, handleNewMessage);
+
+  // Online/offline detection
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      toast({
+        title: "Back online",
+        description: "Messages will sync automatically",
+      });
+      fetchChats();
+    };
+    
+    const handleOffline = () => {
+      setIsOnline(false);
+      toast({
+        title: "You're offline",
+        description: "Messages will be sent when you're back online",
+        variant: "destructive",
+      });
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   useEffect(() => {
     if (user) {

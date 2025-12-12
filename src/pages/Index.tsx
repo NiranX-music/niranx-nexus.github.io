@@ -47,6 +47,7 @@ import StudyBuddyClone from "@/components/StudyBuddyClone";
 import { StudyHeatmap } from "@/components/StudyHeatmap";
 import { useWidgets } from "@/hooks/useWidgets";
 import { StreakDisplay } from "@/components/StreakDisplay";
+import { ApplyForGuardianCard } from "@/components/ApplyForGuardianCard";
 
 const Index = () => {
   const [isDarkMode, setIsDarkMode] = useState(true); // Default to dark mode for neon cosmic theme
@@ -280,7 +281,7 @@ const Index = () => {
           )}
         
         {/* Quick Navigation Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-10 animate-slide-up" style={{ animationDelay: '0.4s' }}>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6 mb-8 md:mb-10 animate-slide-up" style={{ animationDelay: '0.4s' }}>
           <Card 
             className={`glass-card cursor-pointer card-3d hover-lift animate-scale-in transform-3d group ${
               !isLoggedIn ? 'opacity-60' : ''
@@ -353,6 +354,9 @@ const Index = () => {
               )}
             </CardContent>
           </Card>
+
+          {/* Apply for Guardian Card */}
+          {isLoggedIn && <ApplyForGuardianCard />}
         </div>
         
         {/* Theme Toggle & Quick Actions */}
