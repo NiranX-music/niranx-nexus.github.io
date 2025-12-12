@@ -57,7 +57,10 @@ export default function ActivityLog() {
         .limit(100);
 
       if (error) throw error;
-      setActivities(data || []);
+      setActivities((data || []).map(a => ({
+        ...a,
+        device_info: (a.device_info as Record<string, any>) || {}
+      })));
     } catch (error) {
       console.error('Error fetching activities:', error);
       toast({

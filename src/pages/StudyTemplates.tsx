@@ -61,7 +61,10 @@ export default function StudyTemplates() {
         .order('downloads_count', { ascending: false });
 
       if (error) throw error;
-      setTemplates(data || []);
+      setTemplates((data || []).map(t => ({
+        ...t,
+        template_data: (t.template_data as Record<string, any>) || {}
+      })));
     } catch (error) {
       console.error('Error fetching templates:', error);
       toast({

@@ -76,7 +76,15 @@ export function useStudyPersona() {
         console.error('Error fetching persona:', error);
       }
 
-      setPersona(data);
+      if (data) {
+        setPersona({
+          ...data,
+          custom_preferences: (data.custom_preferences as Record<string, any>) || {},
+          widgets_config: (data.widgets_config as Record<string, any>) || {}
+        });
+      } else {
+        setPersona(null);
+      }
     } catch (error) {
       console.error('Error fetching persona:', error);
     } finally {
@@ -113,7 +121,13 @@ export function useStudyPersona() {
 
       if (error) throw error;
 
-      setPersona(data);
+      if (data) {
+        setPersona({
+          ...data,
+          custom_preferences: (data.custom_preferences as Record<string, any>) || {},
+          widgets_config: (data.widgets_config as Record<string, any>) || {}
+        });
+      }
 
       // Apply widget settings
       localStorage.setItem('widgetSettings', JSON.stringify(
