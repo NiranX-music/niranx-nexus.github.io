@@ -204,7 +204,7 @@ export default function MusicHub() {
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold">Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"}, {userName}</h1>
-          <p className="text-muted-foreground">What would you like to listen to?</p>
+          <p className="text-muted-foreground">Welcome to Xvibe - What would you like to listen to?</p>
         </div>
         <div className="flex items-center gap-3 w-full md:w-auto">
           <div className="relative flex-1 md:w-80">

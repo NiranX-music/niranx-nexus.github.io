@@ -223,7 +223,7 @@ const MusicPage = () => {
         <div className="flex items-center gap-3 mb-4">
           <Music className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-            Music Zone
+            Xvibe Player
           </h1>
         </div>
 

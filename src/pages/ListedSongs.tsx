@@ -461,7 +461,7 @@ export default function ListedSongs() {
                       publishToHub(song);
                     }}>
                       <ExternalLink className="w-4 h-4 mr-2" />
-                      Publish to Music Hub
+                      Publish to Xvibe Hub
                     </DropdownMenuItem>
                   )}
                   {isPersonal && song.user_id === user?.id && !song.is_public && (
@@ -491,8 +491,8 @@ export default function ListedSongs() {
       
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Listed Songs</h1>
-          <p className="text-muted-foreground">Personal & public music collection</p>
+          <h1 className="text-3xl font-bold">Xvibe Listed Songs</h1>
+          <p className="text-muted-foreground">Personal & public music collection on Xvibe</p>
         </div>
         
         {user && (

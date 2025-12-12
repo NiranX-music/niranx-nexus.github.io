@@ -248,7 +248,7 @@ export default function UploadTrack() {
         }
       }
 
-      toast.success("Track uploaded successfully! Awaiting moderation.");
+      toast.success("Track uploaded successfully to Xvibe! Awaiting moderation.");
       navigate("/niranx/music/library");
     } catch (error: any) {
       console.error("Error uploading track:", error);
@@ -261,9 +261,9 @@ export default function UploadTrack() {
   return (
     <div className="container mx-auto p-6 max-w-3xl">
       <div className="mb-6">
-        <h1 className="text-4xl font-bold gradient-text mb-2">Upload Track</h1>
+        <h1 className="text-4xl font-bold gradient-text mb-2">Upload to Xvibe</h1>
         <p className="text-muted-foreground">
-          Share your music with the community. Upload a local file or provide a URL.
+          Share your music with the Xvibe community. Upload a local file or provide a URL.
         </p>
       </div>
 

@@ -70,8 +70,8 @@ const tourSteps: TourStep[] = [
   },
   {
     id: 'music',
-    title: 'Study Music',
-    description: 'Curated playlists and ambient sounds to boost your concentration. Music proven to enhance focus and retention.',
+    title: 'Xvibe - Study Music',
+    description: 'Curated playlists and ambient sounds on Xvibe to boost your concentration. Music proven to enhance focus and retention.',
     icon: <Music className="w-8 h-8 text-pink-500" />,
     position: 'center',
     route: '/music'

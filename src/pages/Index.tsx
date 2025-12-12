@@ -44,6 +44,7 @@ import NotesWidget from "@/components/widgets/NotesWidget";
 import StudyMaterialHub from "@/components/widgets/StudyMaterialHub";
 import AIStudyBuddy from "@/components/widgets/AIStudyBuddy";
 import StudyBuddyClone from "@/components/StudyBuddyClone";
+import { StudyHeatmap } from "@/components/StudyHeatmap";
 import { useWidgets } from "@/hooks/useWidgets";
 import { StreakDisplay } from "@/components/StreakDisplay";
 
@@ -252,6 +253,13 @@ const Index = () => {
           {isLoggedIn && (
             <div className="mb-6 md:mb-8 animate-scale-in">
               <StreakDisplay />
+            </div>
+          )}
+
+          {/* Study Heatmap */}
+          {isLoggedIn && (
+            <div className="mb-6 md:mb-8 animate-fade-in" style={{ animationDelay: '0.25s' }}>
+              <StudyHeatmap compact />
             </div>
           )}
 
