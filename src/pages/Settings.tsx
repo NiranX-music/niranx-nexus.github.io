@@ -22,7 +22,8 @@ import {
   ShieldCheck,
   AlertTriangle,
   Link2,
-  Eye
+  Eye,
+  Folder
 } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useToast } from "@/hooks/use-toast";
@@ -30,6 +31,7 @@ import { useState, useEffect } from 'react';
 import { useNowPlaying } from '@/contexts/NowPlayingContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { UserSidebarManager } from '@/components/UserSidebarManager';
 
 import { useAdminCheck } from '@/hooks/useAdminCheck';
 
@@ -483,6 +485,9 @@ const Settings = () => {
             </p>
           </CardContent>
         </Card>
+
+        {/* Sidebar Customization */}
+        <UserSidebarManager />
       </div>
 
     </div>

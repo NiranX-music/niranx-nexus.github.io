@@ -5550,6 +5550,86 @@ export type Database = {
         }
         Relationships: []
       }
+      sidebar_groups: {
+        Row: {
+          created_at: string
+          icon: string | null
+          id: string
+          is_default: boolean
+          is_enabled: boolean
+          name: string
+          order_index: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          icon?: string | null
+          id?: string
+          is_default?: boolean
+          is_enabled?: boolean
+          name: string
+          order_index?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          icon?: string | null
+          id?: string
+          is_default?: boolean
+          is_enabled?: boolean
+          name?: string
+          order_index?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sidebar_pages: {
+        Row: {
+          created_at: string
+          disabled_until: string | null
+          group_id: string | null
+          icon: string | null
+          id: string
+          is_enabled: boolean
+          order_index: number
+          title: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          disabled_until?: string | null
+          group_id?: string | null
+          icon?: string | null
+          id?: string
+          is_enabled?: boolean
+          order_index?: number
+          title: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          disabled_until?: string | null
+          group_id?: string | null
+          icon?: string | null
+          id?: string
+          is_enabled?: boolean
+          order_index?: number
+          title?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sidebar_pages_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "sidebar_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       space_data: {
         Row: {
           created_at: string | null
@@ -6823,6 +6903,89 @@ export type Database = {
         }
         Relationships: []
       }
+      user_custom_sidebar_groups: {
+        Row: {
+          created_at: string
+          icon: string | null
+          id: string
+          is_enabled: boolean
+          name: string
+          order_index: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          icon?: string | null
+          id?: string
+          is_enabled?: boolean
+          name: string
+          order_index?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          icon?: string | null
+          id?: string
+          is_enabled?: boolean
+          name?: string
+          order_index?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_custom_sidebar_pages: {
+        Row: {
+          created_at: string
+          disabled_until: string | null
+          group_id: string | null
+          icon: string | null
+          id: string
+          is_enabled: boolean
+          order_index: number
+          title: string
+          updated_at: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          disabled_until?: string | null
+          group_id?: string | null
+          icon?: string | null
+          id?: string
+          is_enabled?: boolean
+          order_index?: number
+          title: string
+          updated_at?: string
+          url: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          disabled_until?: string | null
+          group_id?: string | null
+          icon?: string | null
+          id?: string
+          is_enabled?: boolean
+          order_index?: number
+          title?: string
+          updated_at?: string
+          url?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_custom_sidebar_pages_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "user_custom_sidebar_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_debate_stats: {
         Row: {
           awards_received: number | null
@@ -7074,6 +7237,57 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_sidebar_preferences: {
+        Row: {
+          created_at: string
+          disabled_until: string | null
+          group_id: string | null
+          id: string
+          is_enabled: boolean
+          order_index: number | null
+          page_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          disabled_until?: string | null
+          group_id?: string | null
+          id?: string
+          is_enabled?: boolean
+          order_index?: number | null
+          page_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          disabled_until?: string | null
+          group_id?: string | null
+          id?: string
+          is_enabled?: boolean
+          order_index?: number | null
+          page_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_sidebar_preferences_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "sidebar_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_sidebar_preferences_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "sidebar_pages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_space_limits: {
         Row: {

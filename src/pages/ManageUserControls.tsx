@@ -3,7 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Settings, Users } from "lucide-react";
+import { Loader2, Settings, Users, Folder } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SidebarGroupsManager } from "@/components/admin/SidebarGroupsManager";
 
 export default function ManageUserControls() {
   const [allowUnauthorizedAI, setAllowUnauthorizedAI] = useState(false);
@@ -87,57 +89,74 @@ export default function ManageUserControls() {
         </div>
       </div>
 
-      <div className="grid gap-6">
-        {/* Unauthorized AI Access Control */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Users className="w-5 h-5 text-primary" />
-              <CardTitle>Unauthorized AI Access</CardTitle>
-            </div>
-            <CardDescription>
-              Allow users who are not logged in to use AI tools. This enables guest access to AI features.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center space-x-3">
-              <Checkbox
-                id="allow-unauthorized-ai"
-                checked={allowUnauthorizedAI}
-                onCheckedChange={handleUnauthorizedAIToggle}
-                disabled={updating}
-              />
-              <label
-                htmlFor="allow-unauthorized-ai"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                Allow unauthorized and not logged in users to use AI tools
-              </label>
-            </div>
-            <div className="mt-4 p-3 bg-muted/50 rounded-lg">
-              <p className="text-sm text-muted-foreground">
-                <strong>Status:</strong> {allowUnauthorizedAI ? (
-                  <span className="text-green-600 font-semibold">Enabled - Guest users can access AI tools</span>
-                ) : (
-                  <span className="text-orange-600 font-semibold">Disabled - Only logged in users can access AI tools</span>
-                )}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+      <Tabs defaultValue="general" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="general" className="flex items-center gap-2">
+            <Users className="w-4 h-4" />
+            General Settings
+          </TabsTrigger>
+          <TabsTrigger value="sidebar" className="flex items-center gap-2">
+            <Folder className="w-4 h-4" />
+            Sidebar Groups
+          </TabsTrigger>
+        </TabsList>
 
-        {/* Info Card */}
-        <Card className="border-primary/20 bg-primary/5">
-          <CardHeader>
-            <CardTitle className="text-base">Important Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm text-muted-foreground">
-            <p>• Changes to these settings take effect immediately across the platform</p>
-            <p>• Allowing unauthorized access may increase AI usage costs</p>
-            <p>• Monitor usage patterns regularly when this feature is enabled</p>
-          </CardContent>
-        </Card>
-      </div>
+        <TabsContent value="general" className="space-y-6">
+          {/* Unauthorized AI Access Control */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Users className="w-5 h-5 text-primary" />
+                <CardTitle>Unauthorized AI Access</CardTitle>
+              </div>
+              <CardDescription>
+                Allow users who are not logged in to use AI tools. This enables guest access to AI features.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center space-x-3">
+                <Checkbox
+                  id="allow-unauthorized-ai"
+                  checked={allowUnauthorizedAI}
+                  onCheckedChange={handleUnauthorizedAIToggle}
+                  disabled={updating}
+                />
+                <label
+                  htmlFor="allow-unauthorized-ai"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Allow unauthorized and not logged in users to use AI tools
+                </label>
+              </div>
+              <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+                <p className="text-sm text-muted-foreground">
+                  <strong>Status:</strong> {allowUnauthorizedAI ? (
+                    <span className="text-green-600 font-semibold">Enabled - Guest users can access AI tools</span>
+                  ) : (
+                    <span className="text-orange-600 font-semibold">Disabled - Only logged in users can access AI tools</span>
+                  )}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Info Card */}
+          <Card className="border-primary/20 bg-primary/5">
+            <CardHeader>
+              <CardTitle className="text-base">Important Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm text-muted-foreground">
+              <p>• Changes to these settings take effect immediately across the platform</p>
+              <p>• Allowing unauthorized access may increase AI usage costs</p>
+              <p>• Monitor usage patterns regularly when this feature is enabled</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="sidebar">
+          <SidebarGroupsManager />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
