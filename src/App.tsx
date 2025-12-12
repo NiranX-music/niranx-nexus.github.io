@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { NotificationListener } from "@/components/NotificationListener";
+import { GlobalRealtimeSync } from "@/components/GlobalRealtimeSync";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { XPProvider } from "./contexts/XPContext";
 import { MoodProvider } from "./contexts/MoodContext";
@@ -198,6 +199,7 @@ const App = () => (
                     <MusicPlayerProvider>
                     <AuthProvider>
                       <NotificationListener />
+                      <GlobalRealtimeSync />
                       <Routes>
                         <Route path="/" element={<Landing />} />
                         <Route path="/niranx/auth" element={<Auth />} />

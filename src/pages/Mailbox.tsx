@@ -215,6 +215,31 @@ const Mailbox = () => {
     }
   }, [user]);
 
+  // Realtime sync for mail across devices
+  useEffect(() => {
+    if (!user || !activeMailbox) return;
+
+    const channel = supabase
+      .channel(`mailbox-sync-${activeMailbox.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'niranx_emails',
+          filter: `mailbox_id=eq.${activeMailbox.id}`,
+        },
+        () => {
+          fetchEmails();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, activeMailbox]);
+
   useEffect(() => {
     if (activeMailbox) {
       fetchEmails();

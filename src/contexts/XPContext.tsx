@@ -36,6 +36,33 @@ export function XPProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user]);
 
+  // Real-time sync for XP across devices
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel(`xp-sync-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'user_profiles',
+          filter: `id=eq.${user.id}`,
+        },
+        (payload) => {
+          const newData = payload.new as any;
+          if (newData.xp !== undefined) setXP(newData.xp);
+          if (newData.level !== undefined) setLevel(newData.level);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
   const loadXPFromDatabase = async () => {
     if (!user) return;
     

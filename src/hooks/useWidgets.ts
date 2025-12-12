@@ -39,6 +39,31 @@ export function useWidgets() {
     }
   }, [user]);
 
+  // Real-time subscription for cross-device sync
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel(`widgets-sync-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'widget_preferences',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          loadWidgetPreferences();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
   const loadWidgetPreferences = async () => {
     if (!user) return;
 
