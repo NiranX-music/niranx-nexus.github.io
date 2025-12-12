@@ -27,9 +27,19 @@ import {
   Gamepad2,
   Lock,
   Target,
-  Flame
+  Flame,
+  Layers
 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
+import { useSpaces } from '@/hooks/useSpaces';
+import { CreateSpaceDialog } from '@/components/CreateSpaceDialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import MoodSelector from '@/components/MoodSelector';
 import AIMotivation from '@/components/AIMotivation';
 import DailyChallenge from '@/components/DailyChallenge';
@@ -50,12 +60,13 @@ import { StreakDisplay } from "@/components/StreakDisplay";
 import { ApplyForGuardianCard } from "@/components/ApplyForGuardianCard";
 
 const Index = () => {
-  const [isDarkMode, setIsDarkMode] = useState(true); // Default to dark mode for neon cosmic theme
+  const [isDarkMode, setIsDarkMode] = useState(true);
   const { user } = useAuth();
   const { xp, level, getXPProgress } = useXP();
   const { getTodayStats, getStreak } = useFocus();
   const { awardXP } = useXPReward();
   const { isWidgetEnabled } = useWidgets();
+  const { spaces, activeSpace, spaceLimit } = useSpaces();
   const isLoggedIn = !!user;
   const navigate = useNavigate();
 
@@ -207,6 +218,61 @@ const Index = () => {
             <GraduationCap className="w-5 h-5 text-success" />
             Download APK
           </Button>
+          
+          {isLoggedIn && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="glass-button flex items-center gap-2 transform-3d hover:scale-110 transition-all"
+                  size="lg"
+                >
+                  <Layers className="w-5 h-5 text-blue-500" />
+                  {activeSpace ? activeSpace.name : "Select Space"}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center" className="w-64">
+                <div className="px-2 py-1.5 text-xs text-muted-foreground font-medium">
+                  Your Spaces ({spaces.length}/{spaceLimit})
+                </div>
+                <DropdownMenuSeparator />
+                
+                {spaces.length === 0 ? (
+                  <div className="px-2 py-4 text-center text-sm text-muted-foreground">
+                    No spaces yet
+                  </div>
+                ) : (
+                  <div className="max-h-48 overflow-y-auto">
+                    {spaces.map((space) => (
+                      <DropdownMenuItem
+                        key={space.id}
+                        className="flex items-center justify-between cursor-pointer"
+                        onClick={() => navigate('/niranx/explore-spaces')}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Layers className="h-4 w-4 text-primary" />
+                          <span className="truncate max-w-[150px]">{space.name}</span>
+                        </div>
+                        {space.is_active && (
+                          <Badge variant="secondary" className="text-xs">Active</Badge>
+                        )}
+                      </DropdownMenuItem>
+                    ))}
+                  </div>
+                )}
+                
+                <DropdownMenuSeparator />
+                <CreateSpaceDialog
+                  trigger={
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer">
+                      <Sparkles className="h-4 w-4 mr-2 text-accent" />
+                      Create New Space
+                    </DropdownMenuItem>
+                  }
+                />
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
         
         <div className="text-center animate-slide-up">
