@@ -5,12 +5,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
-import { UserPlus, GraduationCap, TrendingUp } from "lucide-react";
+import { UserPlus, GraduationCap, TrendingUp, Shield } from "lucide-react";
 import { GuardianAccessRequests } from "@/components/guardian/GuardianAccessRequests";
 import { StudentSelector } from "@/components/guardian/StudentSelector";
 import { StudentPerformance } from "@/components/guardian/StudentPerformance";
 import { WeeklySummary } from "@/components/guardian/WeeklySummary";
 import { StudyGoals } from "@/components/guardian/StudyGoals";
+import { ParentalControls } from "@/components/guardian/ParentalControls";
 
 export default function GuardianDashboard() {
   const { user } = useAuth();
@@ -147,6 +148,7 @@ export default function GuardianDashboard() {
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="goals">Study Goals</TabsTrigger>
+          <TabsTrigger value="controls">Parental Controls</TabsTrigger>
           <TabsTrigger value="requests">Access Requests</TabsTrigger>
         </TabsList>
 
@@ -208,6 +210,27 @@ export default function GuardianDashboard() {
                 <CardTitle>Select a Student</CardTitle>
                 <CardDescription>
                   Choose a student from the Overview tab to manage their study goals
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          )}
+        </TabsContent>
+
+        <TabsContent value="controls">
+          {selectedStudentId ? (
+            <ParentalControls
+              studentId={selectedStudentId}
+              guardianId={user?.id || ''}
+            />
+          ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5" />
+                  Select a Student
+                </CardTitle>
+                <CardDescription>
+                  Choose a student from the Overview tab to manage parental controls
                 </CardDescription>
               </CardHeader>
             </Card>
