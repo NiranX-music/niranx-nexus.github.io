@@ -271,8 +271,8 @@ export default function MusicLibrary() {
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold gradient-text mb-2">Music Library</h1>
-          <p className="text-muted-foreground">Discover and play your favorite tracks</p>
+          <h1 className="text-4xl font-bold gradient-text mb-2">Xvibe Library</h1>
+          <p className="text-muted-foreground">Discover and play your favorite tracks on Xvibe</p>
         </div>
         <div className="flex gap-2 flex-wrap">
           <Button variant="outline" onClick={() => navigate("/niranx/music/listed-songs")}>

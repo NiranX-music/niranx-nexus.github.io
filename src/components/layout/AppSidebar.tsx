@@ -154,12 +154,12 @@ const progressNavigation = [
   { title: "Games", url: "/niranx/games", icon: Gamepad2 },
 ];
 
-// EcoFuse - Music & Audio
-const ecoFuseNavigation = [
+// Xvibe - Music & Audio
+const xvibeNavigation = [
   { title: "Listed Songs", url: "/niranx/music/listed-songs", icon: FileMusic },
-  { title: "Music Player", url: "/niranx/music", icon: Music },
-  { title: "Music Hub", url: "/niranx/music-hub", icon: FileMusic },
-  { title: "Music Library", url: "/niranx/music/library", icon: Headphones },
+  { title: "Xvibe Player", url: "/niranx/music", icon: Music },
+  { title: "Xvibe Hub", url: "/niranx/music-hub", icon: FileMusic },
+  { title: "Xvibe Library", url: "/niranx/music/library", icon: Headphones },
   { title: "Upload Track", url: "/niranx/music/upload", icon: Upload },
   { title: "Listening Library", url: "/niranx/listening-library", icon: Headphones },
 ];
@@ -234,7 +234,8 @@ const externalPlatforms = [
 const adminNavigation = [
   { title: "Admin Dashboard", url: "/niranx/admin", icon: UserCog },
   { title: "User Controls", url: "/niranx/admin/user-controls", icon: Settings },
-  { title: "Music Moderation", url: "/niranx/admin/music-moderation", icon: Music },
+  { title: "Xvibe Moderation", url: "/niranx/admin/music-moderation", icon: Music },
+  { title: "Template Manager", url: "/niranx/admin/templates", icon: BookOpen },
   { title: "Feedback List", url: "/niranx/admin/feedback-list", icon: MessagesSquare },
   { title: "What's New Manager", url: "/niranx/admin/whats-new", icon: Sparkles },
   { title: "Custom Notifications", url: "/niranx/admin/custom-notifications", icon: Bell },
@@ -259,6 +260,9 @@ const systemNavigation = [
   { title: "Theme Customization", url: "/niranx/theme-customization", icon: Palette },
   { title: "Guardian Settings", url: "/niranx/guardian-settings", icon: ShieldCheck },
   { title: "OAuth Settings", url: "/niranx/oauth-settings", icon: Link2 },
+  { title: "Persona Setup", url: "/niranx/persona-setup", icon: User },
+  { title: "Study Templates", url: "/niranx/study-templates", icon: BookOpen },
+  { title: "Activity Log", url: "/niranx/security/activity-log", icon: Eye },
   { title: "Feedback & Suggestions", url: "/niranx/feedback", icon: MessagesSquare },
   { title: "Android TWA Setup", url: "/niranx/twa-setup", icon: Smartphone },
   { title: "Become an Admin", url: "/niranx/become-admin", icon: UserPlus },
@@ -300,7 +304,7 @@ export function AppSidebar() {
     aiDevelopment: true,
     study: true,
     progress: false,
-    ecoFuse: true,
+    xvibe: true,
     media: false,
     files: false,
     xmail: true,
@@ -324,7 +328,7 @@ export function AppSidebar() {
     ...aiDevelopmentNavigation,
     ...studyNavigation,
     ...progressNavigation,
-    ...ecoFuseNavigation,
+    ...xvibeNavigation,
     ...mediaNavigation,
     ...filesNavigation,
     ...xmailNavigation,
@@ -614,21 +618,21 @@ export function AppSidebar() {
           </SidebarGroup>
         </Collapsible>
 
-        {/* EcoFuse - Music & Audio */}
-        <Collapsible open={expandedSections.ecoFuse} onOpenChange={() => toggleSection('ecoFuse')}>
+        {/* Xvibe - Music & Audio */}
+        <Collapsible open={expandedSections.xvibe} onOpenChange={() => toggleSection('xvibe')}>
           <SidebarGroup>
             <CollapsibleTrigger asChild>
               <SidebarGroupLabel className="cursor-pointer hover:bg-emerald-500/20 rounded-lg px-3 -mx-2 flex items-center justify-between text-white/90 font-bold text-sm uppercase tracking-wider transition-all duration-200 py-3 bg-gradient-to-r from-emerald-500/25 to-teal-500/15 border border-emerald-500/20 mb-2">
                 <span className="flex items-center gap-2">
                   <Headphones className="h-4 w-4 text-emerald-400" />
-                  {!isCollapsed && "EcoFuse"}
+                  {!isCollapsed && "Xvibe"}
                 </span>
-                <ChevronDown className={`h-4 w-4 transition-transform text-emerald-400 ${expandedSections.ecoFuse ? '' : '-rotate-90'}`} />
+                <ChevronDown className={`h-4 w-4 transition-transform text-emerald-400 ${expandedSections.xvibe ? '' : '-rotate-90'}`} />
               </SidebarGroupLabel>
             </CollapsibleTrigger>
             <CollapsibleContent>
               <SidebarGroupContent>
-                <SidebarMenu>{renderNavItems(ecoFuseNavigation)}</SidebarMenu>
+                <SidebarMenu>{renderNavItems(xvibeNavigation)}</SidebarMenu>
               </SidebarGroupContent>
             </CollapsibleContent>
           </SidebarGroup>

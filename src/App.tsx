@@ -176,6 +176,10 @@ import ListedSongs from "./pages/ListedSongs";
 import Mailbox from "./pages/Mailbox";
 import XmailProfile from "./pages/XmailProfile";
 import XmailView from "./pages/XmailView";
+import PersonaSetup from "./pages/PersonaSetup";
+import StudyTemplates from "./pages/StudyTemplates";
+import TemplateManager from "./pages/admin/TemplateManager";
+import ActivityLog from "./pages/security/ActivityLog";
 
 const queryClient = new QueryClient();
 
@@ -342,6 +346,9 @@ const App = () => (
                           <Route path="/guilds" element={<Guilds />} />
                           <Route path="/widget-settings" element={<WidgetSettings />} />
                           <Route path="/smart-notifications" element={<SmartNotifications />} />
+                          <Route path="/persona-setup" element={<PersonaSetup />} />
+                          <Route path="/study-templates" element={<StudyTemplates />} />
+                          <Route path="/security/activity-log" element={<ActivityLog />} />
                           <Route path="/debates" element={<DebateHub />} />
                           <Route path="/debates/:id" element={<DebateDetail />} />
                           <Route path="/debates/mine" element={<MyDebates />} />
@@ -394,6 +401,11 @@ const App = () => (
                           <Route path="/admin/whats-new" element={
                             <AdminRoute>
                               <WhatsNewManager />
+                            </AdminRoute>
+                          } />
+                          <Route path="/admin/templates" element={
+                            <AdminRoute>
+                              <TemplateManager />
                             </AdminRoute>
                           } />
                           <Route path="/admin/custom-notifications" element={

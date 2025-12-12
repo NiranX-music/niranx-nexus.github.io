@@ -137,8 +137,8 @@ const ListeningLibrary = () => {
             <Headphones className="w-6 h-6 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold gradient-text">Your Listening Library</h1>
-            <p className="text-muted-foreground">Browse and replay your music history</p>
+            <h1 className="text-3xl font-bold gradient-text">Xvibe Listening Library</h1>
+            <p className="text-muted-foreground">Browse and replay your Xvibe music history</p>
           </div>
         </div>
 
