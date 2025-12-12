@@ -181,6 +181,8 @@ import PersonaSetup from "./pages/PersonaSetup";
 import StudyTemplates from "./pages/StudyTemplates";
 import TemplateManager from "./pages/admin/TemplateManager";
 import ActivityLog from "./pages/security/ActivityLog";
+import ExploreSpaces from "./pages/ExploreSpaces";
+import SpaceLimitsManager from "./pages/admin/SpaceLimitsManager";
 
 const queryClient = new QueryClient();
 
@@ -351,6 +353,7 @@ const App = () => (
                           <Route path="/persona-setup" element={<PersonaSetup />} />
                           <Route path="/study-templates" element={<StudyTemplates />} />
                           <Route path="/security/activity-log" element={<ActivityLog />} />
+                          <Route path="/explore-spaces" element={<ExploreSpaces />} />
                           <Route path="/debates" element={<DebateHub />} />
                           <Route path="/debates/:id" element={<DebateDetail />} />
                           <Route path="/debates/mine" element={<MyDebates />} />
@@ -459,6 +462,11 @@ const App = () => (
                             <ModeratorRoute>
                               <FeedbackList />
                             </ModeratorRoute>
+                          } />
+                          <Route path="/admin/space-limits" element={
+                            <AdminRoute>
+                              <SpaceLimitsManager />
+                            </AdminRoute>
                           } />
                           <Route path="/admin/music-moderation" element={
                             <AdminRoute>

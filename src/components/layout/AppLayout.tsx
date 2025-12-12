@@ -28,6 +28,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { cleanupInvalidFavoriteIcons } from "@/utils/cleanupFavorites";
 import { FirstTimeGuide } from "@/components/FirstTimeGuide";
 import { MiniPlayer } from "./MiniPlayer";
+import { SpaceSwitcher } from "@/components/SpaceSwitcher";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -147,6 +148,7 @@ export function AppLayout({ children }: AppLayoutProps) {
               </BreadcrumbList>
             </Breadcrumb>
             <div className="ml-auto flex items-center gap-2">
+              {user && <SpaceSwitcher />}
               <Button
                 variant="ghost"
                 size="icon"
