@@ -72,6 +72,73 @@ export default function Guilds() {
     }
   }, [user]);
 
+  // Realtime sync for guilds data across devices
+  useEffect(() => {
+    if (!user) return;
+
+    const channels: ReturnType<typeof supabase.channel>[] = [];
+
+    // Guilds list sync
+    const guildsChannel = supabase
+      .channel(`guilds-list-sync-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'guilds',
+        },
+        () => {
+          fetchGuilds();
+          fetchMyGuild();
+        }
+      )
+      .subscribe();
+    channels.push(guildsChannel);
+
+    // Guild members sync
+    if (myGuild) {
+      const membersChannel = supabase
+        .channel(`guild-members-sync-${myGuild.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'guild_members',
+            filter: `guild_id=eq.${myGuild.id}`,
+          },
+          () => {
+            fetchMembers();
+          }
+        )
+        .subscribe();
+      channels.push(membersChannel);
+
+      // Challenges progress sync
+      const progressChannel = supabase
+        .channel(`guild-progress-sync-${myGuild.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'guild_challenge_progress',
+            filter: `guild_id=eq.${myGuild.id}`,
+          },
+          () => {
+            fetchProgress();
+          }
+        )
+        .subscribe();
+      channels.push(progressChannel);
+    }
+
+    return () => {
+      channels.forEach(channel => supabase.removeChannel(channel));
+    };
+  }, [user, myGuild]);
+
   useEffect(() => {
     if (myGuild) {
       fetchMembers();

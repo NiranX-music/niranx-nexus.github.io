@@ -2,10 +2,79 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import { useEffect } from "react";
 
 export function useClassroom(classroomId?: string) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+
+  // Real-time subscription for classroom updates
+  useEffect(() => {
+    if (!user) return;
+
+    const channels: ReturnType<typeof supabase.channel>[] = [];
+
+    // Subscribe to classrooms changes
+    const classroomsChannel = supabase
+      .channel(`classrooms-sync-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'classrooms',
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["teacher-classrooms"] });
+          if (classroomId) {
+            queryClient.invalidateQueries({ queryKey: ["classroom", classroomId] });
+          }
+        }
+      )
+      .subscribe();
+    channels.push(classroomsChannel);
+
+    // Subscribe to classroom members changes
+    if (classroomId) {
+      const membersChannel = supabase
+        .channel(`classroom-members-sync-${classroomId}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'classroom_members',
+            filter: `classroom_id=eq.${classroomId}`,
+          },
+          () => {
+            queryClient.invalidateQueries({ queryKey: ["classroom-members", classroomId] });
+          }
+        )
+        .subscribe();
+      channels.push(membersChannel);
+
+      const videosChannel = supabase
+        .channel(`classroom-videos-sync-${classroomId}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'classroom_videos',
+            filter: `classroom_id=eq.${classroomId}`,
+          },
+          () => {
+            queryClient.invalidateQueries({ queryKey: ["classroom-videos", classroomId] });
+          }
+        )
+        .subscribe();
+      channels.push(videosChannel);
+    }
+
+    return () => {
+      channels.forEach(channel => supabase.removeChannel(channel));
+    };
+  }, [user, classroomId, queryClient]);
 
   const { data: classrooms, isLoading: classroomsLoading } = useQuery({
     queryKey: ["teacher-classrooms", user?.id],

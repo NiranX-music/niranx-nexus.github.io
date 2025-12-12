@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -16,16 +16,13 @@ export function useFavorites() {
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
 
-  useEffect(() => {
-    if (user) {
-      fetchFavorites();
-    } else {
+  const fetchFavorites = useCallback(async () => {
+    if (!user) {
       setFavorites([]);
       setIsLoading(false);
+      return;
     }
-  }, [user]);
-
-  async function fetchFavorites() {
+    
     try {
       const { data, error } = await supabase
         .from("user_favorites")
@@ -39,7 +36,37 @@ export function useFavorites() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [user]);
+
+  useEffect(() => {
+    fetchFavorites();
+  }, [fetchFavorites]);
+
+  // Real-time subscription for cross-device sync
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel(`favorites-sync-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_favorites',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          fetchFavorites();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, fetchFavorites]);
+
 
   async function addFavorite(pageUrl: string, pageTitle: string, iconName?: string) {
     if (!user) return;
