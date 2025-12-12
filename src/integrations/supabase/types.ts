@@ -5550,6 +5550,92 @@ export type Database = {
         }
         Relationships: []
       }
+      space_data: {
+        Row: {
+          created_at: string | null
+          data_key: string
+          data_type: string
+          data_value: Json | null
+          id: string
+          space_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          data_key: string
+          data_type: string
+          data_value?: Json | null
+          id?: string
+          space_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          data_key?: string
+          data_type?: string
+          data_value?: Json | null
+          id?: string
+          space_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "space_data_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "spaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      spaces: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          description: string | null
+          has_password: boolean | null
+          id: string
+          is_active: boolean | null
+          is_public: boolean | null
+          name: string
+          password_hash: string | null
+          pin_hash: string
+          space_url: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          has_password?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          is_public?: boolean | null
+          name: string
+          password_hash?: string | null
+          pin_hash: string
+          space_url: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          has_password?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          is_public?: boolean | null
+          name?: string
+          password_hash?: string | null
+          pin_hash?: string
+          space_url?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       spotify_favorites: {
         Row: {
           album_image_url: string | null
@@ -6985,6 +7071,33 @@ export type Database = {
           ip_address?: string | null
           last_activity?: string | null
           session_token?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_space_limits: {
+        Row: {
+          created_at: string | null
+          id: string
+          max_spaces: number | null
+          set_by: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          max_spaces?: number | null
+          set_by?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          max_spaces?: number | null
+          set_by?: string | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []

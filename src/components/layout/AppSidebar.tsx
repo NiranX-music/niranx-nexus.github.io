@@ -61,6 +61,7 @@ import {
   Layout,
   Route as RouteIcon,
   HelpCircle,
+  Layers,
 } from "lucide-react";
 import {
   Sidebar,
@@ -234,6 +235,7 @@ const externalPlatforms = [
 const adminNavigation = [
   { title: "Admin Dashboard", url: "/niranx/admin", icon: UserCog },
   { title: "User Controls", url: "/niranx/admin/user-controls", icon: Settings },
+  { title: "Space Limits", url: "/niranx/admin/space-limits", icon: Layers },
   { title: "Xvibe Moderation", url: "/niranx/admin/music-moderation", icon: Music },
   { title: "Template Manager", url: "/niranx/admin/templates", icon: BookOpen },
   { title: "Feedback List", url: "/niranx/admin/feedback-list", icon: MessagesSquare },
@@ -253,6 +255,7 @@ const liveClassroomNavigation = [
 ];
 
 const systemNavigation = [
+  { title: "Explore Public Spaces", url: "/niranx/explore-spaces", icon: Layers },
   { title: "Widget Settings", url: "/niranx/widget-settings", icon: Layout },
   { title: "Notification Settings", url: "/niranx/notification-settings", icon: Bell },
   { title: "Smart Notifications", url: "/niranx/smart-notifications", icon: Zap },
