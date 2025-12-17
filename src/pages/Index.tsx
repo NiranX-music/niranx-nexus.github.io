@@ -28,7 +28,8 @@ import {
   Lock,
   Target,
   Flame,
-  Layers
+  Layers,
+  Users
 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { useSpaces } from '@/hooks/useSpaces';
@@ -208,6 +209,15 @@ const Index = () => {
           >
             <MessageCircle className="w-5 h-5 text-accent" />
             Debate Hub
+          </Button>
+          <Button
+            onClick={() => navigate('/niranx/xflow')}
+            variant="outline"
+            className="glass-button flex items-center gap-2 transform-3d hover:scale-110 transition-all bg-gradient-to-r from-pink-500/20 to-purple-500/20"
+            size="lg"
+          >
+            <Users className="w-5 h-5 text-pink-500" />
+            Login to XFlow
           </Button>
           <Button
             onClick={() => window.open('https://files.appsgeyser.com/NiranX%20StudyVerse_19305310.apk?_gl=1*l3gq1g*_ga*MTkwMDEyODM3Mi4xNzY0NDI5NTA1*_ga_WRFFFBGC4Z*czE3NjQ0Mjk1MDQkbzEkZzEkdDE3NjQ0MzAwNjQkajQkbDAkaDAkZE5XT196WFNMNk1iQzF5UFNRNFNGbFdIVG8wajU5RThTYVE', '_blank')}

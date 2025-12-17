@@ -183,7 +183,12 @@ import TemplateManager from "./pages/admin/TemplateManager";
 import ActivityLog from "./pages/security/ActivityLog";
 import ExploreSpaces from "./pages/ExploreSpaces";
 import SpaceLimitsManager from "./pages/admin/SpaceLimitsManager";
-
+import XFlowLogin from "./pages/xflow/XFlowLogin";
+import XFlowFeed from "./pages/xflow/XFlowFeed";
+import XFlowProfile from "./pages/xflow/XFlowProfile";
+import XFlowMessages from "./pages/xflow/XFlowMessages";
+import XFlowPostView from "./pages/xflow/XFlowPostView";
+import XFlowModeration from "./pages/admin/XFlowModeration";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -383,6 +388,13 @@ const App = () => (
                           <Route path="/xmail" element={<Mailbox />} />
                           <Route path="/xmail/profile/:slug" element={<XmailProfile />} />
                           <Route path="/xmail/view/:slug" element={<XmailView />} />
+                          
+                          {/* XFlow Social Platform */}
+                          <Route path="/xflow" element={<XFlowLogin />} />
+                          <Route path="/xflow/feed" element={<XFlowFeed />} />
+                          <Route path="/xflow/profile/:username" element={<XFlowProfile />} />
+                          <Route path="/xflow/messages" element={<XFlowMessages />} />
+                          <Route path="/xflow/post/:postId" element={<XFlowPostView />} />
                           <Route path="/admin" element={
                             <AdminRoute>
                               <AdminDashboard />
@@ -471,6 +483,11 @@ const App = () => (
                           <Route path="/admin/music-moderation" element={
                             <AdminRoute>
                               <MusicModeration />
+                            </AdminRoute>
+                          } />
+                          <Route path="/admin/xflow-moderation" element={
+                            <AdminRoute>
+                              <XFlowModeration />
                             </AdminRoute>
                           } />
                           <Route path="*" element={<NotFound />} />
