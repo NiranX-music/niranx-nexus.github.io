@@ -4870,6 +4870,39 @@ export type Database = {
         }
         Relationships: []
       }
+      page_access_control: {
+        Row: {
+          allowed_roles: string[] | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          page_name: string
+          page_url: string
+          updated_at: string | null
+        }
+        Insert: {
+          allowed_roles?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          page_name: string
+          page_url: string
+          updated_at?: string | null
+        }
+        Update: {
+          allowed_roles?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          page_name?: string
+          page_url?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       page_theme_overrides: {
         Row: {
           created_at: string | null
@@ -7684,6 +7717,376 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      xflow_comments: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          likes_count: number | null
+          parent_comment_id: string | null
+          post_id: string
+          profile_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          likes_count?: number | null
+          parent_comment_id?: string | null
+          post_id: string
+          profile_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          likes_count?: number | null
+          parent_comment_id?: string | null
+          post_id?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xflow_comments_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "xflow_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xflow_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "xflow_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xflow_comments_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "xflow_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xflow_follows: {
+        Row: {
+          created_at: string | null
+          follower_id: string
+          following_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string | null
+          follower_id: string
+          following_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string | null
+          follower_id?: string
+          following_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xflow_follows_follower_id_fkey"
+            columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "xflow_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xflow_follows_following_id_fkey"
+            columns: ["following_id"]
+            isOneToOne: false
+            referencedRelation: "xflow_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xflow_highlights: {
+        Row: {
+          cover_url: string | null
+          created_at: string | null
+          id: string
+          media_urls: Json | null
+          profile_id: string
+          title: string
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string | null
+          id?: string
+          media_urls?: Json | null
+          profile_id: string
+          title: string
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string | null
+          id?: string
+          media_urls?: Json | null
+          profile_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xflow_highlights_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "xflow_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xflow_likes: {
+        Row: {
+          comment_id: string | null
+          created_at: string | null
+          id: string
+          post_id: string | null
+          profile_id: string
+        }
+        Insert: {
+          comment_id?: string | null
+          created_at?: string | null
+          id?: string
+          post_id?: string | null
+          profile_id: string
+        }
+        Update: {
+          comment_id?: string | null
+          created_at?: string | null
+          id?: string
+          post_id?: string | null
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xflow_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "xflow_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xflow_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "xflow_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xflow_likes_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "xflow_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xflow_messages: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          media_url: string | null
+          receiver_id: string
+          sender_id: string
+          shared_post_id: string | null
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          media_url?: string | null
+          receiver_id: string
+          sender_id: string
+          shared_post_id?: string | null
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          media_url?: string | null
+          receiver_id?: string
+          sender_id?: string
+          shared_post_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xflow_messages_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "xflow_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xflow_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "xflow_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xflow_messages_shared_post_id_fkey"
+            columns: ["shared_post_id"]
+            isOneToOne: false
+            referencedRelation: "xflow_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xflow_posts: {
+        Row: {
+          comments_count: number | null
+          content: string | null
+          created_at: string | null
+          id: string
+          is_pinned: boolean | null
+          likes_count: number | null
+          media_type: string | null
+          media_urls: Json | null
+          profile_id: string
+          shares_count: number | null
+          thumbnail_url: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          comments_count?: number | null
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          likes_count?: number | null
+          media_type?: string | null
+          media_urls?: Json | null
+          profile_id: string
+          shares_count?: number | null
+          thumbnail_url?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          comments_count?: number | null
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          likes_count?: number | null
+          media_type?: string | null
+          media_urls?: Json | null
+          profile_id?: string
+          shares_count?: number | null
+          thumbnail_url?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xflow_posts_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "xflow_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xflow_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          display_name: string | null
+          followers_count: number | null
+          following_count: number | null
+          gender: string | null
+          id: string
+          is_private: boolean | null
+          is_verified: boolean | null
+          password_hash: string
+          posts_count: number | null
+          updated_at: string | null
+          user_id: string
+          username: string
+          website: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          followers_count?: number | null
+          following_count?: number | null
+          gender?: string | null
+          id?: string
+          is_private?: boolean | null
+          is_verified?: boolean | null
+          password_hash: string
+          posts_count?: number | null
+          updated_at?: string | null
+          user_id: string
+          username: string
+          website?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          followers_count?: number | null
+          following_count?: number | null
+          gender?: string | null
+          id?: string
+          is_private?: boolean | null
+          is_verified?: boolean | null
+          password_hash?: string
+          posts_count?: number | null
+          updated_at?: string | null
+          user_id?: string
+          username?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      xflow_saved_posts: {
+        Row: {
+          created_at: string | null
+          id: string
+          post_id: string
+          profile_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          post_id: string
+          profile_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          post_id?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xflow_saved_posts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "xflow_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xflow_saved_posts_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "xflow_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
