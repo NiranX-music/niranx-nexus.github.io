@@ -8005,8 +8005,12 @@ export type Database = {
           following_count: number | null
           gender: string | null
           id: string
+          is_approved: boolean | null
           is_private: boolean | null
           is_verified: boolean | null
+          moderated_at: string | null
+          moderated_by: string | null
+          moderation_status: string | null
           password_hash: string
           posts_count: number | null
           updated_at: string | null
@@ -8023,8 +8027,12 @@ export type Database = {
           following_count?: number | null
           gender?: string | null
           id?: string
+          is_approved?: boolean | null
           is_private?: boolean | null
           is_verified?: boolean | null
+          moderated_at?: string | null
+          moderated_by?: string | null
+          moderation_status?: string | null
           password_hash: string
           posts_count?: number | null
           updated_at?: string | null
@@ -8041,8 +8049,12 @@ export type Database = {
           following_count?: number | null
           gender?: string | null
           id?: string
+          is_approved?: boolean | null
           is_private?: boolean | null
           is_verified?: boolean | null
+          moderated_at?: string | null
+          moderated_by?: string | null
+          moderation_status?: string | null
           password_hash?: string
           posts_count?: number | null
           updated_at?: string | null

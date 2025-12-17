@@ -209,6 +209,13 @@ const debateNavigation = [
   { title: "Live Rooms", url: "/niranx/debates/live", icon: Zap },
 ];
 
+// XFlow Social Platform
+const xflowNavigation = [
+  { title: "XFlow Home", url: "/niranx/xflow", icon: Users },
+  { title: "XFlow Feed", url: "/niranx/xflow/feed", icon: Play },
+  { title: "XFlow Messages", url: "/niranx/xflow/messages", icon: MessageCircle },
+];
+
 // Tools & Utilities
 const toolsNavigation = [
   { title: "AI Website Generator", url: "/niranx/ai-website-generator", icon: Sparkles },
@@ -237,6 +244,7 @@ const adminNavigation = [
   { title: "User Controls", url: "/niranx/admin/user-controls", icon: Settings },
   { title: "Space Limits", url: "/niranx/admin/space-limits", icon: Layers },
   { title: "Xvibe Moderation", url: "/niranx/admin/music-moderation", icon: Music },
+  { title: "XFlow Moderation", url: "/niranx/admin/xflow-moderation", icon: Users },
   { title: "Template Manager", url: "/niranx/admin/templates", icon: BookOpen },
   { title: "Feedback List", url: "/niranx/admin/feedback-list", icon: MessagesSquare },
   { title: "What's New Manager", url: "/niranx/admin/whats-new", icon: Sparkles },
@@ -313,6 +321,7 @@ export function AppSidebar() {
     xmail: true,
     social: false,
     debate: false,
+    xflow: true,
     tools: false,
     external: false,
     admin: true,
@@ -337,6 +346,7 @@ export function AppSidebar() {
     ...xmailNavigation,
     ...socialNavigation,
     ...debateNavigation,
+    ...xflowNavigation,
     ...toolsNavigation,
     ...externalPlatforms,
     ...(isAdmin ? adminNavigation : []),
@@ -736,6 +746,26 @@ export function AppSidebar() {
             <CollapsibleContent>
               <SidebarGroupContent>
                 <SidebarMenu>{renderNavItems(debateNavigation)}</SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
+
+        {/* XFlow Social Platform */}
+        <Collapsible open={expandedSections.xflow} onOpenChange={() => toggleSection('xflow')}>
+          <SidebarGroup>
+            <CollapsibleTrigger asChild>
+              <SidebarGroupLabel className="cursor-pointer hover:bg-primary/20 rounded-lg px-2 -mx-2 flex items-center justify-between text-white/90 font-bold text-sm uppercase tracking-wider transition-all duration-200 py-3 bg-gradient-to-r from-pink-500/20 to-purple-500/20">
+                <span className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-pink-400" />
+                  {!isCollapsed && "XFlow Social"}
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform text-white/70 ${expandedSections.xflow ? '' : '-rotate-90'}`} />
+              </SidebarGroupLabel>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>{renderNavItems(xflowNavigation)}</SidebarMenu>
               </SidebarGroupContent>
             </CollapsibleContent>
           </SidebarGroup>
