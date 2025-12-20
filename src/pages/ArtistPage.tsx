@@ -45,9 +45,27 @@ export default function ArtistPage() {
   const [popularTracks, setPopularTracks] = useState<Track[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [isMusicModerator, setIsMusicModerator] = useState(false);
   const { playTrack } = useMusicPlayer();
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  // Check if user is music moderator
+  useEffect(() => {
+    const checkMusicModerator = async () => {
+      if (!user) {
+        setIsMusicModerator(false);
+        return;
+      }
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .in("role", ["admin", "moderator", "music_moderator"]);
+      setIsMusicModerator(!!data && data.length > 0);
+    };
+    checkMusicModerator();
+  }, [user]);
 
   useEffect(() => {
     if (artistId) {
@@ -298,6 +316,19 @@ export default function ArtistPage() {
                   <span className="text-sm text-muted-foreground w-12 text-right">
                     {formatDuration(track.duration)}
                   </span>
+                  {isMusicModerator && (
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/niranx/music/track/${track.id}/edit`);
+                      }}
+                      title="Edit track details"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  )}
                   <Button
                     size="icon"
                     variant="ghost"
@@ -319,9 +350,23 @@ export default function ArtistPage() {
           {tracks.map(track => (
             <Card
               key={track.id}
-              className="cursor-pointer hover:bg-accent/50 transition-colors overflow-hidden"
+              className="cursor-pointer hover:bg-accent/50 transition-colors overflow-hidden relative group"
               onClick={() => navigate(`/niranx/music/track/${track.id}`)}
             >
+              {isMusicModerator && (
+                <Button
+                  size="icon"
+                  variant="secondary"
+                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/niranx/music/track/${track.id}/edit`);
+                  }}
+                  title="Edit track details"
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+              )}
               <img
                 src={track.artwork_url || track.cover_url || "/placeholder.svg"}
                 alt={track.title}

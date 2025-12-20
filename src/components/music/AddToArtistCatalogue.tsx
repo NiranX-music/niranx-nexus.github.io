@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,7 +51,7 @@ export function AddToArtistCatalogue({
   const [canUpload, setCanUpload] = useState(false);
 
   // Check permissions
-  useState(() => {
+  useEffect(() => {
     const checkPermissions = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
@@ -64,7 +64,7 @@ export function AddToArtistCatalogue({
       }
     };
     checkPermissions();
-  });
+  }, []);
 
   if (!canUpload && !isAdmin) {
     return null;
@@ -102,11 +102,11 @@ export function AddToArtistCatalogue({
     setFiles((prev) => [...prev, ...newFiles]);
   };
 
-  const uploadFile = async (uploadFile: UploadFile, index: number) => {
+  const uploadFile = async (uploadFile: UploadFile, index: number): Promise<boolean> => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       toast.error("Please sign in to upload");
-      return;
+      return false;
     }
 
     setFiles((prev) =>
@@ -114,13 +114,21 @@ export function AddToArtistCatalogue({
     );
 
     try {
-      // Upload to storage
-      const fileName = `${Date.now()}-${uploadFile.file.name}`;
+      // Generate unique filename
+      const fileExt = uploadFile.file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from("music")
-        .upload(`tracks/${fileName}`, uploadFile.file);
+        .upload(`tracks/${fileName}`, uploadFile.file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error("Storage upload error:", uploadError);
+        throw new Error(`Storage error: ${uploadError.message}`);
+      }
 
       // Get public URL
       const { data: urlData } = supabase.storage
@@ -138,32 +146,54 @@ export function AddToArtistCatalogue({
         is_approved: true,
       });
 
-      if (trackError) throw trackError;
+      if (trackError) {
+        console.error("Database insert error:", trackError);
+        throw new Error(`Database error: ${trackError.message}`);
+      }
 
       setFiles((prev) =>
         prev.map((f, i) =>
           i === index ? { ...f, progress: 100, status: "done" } : f
         )
       );
+      return true;
     } catch (error: any) {
       console.error("Upload error:", error);
+      toast.error(`Failed to upload "${uploadFile.title}": ${error.message}`);
       setFiles((prev) =>
         prev.map((f, i) => (i === index ? { ...f, status: "error" } : f))
       );
+      return false;
     }
   };
 
   const handleUploadAll = async () => {
     setIsUploading(true);
+    let successCount = 0;
+    let failCount = 0;
     
-    for (let i = 0; i < files.length; i++) {
-      if (files[i].status === "pending") {
-        await uploadFile(files[i], i);
-      }
+    // Upload in batches of 3 to avoid overwhelming the server
+    const batchSize = 3;
+    const pendingIndices = files
+      .map((f, i) => ({ file: f, index: i }))
+      .filter(({ file }) => file.status === "pending");
+    
+    for (let i = 0; i < pendingIndices.length; i += batchSize) {
+      const batch = pendingIndices.slice(i, i + batchSize);
+      const results = await Promise.all(
+        batch.map(({ file, index }) => uploadFile(file, index))
+      );
+      successCount += results.filter(Boolean).length;
+      failCount += results.filter(r => !r).length;
     }
 
     setIsUploading(false);
-    toast.success("All tracks uploaded successfully!");
+    
+    if (failCount > 0) {
+      toast.warning(`Uploaded ${successCount} tracks. ${failCount} failed.`);
+    } else {
+      toast.success(`All ${successCount} tracks uploaded successfully!`);
+    }
     onSuccess?.();
   };
 
