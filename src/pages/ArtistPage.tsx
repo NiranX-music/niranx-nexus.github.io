@@ -4,9 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Play, User, Music, Edit } from "lucide-react";
+import { Play, User, Music, Edit, Heart, Share, Building2 } from "lucide-react";
 import { useMusicPlayer } from "@/contexts/MusicPlayerContext";
 import { toast } from "sonner";
+import { AddToArtistCatalogue } from "@/components/music/AddToArtistCatalogue";
+import { TrackActionsMenu } from "@/components/music/TrackActionsMenu";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Artist {
   id: string;
@@ -14,17 +17,25 @@ interface Artist {
   bio?: string;
   avatar_url?: string;
   is_verified: boolean;
+  follower_count?: number;
+  monthly_listeners?: number;
 }
 
 interface Track {
   id: string;
   title: string;
+  artist: string;
   album?: string;
   audio_url: string;
   cover_url?: string;
   artwork_url?: string;
   duration?: number;
   play_count?: number;
+  genre?: string;
+  songwriter?: string;
+  producer?: string;
+  release_date?: string;
+  artist_id?: string;
 }
 
 export default function ArtistPage() {
@@ -33,15 +44,56 @@ export default function ArtistPage() {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [popularTracks, setPopularTracks] = useState<Track[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isFollowing, setIsFollowing] = useState(false);
   const { playTrack } = useMusicPlayer();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (artistId) {
       fetchArtist();
       fetchTracks();
+      checkFollowing();
     }
-  }, [artistId]);
+  }, [artistId, user]);
+
+  const checkFollowing = async () => {
+    if (!user || !artistId) return;
+    const { data } = await supabase
+      .from("artist_followers")
+      .select("id")
+      .eq("artist_id", artistId)
+      .eq("user_id", user.id)
+      .single();
+    setIsFollowing(!!data);
+  };
+
+  const toggleFollow = async () => {
+    if (!user) {
+      toast.error("Please sign in to follow artists");
+      return;
+    }
+    try {
+      if (isFollowing) {
+        await supabase
+          .from("artist_followers")
+          .delete()
+          .eq("artist_id", artistId)
+          .eq("user_id", user.id);
+        setIsFollowing(false);
+        toast.success("Unfollowed artist");
+      } else {
+        await supabase.from("artist_followers").insert({
+          artist_id: artistId,
+          user_id: user.id,
+        });
+        setIsFollowing(true);
+        toast.success("Following artist!");
+      }
+    } catch (error) {
+      toast.error("Failed to update follow status");
+    }
+  };
 
   const fetchArtist = async () => {
     try {
@@ -168,7 +220,7 @@ export default function ArtistPage() {
       </div>
 
       {/* Actions */}
-      <div className="px-8 py-6 flex items-center gap-4">
+      <div className="px-8 py-6 flex flex-wrap items-center gap-4">
         <Button
           size="lg"
           className="rounded-full w-14 h-14 bg-primary hover:scale-105 transition-transform"
@@ -176,8 +228,26 @@ export default function ArtistPage() {
         >
           <Play className="h-6 w-6 fill-current ml-1" />
         </Button>
-        <Button variant="outline" className="rounded-full">Following</Button>
-        <Button variant="ghost" size="icon"><Music className="h-5 w-5" /></Button>
+        <Button 
+          variant={isFollowing ? "default" : "outline"} 
+          className="rounded-full"
+          onClick={toggleFollow}
+        >
+          <Heart className={`h-4 w-4 mr-2 ${isFollowing ? "fill-current" : ""}`} />
+          {isFollowing ? "Following" : "Follow"}
+        </Button>
+        <AddToArtistCatalogue 
+          artistId={artistId!} 
+          artistName={artist.name} 
+          onSuccess={fetchTracks}
+        />
+        <Button 
+          variant="outline" 
+          onClick={() => navigate(`/niranx/music/artist/${artistId}/studio`)}
+        >
+          <Building2 className="h-4 w-4 mr-2" />
+          Artist Studio
+        </Button>
         <Button 
           variant="outline" 
           onClick={() => navigate(`/niranx/music/artist/${artistId}/edit`)}
