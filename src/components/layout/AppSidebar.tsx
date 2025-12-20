@@ -161,7 +161,9 @@ const xvibeNavigation = [
   { title: "Xvibe Player", url: "/niranx/music", icon: Music },
   { title: "Xvibe Hub", url: "/niranx/music-hub", icon: FileMusic },
   { title: "Xvibe Library", url: "/niranx/music/library", icon: Headphones },
+  { title: "Explore Artists", url: "/niranx/music/artists", icon: Users },
   { title: "Upload Track", url: "/niranx/music/upload", icon: Upload },
+  { title: "Create Artist", url: "/niranx/music/artist/create", icon: UserPlus },
   { title: "Listening Library", url: "/niranx/listening-library", icon: Headphones },
 ];
 
