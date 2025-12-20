@@ -45,6 +45,8 @@ import EditTrack from "./pages/EditTrack";
 import CreateArtist from "./pages/CreateArtist";
 import EditArtist from "./pages/EditArtist";
 import ArtistPage from "./pages/ArtistPage";
+import ExploreArtists from "./pages/ExploreArtists";
+import ArtistStudio from "./pages/ArtistStudio";
 import CreateAlbum from "./pages/CreateAlbum";
 import AlbumDetail from "./pages/AlbumDetail";
 import PlaylistPage from "./pages/PlaylistPage";
@@ -290,8 +292,11 @@ const App = () => (
                           <Route path="/music/upload" element={<UploadTrack />} />
                           <Route path="/music/track/:trackId" element={<TrackDetail />} />
                           <Route path="/music/track/:trackId/edit" element={<EditTrack />} />
+                          <Route path="/music/artists" element={<ExploreArtists />} />
                           <Route path="/music/artist/create" element={<CreateArtist />} />
                           <Route path="/music/artist/:artistId" element={<ArtistPage />} />
+                          <Route path="/music/artist/:artistId/edit" element={<EditArtist />} />
+                          <Route path="/music/artist/:artistId/studio" element={<ArtistStudio />} />
                           <Route path="/music/artist/:artistId/edit" element={<EditArtist />} />
                           <Route path="/music/album/create" element={<CreateAlbum />} />
                           <Route path="/music/album/:albumId" element={<AlbumDetail />} />

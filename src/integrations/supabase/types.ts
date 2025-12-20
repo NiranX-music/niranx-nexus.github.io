@@ -591,6 +591,112 @@ export type Database = {
         }
         Relationships: []
       }
+      artist_catalogue_folders: {
+        Row: {
+          artist_id: string
+          created_at: string | null
+          created_by: string
+          folder_name: string
+          id: string
+          parent_folder_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          artist_id: string
+          created_at?: string | null
+          created_by: string
+          folder_name: string
+          id?: string
+          parent_folder_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          artist_id?: string
+          created_at?: string | null
+          created_by?: string
+          folder_name?: string
+          id?: string
+          parent_folder_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artist_catalogue_folders_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artist_catalogue_folders_parent_folder_id_fkey"
+            columns: ["parent_folder_id"]
+            isOneToOne: false
+            referencedRelation: "artist_catalogue_folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      artist_followers: {
+        Row: {
+          artist_id: string
+          created_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          artist_id: string
+          created_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          artist_id?: string
+          created_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artist_followers_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      artist_sessions: {
+        Row: {
+          artist_id: string
+          created_at: string | null
+          expires_at: string
+          id: string
+          session_token: string
+        }
+        Insert: {
+          artist_id: string
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          session_token: string
+        }
+        Update: {
+          artist_id?: string
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          session_token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artist_sessions_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       artists: {
         Row: {
           avatar_url: string | null
@@ -598,9 +704,14 @@ export type Database = {
           created_at: string | null
           created_by: string | null
           custom_url: string | null
+          email: string | null
+          follower_count: number | null
           id: string
           is_verified: boolean | null
+          monthly_listeners: number | null
           name: string
+          password_hash: string | null
+          studio_enabled: boolean | null
           updated_at: string | null
         }
         Insert: {
@@ -609,9 +720,14 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           custom_url?: string | null
+          email?: string | null
+          follower_count?: number | null
           id?: string
           is_verified?: boolean | null
+          monthly_listeners?: number | null
           name: string
+          password_hash?: string | null
+          studio_enabled?: boolean | null
           updated_at?: string | null
         }
         Update: {
@@ -620,9 +736,14 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           custom_url?: string | null
+          email?: string | null
+          follower_count?: number | null
           id?: string
           is_verified?: boolean | null
+          monthly_listeners?: number | null
           name?: string
+          password_hash?: string | null
+          studio_enabled?: boolean | null
           updated_at?: string | null
         }
         Relationships: []
