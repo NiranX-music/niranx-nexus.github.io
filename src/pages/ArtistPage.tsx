@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Play, User, Music, Edit, Heart, Share, Building2 } from "lucide-react";
+import { Play, User, Music, Edit, Heart, Share, Building2, Upload, Disc, FolderPlus } from "lucide-react";
 import { useMusicPlayer } from "@/contexts/MusicPlayerContext";
 import { toast } from "sonner";
 import { AddToArtistCatalogue } from "@/components/music/AddToArtistCatalogue";
@@ -241,6 +241,20 @@ export default function ArtistPage() {
           artistName={artist.name} 
           onSuccess={fetchTracks}
         />
+        <Button 
+          variant="outline" 
+          onClick={() => navigate(`/niranx/music/upload?artistId=${artistId}&artistName=${encodeURIComponent(artist.name)}`)}
+        >
+          <Upload className="h-4 w-4 mr-2" />
+          Upload Single Track
+        </Button>
+        <Button 
+          variant="outline" 
+          onClick={() => navigate(`/niranx/music/album/create?artistId=${artistId}&artistName=${encodeURIComponent(artist.name)}`)}
+        >
+          <Disc className="h-4 w-4 mr-2" />
+          Upload Album
+        </Button>
         <Button 
           variant="outline" 
           onClick={() => navigate(`/niranx/music/artist/${artistId}/studio`)}
