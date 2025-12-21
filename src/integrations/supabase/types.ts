@@ -8221,56 +8221,149 @@ export type Database = {
           },
         ]
       }
+      xvibe_admin_actions: {
+        Row: {
+          action_type: string
+          admin_id: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          target_id: string
+          target_type: string
+        }
+        Insert: {
+          action_type: string
+          admin_id: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          target_id: string
+          target_type: string
+        }
+        Update: {
+          action_type?: string
+          admin_id?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          target_id?: string
+          target_type?: string
+        }
+        Relationships: []
+      }
+      xvibe_ai_profiles: {
+        Row: {
+          created_at: string | null
+          discovery_score: number | null
+          energy_level_avg: number | null
+          id: string
+          last_analyzed_at: string | null
+          listening_patterns: Json | null
+          preferred_genres: string[] | null
+          preferred_moods: string[] | null
+          skip_patterns: Json | null
+          time_of_day_preferences: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          discovery_score?: number | null
+          energy_level_avg?: number | null
+          id?: string
+          last_analyzed_at?: string | null
+          listening_patterns?: Json | null
+          preferred_genres?: string[] | null
+          preferred_moods?: string[] | null
+          skip_patterns?: Json | null
+          time_of_day_preferences?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          discovery_score?: number | null
+          energy_level_avg?: number | null
+          id?: string
+          last_analyzed_at?: string | null
+          listening_patterns?: Json | null
+          preferred_genres?: string[] | null
+          preferred_moods?: string[] | null
+          skip_patterns?: Json | null
+          time_of_day_preferences?: Json | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       xvibe_albums: {
         Row: {
           album_type: string | null
           artist_id: string | null
+          copyright_composition: string | null
+          copyright_recording: string | null
           cover_url: string | null
           created_at: string | null
           description: string | null
           genre: string | null
           id: string
+          is_explicit: boolean | null
+          language: string | null
           play_count: number | null
+          record_label: string | null
           rejection_reason: string | null
           release_date: string | null
           status: string | null
           title: string
           total_duration: number | null
           total_tracks: number | null
+          upc_code: string | null
           updated_at: string | null
         }
         Insert: {
           album_type?: string | null
           artist_id?: string | null
+          copyright_composition?: string | null
+          copyright_recording?: string | null
           cover_url?: string | null
           created_at?: string | null
           description?: string | null
           genre?: string | null
           id?: string
+          is_explicit?: boolean | null
+          language?: string | null
           play_count?: number | null
+          record_label?: string | null
           rejection_reason?: string | null
           release_date?: string | null
           status?: string | null
           title: string
           total_duration?: number | null
           total_tracks?: number | null
+          upc_code?: string | null
           updated_at?: string | null
         }
         Update: {
           album_type?: string | null
           artist_id?: string | null
+          copyright_composition?: string | null
+          copyright_recording?: string | null
           cover_url?: string | null
           created_at?: string | null
           description?: string | null
           genre?: string | null
           id?: string
+          is_explicit?: boolean | null
+          language?: string | null
           play_count?: number | null
+          record_label?: string | null
           rejection_reason?: string | null
           release_date?: string | null
           status?: string | null
           title?: string
           total_duration?: number | null
           total_tracks?: number | null
+          upc_code?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -8314,52 +8407,246 @@ export type Database = {
       }
       xvibe_artists: {
         Row: {
+          apple_music_url: string | null
           avatar_url: string | null
           banner_url: string | null
           bio: string | null
+          city: string | null
+          country: string | null
           created_at: string | null
           follower_count: number | null
           genres: string[] | null
           id: string
+          instagram_url: string | null
           is_verified: boolean | null
           monthly_listeners: number | null
           name: string
           social_links: Json | null
+          spotify_url: string | null
           status: string | null
+          total_streams: number | null
+          twitter_url: string | null
           updated_at: string | null
           user_id: string | null
+          website_url: string | null
+          youtube_url: string | null
         }
         Insert: {
+          apple_music_url?: string | null
           avatar_url?: string | null
           banner_url?: string | null
           bio?: string | null
+          city?: string | null
+          country?: string | null
           created_at?: string | null
           follower_count?: number | null
           genres?: string[] | null
           id?: string
+          instagram_url?: string | null
           is_verified?: boolean | null
           monthly_listeners?: number | null
           name: string
           social_links?: Json | null
+          spotify_url?: string | null
           status?: string | null
+          total_streams?: number | null
+          twitter_url?: string | null
           updated_at?: string | null
           user_id?: string | null
+          website_url?: string | null
+          youtube_url?: string | null
         }
         Update: {
+          apple_music_url?: string | null
           avatar_url?: string | null
           banner_url?: string | null
           bio?: string | null
+          city?: string | null
+          country?: string | null
           created_at?: string | null
           follower_count?: number | null
           genres?: string[] | null
           id?: string
+          instagram_url?: string | null
           is_verified?: boolean | null
           monthly_listeners?: number | null
           name?: string
           social_links?: Json | null
+          spotify_url?: string | null
           status?: string | null
+          total_streams?: number | null
+          twitter_url?: string | null
           updated_at?: string | null
           user_id?: string | null
+          website_url?: string | null
+          youtube_url?: string | null
+        }
+        Relationships: []
+      }
+      xvibe_artwork_validations: {
+        Row: {
+          file_size_kb: number | null
+          format: string | null
+          height: number | null
+          id: string
+          image_url: string
+          is_valid: boolean | null
+          release_id: string | null
+          track_id: string | null
+          validated_at: string | null
+          validation_errors: Json | null
+          width: number | null
+        }
+        Insert: {
+          file_size_kb?: number | null
+          format?: string | null
+          height?: number | null
+          id?: string
+          image_url: string
+          is_valid?: boolean | null
+          release_id?: string | null
+          track_id?: string | null
+          validated_at?: string | null
+          validation_errors?: Json | null
+          width?: number | null
+        }
+        Update: {
+          file_size_kb?: number | null
+          format?: string | null
+          height?: number | null
+          id?: string
+          image_url?: string
+          is_valid?: boolean | null
+          release_id?: string | null
+          track_id?: string | null
+          validated_at?: string | null
+          validation_errors?: Json | null
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xvibe_artwork_validations_release_id_fkey"
+            columns: ["release_id"]
+            isOneToOne: false
+            referencedRelation: "xvibe_releases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xvibe_artwork_validations_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "xvibe_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xvibe_copyright_checks: {
+        Row: {
+          audio_fingerprint: string | null
+          checked_at: string | null
+          id: string
+          match_confidence: number | null
+          match_found: boolean | null
+          matched_track_info: Json | null
+          track_id: string
+        }
+        Insert: {
+          audio_fingerprint?: string | null
+          checked_at?: string | null
+          id?: string
+          match_confidence?: number | null
+          match_found?: boolean | null
+          matched_track_info?: Json | null
+          track_id: string
+        }
+        Update: {
+          audio_fingerprint?: string | null
+          checked_at?: string | null
+          id?: string
+          match_confidence?: number | null
+          match_found?: boolean | null
+          matched_track_info?: Json | null
+          track_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xvibe_copyright_checks_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "xvibe_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xvibe_dj_scripts: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          mood_tags: string[] | null
+          script_template: string
+          script_type: string
+          variables: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          mood_tags?: string[] | null
+          script_template: string
+          script_type: string
+          variables?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          mood_tags?: string[] | null
+          script_template?: string
+          script_type?: string
+          variables?: Json | null
+        }
+        Relationships: []
+      }
+      xvibe_dj_sessions: {
+        Row: {
+          energy_curve: number[] | null
+          id: string
+          likes: number | null
+          mood_progression: string[] | null
+          session_ended_at: string | null
+          session_started_at: string | null
+          skips: number | null
+          speaking_frequency: string | null
+          tracks_played: string[] | null
+          user_id: string
+          voice_enabled: boolean | null
+        }
+        Insert: {
+          energy_curve?: number[] | null
+          id?: string
+          likes?: number | null
+          mood_progression?: string[] | null
+          session_ended_at?: string | null
+          session_started_at?: string | null
+          skips?: number | null
+          speaking_frequency?: string | null
+          tracks_played?: string[] | null
+          user_id: string
+          voice_enabled?: boolean | null
+        }
+        Update: {
+          energy_curve?: number[] | null
+          id?: string
+          likes?: number | null
+          mood_progression?: string[] | null
+          session_ended_at?: string | null
+          session_started_at?: string | null
+          skips?: number | null
+          speaking_frequency?: string | null
+          tracks_played?: string[] | null
+          user_id?: string
+          voice_enabled?: boolean | null
         }
         Relationships: []
       }
@@ -8388,6 +8675,62 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "xvibe_downloads_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "xvibe_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xvibe_drm_licenses: {
+        Row: {
+          created_at: string | null
+          device_fingerprint: string
+          device_id: string
+          download_count: number | null
+          encryption_key: string
+          expires_at: string
+          id: string
+          is_revoked: boolean | null
+          max_downloads: number | null
+          revoke_reason: string | null
+          revoked_at: string | null
+          track_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          device_fingerprint: string
+          device_id: string
+          download_count?: number | null
+          encryption_key: string
+          expires_at: string
+          id?: string
+          is_revoked?: boolean | null
+          max_downloads?: number | null
+          revoke_reason?: string | null
+          revoked_at?: string | null
+          track_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          device_fingerprint?: string
+          device_id?: string
+          download_count?: number | null
+          encryption_key?: string
+          expires_at?: string
+          id?: string
+          is_revoked?: boolean | null
+          max_downloads?: number | null
+          revoke_reason?: string | null
+          revoked_at?: string | null
+          track_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xvibe_drm_licenses_track_id_fkey"
             columns: ["track_id"]
             isOneToOne: false
             referencedRelation: "xvibe_tracks"
@@ -8489,6 +8832,92 @@ export type Database = {
         }
         Relationships: []
       }
+      xvibe_moderation_queue: {
+        Row: {
+          assigned_to: string | null
+          auto_checks: Json | null
+          changes_requested: string | null
+          content_id: string
+          content_type: string
+          created_at: string | null
+          id: string
+          manual_notes: string | null
+          priority: number | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          status: string | null
+          submitted_at: string | null
+          submitted_by: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          auto_checks?: Json | null
+          changes_requested?: string | null
+          content_id: string
+          content_type: string
+          created_at?: string | null
+          id?: string
+          manual_notes?: string | null
+          priority?: number | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          status?: string | null
+          submitted_at?: string | null
+          submitted_by: string
+        }
+        Update: {
+          assigned_to?: string | null
+          auto_checks?: Json | null
+          changes_requested?: string | null
+          content_id?: string
+          content_type?: string
+          created_at?: string | null
+          id?: string
+          manual_notes?: string | null
+          priority?: number | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          status?: string | null
+          submitted_at?: string | null
+          submitted_by?: string
+        }
+        Relationships: []
+      }
+      xvibe_offline_downloads: {
+        Row: {
+          checksum: string
+          chunk_index: number
+          created_at: string | null
+          encrypted_data_url: string
+          id: string
+          license_id: string
+        }
+        Insert: {
+          checksum: string
+          chunk_index: number
+          created_at?: string | null
+          encrypted_data_url: string
+          id?: string
+          license_id: string
+        }
+        Update: {
+          checksum?: string
+          chunk_index?: number
+          created_at?: string | null
+          encrypted_data_url?: string
+          id?: string
+          license_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xvibe_offline_downloads_license_id_fkey"
+            columns: ["license_id"]
+            isOneToOne: false
+            referencedRelation: "xvibe_drm_licenses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       xvibe_playlist_tracks: {
         Row: {
           added_at: string | null
@@ -8573,6 +9002,181 @@ export type Database = {
         }
         Relationships: []
       }
+      xvibe_release_tracks: {
+        Row: {
+          created_at: string | null
+          id: string
+          isrc_code: string | null
+          preview_start_seconds: number | null
+          release_id: string
+          track_id: string
+          track_number: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          isrc_code?: string | null
+          preview_start_seconds?: number | null
+          release_id: string
+          track_id: string
+          track_number: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          isrc_code?: string | null
+          preview_start_seconds?: number | null
+          release_id?: string
+          track_id?: string
+          track_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xvibe_release_tracks_release_id_fkey"
+            columns: ["release_id"]
+            isOneToOne: false
+            referencedRelation: "xvibe_releases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xvibe_release_tracks_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "xvibe_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xvibe_release_writers: {
+        Row: {
+          created_at: string | null
+          first_name: string
+          id: string
+          last_name: string
+          release_id: string
+          role: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          first_name: string
+          id?: string
+          last_name: string
+          release_id: string
+          role?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string
+          release_id?: string
+          role?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xvibe_release_writers_release_id_fkey"
+            columns: ["release_id"]
+            isOneToOne: false
+            referencedRelation: "xvibe_releases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xvibe_releases: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          artist_id: string
+          copyright_composition: string | null
+          copyright_recording: string | null
+          cover_url: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_compilation: boolean | null
+          is_cover_version: boolean | null
+          is_explicit: boolean | null
+          language: string | null
+          original_release_date: string | null
+          preorder_date: string | null
+          primary_genre: string | null
+          record_label: string | null
+          rejection_reason: string | null
+          release_type: string
+          sales_start_date: string | null
+          secondary_genre: string | null
+          status: string | null
+          submitted_at: string | null
+          title: string
+          upc_code: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          artist_id: string
+          copyright_composition?: string | null
+          copyright_recording?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_compilation?: boolean | null
+          is_cover_version?: boolean | null
+          is_explicit?: boolean | null
+          language?: string | null
+          original_release_date?: string | null
+          preorder_date?: string | null
+          primary_genre?: string | null
+          record_label?: string | null
+          rejection_reason?: string | null
+          release_type?: string
+          sales_start_date?: string | null
+          secondary_genre?: string | null
+          status?: string | null
+          submitted_at?: string | null
+          title: string
+          upc_code?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          artist_id?: string
+          copyright_composition?: string | null
+          copyright_recording?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_compilation?: boolean | null
+          is_cover_version?: boolean | null
+          is_explicit?: boolean | null
+          language?: string | null
+          original_release_date?: string | null
+          preorder_date?: string | null
+          primary_genre?: string | null
+          record_label?: string | null
+          rejection_reason?: string | null
+          release_type?: string
+          sales_start_date?: string | null
+          secondary_genre?: string | null
+          status?: string | null
+          submitted_at?: string | null
+          title?: string
+          upc_code?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xvibe_releases_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "xvibe_artists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       xvibe_reports: {
         Row: {
           content_id: string
@@ -8635,24 +9239,73 @@ export type Database = {
           },
         ]
       }
+      xvibe_streams: {
+        Row: {
+          completed: boolean | null
+          country_code: string | null
+          device_type: string | null
+          duration_played: number
+          id: string
+          session_id: string | null
+          streamed_at: string | null
+          track_id: string
+          user_id: string | null
+        }
+        Insert: {
+          completed?: boolean | null
+          country_code?: string | null
+          device_type?: string | null
+          duration_played?: number
+          id?: string
+          session_id?: string | null
+          streamed_at?: string | null
+          track_id: string
+          user_id?: string | null
+        }
+        Update: {
+          completed?: boolean | null
+          country_code?: string | null
+          device_type?: string | null
+          duration_played?: number
+          id?: string
+          session_id?: string | null
+          streamed_at?: string | null
+          track_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xvibe_streams_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "xvibe_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       xvibe_tracks: {
         Row: {
           album_id: string | null
           artist_id: string | null
           audio_url: string
+          avg_completion_rate: number | null
           cover_url: string | null
           created_at: string | null
           description: string | null
           duration: number | null
           featured_artists: string[] | null
+          full_play_count: number | null
           genre: string | null
           id: string
           is_explicit: boolean | null
+          isrc_code: string | null
           language: string | null
           lyrics: string | null
           mood_tags: string[] | null
           play_count: number | null
+          preview_start_seconds: number | null
           rejection_reason: string | null
+          skip_count: number | null
           status: string | null
           title: string
           track_number: number | null
@@ -8662,19 +9315,24 @@ export type Database = {
           album_id?: string | null
           artist_id?: string | null
           audio_url: string
+          avg_completion_rate?: number | null
           cover_url?: string | null
           created_at?: string | null
           description?: string | null
           duration?: number | null
           featured_artists?: string[] | null
+          full_play_count?: number | null
           genre?: string | null
           id?: string
           is_explicit?: boolean | null
+          isrc_code?: string | null
           language?: string | null
           lyrics?: string | null
           mood_tags?: string[] | null
           play_count?: number | null
+          preview_start_seconds?: number | null
           rejection_reason?: string | null
+          skip_count?: number | null
           status?: string | null
           title: string
           track_number?: number | null
@@ -8684,19 +9342,24 @@ export type Database = {
           album_id?: string | null
           artist_id?: string | null
           audio_url?: string
+          avg_completion_rate?: number | null
           cover_url?: string | null
           created_at?: string | null
           description?: string | null
           duration?: number | null
           featured_artists?: string[] | null
+          full_play_count?: number | null
           genre?: string | null
           id?: string
           is_explicit?: boolean | null
+          isrc_code?: string | null
           language?: string | null
           lyrics?: string | null
           mood_tags?: string[] | null
           play_count?: number | null
+          preview_start_seconds?: number | null
           rejection_reason?: string | null
+          skip_count?: number | null
           status?: string | null
           title?: string
           track_number?: number | null
