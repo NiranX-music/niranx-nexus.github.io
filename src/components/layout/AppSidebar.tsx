@@ -155,16 +155,15 @@ const progressNavigation = [
   { title: "Games", url: "/niranx/games", icon: Gamepad2 },
 ];
 
-// Xvibe - Music & Audio
+// XVibe - Music Platform (New)
 const xvibeNavigation = [
-  { title: "Listed Songs", url: "/niranx/music/listed-songs", icon: FileMusic },
-  { title: "Xvibe Player", url: "/niranx/music", icon: Music },
-  { title: "Xvibe Hub", url: "/niranx/music-hub", icon: FileMusic },
-  { title: "Xvibe Library", url: "/niranx/music/library", icon: Headphones },
-  { title: "Explore Artists", url: "/niranx/music/artists", icon: Users },
-  { title: "Upload Track", url: "/niranx/music/upload", icon: Upload },
-  { title: "Create Artist", url: "/niranx/music/artist/create", icon: UserPlus },
-  { title: "Listening Library", url: "/niranx/listening-library", icon: Headphones },
+  { title: "XVibe Home", url: "/xvibe", icon: Music },
+  { title: "Browse Music", url: "/xvibe/home", icon: Headphones },
+  { title: "Search", url: "/xvibe/search", icon: Search },
+  { title: "My Library", url: "/xvibe/library", icon: BookOpen },
+  { title: "Artist Dashboard", url: "/xvibe/artist-dashboard", icon: Users },
+  { title: "Upload Track", url: "/xvibe/upload", icon: Upload },
+  { title: "Become Artist", url: "/xvibe/artist-register", icon: UserPlus },
 ];
 
 // Media & Entertainment
@@ -281,12 +280,17 @@ const systemNavigation = [
   { title: "Become an Admin", url: "/niranx/become-admin", icon: UserPlus },
 ];
 
-// Archive - Old Pages
+// Archive - Old Pages (includes old music)
 const archiveNavigation = [
   { title: "Global Search", url: "/niranx/search", icon: Search },
   { title: "Pomodoro", url: "/niranx/pomodoro", icon: Timer },
   { title: "Smart Timetable", url: "/niranx/smart-timetable", icon: Calendar },
   { title: "Library", url: "/niranx/library", icon: BookOpen },
+  // Old music pages
+  { title: "Listed Songs", url: "/niranx/music/listed-songs", icon: FileMusic },
+  { title: "Old Music Hub", url: "/niranx/music-hub", icon: FileMusic },
+  { title: "Old Music Library", url: "/niranx/music/library", icon: Headphones },
+  { title: "Listening Library", url: "/niranx/listening-library", icon: Headphones },
 ];
 
 // More Pages
@@ -355,6 +359,7 @@ export function AppSidebar() {
     ...(isTeacher || isAdmin ? teacherNavigation : []),
     ...liveClassroomNavigation,
     ...systemNavigation,
+    ...archiveNavigation,
     ...morePages,
   ], [isAdmin, isTeacher]);
 
