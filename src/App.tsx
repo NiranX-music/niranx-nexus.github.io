@@ -517,6 +517,22 @@ const App = () => (
                           <VoiceCommand />
                         </AppLayout>
                       } />
+                    
+                    {/* XVibe Music Platform Routes */}
+                    <Route path="/xvibe" element={<XVibePlayerProvider><XVibeLanding /></XVibePlayerProvider>} />
+                    <Route path="/xvibe/auth" element={<XVibePlayerProvider><XVibeAuth /></XVibePlayerProvider>} />
+                    <Route path="/xvibe/onboarding" element={<XVibePlayerProvider><XVibeOnboarding /></XVibePlayerProvider>} />
+                    <Route path="/xvibe/home" element={<XVibePlayerProvider><XVibeHome /></XVibePlayerProvider>} />
+                    <Route path="/xvibe/search" element={<XVibePlayerProvider><XVibeSearch /></XVibePlayerProvider>} />
+                    <Route path="/xvibe/library" element={<XVibePlayerProvider><XVibeLibrary /></XVibePlayerProvider>} />
+                    <Route path="/xvibe/artist/:artistId" element={<XVibePlayerProvider><XVibeArtistPage /></XVibePlayerProvider>} />
+                    <Route path="/xvibe/album/:albumId" element={<XVibePlayerProvider><XVibeAlbumPage /></XVibePlayerProvider>} />
+                    <Route path="/xvibe/playlist/:playlistId" element={<XVibePlayerProvider><XVibePlaylistPage /></XVibePlayerProvider>} />
+                    <Route path="/xvibe/artist-dashboard" element={<XVibePlayerProvider><XVibeArtistDashboard /></XVibePlayerProvider>} />
+                    <Route path="/xvibe/upload" element={<XVibePlayerProvider><XVibeUpload /></XVibePlayerProvider>} />
+                    <Route path="/xvibe/artist-register" element={<XVibePlayerProvider><XVibeArtistRegister /></XVibePlayerProvider>} />
+                    <Route path="/xvibe/moderation" element={<XVibePlayerProvider><XVibeModeration /></XVibePlayerProvider>} />
+                    
                     <Route path="/shared/resource/:token" element={<SharedResource />} />
                     <Route path="/w/:slug" element={<PublishedWebsite />} />
                     <Route path="/published/:slug" element={<PublishedContent />} />
