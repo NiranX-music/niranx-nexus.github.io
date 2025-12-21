@@ -55,7 +55,6 @@ import MusicModeration from "./pages/admin/MusicModeration";
 import { MusicPlayerProvider } from "./contexts/MusicPlayerContext";
 import UniversalMusicPlayer from "./components/music/UniversalMusicPlayer";
 import Upload from "./pages/Upload";
-import PDFViewer from "./pages/PDFViewer";
 import VideoPlayer from "./pages/VideoPlayer";
 import StudyPlatforms from "./pages/StudyPlatforms";
 import WebsiteManager from "./pages/WebsiteManager";
@@ -191,6 +190,23 @@ import XFlowProfile from "./pages/xflow/XFlowProfile";
 import XFlowMessages from "./pages/xflow/XFlowMessages";
 import XFlowPostView from "./pages/xflow/XFlowPostView";
 import XFlowModeration from "./pages/admin/XFlowModeration";
+
+// XVibe Music Platform
+import { XVibePlayerProvider } from "./xvibe/contexts/XVibePlayerContext";
+import XVibeLanding from "./xvibe/pages/XVibeLanding";
+import XVibeAuth from "./xvibe/pages/XVibeAuth";
+import XVibeOnboarding from "./xvibe/pages/XVibeOnboarding";
+import XVibeHome from "./xvibe/pages/XVibeHome";
+import XVibeSearch from "./xvibe/pages/XVibeSearch";
+import XVibeLibrary from "./xvibe/pages/XVibeLibrary";
+import XVibeArtistPage from "./xvibe/pages/XVibeArtistPage";
+import XVibeAlbumPage from "./xvibe/pages/XVibeAlbumPage";
+import XVibePlaylistPage from "./xvibe/pages/XVibePlaylistPage";
+import XVibeArtistDashboard from "./xvibe/pages/XVibeArtistDashboard";
+import XVibeUpload from "./xvibe/pages/XVibeUpload";
+import XVibeArtistRegister from "./xvibe/pages/XVibeArtistRegister";
+import XVibeModeration from "./xvibe/pages/XVibeModeration";
+
 const queryClient = new QueryClient();
 
 const App = () => (
