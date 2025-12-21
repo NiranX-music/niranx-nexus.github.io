@@ -166,6 +166,7 @@ import AILibrary from "./pages/AILibrary";
 import OpenRouterChat from "./pages/OpenRouterChat";
 import Weather from "./pages/Weather";
 import PDFSummarizer from "./pages/PDFSummarizer";
+import PDFViewer from "./pages/PDFViewer";
 import AITopicMapGenerator from "./pages/AITopicMapGenerator";
 import AISolver from "./pages/AISolver";
 import GroqChat from "./pages/GroqChat";
