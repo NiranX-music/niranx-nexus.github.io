@@ -1,3 +1,5 @@
+import { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -8,144 +10,265 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-
-interface PageInfo {
-  name: string;
-  route: string;
-  description: string;
-  accessLevel: "Public" | "Authenticated" | "Admin" | "Guardian" | "Guest Allowed";
-}
-
-const pages: PageInfo[] = [
-  { name: "Landing", route: "/", description: "Welcome page with app overview", accessLevel: "Public" },
-  { name: "Dashboard", route: "/niranx/dashboard", description: "Main user dashboard with widgets", accessLevel: "Authenticated" },
-  { name: "Advanced Dashboard", route: "/niranx/advanced-dashboard", description: "Enhanced analytics and progress tracking", accessLevel: "Authenticated" },
-  { name: "Focus Engine", route: "/niranx/focus", description: "Focus modes including Pomodoro and Havoc mode", accessLevel: "Guest Allowed" },
-  { name: "AI Chat", route: "/niranx/ai-chat", description: "AI-powered study assistant", accessLevel: "Authenticated" },
-  { name: "AI Chat History", route: "/niranx/ai-chat-history", description: "View past AI conversations", accessLevel: "Authenticated" },
-  { name: "AI Scheduler", route: "/niranx/ai-scheduler", description: "AI-powered timetable generation", accessLevel: "Authenticated" },
-  { name: "Class Scheduler", route: "/niranx/class-scheduler", description: "Manage live classes, homework, and exams", accessLevel: "Authenticated" },
-  { name: "Tasks", route: "/niranx/tasks", description: "Task management system", accessLevel: "Authenticated" },
-  { name: "Goals", route: "/niranx/goals", description: "Set and track study goals", accessLevel: "Authenticated" },
-  { name: "Analytics", route: "/niranx/analytics", description: "Study analytics and statistics", accessLevel: "Authenticated" },
-  { name: "Exam Hub", route: "/niranx/exams", description: "Exam management and resources", accessLevel: "Authenticated" },
-  { name: "File Hub", route: "/niranx/file-hub", description: "File storage and organization", accessLevel: "Authenticated" },
-  { name: "Labs - Chemistry", route: "/niranx/labs/chemistry", description: "Virtual chemistry lab with periodic table", accessLevel: "Authenticated" },
-  { name: "Labs - Physics", route: "/niranx/labs/physics", description: "Physics simulations and experiments", accessLevel: "Authenticated" },
-  { name: "Labs - Biology", route: "/niranx/labs/biology", description: "Biology virtual lab", accessLevel: "Authenticated" },
-  { name: "Labs - Math", route: "/niranx/labs/math", description: "Calculator and trigonometry tools", accessLevel: "Authenticated" },
-  { name: "Community", route: "/niranx/community", description: "Chat rooms and social features", accessLevel: "Authenticated" },
-  { name: "Study Groups", route: "/niranx/study-groups", description: "Collaborative study groups", accessLevel: "Authenticated" },
-  { name: "Study Guilds", route: "/niranx/guilds", description: "Create or join study guilds with team challenges", accessLevel: "Authenticated" },
-  { name: "Messages", route: "/niranx/messages", description: "Direct messaging system", accessLevel: "Authenticated" },
-  { name: "Leaderboard", route: "/niranx/leaderboard", description: "Global rankings and competitions", accessLevel: "Authenticated" },
-  { name: "Daily Challenges", route: "/niranx/daily-challenges", description: "Daily study challenges", accessLevel: "Authenticated" },
-  { name: "Daily Rewards", route: "/niranx/daily-rewards", description: "Login rewards and streak system", accessLevel: "Authenticated" },
-  { name: "Study Streak Challenges", route: "/niranx/study-streak-challenges", description: "Streak-based challenges", accessLevel: "Authenticated" },
-  { name: "Reward Store", route: "/niranx/reward-store", description: "Redeem XP for rewards", accessLevel: "Authenticated" },
-  { name: "Music Hub", route: "/niranx/music-hub", description: "Study music player", accessLevel: "Authenticated" },
-  { name: "Listening Library", route: "/niranx/listening-library", description: "Your music listening history", accessLevel: "Authenticated" },
-  { name: "Video Library", route: "/niranx/video-library", description: "Saved video resources", accessLevel: "Authenticated" },
-  { name: "StreamSphere", route: "/niranx/streamsphere", description: "YouTube video player", accessLevel: "Authenticated" },
-  { name: "Blogs", route: "/niranx/blogs", description: "Community blogs and articles", accessLevel: "Authenticated" },
-  { name: "Library", route: "/niranx/library", description: "Study resources library", accessLevel: "Authenticated" },
-  { name: "Web Search", route: "/niranx/web-search", description: "Global search with Google integration", accessLevel: "Authenticated" },
-  { name: "Whiteboard", route: "/niranx/whiteboard", description: "Collaborative whiteboard", accessLevel: "Authenticated" },
-  { name: "Picture Share", route: "/niranx/picture-share", description: "Share images with community", accessLevel: "Authenticated" },
-  { name: "Distraction Blocker", route: "/niranx/distraction-blocker", description: "Block distracting websites", accessLevel: "Authenticated" },
-  { name: "Kiosk Mode", route: "/niranx/kiosk-mode", description: "Locked focus mode", accessLevel: "Authenticated" },
-  { name: "Guardian Dashboard", route: "/guardian-dashboard", description: "Parent/teacher monitoring dashboard", accessLevel: "Guardian" },
-  { name: "Guardian Settings", route: "/guardian-settings", description: "Manage guardian access requests", accessLevel: "Authenticated" },
-  { name: "Admin Dashboard", route: "/admin", description: "Platform administration", accessLevel: "Admin" },
-  { name: "Admin - Message Reports", route: "/admin/message-reports", description: "Review reported messages", accessLevel: "Admin" },
-  { name: "Admin - Request Analytics", route: "/admin/request-analytics", description: "Admin request statistics", accessLevel: "Admin" },
-  { name: "Profile", route: "/niranx/profile", description: "User profile management", accessLevel: "Authenticated" },
-  { name: "Settings", route: "/niranx/settings", description: "App settings and preferences", accessLevel: "Authenticated" },
-  { name: "Accessibility Settings", route: "/accessibility-settings", description: "Accessibility preferences", accessLevel: "Authenticated" },
-  { name: "Notification Settings", route: "/notification-settings", description: "Notification preferences", accessLevel: "Authenticated" },
-  { name: "Smart Notifications", route: "/niranx/smart-notifications", description: "AI-powered notification timing", accessLevel: "Authenticated" },
-  { name: "Theme Customization", route: "/niranx/theme-customization", description: "Create and customize color themes", accessLevel: "Authenticated" },
-  { name: "OAuth Settings", route: "/oauth-settings", description: "Manage linked accounts", accessLevel: "Authenticated" },
-  { name: "Privacy Settings", route: "/privacy-settings", description: "Privacy and security settings", accessLevel: "Authenticated" },
-  { name: "Blog Settings", route: "/blog-settings", description: "Blog publishing preferences", accessLevel: "Authenticated" },
-  { name: "Feedback & Suggestions", route: "/feedback-suggestions", description: "Submit feedback to admins", accessLevel: "Authenticated" },
-  { name: "Become Admin", route: "/become-admin", description: "Request admin access", accessLevel: "Authenticated" },
-  { name: "Old Page Archive", route: "/old-page-archive", description: "Legacy pages archive", accessLevel: "Authenticated" },
-];
-
-const accessLevelColors: Record<PageInfo["accessLevel"], string> = {
-  Public: "bg-green-500/20 text-green-700 dark:text-green-300",
-  Authenticated: "bg-blue-500/20 text-blue-700 dark:text-blue-300",
-  Admin: "bg-red-500/20 text-red-700 dark:text-red-300",
-  Guardian: "bg-purple-500/20 text-purple-700 dark:text-purple-300",
-  "Guest Allowed": "bg-yellow-500/20 text-yellow-700 dark:text-yellow-300",
-};
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { allPages, pageCategories, accessLevelColors, PageInfo } from "@/data/allPages";
+import { useAdminCheck } from "@/hooks/useAdminCheck";
+import { 
+  Search, 
+  ExternalLink, 
+  Lock, 
+  Filter,
+  LayoutGrid,
+  List,
+  Shield
+} from "lucide-react";
+import * as LucideIcons from "lucide-react";
 
 export default function Guide() {
+  const { isAdmin, isModerator, isLoading } = useAdminCheck();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
+
+  // Filter pages based on search and category
+  const filteredPages = useMemo(() => {
+    return allPages.filter(page => {
+      const matchesSearch = 
+        page.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        page.route.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        page.description.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesCategory = selectedCategory === "all" || page.category === selectedCategory;
+      
+      return matchesSearch && matchesCategory;
+    });
+  }, [searchQuery, selectedCategory]);
+
+  // Group pages by category
+  const pagesByCategory = useMemo(() => {
+    const grouped: Record<string, PageInfo[]> = {};
+    filteredPages.forEach(page => {
+      if (!grouped[page.category]) {
+        grouped[page.category] = [];
+      }
+      grouped[page.category].push(page);
+    });
+    return grouped;
+  }, [filteredPages]);
+
+  const getIcon = (iconName: string) => {
+    const IconComponent = (LucideIcons as any)[iconName];
+    return IconComponent ? <IconComponent className="h-4 w-4" /> : <LucideIcons.FileText className="h-4 w-4" />;
+  };
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-6 flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // Access check - only admins and moderators can view
+  if (!isAdmin && !isModerator) {
+    return (
+      <div className="container mx-auto p-6">
+        <Card className="border-destructive/50 bg-destructive/5">
+          <CardContent className="p-8 text-center">
+            <Shield className="h-12 w-12 mx-auto mb-4 text-destructive" />
+            <h2 className="text-xl font-semibold mb-2">Access Restricted</h2>
+            <p className="text-muted-foreground">
+              This page is only accessible to administrators and moderators.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <div className="container mx-auto p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold gradient-text mb-2">Website Guide</h1>
-        <p className="text-muted-foreground">
-          Complete overview of all pages and their access restrictions
-        </p>
-      </div>
-
-      <div className="rounded-lg border bg-card">
-        <Table>
-          <TableCaption>A comprehensive list of all pages in the application</TableCaption>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[200px]">Page Name</TableHead>
-              <TableHead className="w-[250px]">Route</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead className="w-[150px]">Access Level</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {pages.map((page) => (
-              <TableRow key={page.route}>
-                <TableCell className="font-medium">{page.name}</TableCell>
-                <TableCell className="font-mono text-sm text-muted-foreground">
-                  {page.route}
-                </TableCell>
-                <TableCell>{page.description}</TableCell>
-                <TableCell>
-                  <Badge className={accessLevelColors[page.accessLevel]}>
-                    {page.accessLevel}
-                  </Badge>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-
-      <div className="mt-6 p-4 rounded-lg bg-muted/50">
-        <h2 className="text-lg font-semibold mb-3">Access Level Legend</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
-          <div className="flex items-center gap-2">
-            <Badge className={accessLevelColors.Public}>Public</Badge>
-            <span className="text-sm text-muted-foreground">Anyone can access</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge className={accessLevelColors["Guest Allowed"]}>Guest Allowed</Badge>
-            <span className="text-sm text-muted-foreground">Guests can use</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge className={accessLevelColors.Authenticated}>Authenticated</Badge>
-            <span className="text-sm text-muted-foreground">Login required</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge className={accessLevelColors.Guardian}>Guardian</Badge>
-            <span className="text-sm text-muted-foreground">Parent/teacher only</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge className={accessLevelColors.Admin}>Admin</Badge>
-            <span className="text-sm text-muted-foreground">Admin only</span>
-          </div>
+    <div className="container mx-auto p-6 space-y-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold gradient-text mb-2">Website Guide</h1>
+          <p className="text-muted-foreground">
+            Complete directory of all {allPages.length} pages • Admin/Moderator Access Only
+          </p>
         </div>
+        <Badge variant="secondary" className="w-fit">
+          <Lock className="h-3 w-3 mr-1" />
+          Restricted Access
+        </Badge>
       </div>
+
+      {/* Search and Filters */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search pages by name, route, or description..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <div className="flex gap-2">
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="px-3 py-2 border rounded-md bg-background min-w-[150px]"
+              >
+                <option value="all">All Categories</option>
+                {pageCategories.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+              <Button
+                variant={viewMode === "table" ? "default" : "outline"}
+                size="icon"
+                onClick={() => setViewMode("table")}
+              >
+                <List className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewMode === "grid" ? "default" : "outline"}
+                size="icon"
+                onClick={() => setViewMode("grid")}
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Results Count */}
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Filter className="h-4 w-4" />
+        Showing {filteredPages.length} of {allPages.length} pages
+      </div>
+
+      {/* Content */}
+      {viewMode === "table" ? (
+        <Card>
+          <Table>
+            <TableCaption>Complete directory of all pages in the application</TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[50px]">Icon</TableHead>
+                <TableHead className="w-[200px]">Page Name</TableHead>
+                <TableHead className="w-[250px]">Route</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead className="w-[120px]">Category</TableHead>
+                <TableHead className="w-[130px]">Access</TableHead>
+                <TableHead className="w-[80px]">Go</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredPages.map((page) => (
+                <TableRow key={page.route}>
+                  <TableCell>
+                    <div className="p-2 rounded-md bg-primary/10">
+                      {getIcon(page.icon)}
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-medium">{page.name}</TableCell>
+                  <TableCell className="font-mono text-sm text-muted-foreground">
+                    {page.route}
+                  </TableCell>
+                  <TableCell className="text-sm">{page.description}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline">{page.category}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={accessLevelColors[page.accessLevel]}>
+                      {page.accessLevel}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {!page.route.includes(":") && (
+                      <Button size="sm" variant="ghost" asChild>
+                        <Link to={page.route}>
+                          <ExternalLink className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Card>
+      ) : (
+        <div className="space-y-6">
+          {Object.entries(pagesByCategory).map(([category, pages]) => (
+            <div key={category}>
+              <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                <Badge variant="outline">{category}</Badge>
+                <span className="text-muted-foreground text-sm">({pages.length} pages)</span>
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {pages.map((page) => (
+                  <Card key={page.route} className="hover:border-primary/50 transition-colors">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 rounded-md bg-primary/10">
+                            {getIcon(page.icon)}
+                          </div>
+                          <div>
+                            <h4 className="font-medium">{page.name}</h4>
+                            <p className="text-xs text-muted-foreground font-mono">
+                              {page.route}
+                            </p>
+                          </div>
+                        </div>
+                        {!page.route.includes(":") && (
+                          <Button size="sm" variant="ghost" asChild>
+                            <Link to={page.route}>
+                              <ExternalLink className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-3">
+                        {page.description}
+                      </p>
+                      <div className="flex gap-2 mt-3">
+                        <Badge className={accessLevelColors[page.accessLevel]} variant="secondary">
+                          {page.accessLevel}
+                        </Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Access Level Legend */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Access Level Legend</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+            {Object.entries(accessLevelColors).map(([level, color]) => (
+              <div key={level} className="flex items-center gap-2">
+                <Badge className={color}>{level}</Badge>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

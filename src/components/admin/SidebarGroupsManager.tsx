@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { 
@@ -21,8 +22,12 @@ import {
   Folder,
   FileText,
   Loader2,
-  Save
+  Save,
+  Search,
+  Check
 } from "lucide-react";
+import { allPages, pageCategories } from "@/data/allPages";
+import * as LucideIcons from "lucide-react";
 
 interface SidebarGroup {
   id: string;
@@ -65,8 +70,25 @@ export function SidebarGroupsManager() {
   const [newPageIcon, setNewPageIcon] = useState("");
   const [newPageGroupId, setNewPageGroupId] = useState<string | null>(null);
   
+  // Page search states for prebuild list
+  const [pageSearchQuery, setPageSearchQuery] = useState("");
+  const [selectedPageCategory, setSelectedPageCategory] = useState<string>("all");
+  
   const [editingGroup, setEditingGroup] = useState<SidebarGroup | null>(null);
   const [editingPage, setEditingPage] = useState<SidebarPage | null>(null);
+
+  // Filter all pages based on search and category
+  const filteredAllPages = useMemo(() => {
+    return allPages.filter(page => {
+      const matchesSearch = 
+        page.name.toLowerCase().includes(pageSearchQuery.toLowerCase()) ||
+        page.route.toLowerCase().includes(pageSearchQuery.toLowerCase());
+      
+      const matchesCategory = selectedPageCategory === "all" || page.category === selectedPageCategory;
+      
+      return matchesSearch && matchesCategory;
+    });
+  }, [pageSearchQuery, selectedPageCategory]);
 
   useEffect(() => {
     loadData();
@@ -427,7 +449,7 @@ export function SidebarGroupsManager() {
                   New Page
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="max-w-2xl max-h-[90vh]">
                 <DialogHeader>
                   <DialogTitle>Add New Page</DialogTitle>
                 </DialogHeader>
@@ -445,30 +467,110 @@ export function SidebarGroupsManager() {
                       ))}
                     </select>
                   </div>
-                  <div>
-                    <Label>Page Title</Label>
-                    <Input 
-                      value={newPageTitle} 
-                      onChange={(e) => setNewPageTitle(e.target.value)}
-                      placeholder="e.g., Dashboard"
-                    />
+                  
+                  {/* Prebuild Pages List */}
+                  <div className="border rounded-lg p-3 bg-muted/30">
+                    <Label className="text-sm font-medium mb-2 block">Quick Add from All Pages</Label>
+                    <div className="relative mb-2">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search pages..."
+                        value={pageSearchQuery}
+                        onChange={(e) => setPageSearchQuery(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                    <div className="flex gap-2 mb-2 flex-wrap">
+                      <Badge 
+                        variant={selectedPageCategory === "all" ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => setSelectedPageCategory("all")}
+                      >
+                        All
+                      </Badge>
+                      {pageCategories.map(cat => (
+                        <Badge 
+                          key={cat}
+                          variant={selectedPageCategory === cat ? "default" : "outline"}
+                          className="cursor-pointer text-xs"
+                          onClick={() => setSelectedPageCategory(cat)}
+                        >
+                          {cat}
+                        </Badge>
+                      ))}
+                    </div>
+                    <ScrollArea className="h-48 border rounded-md">
+                      <div className="p-2 space-y-1">
+                        {filteredAllPages.map((page) => {
+                          const IconComponent = (LucideIcons as any)[page.icon] || LucideIcons.FileText;
+                          const isSelected = newPageUrl === page.route;
+                          return (
+                            <button
+                              key={page.route}
+                              onClick={() => {
+                                setNewPageTitle(page.name);
+                                setNewPageUrl(page.route);
+                                setNewPageIcon(page.icon);
+                              }}
+                              className={`w-full flex items-center gap-3 p-2 rounded-md text-left transition-colors ${
+                                isSelected 
+                                  ? 'bg-primary text-primary-foreground' 
+                                  : 'hover:bg-muted'
+                              }`}
+                            >
+                              <IconComponent className="h-4 w-4 shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium text-sm truncate">{page.name}</div>
+                                <div className={`text-xs truncate ${isSelected ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
+                                  {page.route}
+                                </div>
+                              </div>
+                              <Badge variant="outline" className="text-xs shrink-0">
+                                {page.category}
+                              </Badge>
+                              {isSelected && <Check className="h-4 w-4 shrink-0" />}
+                            </button>
+                          );
+                        })}
+                        {filteredAllPages.length === 0 && (
+                          <div className="text-center py-4 text-muted-foreground text-sm">
+                            No pages found
+                          </div>
+                        )}
+                      </div>
+                    </ScrollArea>
                   </div>
-                  <div>
-                    <Label>URL Path</Label>
-                    <Input 
-                      value={newPageUrl} 
-                      onChange={(e) => setNewPageUrl(e.target.value)}
-                      placeholder="e.g., /niranx/dashboard"
-                    />
+
+                  <div className="border-t pt-4">
+                    <Label className="text-sm text-muted-foreground mb-2 block">Or enter custom details:</Label>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label>Page Title</Label>
+                        <Input 
+                          value={newPageTitle} 
+                          onChange={(e) => setNewPageTitle(e.target.value)}
+                          placeholder="e.g., Dashboard"
+                        />
+                      </div>
+                      <div>
+                        <Label>Icon (Lucide)</Label>
+                        <Input 
+                          value={newPageIcon} 
+                          onChange={(e) => setNewPageIcon(e.target.value)}
+                          placeholder="e.g., Home"
+                        />
+                      </div>
+                    </div>
+                    <div className="mt-2">
+                      <Label>URL Path</Label>
+                      <Input 
+                        value={newPageUrl} 
+                        onChange={(e) => setNewPageUrl(e.target.value)}
+                        placeholder="e.g., /niranx/dashboard"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <Label>Icon (Lucide icon name)</Label>
-                    <Input 
-                      value={newPageIcon} 
-                      onChange={(e) => setNewPageIcon(e.target.value)}
-                      placeholder="e.g., Home, Settings"
-                    />
-                  </div>
+                  
                   <Button onClick={createPage} disabled={saving} className="w-full">
                     {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
                     Add Page

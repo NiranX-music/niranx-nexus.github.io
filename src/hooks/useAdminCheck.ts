@@ -4,40 +4,50 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export function useAdminCheck() {
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isModerator, setIsModerator] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
 
   useEffect(() => {
-    async function checkAdminRole() {
+    async function checkRoles() {
       if (!user) {
         setIsAdmin(false);
+        setIsModerator(false);
         setIsLoading(false);
         return;
       }
 
       try {
-        // Use the has_role RPC function to check admin status
-        const { data, error } = await supabase.rpc('has_role', {
-          _user_id: user.id,
-          _role: 'admin'
-        });
+        // Check both admin and moderator roles in parallel
+        const [adminResult, moderatorResult] = await Promise.all([
+          supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' }),
+          supabase.rpc('has_role', { _user_id: user.id, _role: 'moderator' })
+        ]);
 
-        if (error) {
-          console.error("Error checking admin role:", error);
+        if (adminResult.error) {
+          console.error("Error checking admin role:", adminResult.error);
           setIsAdmin(false);
         } else {
-          setIsAdmin(data === true);
+          setIsAdmin(adminResult.data === true);
+        }
+
+        if (moderatorResult.error) {
+          console.error("Error checking moderator role:", moderatorResult.error);
+          setIsModerator(false);
+        } else {
+          setIsModerator(moderatorResult.data === true);
         }
       } catch (error) {
-        console.error("Error in admin check:", error);
+        console.error("Error in role check:", error);
         setIsAdmin(false);
+        setIsModerator(false);
       } finally {
         setIsLoading(false);
       }
     }
 
-    checkAdminRole();
+    checkRoles();
   }, [user]);
 
-  return { isAdmin, isLoading };
+  return { isAdmin, isModerator, isLoading };
 }
