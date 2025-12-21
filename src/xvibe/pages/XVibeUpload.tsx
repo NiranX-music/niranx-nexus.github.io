@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { XVibeLayout } from '../components/layout/XVibeLayout';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ArtistSelector } from '../components/upload/ArtistSelector';
 import { 
   Upload, 
   Music, 
@@ -18,9 +19,17 @@ import {
   X,
   CheckCircle,
   Loader2,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Users
 } from 'lucide-react';
 import { toast } from 'sonner';
+
+interface Artist {
+  id: string;
+  name: string;
+  avatar_url?: string;
+  is_verified?: boolean;
+}
 
 const GENRES = [
   'Pop', 'Hip-Hop', 'R&B', 'Rock', 'Electronic', 'Jazz', 'Classical', 
@@ -53,9 +62,31 @@ export default function XVibeUpload() {
     releaseType: 'single'
   });
 
+  const [selectedArtists, setSelectedArtists] = useState<Artist[]>([]);
+  const [primaryArtist, setPrimaryArtist] = useState<Artist | null>(null);
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
+
+  // Fetch user's artist profile on mount
+  useEffect(() => {
+    const fetchPrimaryArtist = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: artist } = await supabase
+        .from('xvibe_artists')
+        .select('id, name, avatar_url, is_verified')
+        .eq('user_id', user.id)
+        .single();
+
+      if (artist) {
+        setPrimaryArtist(artist);
+        setSelectedArtists([artist]);
+      }
+    };
+    fetchPrimaryArtist();
+  }, []);
 
   const isValidUrl = (url: string) => {
     try {
@@ -177,8 +208,12 @@ export default function XVibeUpload() {
       }
       setUploadProgress(80);
 
-      // Create track record
-      const { error: trackError } = await supabase
+      // Create track record with featured artists
+      const featuredArtistIds = selectedArtists
+        .filter(a => a.id !== artist.id)
+        .map(a => a.id);
+      
+      const { data: track, error: trackError } = await supabase
         .from('xvibe_tracks')
         .insert({
           title: formData.title,
@@ -186,11 +221,14 @@ export default function XVibeUpload() {
           audio_url: finalAudioUrl,
           cover_url: coverUrl,
           genre: formData.genre || null,
-          mood: formData.mood || null,
+          mood_tags: formData.mood ? [formData.mood] : null,
           description: formData.description || null,
           is_explicit: formData.isExplicit,
-          status: saveAsDraft ? 'draft' : 'pending'
-        });
+          status: saveAsDraft ? 'draft' : 'pending',
+          featured_artists: featuredArtistIds.length > 0 ? featuredArtistIds : null
+        })
+        .select('id')
+        .single();
 
       if (trackError) throw trackError;
       setUploadProgress(100);
@@ -454,6 +492,19 @@ export default function XVibeUpload() {
                   </Select>
                 </div>
               </div>
+
+              {/* Artist Selector */}
+              <Card className="bg-[#282828] border-none p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Users className="w-5 h-5 text-[#1DB954]" />
+                  <span className="text-white font-medium">Featured Artists</span>
+                </div>
+                <ArtistSelector
+                  selectedArtists={selectedArtists}
+                  onArtistsChange={setSelectedArtists}
+                  primaryArtistId={primaryArtist?.id}
+                />
+              </Card>
 
               <div>
                 <Label className="text-[#B3B3B3]">Description</Label>
