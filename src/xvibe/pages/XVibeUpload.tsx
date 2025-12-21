@@ -10,13 +10,15 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Upload, 
   Music, 
   Image as ImageIcon,
   X,
   CheckCircle,
-  Loader2
+  Loader2,
+  Link as LinkIcon
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -37,6 +39,10 @@ export default function XVibeUpload() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [audioUploadMode, setAudioUploadMode] = useState<'file' | 'link'>('file');
+  const [coverUploadMode, setCoverUploadMode] = useState<'file' | 'link'>('file');
+  const [audioLink, setAudioLink] = useState('');
+  const [coverLink, setCoverLink] = useState('');
   
   const [formData, setFormData] = useState({
     title: '',
@@ -51,6 +57,15 @@ export default function XVibeUpload() {
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
 
+  const isValidUrl = (url: string) => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   const handleAudioSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -63,6 +78,7 @@ export default function XVibeUpload() {
         return;
       }
       setAudioFile(file);
+      setAudioLink('');
     }
   };
 
@@ -83,8 +99,9 @@ export default function XVibeUpload() {
   };
 
   const handleSubmit = async (saveAsDraft: boolean = false) => {
-    if (!audioFile) {
-      toast.error('Please select an audio file');
+    const hasAudio = audioFile || (audioUploadMode === 'link' && audioLink && isValidUrl(audioLink));
+    if (!hasAudio) {
+      toast.error('Please upload an audio file or paste a valid audio link');
       return;
     }
     if (!formData.title.trim()) {
@@ -114,22 +131,32 @@ export default function XVibeUpload() {
 
       setUploadProgress(10);
 
-      // Upload audio file
-      const audioExt = audioFile.name.split('.').pop();
-      const audioPath = `tracks/${artist.id}/${Date.now()}.${audioExt}`;
+      // Get audio URL - either from file upload or link
+      let finalAudioUrl: string;
       
-      const { error: audioError } = await supabase.storage
-        .from('xvibe-audio')
-        .upload(audioPath, audioFile);
+      if (audioFile) {
+        // Upload audio file
+        const audioExt = audioFile.name.split('.').pop();
+        const audioPath = `tracks/${artist.id}/${Date.now()}.${audioExt}`;
+        
+        const { error: audioError } = await supabase.storage
+          .from('xvibe-audio')
+          .upload(audioPath, audioFile);
 
-      if (audioError) throw audioError;
-      setUploadProgress(50);
+        if (audioError) throw audioError;
+        setUploadProgress(50);
 
-      const { data: audioUrl } = supabase.storage
-        .from('xvibe-audio')
-        .getPublicUrl(audioPath);
+        const { data: audioUrl } = supabase.storage
+          .from('xvibe-audio')
+          .getPublicUrl(audioPath);
+        finalAudioUrl = audioUrl.publicUrl;
+      } else {
+        // Use provided link
+        finalAudioUrl = audioLink;
+        setUploadProgress(50);
+      }
 
-      // Upload cover if provided
+      // Get cover URL - either from file upload or link
       let coverUrl = null;
       if (coverFile) {
         const coverExt = coverFile.name.split('.').pop();
@@ -145,6 +172,8 @@ export default function XVibeUpload() {
             .getPublicUrl(coverPath);
           coverUrl = data.publicUrl;
         }
+      } else if (coverLink && isValidUrl(coverLink)) {
+        coverUrl = coverLink;
       }
       setUploadProgress(80);
 
@@ -154,7 +183,7 @@ export default function XVibeUpload() {
         .insert({
           title: formData.title,
           artist_id: artist.id,
-          audio_url: audioUrl.publicUrl,
+          audio_url: finalAudioUrl,
           cover_url: coverUrl,
           genre: formData.genre || null,
           mood: formData.mood || null,
@@ -195,44 +224,82 @@ export default function XVibeUpload() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <input
-                ref={audioInputRef}
-                type="file"
-                accept="audio/*"
-                onChange={handleAudioSelect}
-                className="hidden"
-              />
-              
-              {audioFile ? (
-                <div className="flex items-center gap-4 p-4 bg-[#282828] rounded-lg">
-                  <div className="p-3 bg-[#1DB954]/20 rounded-lg">
-                    <Music className="w-6 h-6 text-[#1DB954]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-white font-medium truncate">{audioFile.name}</p>
-                    <p className="text-sm text-[#B3B3B3]">
-                      {(audioFile.size / (1024 * 1024)).toFixed(2)} MB
+              <Tabs value={audioUploadMode} onValueChange={(v) => setAudioUploadMode(v as 'file' | 'link')} className="w-full">
+                <TabsList className="grid w-full grid-cols-2 bg-[#282828] mb-4">
+                  <TabsTrigger value="file" className="data-[state=active]:bg-[#1DB954] data-[state=active]:text-black">
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload File
+                  </TabsTrigger>
+                  <TabsTrigger value="link" className="data-[state=active]:bg-[#1DB954] data-[state=active]:text-black">
+                    <LinkIcon className="w-4 h-4 mr-2" />
+                    Paste Link
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="file">
+                  <input
+                    ref={audioInputRef}
+                    type="file"
+                    accept="audio/*"
+                    onChange={handleAudioSelect}
+                    className="hidden"
+                  />
+                  
+                  {audioFile ? (
+                    <div className="flex items-center gap-4 p-4 bg-[#282828] rounded-lg">
+                      <div className="p-3 bg-[#1DB954]/20 rounded-lg">
+                        <Music className="w-6 h-6 text-[#1DB954]" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white font-medium truncate">{audioFile.name}</p>
+                        <p className="text-sm text-[#B3B3B3]">
+                          {(audioFile.size / (1024 * 1024)).toFixed(2)} MB
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setAudioFile(null)}
+                        className="text-[#B3B3B3] hover:text-white"
+                      >
+                        <X className="w-5 h-5" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => audioInputRef.current?.click()}
+                      className="w-full p-8 border-2 border-dashed border-white/20 rounded-lg hover:border-[#1DB954] transition-colors text-center"
+                    >
+                      <Upload className="w-10 h-10 text-[#B3B3B3] mx-auto mb-3" />
+                      <p className="text-white font-medium mb-1">Click to upload audio</p>
+                      <p className="text-sm text-[#B3B3B3]">MP3, WAV, FLAC up to 50MB</p>
+                    </button>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="link">
+                  <div className="space-y-3">
+                    <Input
+                      value={audioLink}
+                      onChange={(e) => {
+                        setAudioLink(e.target.value);
+                        setAudioFile(null);
+                      }}
+                      placeholder="https://example.com/audio.mp3"
+                      className="bg-[#282828] border-none text-white"
+                    />
+                    <p className="text-xs text-[#B3B3B3]">
+                      Paste a direct link to an audio file (MP3, WAV, etc.)
                     </p>
+                    {audioLink && isValidUrl(audioLink) && (
+                      <div className="flex items-center gap-2 text-[#1DB954]">
+                        <CheckCircle className="w-4 h-4" />
+                        <span className="text-sm">Valid URL</span>
+                      </div>
+                    )}
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setAudioFile(null)}
-                    className="text-[#B3B3B3] hover:text-white"
-                  >
-                    <X className="w-5 h-5" />
-                  </Button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => audioInputRef.current?.click()}
-                  className="w-full p-8 border-2 border-dashed border-white/20 rounded-lg hover:border-[#1DB954] transition-colors text-center"
-                >
-                  <Upload className="w-10 h-10 text-[#B3B3B3] mx-auto mb-3" />
-                  <p className="text-white font-medium mb-1">Click to upload audio</p>
-                  <p className="text-sm text-[#B3B3B3]">MP3, WAV, FLAC up to 50MB</p>
-                </button>
-              )}
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
 
@@ -245,43 +312,90 @@ export default function XVibeUpload() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <input
-                ref={coverInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleCoverSelect}
-                className="hidden"
-              />
-              
-              <div className="flex gap-4">
-                <div 
-                  onClick={() => coverInputRef.current?.click()}
-                  className="w-32 h-32 rounded-lg bg-[#282828] flex items-center justify-center cursor-pointer hover:bg-[#333] transition-colors overflow-hidden"
-                >
-                  {coverPreview ? (
-                    <img src={coverPreview} alt="Cover" className="w-full h-full object-cover" />
-                  ) : (
-                    <ImageIcon className="w-10 h-10 text-[#B3B3B3]" />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <p className="text-white font-medium mb-2">Upload cover art</p>
-                  <p className="text-sm text-[#B3B3B3] mb-3">Recommended: 3000x3000px, JPG or PNG</p>
-                  {coverFile && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setCoverFile(null);
-                        setCoverPreview(null);
-                      }}
-                      className="text-red-400 hover:text-red-300"
+              <Tabs value={coverUploadMode} onValueChange={(v) => setCoverUploadMode(v as 'file' | 'link')} className="w-full">
+                <TabsList className="grid w-full grid-cols-2 bg-[#282828] mb-4">
+                  <TabsTrigger value="file" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white">
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload File
+                  </TabsTrigger>
+                  <TabsTrigger value="link" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white">
+                    <LinkIcon className="w-4 h-4 mr-2" />
+                    Paste Link
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="file">
+                  <input
+                    ref={coverInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleCoverSelect}
+                    className="hidden"
+                  />
+                  
+                  <div className="flex gap-4">
+                    <div 
+                      onClick={() => coverInputRef.current?.click()}
+                      className="w-32 h-32 rounded-lg bg-[#282828] flex items-center justify-center cursor-pointer hover:bg-[#333] transition-colors overflow-hidden"
                     >
-                      Remove
-                    </Button>
-                  )}
-                </div>
-              </div>
+                      {coverPreview ? (
+                        <img src={coverPreview} alt="Cover" className="w-full h-full object-cover" />
+                      ) : (
+                        <ImageIcon className="w-10 h-10 text-[#B3B3B3]" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-white font-medium mb-2">Upload cover art</p>
+                      <p className="text-sm text-[#B3B3B3] mb-3">Recommended: 3000x3000px, JPG or PNG</p>
+                      {coverFile && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setCoverFile(null);
+                            setCoverPreview(null);
+                          }}
+                          className="text-red-400 hover:text-red-300"
+                        >
+                          Remove
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="link">
+                  <div className="space-y-3">
+                    <Input
+                      value={coverLink}
+                      onChange={(e) => {
+                        setCoverLink(e.target.value);
+                        setCoverFile(null);
+                        setCoverPreview(e.target.value || null);
+                      }}
+                      placeholder="https://example.com/cover.jpg"
+                      className="bg-[#282828] border-none text-white"
+                    />
+                    <p className="text-xs text-[#B3B3B3]">
+                      Paste a direct link to an image file (JPG, PNG, etc.)
+                    </p>
+                    {coverLink && isValidUrl(coverLink) && (
+                      <div className="flex items-center gap-4">
+                        <img 
+                          src={coverLink} 
+                          alt="Cover preview" 
+                          className="w-16 h-16 rounded object-cover bg-[#282828]"
+                          onError={(e) => (e.currentTarget.style.display = 'none')}
+                        />
+                        <div className="flex items-center gap-2 text-purple-400">
+                          <CheckCircle className="w-4 h-4" />
+                          <span className="text-sm">Valid URL</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
 
