@@ -84,7 +84,8 @@ const Landing = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-y-auto">
+      <div className="max-h-screen overflow-y-auto">
       {/* Navigation */}
       <nav className="border-b">
         <div className="container mx-auto px-4 py-4">
@@ -386,6 +387,7 @@ const Landing = () => {
           </div>
         </div>
       </footer>
+      </div>
     </div>
   );
 };

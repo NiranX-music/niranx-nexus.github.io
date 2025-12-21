@@ -8642,7 +8642,9 @@ export type Database = {
           audio_url: string
           cover_url: string | null
           created_at: string | null
+          description: string | null
           duration: number | null
+          featured_artists: string[] | null
           genre: string | null
           id: string
           is_explicit: boolean | null
@@ -8662,7 +8664,9 @@ export type Database = {
           audio_url: string
           cover_url?: string | null
           created_at?: string | null
+          description?: string | null
           duration?: number | null
+          featured_artists?: string[] | null
           genre?: string | null
           id?: string
           is_explicit?: boolean | null
@@ -8682,7 +8686,9 @@ export type Database = {
           audio_url?: string
           cover_url?: string | null
           created_at?: string | null
+          description?: string | null
           duration?: number | null
+          featured_artists?: string[] | null
           genre?: string | null
           id?: string
           is_explicit?: boolean | null
