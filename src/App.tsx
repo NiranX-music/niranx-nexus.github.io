@@ -194,6 +194,7 @@ import XFlowModeration from "./pages/admin/XFlowModeration";
 
 // XVibe Music Platform
 import { XVibePlayerProvider } from "./xvibe/contexts/XVibePlayerContext";
+import { PersistentXVibeMiniPlayer } from "./xvibe/components/player/PersistentXVibeMiniPlayer";
 import XVibeLanding from "./xvibe/pages/XVibeLanding";
 import XVibeAuth from "./xvibe/pages/XVibeAuth";
 import XVibeOnboarding from "./xvibe/pages/XVibeOnboarding";
@@ -222,10 +223,12 @@ const App = () => (
                   <Toaster />
                   <Sonner />
                   <BrowserRouter>
+                    <XVibePlayerProvider>
                     <MusicPlayerProvider>
                     <AuthProvider>
                       <NotificationListener />
                       <GlobalRealtimeSync />
+                      <PersistentXVibeMiniPlayer />
                       <Routes>
                         <Route path="/" element={<Landing />} />
                         <Route path="/niranx/auth" element={<Auth />} />
@@ -519,19 +522,19 @@ const App = () => (
                       } />
                     
                     {/* XVibe Music Platform Routes */}
-                    <Route path="/xvibe" element={<XVibePlayerProvider><XVibeLanding /></XVibePlayerProvider>} />
-                    <Route path="/xvibe/auth" element={<XVibePlayerProvider><XVibeAuth /></XVibePlayerProvider>} />
-                    <Route path="/xvibe/onboarding" element={<XVibePlayerProvider><XVibeOnboarding /></XVibePlayerProvider>} />
-                    <Route path="/xvibe/home" element={<XVibePlayerProvider><XVibeHome /></XVibePlayerProvider>} />
-                    <Route path="/xvibe/search" element={<XVibePlayerProvider><XVibeSearch /></XVibePlayerProvider>} />
-                    <Route path="/xvibe/library" element={<XVibePlayerProvider><XVibeLibrary /></XVibePlayerProvider>} />
-                    <Route path="/xvibe/artist/:artistId" element={<XVibePlayerProvider><XVibeArtistPage /></XVibePlayerProvider>} />
-                    <Route path="/xvibe/album/:albumId" element={<XVibePlayerProvider><XVibeAlbumPage /></XVibePlayerProvider>} />
-                    <Route path="/xvibe/playlist/:playlistId" element={<XVibePlayerProvider><XVibePlaylistPage /></XVibePlayerProvider>} />
-                    <Route path="/xvibe/artist-dashboard" element={<XVibePlayerProvider><XVibeArtistDashboard /></XVibePlayerProvider>} />
-                    <Route path="/xvibe/upload" element={<XVibePlayerProvider><XVibeUpload /></XVibePlayerProvider>} />
-                    <Route path="/xvibe/artist-register" element={<XVibePlayerProvider><XVibeArtistRegister /></XVibePlayerProvider>} />
-                    <Route path="/xvibe/moderation" element={<XVibePlayerProvider><XVibeModeration /></XVibePlayerProvider>} />
+                    <Route path="/xvibe" element={<XVibeLanding />} />
+                    <Route path="/xvibe/auth" element={<XVibeAuth />} />
+                    <Route path="/xvibe/onboarding" element={<XVibeOnboarding />} />
+                    <Route path="/xvibe/home" element={<XVibeHome />} />
+                    <Route path="/xvibe/search" element={<XVibeSearch />} />
+                    <Route path="/xvibe/library" element={<XVibeLibrary />} />
+                    <Route path="/xvibe/artist/:artistId" element={<XVibeArtistPage />} />
+                    <Route path="/xvibe/album/:albumId" element={<XVibeAlbumPage />} />
+                    <Route path="/xvibe/playlist/:playlistId" element={<XVibePlaylistPage />} />
+                    <Route path="/xvibe/artist-dashboard" element={<XVibeArtistDashboard />} />
+                    <Route path="/xvibe/upload" element={<XVibeUpload />} />
+                    <Route path="/xvibe/artist-register" element={<XVibeArtistRegister />} />
+                    <Route path="/xvibe/moderation" element={<XVibeModeration />} />
                     
                     <Route path="/shared/resource/:token" element={<SharedResource />} />
                     <Route path="/w/:slug" element={<PublishedWebsite />} />
@@ -541,6 +544,7 @@ const App = () => (
                   </AuthProvider>
                   <UniversalMusicPlayer />
                   </MusicPlayerProvider>
+                  </XVibePlayerProvider>
                 </BrowserRouter>
                 </TooltipProvider>
               </NowPlayingProvider>
