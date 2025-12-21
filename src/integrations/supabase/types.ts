@@ -8221,6 +8221,528 @@ export type Database = {
           },
         ]
       }
+      xvibe_albums: {
+        Row: {
+          album_type: string | null
+          artist_id: string | null
+          cover_url: string | null
+          created_at: string | null
+          description: string | null
+          genre: string | null
+          id: string
+          play_count: number | null
+          rejection_reason: string | null
+          release_date: string | null
+          status: string | null
+          title: string
+          total_duration: number | null
+          total_tracks: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          album_type?: string | null
+          artist_id?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          genre?: string | null
+          id?: string
+          play_count?: number | null
+          rejection_reason?: string | null
+          release_date?: string | null
+          status?: string | null
+          title: string
+          total_duration?: number | null
+          total_tracks?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          album_type?: string | null
+          artist_id?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          genre?: string | null
+          id?: string
+          play_count?: number | null
+          rejection_reason?: string | null
+          release_date?: string | null
+          status?: string | null
+          title?: string
+          total_duration?: number | null
+          total_tracks?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xvibe_albums_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "xvibe_artists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xvibe_artist_followers: {
+        Row: {
+          artist_id: string | null
+          created_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          artist_id?: string | null
+          created_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          artist_id?: string | null
+          created_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xvibe_artist_followers_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "xvibe_artists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xvibe_artists: {
+        Row: {
+          avatar_url: string | null
+          banner_url: string | null
+          bio: string | null
+          created_at: string | null
+          follower_count: number | null
+          genres: string[] | null
+          id: string
+          is_verified: boolean | null
+          monthly_listeners: number | null
+          name: string
+          social_links: Json | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          banner_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          follower_count?: number | null
+          genres?: string[] | null
+          id?: string
+          is_verified?: boolean | null
+          monthly_listeners?: number | null
+          name: string
+          social_links?: Json | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          banner_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          follower_count?: number | null
+          genres?: string[] | null
+          id?: string
+          is_verified?: boolean | null
+          monthly_listeners?: number | null
+          name?: string
+          social_links?: Json | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      xvibe_downloads: {
+        Row: {
+          downloaded_at: string | null
+          expires_at: string | null
+          id: string
+          track_id: string | null
+          user_id: string
+        }
+        Insert: {
+          downloaded_at?: string | null
+          expires_at?: string | null
+          id?: string
+          track_id?: string | null
+          user_id: string
+        }
+        Update: {
+          downloaded_at?: string | null
+          expires_at?: string | null
+          id?: string
+          track_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xvibe_downloads_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "xvibe_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xvibe_likes: {
+        Row: {
+          created_at: string | null
+          id: string
+          track_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          track_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          track_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xvibe_likes_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "xvibe_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xvibe_listening_history: {
+        Row: {
+          completed: boolean | null
+          duration_played: number | null
+          id: string
+          played_at: string | null
+          track_id: string | null
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean | null
+          duration_played?: number | null
+          id?: string
+          played_at?: string | null
+          track_id?: string | null
+          user_id: string
+        }
+        Update: {
+          completed?: boolean | null
+          duration_played?: number | null
+          id?: string
+          played_at?: string | null
+          track_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xvibe_listening_history_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "xvibe_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xvibe_moderation_logs: {
+        Row: {
+          action: string
+          content_id: string
+          content_type: string
+          created_at: string | null
+          id: string
+          moderator_id: string
+          reason: string | null
+        }
+        Insert: {
+          action: string
+          content_id: string
+          content_type: string
+          created_at?: string | null
+          id?: string
+          moderator_id: string
+          reason?: string | null
+        }
+        Update: {
+          action?: string
+          content_id?: string
+          content_type?: string
+          created_at?: string | null
+          id?: string
+          moderator_id?: string
+          reason?: string | null
+        }
+        Relationships: []
+      }
+      xvibe_playlist_tracks: {
+        Row: {
+          added_at: string | null
+          added_by: string | null
+          id: string
+          playlist_id: string | null
+          position: number
+          track_id: string | null
+        }
+        Insert: {
+          added_at?: string | null
+          added_by?: string | null
+          id?: string
+          playlist_id?: string | null
+          position: number
+          track_id?: string | null
+        }
+        Update: {
+          added_at?: string | null
+          added_by?: string | null
+          id?: string
+          playlist_id?: string | null
+          position?: number
+          track_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xvibe_playlist_tracks_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "xvibe_playlists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xvibe_playlist_tracks_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "xvibe_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xvibe_playlists: {
+        Row: {
+          cover_url: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_collaborative: boolean | null
+          is_public: boolean | null
+          name: string
+          total_duration: number | null
+          track_count: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_collaborative?: boolean | null
+          is_public?: boolean | null
+          name: string
+          total_duration?: number | null
+          track_count?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_collaborative?: boolean | null
+          is_public?: boolean | null
+          name?: string
+          total_duration?: number | null
+          track_count?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      xvibe_reports: {
+        Row: {
+          content_id: string
+          content_type: string
+          created_at: string | null
+          description: string | null
+          id: string
+          reason: string
+          reporter_id: string
+          status: string | null
+        }
+        Insert: {
+          content_id: string
+          content_type: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          reason: string
+          reporter_id: string
+          status?: string | null
+        }
+        Update: {
+          content_id?: string
+          content_type?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          reason?: string
+          reporter_id?: string
+          status?: string | null
+        }
+        Relationships: []
+      }
+      xvibe_saved_albums: {
+        Row: {
+          album_id: string | null
+          created_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          album_id?: string | null
+          created_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          album_id?: string | null
+          created_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xvibe_saved_albums_album_id_fkey"
+            columns: ["album_id"]
+            isOneToOne: false
+            referencedRelation: "xvibe_albums"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xvibe_tracks: {
+        Row: {
+          album_id: string | null
+          artist_id: string | null
+          audio_url: string
+          cover_url: string | null
+          created_at: string | null
+          duration: number | null
+          genre: string | null
+          id: string
+          is_explicit: boolean | null
+          language: string | null
+          lyrics: string | null
+          mood_tags: string[] | null
+          play_count: number | null
+          rejection_reason: string | null
+          status: string | null
+          title: string
+          track_number: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          album_id?: string | null
+          artist_id?: string | null
+          audio_url: string
+          cover_url?: string | null
+          created_at?: string | null
+          duration?: number | null
+          genre?: string | null
+          id?: string
+          is_explicit?: boolean | null
+          language?: string | null
+          lyrics?: string | null
+          mood_tags?: string[] | null
+          play_count?: number | null
+          rejection_reason?: string | null
+          status?: string | null
+          title: string
+          track_number?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          album_id?: string | null
+          artist_id?: string | null
+          audio_url?: string
+          cover_url?: string | null
+          created_at?: string | null
+          duration?: number | null
+          genre?: string | null
+          id?: string
+          is_explicit?: boolean | null
+          language?: string | null
+          lyrics?: string | null
+          mood_tags?: string[] | null
+          play_count?: number | null
+          rejection_reason?: string | null
+          status?: string | null
+          title?: string
+          track_number?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xvibe_tracks_album_id_fkey"
+            columns: ["album_id"]
+            isOneToOne: false
+            referencedRelation: "xvibe_albums"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xvibe_tracks_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "xvibe_artists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xvibe_user_preferences: {
+        Row: {
+          created_at: string | null
+          id: string
+          onboarding_completed: boolean | null
+          preferred_genres: string[] | null
+          preferred_moods: string[] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          onboarding_completed?: boolean | null
+          preferred_genres?: string[] | null
+          preferred_moods?: string[] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          onboarding_completed?: boolean | null
+          preferred_genres?: string[] | null
+          preferred_moods?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -8322,6 +8844,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_xvibe_play_count: {
+        Args: { p_track_id: string }
+        Returns: undefined
       }
       is_classroom_member: {
         Args: { _classroom_id: string; _user_id: string }
