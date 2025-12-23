@@ -337,7 +337,38 @@ const Landing = () => {
         {/* Footer */}
         <footer className="py-12 px-4 border-t border-white/10">
           <div className="container mx-auto">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+              <div>
+                <h4 className="font-semibold text-white mb-4">Platform</h4>
+                <div className="space-y-2">
+                  <Link to="/niranx/dashboard" className="block text-white/50 hover:text-white text-sm">Dashboard</Link>
+                  <Link to="/xvibe" className="block text-white/50 hover:text-white text-sm">XVibe Music</Link>
+                  <Link to="/niranx/ai-corner" className="block text-white/50 hover:text-white text-sm">AI Tools</Link>
+                </div>
+              </div>
+              <div>
+                <h4 className="font-semibold text-white mb-4">Support</h4>
+                <div className="space-y-2">
+                  <Link to="/support/help" className="block text-white/50 hover:text-white text-sm">Help Centre</Link>
+                  <Link to="/support/contact" className="block text-white/50 hover:text-white text-sm">Contact Us</Link>
+                </div>
+              </div>
+              <div>
+                <h4 className="font-semibold text-white mb-4">Legal</h4>
+                <div className="space-y-2">
+                  <Link to="/support/privacy" className="block text-white/50 hover:text-white text-sm">Privacy Policy</Link>
+                  <Link to="/support/terms" className="block text-white/50 hover:text-white text-sm">Terms & Conditions</Link>
+                </div>
+              </div>
+              <div>
+                <h4 className="font-semibold text-white mb-4">Connect</h4>
+                <div className="space-y-2">
+                  <a href="mailto:barhateniranjan725@gmail.com" className="block text-white/50 hover:text-white text-sm">Email Us</a>
+                  <a href="https://niranx.com" className="block text-white/50 hover:text-white text-sm">niranx.com</a>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 border-t border-white/10">
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 rounded-lg overflow-hidden">
                   <img src={niranxLogo} alt="NiranX Logo" className="w-full h-full object-cover" />

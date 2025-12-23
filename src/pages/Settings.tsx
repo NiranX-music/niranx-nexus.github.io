@@ -23,7 +23,8 @@ import {
   AlertTriangle,
   Link2,
   Eye,
-  Folder
+  Folder,
+  Play
 } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useToast } from "@/hooks/use-toast";
@@ -32,6 +33,8 @@ import { useNowPlaying } from '@/contexts/NowPlayingContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { UserSidebarManager } from '@/components/UserSidebarManager';
+import { useBeepSound } from '@/contexts/BeepSoundContext';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { useAdminCheck } from '@/hooks/useAdminCheck';
 
@@ -42,6 +45,7 @@ const Settings = () => {
   const { signOut } = useAuth();
   const navigate = useNavigate();
   const { isAdmin } = useAdminCheck();
+  const { beepEnabled, setBeepEnabled, selectedSound, setSelectedSound, previewSound, availableSounds } = useBeepSound();
   
   const [settings, setSettings] = useState({
     notifications: true,
@@ -274,6 +278,61 @@ const Settings = () => {
                 checked={settings.soundEffects}
                 onCheckedChange={(checked) => updateSetting('soundEffects', checked)}
               />
+            </div>
+
+            <Separator />
+
+            {/* Beep Sound Settings */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="beepEnabled">Click Beep Sound</Label>
+                  <p className="text-sm text-muted-foreground">Play a beep sound on button clicks</p>
+                </div>
+                <Switch
+                  id="beepEnabled"
+                  checked={beepEnabled}
+                  onCheckedChange={(checked) => {
+                    setBeepEnabled(checked);
+                    toast({
+                      title: checked ? "Beep Sound Enabled" : "Beep Sound Disabled",
+                      description: checked 
+                        ? "Click sounds will now play on interactions" 
+                        : "Click sounds have been disabled",
+                    });
+                  }}
+                />
+              </div>
+
+              {beepEnabled && (
+                <div className="space-y-3 pl-4 border-l-2 border-primary/20">
+                  <Label className="text-sm font-medium">Select Beep Sound</Label>
+                  <div className="flex gap-2">
+                    <Select value={selectedSound} onValueChange={setSelectedSound}>
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder="Select a sound" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableSounds.map((sound) => (
+                          <SelectItem key={sound.id} value={sound.id}>
+                            {sound.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button 
+                      variant="outline" 
+                      size="icon"
+                      onClick={() => previewSound(selectedSound)}
+                    >
+                      <Play className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Click the play button to preview the selected sound
+                  </p>
+                </div>
+              )}
             </div>
 
             <Separator />
