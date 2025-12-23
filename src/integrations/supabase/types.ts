@@ -9412,6 +9412,285 @@ export type Database = {
         }
         Relationships: []
       }
+      xwave_ai_insights: {
+        Row: {
+          confidence_score: number | null
+          energy_level: number | null
+          generated_at: string | null
+          id: string
+          is_clean_version: boolean | null
+          language: string | null
+          lyrics_analysis: string | null
+          meaning: string | null
+          mood: string | null
+          mood_tags: string[] | null
+          song_id: string
+          themes: string[] | null
+          tldr: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          confidence_score?: number | null
+          energy_level?: number | null
+          generated_at?: string | null
+          id?: string
+          is_clean_version?: boolean | null
+          language?: string | null
+          lyrics_analysis?: string | null
+          meaning?: string | null
+          mood?: string | null
+          mood_tags?: string[] | null
+          song_id: string
+          themes?: string[] | null
+          tldr?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          confidence_score?: number | null
+          energy_level?: number | null
+          generated_at?: string | null
+          id?: string
+          is_clean_version?: boolean | null
+          language?: string | null
+          lyrics_analysis?: string | null
+          meaning?: string | null
+          mood?: string | null
+          mood_tags?: string[] | null
+          song_id?: string
+          themes?: string[] | null
+          tldr?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xwave_ai_insights_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: true
+            referencedRelation: "xvibe_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xwave_blog_comments: {
+        Row: {
+          blog_id: string
+          content: string
+          created_at: string | null
+          id: string
+          parent_comment_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          blog_id: string
+          content: string
+          created_at?: string | null
+          id?: string
+          parent_comment_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          blog_id?: string
+          content?: string
+          created_at?: string | null
+          id?: string
+          parent_comment_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xwave_blog_comments_blog_id_fkey"
+            columns: ["blog_id"]
+            isOneToOne: false
+            referencedRelation: "xwave_blog_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xwave_blog_comments_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "xwave_blog_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xwave_blog_likes: {
+        Row: {
+          blog_id: string
+          created_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          blog_id: string
+          created_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          blog_id?: string
+          created_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xwave_blog_likes_blog_id_fkey"
+            columns: ["blog_id"]
+            isOneToOne: false
+            referencedRelation: "xwave_blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xwave_blog_posts: {
+        Row: {
+          content: string
+          cover_image_url: string | null
+          created_at: string | null
+          editor_id: string
+          editorial_tag: string | null
+          excerpt: string | null
+          id: string
+          like_count: number | null
+          published_at: string | null
+          slug: string | null
+          song_id: string | null
+          status: string | null
+          title: string
+          updated_at: string | null
+          view_count: number | null
+        }
+        Insert: {
+          content: string
+          cover_image_url?: string | null
+          created_at?: string | null
+          editor_id: string
+          editorial_tag?: string | null
+          excerpt?: string | null
+          id?: string
+          like_count?: number | null
+          published_at?: string | null
+          slug?: string | null
+          song_id?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+          view_count?: number | null
+        }
+        Update: {
+          content?: string
+          cover_image_url?: string | null
+          created_at?: string | null
+          editor_id?: string
+          editorial_tag?: string | null
+          excerpt?: string | null
+          id?: string
+          like_count?: number | null
+          published_at?: string | null
+          slug?: string | null
+          song_id?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+          view_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xwave_blog_posts_editor_id_fkey"
+            columns: ["editor_id"]
+            isOneToOne: false
+            referencedRelation: "xwave_editors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xwave_blog_posts_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "xvibe_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xwave_editors: {
+        Row: {
+          articles_published: number | null
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          id: string
+          is_verified: boolean | null
+          name: string
+          role: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          articles_published?: number | null
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          id?: string
+          is_verified?: boolean | null
+          name: string
+          role?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          articles_published?: number | null
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          id?: string
+          is_verified?: boolean | null
+          name?: string
+          role?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      xwave_external_links: {
+        Row: {
+          created_at: string | null
+          custom_label: string | null
+          display_order: number | null
+          id: string
+          platform: string
+          song_id: string
+          url: string
+        }
+        Insert: {
+          created_at?: string | null
+          custom_label?: string | null
+          display_order?: number | null
+          id?: string
+          platform: string
+          song_id: string
+          url: string
+        }
+        Update: {
+          created_at?: string | null
+          custom_label?: string | null
+          display_order?: number | null
+          id?: string
+          platform?: string
+          song_id?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xwave_external_links_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "xvibe_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
