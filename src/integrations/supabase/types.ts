@@ -5128,6 +5128,48 @@ export type Database = {
         }
         Relationships: []
       }
+      password_vault: {
+        Row: {
+          category: string | null
+          created_at: string
+          encrypted_password: string
+          id: string
+          is_favorite: boolean | null
+          notes: string | null
+          site_name: string
+          site_url: string | null
+          updated_at: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          encrypted_password: string
+          id?: string
+          is_favorite?: boolean | null
+          notes?: string | null
+          site_name: string
+          site_url?: string | null
+          updated_at?: string
+          user_id: string
+          username: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          encrypted_password?: string
+          id?: string
+          is_favorite?: boolean | null
+          notes?: string | null
+          site_name?: string
+          site_url?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string
+        }
+        Relationships: []
+      }
       pdf_summary_history: {
         Row: {
           created_at: string

@@ -219,6 +219,7 @@ const xflowNavigation = [
 
 // Tools & Utilities
 const toolsNavigation = [
+  { title: "Password Manager", url: "/niranx/password-manager", icon: Lock },
   { title: "AI Website Generator", url: "/niranx/ai-website-generator", icon: Sparkles },
   { title: "My Websites", url: "/niranx/ai-website-generator", icon: Layout },
   { title: "Website Embedder", url: "/niranx/website", icon: Globe },
