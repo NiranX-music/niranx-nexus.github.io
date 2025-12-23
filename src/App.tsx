@@ -12,6 +12,7 @@ import { FocusProvider } from "./contexts/FocusContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { NowPlayingProvider } from "./contexts/NowPlayingContext";
 import { GuestModeProvider } from "./contexts/GuestModeContext";
+import { BeepSoundProvider } from "./contexts/BeepSoundContext";
 import { AppLayout } from "./components/layout/AppLayout";
 import VoiceCommand from "./components/VoiceCommand";
 import Landing from "./pages/Landing";
@@ -211,12 +212,16 @@ import XVibeModeration from "./xvibe/pages/XVibeModeration";
 import XVibeReleaseDashboard from "./xvibe/pages/XVibeReleaseDashboard";
 import XVibeReleaseEditor from "./xvibe/pages/XVibeReleaseEditor";
 import XVibeAdminDashboard from "./xvibe/pages/XVibeAdminDashboard";
+import XWaveSongPage from "./xvibe/pages/XWaveSongPage";
+import XWaveBlogEditor from "./xvibe/pages/XWaveBlogEditor";
+import XWaveEditorDashboard from "./xvibe/pages/XWaveEditorDashboard";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
+      <BeepSoundProvider>
       <GuestModeProvider>
         <XPProvider>
           <MoodProvider>
@@ -541,6 +546,10 @@ const App = () => (
                     <Route path="/xvibe/releases" element={<XVibeReleaseDashboard />} />
                     <Route path="/xvibe/releases/:releaseId" element={<XVibeReleaseEditor />} />
                     <Route path="/xvibe/admin" element={<XVibeAdminDashboard />} />
+                    <Route path="/xvibe/song/:songId" element={<XWaveSongPage />} />
+                    <Route path="/xvibe/blog/new" element={<XWaveBlogEditor />} />
+                    <Route path="/xvibe/blog/:blogId" element={<XWaveBlogEditor />} />
+                    <Route path="/xvibe/editor" element={<XWaveEditorDashboard />} />
                     
                     <Route path="/shared/resource/:token" element={<SharedResource />} />
                     <Route path="/w/:slug" element={<PublishedWebsite />} />
@@ -558,6 +567,7 @@ const App = () => (
         </MoodProvider>
       </XPProvider>
     </GuestModeProvider>
+    </BeepSoundProvider>
   </ThemeProvider>
 </QueryClientProvider>
 );

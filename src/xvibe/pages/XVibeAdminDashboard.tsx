@@ -178,6 +178,7 @@ export default function XVibeAdminDashboard() {
             <TabsTrigger value="queue" className="data-[state=active]:bg-[#282828]">Moderation Queue</TabsTrigger>
             <TabsTrigger value="history" className="data-[state=active]:bg-[#282828]">Action History</TabsTrigger>
             <TabsTrigger value="artists" className="data-[state=active]:bg-[#282828]">Artists</TabsTrigger>
+            <TabsTrigger value="xwave" className="data-[state=active]:bg-[#282828]">XWave Blog</TabsTrigger>
           </TabsList>
 
           <TabsContent value="queue" className="space-y-4">
@@ -216,6 +217,35 @@ export default function XVibeAdminDashboard() {
 
           <TabsContent value="artists">
             <Card className="bg-[#181818] border-none"><CardContent className="p-12 text-center"><Users className="w-12 h-12 text-[#B3B3B3] mx-auto mb-4" /><h3 className="text-xl font-semibold text-white mb-2">Artist Management</h3><p className="text-[#B3B3B3]">Manage verified artists and permissions</p></CardContent></Card>
+          </TabsContent>
+
+          <TabsContent value="xwave">
+            <Card className="bg-[#181818] border-none">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <Music className="w-5 h-5" />
+                  XWave Blog Management
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-[#B3B3B3]">Manage song blogs, editors, and editorial content.</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Button 
+                    onClick={() => navigate('/xvibe/editor')} 
+                    className="bg-[#1DB954] hover:bg-[#1DB954]/90 text-white"
+                  >
+                    Editor Dashboard
+                  </Button>
+                  <Button 
+                    onClick={() => navigate('/xvibe/blog/new')} 
+                    variant="outline"
+                    className="border-white/20 text-white hover:bg-white/10"
+                  >
+                    Create New Blog
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
 
