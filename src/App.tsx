@@ -186,6 +186,7 @@ import StudyTemplates from "./pages/StudyTemplates";
 import TemplateManager from "./pages/admin/TemplateManager";
 import ActivityLog from "./pages/security/ActivityLog";
 import ExploreSpaces from "./pages/ExploreSpaces";
+import PasswordManager from "./pages/PasswordManager";
 import SpaceLimitsManager from "./pages/admin/SpaceLimitsManager";
 import XFlowLogin from "./pages/xflow/XFlowLogin";
 import XFlowFeed from "./pages/xflow/XFlowFeed";
@@ -425,6 +426,7 @@ const App = () => (
                           <Route path="/weather" element={<Weather />} />
                           <Route path="/groq-chat" element={<GroqChat />} />
                           <Route path="/groq-chat-history" element={<GroqChatHistory />} />
+                          <Route path="/password-manager" element={<PasswordManager />} />
                           <Route path="/mailbox" element={<Mailbox />} />
                           <Route path="/xmail" element={<Mailbox />} />
                           <Route path="/xmail/profile/:slug" element={<XmailProfile />} />
