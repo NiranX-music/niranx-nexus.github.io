@@ -32,7 +32,7 @@ interface ModerationAction {
   target_type: string;
   target_id: string;
   admin_id: string;
-  details: any;
+  details: Record<string, unknown> | null;
   created_at: string;
 }
 
@@ -98,7 +98,18 @@ export default function XVibeAdminDashboard() {
 
   const fetchRecentActions = async () => {
     const { data } = await supabase.from('xvibe_admin_actions').select('*').order('created_at', { ascending: false }).limit(50);
-    setRecentActions((data || []).map(a => ({ ...a, details: a.details || {} })));
+    if (data) {
+      const actions: ModerationAction[] = data.map(a => ({
+        id: a.id,
+        action_type: a.action_type,
+        target_type: a.target_type,
+        target_id: a.target_id,
+        admin_id: a.admin_id,
+        details: a.details as Record<string, unknown> | null,
+        created_at: a.created_at
+      }));
+      setRecentActions(actions);
+    }
   };
 
   const handleApprove = async (item: PendingRelease) => {
@@ -196,7 +207,7 @@ export default function XVibeAdminDashboard() {
             <Card className="bg-[#181818] border-none"><CardHeader><CardTitle className="text-white">Recent Actions</CardTitle></CardHeader><CardContent><ScrollArea className="h-[400px]"><div className="space-y-3">
               {recentActions.map((action) => (
                 <div key={action.id} className="flex items-center justify-between p-3 rounded-lg bg-[#282828]">
-                  <div className="flex items-center gap-3">{action.action_type === 'approve' ? <CheckCircle className="w-5 h-5 text-green-400" /> : action.action_type === 'reject' ? <XCircle className="w-5 h-5 text-red-400" /> : <Ban className="w-5 h-5 text-orange-400" />}<div><p className="text-white capitalize">{action.action_type} {action.target_type}</p><p className="text-sm text-[#B3B3B3]">{action.details?.reason || 'No reason provided'}</p></div></div>
+                  <div className="flex items-center gap-3">{action.action_type === 'approve' ? <CheckCircle className="w-5 h-5 text-green-400" /> : action.action_type === 'reject' ? <XCircle className="w-5 h-5 text-red-400" /> : <Ban className="w-5 h-5 text-orange-400" />}<div><p className="text-white capitalize">{action.action_type} {action.target_type}</p><p className="text-sm text-[#B3B3B3]">{(action.details as Record<string, string>)?.reason || 'No reason provided'}</p></div></div>
                   <span className="text-sm text-[#B3B3B3]">{new Date(action.created_at).toLocaleDateString()}</span>
                 </div>
               ))}
