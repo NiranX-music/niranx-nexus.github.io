@@ -15,7 +15,7 @@ import {
   Key, Plus, Search, Eye, EyeOff, Copy, Trash2, Edit, Star, 
   Upload, Download, Globe, User, Lock, FileText, Shield,
   Folder, Heart, CreditCard, Wifi, Mail, Server, Fingerprint,
-  Smartphone, AlertTriangle
+  Smartphone, AlertTriangle, LayoutGrid, List
 } from 'lucide-react';
 
 interface PasswordEntry {
@@ -191,6 +191,7 @@ export default function PasswordManager() {
   const [decryptedPasswords, setDecryptedPasswords] = useState<Record<string, string>>({});
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   
   // Form state
   const [formData, setFormData] = useState({
@@ -722,6 +723,24 @@ export default function PasswordManager() {
             ))}
           </SelectContent>
         </Select>
+        <div className="flex gap-1 border rounded-lg p-1">
+          <Button
+            variant={viewMode === 'grid' ? 'default' : 'ghost'}
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => setViewMode('grid')}
+          >
+            <LayoutGrid className="h-4 w-4" />
+          </Button>
+          <Button
+            variant={viewMode === 'list' ? 'default' : 'ghost'}
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => setViewMode('list')}
+          >
+            <List className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -800,7 +819,7 @@ export default function PasswordManager() {
             </Button>
           )}
         </Card>
-      ) : (
+      ) : viewMode === 'grid' ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredPasswords.map(pwd => {
             const CategoryIcon = getCategoryIcon(pwd.category);
@@ -930,6 +949,116 @@ export default function PasswordManager() {
             );
           })}
         </div>
+      ) : (
+        <Card>
+          <div className="divide-y">
+            {filteredPasswords.map(pwd => {
+              const CategoryIcon = getCategoryIcon(pwd.category);
+              const isVisible = visiblePasswords.has(pwd.id);
+              
+              return (
+                <div key={pwd.id} className="flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 flex-shrink-0"
+                    onClick={() => handleToggleFavorite(pwd.id, pwd.is_favorite)}
+                  >
+                    <Star className={`h-4 w-4 ${pwd.is_favorite ? 'fill-yellow-500 text-yellow-500' : ''}`} />
+                  </Button>
+                  
+                  <div className="p-2 rounded-lg bg-muted flex-shrink-0">
+                    <CategoryIcon className="h-4 w-4" />
+                  </div>
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium truncate">{pwd.site_name}</span>
+                      {pwd.site_url && (
+                        <a 
+                          href={pwd.site_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1"
+                        >
+                          <Globe className="h-3 w-3" />
+                        </a>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <span className="truncate">{pwd.username}</span>
+                      <Badge variant="secondary" className="text-xs">
+                        {CATEGORIES.find(c => c.value === pwd.category)?.label || 'General'}
+                      </Badge>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 text-sm flex-shrink-0">
+                    <span className="font-mono hidden sm:block">
+                      {isVisible ? decryptedPasswords[pwd.id] || '••••••••' : '••••••••'}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => handleShowPassword(pwd.id, pwd.encrypted_password)}
+                    >
+                      {isVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => handleCopyPassword(pwd.id, pwd.encrypted_password)}
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => {
+                        navigator.clipboard.writeText(pwd.username);
+                        toast({ title: 'Username copied' });
+                      }}
+                    >
+                      <User className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => handleEdit(pwd)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Password</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete the password for "{pwd.site_name}"? This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleDelete(pwd.id)}>
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
       )}
     </div>
   );
