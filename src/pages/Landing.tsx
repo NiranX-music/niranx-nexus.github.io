@@ -18,18 +18,23 @@ import {
   Sparkles,
   Rocket,
   Brain,
-  Zap
+  Zap,
+  Globe,
+  Cpu,
+  Layers
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import niranxLogo from '@/assets/niranx-logo.jpg';
+import { useBeepSound } from "@/contexts/BeepSoundContext";
 
 const Landing = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const { playBeep } = useBeepSound();
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -40,7 +45,12 @@ const Landing = () => {
   }, []);
 
   const handleGetStarted = () => {
+    playBeep();
     navigate(user ? '/niranx/dashboard' : '/niranx/auth');
+  };
+
+  const handleClick = () => {
+    playBeep();
   };
 
   const features = [
@@ -53,20 +63,32 @@ const Landing = () => {
     { icon: Gamepad2, title: "Gamification", description: "Earn XP, unlock achievements, level up" },
     { icon: Users, title: "Collaboration", description: "Connect and study with peers" },
     { icon: Zap, title: "AI Tools", description: "Website generator, presentations & more" },
+    { icon: Globe, title: "Web Platform", description: "Access anywhere, anytime on any device" },
+    { icon: Cpu, title: "Edge Functions", description: "Lightning fast serverless computing" },
+    { icon: Layers, title: "Multi-Platform", description: "Integrated ecosystem for everything" },
   ];
 
-  const floatingElements = Array(20).fill(null).map((_, i) => ({
+  const floatingElements = Array(30).fill(null).map((_, i) => ({
     id: i,
-    size: Math.random() * 4 + 2,
+    size: Math.random() * 6 + 2,
     x: Math.random() * 100,
     y: Math.random() * 100,
-    duration: Math.random() * 20 + 10,
-    delay: Math.random() * 5,
+    duration: Math.random() * 25 + 10,
+    delay: Math.random() * 8,
+  }));
+
+  // Orbit animation elements
+  const orbitElements = Array(8).fill(null).map((_, i) => ({
+    id: i,
+    angle: (360 / 8) * i,
+    radius: 180 + Math.random() * 80,
+    duration: 20 + Math.random() * 15,
+    size: 4 + Math.random() * 4,
   }));
 
   return (
-    <div className="min-h-screen bg-black overflow-hidden relative">
-      {/* Video Background */}
+    <div className="min-h-screen bg-black overflow-hidden relative" onClick={handleClick}>
+      {/* Video Background - Space & Tech Theme */}
       <div className="fixed inset-0 z-0">
         <video
           ref={videoRef}
@@ -74,12 +96,13 @@ const Landing = () => {
           loop
           muted
           playsInline
-          className="w-full h-full object-cover opacity-40"
+          className="w-full h-full object-cover opacity-50"
           poster="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920"
         >
-          <source src="https://cdn.pixabay.com/video/2020/05/25/40130-424930032_large.mp4" type="video/mp4" />
+          <source src="https://cdn.pixabay.com/video/2020/03/29/34373-402429404_large.mp4" type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-purple-950/20 to-black/90" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
       </div>
 
       {/* Animated Particles */}
@@ -87,16 +110,20 @@ const Landing = () => {
         {floatingElements.map((el) => (
           <motion.div
             key={el.id}
-            className="absolute rounded-full bg-primary/30"
+            className="absolute rounded-full"
             style={{
               width: el.size,
               height: el.size,
               left: `${el.x}%`,
               top: `${el.y}%`,
+              background: `radial-gradient(circle, rgba(139,92,246,0.8) 0%, rgba(236,72,153,0.4) 100%)`,
+              boxShadow: '0 0 10px rgba(139,92,246,0.5)',
             }}
             animate={{
-              y: [0, -100, 0],
-              opacity: [0.3, 0.8, 0.3],
+              y: [0, -150, 0],
+              x: [0, Math.random() * 50 - 25, 0],
+              opacity: [0.2, 0.9, 0.2],
+              scale: [1, 1.2, 1],
             }}
             transition={{
               duration: el.duration,
@@ -108,19 +135,62 @@ const Landing = () => {
         ))}
       </div>
 
+      {/* Orbiting Elements */}
+      <div className="fixed inset-0 z-[1] flex items-center justify-center pointer-events-none">
+        <div className="relative w-[500px] h-[500px]">
+          {orbitElements.map((el) => (
+            <motion.div
+              key={el.id}
+              className="absolute left-1/2 top-1/2"
+              style={{
+                width: el.size,
+                height: el.size,
+              }}
+              animate={{
+                rotate: 360,
+              }}
+              transition={{
+                duration: el.duration,
+                repeat: Infinity,
+                ease: "linear",
+              }}
+            >
+              <motion.div
+                className="rounded-full bg-gradient-to-r from-primary to-pink-500"
+                style={{
+                  width: el.size,
+                  height: el.size,
+                  transform: `translateX(${el.radius}px)`,
+                  boxShadow: '0 0 15px rgba(139,92,246,0.6)',
+                }}
+              />
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Grid overlay */}
+      <div className="fixed inset-0 z-[1] pointer-events-none opacity-10"
+        style={{
+          backgroundImage: `linear-gradient(rgba(139,92,246,0.3) 1px, transparent 1px),
+                           linear-gradient(90deg, rgba(139,92,246,0.3) 1px, transparent 1px)`,
+          backgroundSize: '50px 50px',
+        }}
+      />
+
       {/* Cursor Glow */}
       <motion.div
-        className="fixed w-[300px] h-[300px] rounded-full pointer-events-none z-[2]"
+        className="fixed w-[400px] h-[400px] rounded-full pointer-events-none z-[2]"
         style={{
-          background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%)',
-          left: mousePosition.x - 150,
-          top: mousePosition.y - 150,
+          background: 'radial-gradient(circle, rgba(139,92,246,0.2) 0%, rgba(236,72,153,0.1) 40%, transparent 70%)',
+          left: mousePosition.x - 200,
+          top: mousePosition.y - 200,
         }}
         animate={{
-          scale: [1, 1.1, 1],
+          scale: [1, 1.15, 1],
         }}
         transition={{
-          duration: 2,
+          duration: 2.5,
           repeat: Infinity,
           ease: "easeInOut",
         }}
@@ -178,54 +248,112 @@ const Landing = () => {
               className="max-w-5xl mx-auto"
             >
               <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: 0.5, delay: 0.5 }}
-                className="mb-8 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm"
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ duration: 0.8, delay: 0.5, type: "spring" }}
+                className="mb-8 inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-primary/20 to-pink-500/20 border border-primary/30 backdrop-blur-xl"
               >
-                <Sparkles className="w-4 h-4 text-primary" />
-                <span className="text-sm text-white/80">Powered by AI</span>
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                >
+                  <Sparkles className="w-5 h-5 text-primary" />
+                </motion.div>
+                <span className="text-sm font-medium text-white/90">Powered by NiranX & AI</span>
+                <Cpu className="w-4 h-4 text-pink-400" />
               </motion.div>
               
-              <h1 className="text-6xl md:text-8xl font-bold mb-8 leading-tight">
+              <motion.h1 
+                className="text-6xl md:text-8xl font-bold mb-8 leading-tight"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8, delay: 0.7 }}
+              >
                 <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
-                  Your Ultimate
+                  One Platform.
                 </span>
                 <br />
-                <span className="bg-gradient-to-r from-primary via-purple-400 to-pink-500 bg-clip-text text-transparent">
-                  Learning Companion
-                </span>
-              </h1>
+                <motion.span 
+                  className="bg-gradient-to-r from-primary via-purple-400 to-pink-500 bg-clip-text text-transparent"
+                  animate={{
+                    backgroundPosition: ["0%", "100%", "0%"],
+                  }}
+                  transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+                  style={{ backgroundSize: "200%" }}
+                >
+                  Infinite Possibilities.
+                </motion.span>
+              </motion.h1>
               
-              <p className="text-xl md:text-2xl text-white/60 mb-12 max-w-3xl mx-auto leading-relaxed">
-                The all-in-one platform for students to organize, collaborate, and excel. 
-                From smart scheduling to AI-powered study tools, we've got everything you need.
-              </p>
+              <motion.p 
+                className="text-xl md:text-2xl text-white/60 mb-12 max-w-3xl mx-auto leading-relaxed"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.9 }}
+              >
+                <span className="text-white/80 font-semibold">Study. Create. Collaborate. Stream.</span>
+                <br />
+                The all-in-one ecosystem for students, creators, and dreamers. 
+                AI-powered tools, music streaming, and everything in between.
+              </motion.p>
               
-              <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div 
+                className="flex flex-col sm:flex-row justify-center gap-4"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 1.1 }}
+              >
+                <motion.div 
+                  whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(139,92,246,0.5)" }} 
+                  whileTap={{ scale: 0.95 }}
+                >
                   <Button 
                     size="lg" 
                     onClick={handleGetStarted}
-                    className="text-lg px-10 py-7 bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 text-white border-0 rounded-full"
+                    className="text-lg px-10 py-7 bg-gradient-to-r from-primary via-purple-500 to-pink-500 hover:opacity-90 text-white border-0 rounded-full shadow-lg shadow-primary/30"
                   >
                     <Rocket className="w-5 h-5 mr-2" />
-                    Start Your Journey
+                    Launch Your Experience
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </motion.div>
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <motion.div 
+                  whileHover={{ scale: 1.05 }} 
+                  whileTap={{ scale: 0.95 }}
+                >
                   <Button 
                     size="lg" 
                     variant="outline"
-                    onClick={() => navigate('/xvibe')}
-                    className="text-lg px-10 py-7 bg-white/5 border-white/20 text-white hover:bg-white/10 rounded-full"
+                    onClick={() => { playBeep(); navigate('/xvibe'); }}
+                    className="text-lg px-10 py-7 bg-white/5 border-white/20 text-white hover:bg-white/10 rounded-full backdrop-blur-xl"
                   >
                     <Music className="w-5 h-5 mr-2" />
                     Explore XVibe Music
                   </Button>
                 </motion.div>
-              </div>
+              </motion.div>
+
+              {/* Floating badges */}
+              <motion.div 
+                className="mt-16 flex flex-wrap justify-center gap-3"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.5 }}
+              >
+                {['AI-Powered', 'Music Streaming', 'Study Tools', 'Gamification', 'Real-time Sync'].map((tag, i) => (
+                  <motion.div
+                    key={tag}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.5 + i * 0.1 }}
+                    whileHover={{ scale: 1.1 }}
+                  >
+                    <Badge variant="secondary" className="bg-white/5 text-white/70 border-white/10 px-4 py-2 text-sm backdrop-blur-xl">
+                      {tag}
+                    </Badge>
+                  </motion.div>
+                ))}
+              </motion.div>
             </motion.div>
           </div>
         </section>

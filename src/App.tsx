@@ -13,6 +13,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { NowPlayingProvider } from "./contexts/NowPlayingContext";
 import { GuestModeProvider } from "./contexts/GuestModeContext";
 import { BeepSoundProvider } from "./contexts/BeepSoundContext";
+import { AdminEditProvider } from "./contexts/AdminEditContext";
 import { AppLayout } from "./components/layout/AppLayout";
 import VoiceCommand from "./components/VoiceCommand";
 import Landing from "./pages/Landing";
@@ -193,6 +194,12 @@ import XFlowMessages from "./pages/xflow/XFlowMessages";
 import XFlowPostView from "./pages/xflow/XFlowPostView";
 import XFlowModeration from "./pages/admin/XFlowModeration";
 
+// Support Pages
+import Contact from "./pages/support/Contact";
+import HelpCentre from "./pages/support/HelpCentre";
+import PrivacyPolicy from "./pages/support/PrivacyPolicy";
+import TermsConditions from "./pages/support/TermsConditions";
+
 // XVibe Music Platform
 import { XVibePlayerProvider } from "./xvibe/contexts/XVibePlayerContext";
 import { PersistentXVibeMiniPlayer } from "./xvibe/components/player/PersistentXVibeMiniPlayer";
@@ -234,6 +241,7 @@ const App = () => (
                     <XVibePlayerProvider>
                     <MusicPlayerProvider>
                     <AuthProvider>
+                      <AdminEditProvider>
                       <NotificationListener />
                       <GlobalRealtimeSync />
                       <PersistentXVibeMiniPlayer />
@@ -551,11 +559,18 @@ const App = () => (
                     <Route path="/xvibe/blog/:blogId" element={<XWaveBlogEditor />} />
                     <Route path="/xvibe/editor" element={<XWaveEditorDashboard />} />
                     
+                    {/* Support Pages */}
+                    <Route path="/support/contact" element={<Contact />} />
+                    <Route path="/support/help" element={<HelpCentre />} />
+                    <Route path="/support/privacy" element={<PrivacyPolicy />} />
+                    <Route path="/support/terms" element={<TermsConditions />} />
+                    
                     <Route path="/shared/resource/:token" element={<SharedResource />} />
                     <Route path="/w/:slug" element={<PublishedWebsite />} />
                     <Route path="/published/:slug" element={<PublishedContent />} />
                     <Route path="*" element={<Landing />} />
                     </Routes>
+                  </AdminEditProvider>
                   </AuthProvider>
                   <UniversalMusicPlayer />
                   </MusicPlayerProvider>

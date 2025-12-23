@@ -107,6 +107,33 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_editable_content: {
+        Row: {
+          content_key: string
+          content_value: string
+          id: string
+          page_path: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          content_key: string
+          content_value: string
+          id?: string
+          page_path?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          content_key?: string
+          content_value?: string
+          id?: string
+          page_path?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       admin_notifications: {
         Row: {
           created_at: string | null
