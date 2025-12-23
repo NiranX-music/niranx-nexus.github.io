@@ -450,6 +450,8 @@ export function AppSidebar() {
     </>
   );
 
+  const isXVibePage = currentPath.startsWith('/xvibe');
+
   return (
     <Sidebar className="border-r border-sidebar-border bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 backdrop-blur-2xl hidden md:flex shadow-2xl flex-col h-full overflow-hidden fixed left-0 top-0 bottom-0 z-50">
       <SidebarHeader className="border-b border-primary/20 p-4 bg-gradient-to-r from-primary/10 via-purple-600/10 to-blue-600/10 flex-shrink-0 sticky top-0 z-50 backdrop-blur-md">
@@ -469,6 +471,29 @@ export function AppSidebar() {
           </div>
           <SidebarTrigger className="hover:bg-white/10 rounded-md p-1.5 transition-colors" />
         </div>
+
+        {/* Go-to NiranX Nexus Button - Shows on XVibe pages */}
+        {!isCollapsed && isXVibePage && (
+          <NavLink
+            to="/niranx/dashboard"
+            className="mt-2 flex items-center gap-2 px-3 py-2.5 bg-gradient-to-r from-primary/80 to-purple-600/80 hover:from-primary hover:to-purple-600 text-white rounded-lg font-medium text-sm transition-all shadow-lg shadow-primary/20"
+          >
+            <Home className="h-4 w-4" />
+            <span>Go to NiranX Nexus</span>
+          </NavLink>
+        )}
+
+        {/* Go-to XVibe Button - Shows on non-XVibe pages */}
+        {!isCollapsed && !isXVibePage && (
+          <NavLink
+            to="/xvibe"
+            className="mt-2 flex items-center gap-2 px-3 py-2.5 bg-gradient-to-r from-green-600/80 to-emerald-600/80 hover:from-green-600 hover:to-emerald-600 text-white rounded-lg font-medium text-sm transition-all shadow-lg shadow-green-600/20"
+          >
+            <Music className="h-4 w-4" />
+            <span>Go to XVibe Music</span>
+          </NavLink>
+        )}
+
         {!isCollapsed && (
           <>
             <div className="mt-4 p-3 bg-gradient-to-br from-primary/20 via-purple-600/15 to-blue-600/15 rounded-lg border border-primary/30 shadow-lg shadow-primary/10">
