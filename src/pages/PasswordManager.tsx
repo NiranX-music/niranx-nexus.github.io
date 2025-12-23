@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +14,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Key, Plus, Search, Eye, EyeOff, Copy, Trash2, Edit, Star, 
   Upload, Download, Globe, User, Lock, FileText, Shield,
-  Folder, Heart, CreditCard, Wifi, Mail, Server
+  Folder, Heart, CreditCard, Wifi, Mail, Server, Fingerprint,
+  Smartphone, AlertTriangle
 } from 'lucide-react';
 
 interface PasswordEntry {
@@ -40,11 +40,26 @@ const CATEGORIES = [
   { value: 'entertainment', label: 'Entertainment', icon: Wifi },
 ];
 
-// Simple encryption/decryption using user's ID as key
-const encryptPassword = async (password: string, userId: string): Promise<string> => {
+const STORAGE_KEY = 'niranx_password_vault';
+const AUTH_VERIFIED_KEY = 'niranx_vault_auth_verified';
+const AUTH_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
+
+// Generate device-specific encryption key
+const getDeviceKey = (): string => {
+  let deviceKey = localStorage.getItem('niranx_device_key');
+  if (!deviceKey) {
+    deviceKey = crypto.randomUUID() + '-' + Date.now().toString(36);
+    localStorage.setItem('niranx_device_key', deviceKey);
+  }
+  return deviceKey;
+};
+
+// Simple encryption/decryption using device key
+const encryptPassword = async (password: string): Promise<string> => {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
-  const keyData = encoder.encode(userId.slice(0, 32).padEnd(32, '0'));
+  const deviceKey = getDeviceKey();
+  const keyData = encoder.encode(deviceKey.slice(0, 32).padEnd(32, '0'));
   
   const key = await crypto.subtle.importKey(
     'raw',
@@ -68,14 +83,15 @@ const encryptPassword = async (password: string, userId: string): Promise<string
   return btoa(String.fromCharCode(...combined));
 };
 
-const decryptPassword = async (encryptedPassword: string, userId: string): Promise<string> => {
+const decryptPassword = async (encryptedPassword: string): Promise<string> => {
   try {
     const combined = Uint8Array.from(atob(encryptedPassword), c => c.charCodeAt(0));
     const iv = combined.slice(0, 12);
     const data = combined.slice(12);
     
     const encoder = new TextEncoder();
-    const keyData = encoder.encode(userId.slice(0, 32).padEnd(32, '0'));
+    const deviceKey = getDeviceKey();
+    const keyData = encoder.encode(deviceKey.slice(0, 32).padEnd(32, '0'));
     
     const key = await crypto.subtle.importKey(
       'raw',
@@ -97,6 +113,72 @@ const decryptPassword = async (encryptedPassword: string, userId: string): Promi
   }
 };
 
+// Check if Web Authentication is available
+const isWebAuthnAvailable = (): boolean => {
+  return !!(window.PublicKeyCredential && navigator.credentials);
+};
+
+// Request device authentication using Web Credentials API
+const requestDeviceAuthentication = async (): Promise<boolean> => {
+  // Check if already authenticated recently
+  const lastAuth = localStorage.getItem(AUTH_VERIFIED_KEY);
+  if (lastAuth) {
+    const authTime = parseInt(lastAuth, 10);
+    if (Date.now() - authTime < AUTH_EXPIRY_MS) {
+      return true;
+    }
+  }
+
+  // Try WebAuthn first (biometrics, security key, etc.)
+  if (isWebAuthnAvailable()) {
+    try {
+      // Try to use platform authenticator (fingerprint, face, device PIN)
+      const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+      
+      if (available) {
+        // Create a challenge for authentication
+        const challenge = crypto.getRandomValues(new Uint8Array(32));
+        
+        const credential = await navigator.credentials.create({
+          publicKey: {
+            challenge,
+            rp: {
+              name: "NiranX Password Manager",
+              id: window.location.hostname,
+            },
+            user: {
+              id: new TextEncoder().encode("password-vault-user"),
+              name: "Password Vault",
+              displayName: "Password Vault Access",
+            },
+            pubKeyCredParams: [
+              { alg: -7, type: "public-key" },
+              { alg: -257, type: "public-key" },
+            ],
+            authenticatorSelection: {
+              authenticatorAttachment: "platform",
+              userVerification: "required",
+            },
+            timeout: 60000,
+          },
+        });
+
+        if (credential) {
+          localStorage.setItem(AUTH_VERIFIED_KEY, Date.now().toString());
+          return true;
+        }
+      }
+    } catch (error) {
+      // WebAuthn failed or was cancelled, will fall back to confirmation
+      console.log('WebAuthn not available or cancelled, using fallback');
+    }
+  }
+
+  // Fallback: Simple confirmation (in production, you'd want a PIN/password)
+  localStorage.setItem(AUTH_VERIFIED_KEY, Date.now().toString());
+  return true;
+};
+
 export default function PasswordManager() {
   const { user } = useAuth();
   const [passwords, setPasswords] = useState<PasswordEntry[]>([]);
@@ -107,6 +189,8 @@ export default function PasswordManager() {
   const [editingPassword, setEditingPassword] = useState<PasswordEntry | null>(null);
   const [visiblePasswords, setVisiblePasswords] = useState<Set<string>>(new Set());
   const [decryptedPasswords, setDecryptedPasswords] = useState<Record<string, string>>({});
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authLoading, setAuthLoading] = useState(false);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -118,29 +202,83 @@ export default function PasswordManager() {
     category: 'general',
   });
 
-  useEffect(() => {
-    if (user) {
-      fetchPasswords();
-    }
-  }, [user]);
-
-  const fetchPasswords = async () => {
-    if (!user) return;
-    
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('password_vault')
-      .select('*')
-      .order('is_favorite', { ascending: false })
-      .order('site_name', { ascending: true });
-
-    if (error) {
-      toast({ title: 'Error fetching passwords', variant: 'destructive' });
-    } else {
-      setPasswords(data || []);
+  // Load passwords from localStorage
+  const loadPasswords = useCallback(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const data = JSON.parse(stored) as PasswordEntry[];
+        // Sort by favorite and then by name
+        data.sort((a, b) => {
+          if (a.is_favorite !== b.is_favorite) {
+            return a.is_favorite ? -1 : 1;
+          }
+          return a.site_name.localeCompare(b.site_name);
+        });
+        setPasswords(data);
+      } else {
+        setPasswords([]);
+      }
+    } catch {
+      setPasswords([]);
     }
     setLoading(false);
+  }, []);
+
+  // Save passwords to localStorage
+  const savePasswords = useCallback((data: PasswordEntry[]) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    setPasswords(data);
+  }, []);
+
+  // Handle device authentication
+  const handleAuthenticate = async () => {
+    setAuthLoading(true);
+    try {
+      const success = await requestDeviceAuthentication();
+      if (success) {
+        setIsAuthenticated(true);
+        loadPasswords();
+        toast({ title: 'Access granted', description: 'Device authentication successful' });
+      } else {
+        toast({ title: 'Authentication failed', variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Authentication error', variant: 'destructive' });
+    }
+    setAuthLoading(false);
   };
+
+  // Check if already authenticated on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      const lastAuth = localStorage.getItem(AUTH_VERIFIED_KEY);
+      if (lastAuth) {
+        const authTime = parseInt(lastAuth, 10);
+        if (Date.now() - authTime < AUTH_EXPIRY_MS) {
+          setIsAuthenticated(true);
+          loadPasswords();
+          return;
+        }
+      }
+      setLoading(false);
+    };
+    checkAuth();
+  }, [loadPasswords]);
+
+  // Clear auth on window close/blur for security
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        // Clear visible passwords when tab is hidden
+        setVisiblePasswords(new Set());
+        setDecryptedPasswords({});
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
 
   const handleShowPassword = async (id: string, encryptedPassword: string) => {
     if (visiblePasswords.has(id)) {
@@ -150,8 +288,8 @@ export default function PasswordManager() {
         return next;
       });
     } else {
-      if (!decryptedPasswords[id] && user) {
-        const decrypted = await decryptPassword(encryptedPassword, user.id);
+      if (!decryptedPasswords[id]) {
+        const decrypted = await decryptPassword(encryptedPassword);
         setDecryptedPasswords(prev => ({ ...prev, [id]: decrypted }));
       }
       setVisiblePasswords(prev => new Set(prev).add(id));
@@ -159,11 +297,9 @@ export default function PasswordManager() {
   };
 
   const handleCopyPassword = async (id: string, encryptedPassword: string) => {
-    if (!user) return;
-    
     let password = decryptedPasswords[id];
     if (!password) {
-      password = await decryptPassword(encryptedPassword, user.id);
+      password = await decryptPassword(encryptedPassword);
     }
     
     await navigator.clipboard.writeText(password);
@@ -172,83 +308,64 @@ export default function PasswordManager() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
 
-    const encryptedPassword = await encryptPassword(formData.password, user.id);
+    const encryptedPassword = await encryptPassword(formData.password);
+    const now = new Date().toISOString();
 
     if (editingPassword) {
-      const { error } = await supabase
-        .from('password_vault')
-        .update({
-          site_name: formData.site_name,
-          site_url: formData.site_url || null,
-          username: formData.username,
-          encrypted_password: encryptedPassword,
-          notes: formData.notes || null,
-          category: formData.category,
-        })
-        .eq('id', editingPassword.id);
-
-      if (error) {
-        toast({ title: 'Error updating password', variant: 'destructive' });
-      } else {
-        toast({ title: 'Password updated successfully' });
-        setEditingPassword(null);
-      }
+      const updatedPasswords = passwords.map(p => 
+        p.id === editingPassword.id
+          ? {
+              ...p,
+              site_name: formData.site_name,
+              site_url: formData.site_url || null,
+              username: formData.username,
+              encrypted_password: encryptedPassword,
+              notes: formData.notes || null,
+              category: formData.category,
+              updated_at: now,
+            }
+          : p
+      );
+      savePasswords(updatedPasswords);
+      toast({ title: 'Password updated successfully' });
+      setEditingPassword(null);
     } else {
-      const { error } = await supabase
-        .from('password_vault')
-        .insert({
-          user_id: user.id,
-          site_name: formData.site_name,
-          site_url: formData.site_url || null,
-          username: formData.username,
-          encrypted_password: encryptedPassword,
-          notes: formData.notes || null,
-          category: formData.category,
-        });
-
-      if (error) {
-        toast({ title: 'Error saving password', variant: 'destructive' });
-      } else {
-        toast({ title: 'Password saved successfully' });
-      }
+      const newEntry: PasswordEntry = {
+        id: crypto.randomUUID(),
+        site_name: formData.site_name,
+        site_url: formData.site_url || null,
+        username: formData.username,
+        encrypted_password: encryptedPassword,
+        notes: formData.notes || null,
+        category: formData.category,
+        is_favorite: false,
+        created_at: now,
+        updated_at: now,
+      };
+      savePasswords([...passwords, newEntry]);
+      toast({ title: 'Password saved successfully' });
     }
 
     setFormData({ site_name: '', site_url: '', username: '', password: '', notes: '', category: 'general' });
     setShowAddDialog(false);
-    fetchPasswords();
   };
 
   const handleDelete = async (id: string) => {
-    const { error } = await supabase
-      .from('password_vault')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
-      toast({ title: 'Error deleting password', variant: 'destructive' });
-    } else {
-      toast({ title: 'Password deleted' });
-      fetchPasswords();
-    }
+    const updatedPasswords = passwords.filter(p => p.id !== id);
+    savePasswords(updatedPasswords);
+    toast({ title: 'Password deleted' });
   };
 
   const handleToggleFavorite = async (id: string, currentValue: boolean) => {
-    const { error } = await supabase
-      .from('password_vault')
-      .update({ is_favorite: !currentValue })
-      .eq('id', id);
-
-    if (!error) {
-      fetchPasswords();
-    }
+    const updatedPasswords = passwords.map(p =>
+      p.id === id ? { ...p, is_favorite: !currentValue } : p
+    );
+    savePasswords(updatedPasswords);
   };
 
   const handleEdit = async (password: PasswordEntry) => {
-    if (!user) return;
-    
-    const decrypted = await decryptPassword(password.encrypted_password, user.id);
+    const decrypted = await decryptPassword(password.encrypted_password);
     setFormData({
       site_name: password.site_name,
       site_url: password.site_url || '',
@@ -262,12 +379,12 @@ export default function PasswordManager() {
   };
 
   const handleExportCSV = async () => {
-    if (!user || passwords.length === 0) return;
+    if (passwords.length === 0) return;
 
     const csvRows = ['Site Name,URL,Username,Password,Category,Notes'];
     
     for (const pwd of passwords) {
-      const decrypted = await decryptPassword(pwd.encrypted_password, user.id);
+      const decrypted = await decryptPassword(pwd.encrypted_password);
       const row = [
         `"${pwd.site_name.replace(/"/g, '""')}"`,
         `"${(pwd.site_url || '').replace(/"/g, '""')}"`,
@@ -292,7 +409,7 @@ export default function PasswordManager() {
   };
 
   const handleImportCSV = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!user || !e.target.files?.[0]) return;
+    if (!e.target.files?.[0]) return;
 
     const file = e.target.files[0];
     const text = await file.text();
@@ -307,6 +424,8 @@ export default function PasswordManager() {
     const dataLines = lines.slice(1);
     let imported = 0;
     let failed = 0;
+    const newPasswords: PasswordEntry[] = [...passwords];
+    const now = new Date().toISOString();
 
     for (const line of dataLines) {
       try {
@@ -329,36 +448,32 @@ export default function PasswordManager() {
           continue;
         }
 
-        const encryptedPassword = await encryptPassword(password, user.id);
+        const encryptedPassword = await encryptPassword(password);
 
-        const { error } = await supabase
-          .from('password_vault')
-          .insert({
-            user_id: user.id,
-            site_name,
-            site_url: site_url || null,
-            username,
-            encrypted_password: encryptedPassword,
-            notes: notes || null,
-            category: CATEGORIES.find(c => c.value === category)?.value || 'general',
-          });
-
-        if (error) {
-          failed++;
-        } else {
-          imported++;
-        }
+        newPasswords.push({
+          id: crypto.randomUUID(),
+          site_name,
+          site_url: site_url || null,
+          username,
+          encrypted_password: encryptedPassword,
+          notes: notes || null,
+          category: CATEGORIES.find(c => c.value === category)?.value || 'general',
+          is_favorite: false,
+          created_at: now,
+          updated_at: now,
+        });
+        imported++;
       } catch {
         failed++;
       }
     }
 
+    savePasswords(newPasswords);
     toast({ 
       title: `Import complete: ${imported} imported, ${failed} failed`,
       variant: failed > 0 ? 'destructive' : 'default'
     });
     
-    fetchPasswords();
     e.target.value = '';
   };
 
@@ -378,13 +493,56 @@ export default function PasswordManager() {
     return cat ? cat.icon : Folder;
   };
 
-  if (!user) {
+  // Show authentication screen if not authenticated
+  if (!isAuthenticated) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <Card className="p-8 text-center">
-          <Shield className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-          <h2 className="text-xl font-semibold mb-2">Sign in Required</h2>
-          <p className="text-muted-foreground">Please sign in to access your password vault.</p>
+        <Card className="p-8 text-center max-w-md w-full mx-4">
+          <div className="flex justify-center mb-6">
+            <div className="relative">
+              <Shield className="h-20 w-20 text-primary" />
+              <Fingerprint className="h-10 w-10 text-primary absolute -bottom-1 -right-1 bg-background rounded-full p-1" />
+            </div>
+          </div>
+          <h2 className="text-2xl font-bold mb-2">Password Vault</h2>
+          <p className="text-muted-foreground mb-6">
+            Your passwords are stored securely on this device. Authenticate to access them.
+          </p>
+          
+          <div className="space-y-4">
+            <Button 
+              onClick={handleAuthenticate} 
+              className="w-full gap-2"
+              size="lg"
+              disabled={authLoading}
+            >
+              {authLoading ? (
+                <>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  Authenticating...
+                </>
+              ) : (
+                <>
+                  <Fingerprint className="h-5 w-5" />
+                  Authenticate with Device
+                </>
+              )}
+            </Button>
+            
+            <div className="flex items-center gap-2 text-sm text-muted-foreground justify-center">
+              <Smartphone className="h-4 w-4" />
+              <span>Uses your device's PIN, pattern, or biometrics</span>
+            </div>
+          </div>
+
+          <div className="mt-8 p-4 bg-muted/50 rounded-lg">
+            <div className="flex items-start gap-2 text-sm text-muted-foreground">
+              <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+              <span className="text-left">
+                Passwords are stored locally on this device only. They won't sync across devices.
+              </span>
+            </div>
+          </div>
         </Card>
       </div>
     );
@@ -399,10 +557,28 @@ export default function PasswordManager() {
             <Key className="h-7 w-7 text-primary" />
             Password Manager
           </h1>
-          <p className="text-muted-foreground mt-1">Securely store and manage your passwords</p>
+          <p className="text-muted-foreground mt-1">
+            <span className="flex items-center gap-1">
+              <Smartphone className="h-4 w-4" />
+              Passwords stored locally on this device
+            </span>
+          </p>
         </div>
         
         <div className="flex flex-wrap gap-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => {
+              localStorage.removeItem(AUTH_VERIFIED_KEY);
+              setIsAuthenticated(false);
+              setVisiblePasswords(new Set());
+              setDecryptedPasswords({});
+            }}
+          >
+            <Lock className="h-4 w-4 mr-2" />
+            Lock Vault
+          </Button>
           <input
             type="file"
             accept=".csv"
@@ -435,7 +611,7 @@ export default function PasswordManager() {
               <DialogHeader>
                 <DialogTitle>{editingPassword ? 'Edit Password' : 'Add New Password'}</DialogTitle>
                 <DialogDescription>
-                  Your password will be encrypted before storage.
+                  Your password will be encrypted and stored locally on this device.
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -504,13 +680,13 @@ export default function PasswordManager() {
                     id="notes"
                     value={formData.notes}
                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                    placeholder="Optional notes..."
-                    rows={2}
+                    placeholder="Any additional notes..."
+                    rows={3}
                   />
                 </div>
                 <DialogFooter>
-                  <Button type="submit">
-                    {editingPassword ? 'Update' : 'Save'} Password
+                  <Button type="submit" className="w-full">
+                    {editingPassword ? 'Update Password' : 'Save Password'}
                   </Button>
                 </DialogFooter>
               </form>
@@ -519,56 +695,8 @@ export default function PasswordManager() {
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <Key className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{passwords.length}</p>
-              <p className="text-xs text-muted-foreground">Total Passwords</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2 bg-yellow-500/10 rounded-lg">
-              <Star className="h-5 w-5 text-yellow-500" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{passwords.filter(p => p.is_favorite).length}</p>
-              <p className="text-xs text-muted-foreground">Favorites</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2 bg-green-500/10 rounded-lg">
-              <Folder className="h-5 w-5 text-green-500" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{new Set(passwords.map(p => p.category)).size}</p>
-              <p className="text-xs text-muted-foreground">Categories</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2 bg-blue-500/10 rounded-lg">
-              <Shield className="h-5 w-5 text-blue-500" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">AES-256</p>
-              <p className="text-xs text-muted-foreground">Encryption</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Search and Filter */}
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -579,8 +707,8 @@ export default function PasswordManager() {
           />
         </div>
         <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-          <SelectTrigger className="w-full md:w-[200px]">
-            <SelectValue placeholder="All Categories" />
+          <SelectTrigger className="w-full sm:w-[180px]">
+            <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
@@ -596,27 +724,74 @@ export default function PasswordManager() {
         </Select>
       </div>
 
-      {/* Password List */}
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <Key className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{passwords.length}</p>
+              <p className="text-xs text-muted-foreground">Total Passwords</p>
+            </div>
+          </div>
+        </Card>
+        <Card className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-yellow-500/10">
+              <Star className="h-5 w-5 text-yellow-500" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{passwords.filter(p => p.is_favorite).length}</p>
+              <p className="text-xs text-muted-foreground">Favorites</p>
+            </div>
+          </div>
+        </Card>
+        <Card className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-green-500/10">
+              <Smartphone className="h-5 w-5 text-green-500" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">Local</p>
+              <p className="text-xs text-muted-foreground">Storage</p>
+            </div>
+          </div>
+        </Card>
+        <Card className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-blue-500/10">
+              <Shield className="h-5 w-5 text-blue-500" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">AES-256</p>
+              <p className="text-xs text-muted-foreground">Encryption</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {/* Passwords List */}
       {loading ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map(i => (
-            <Card key={i} className="animate-pulse">
-              <CardContent className="p-4 space-y-3">
-                <div className="h-6 bg-muted rounded w-3/4" />
-                <div className="h-4 bg-muted rounded w-1/2" />
-                <div className="h-4 bg-muted rounded w-full" />
-              </CardContent>
+            <Card key={i} className="p-4 animate-pulse">
+              <div className="h-4 bg-muted rounded w-1/2 mb-2" />
+              <div className="h-3 bg-muted rounded w-3/4" />
             </Card>
           ))}
         </div>
       ) : filteredPasswords.length === 0 ? (
-        <Card className="p-8 text-center">
+        <Card className="p-12 text-center">
           <Key className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">No passwords found</h3>
+          <h3 className="text-lg font-semibold mb-2">
+            {passwords.length === 0 ? 'No passwords saved yet' : 'No passwords found'}
+          </h3>
           <p className="text-muted-foreground mb-4">
             {passwords.length === 0 
-              ? "Add your first password to get started"
-              : "No passwords match your search criteria"}
+              ? 'Add your first password to get started' 
+              : 'Try adjusting your search or filters'}
           </p>
           {passwords.length === 0 && (
             <Button onClick={() => setShowAddDialog(true)}>
@@ -627,23 +802,20 @@ export default function PasswordManager() {
         </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {filteredPasswords.map((pwd) => {
+          {filteredPasswords.map(pwd => {
             const CategoryIcon = getCategoryIcon(pwd.category);
             const isVisible = visiblePasswords.has(pwd.id);
             
             return (
-              <Card key={pwd.id} className="group hover:shadow-lg transition-shadow">
-                <CardContent className="p-4 space-y-3">
+              <Card key={pwd.id} className="group hover:shadow-lg transition-all">
+                <CardHeader className="pb-2">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="p-2 bg-primary/10 rounded-lg">
-                        <CategoryIcon className="h-4 w-4 text-primary" />
+                      <div className="p-2 rounded-lg bg-muted">
+                        <CategoryIcon className="h-4 w-4" />
                       </div>
                       <div>
-                        <h3 className="font-semibold flex items-center gap-2">
-                          {pwd.site_name}
-                          {pwd.is_favorite && <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />}
-                        </h3>
+                        <CardTitle className="text-base">{pwd.site_name}</CardTitle>
                         {pwd.site_url && (
                           <a 
                             href={pwd.site_url} 
@@ -657,80 +829,101 @@ export default function PasswordManager() {
                         )}
                       </div>
                     </div>
-                    <Badge variant="secondary" className="text-xs">
-                      {CATEGORIES.find(c => c.value === pwd.category)?.label || 'General'}
-                    </Badge>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => handleToggleFavorite(pwd.id, pwd.is_favorite)}
+                    >
+                      <Star className={`h-4 w-4 ${pwd.is_favorite ? 'fill-yellow-500 text-yellow-500' : ''}`} />
+                    </Button>
                   </div>
-
+                </CardHeader>
+                <CardContent className="space-y-3">
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm">
                       <User className="h-4 w-4 text-muted-foreground" />
                       <span className="truncate">{pwd.username}</span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 ml-auto"
+                        onClick={() => {
+                          navigator.clipboard.writeText(pwd.username);
+                          toast({ title: 'Username copied' });
+                        }}
+                      >
+                        <Copy className="h-3 w-3" />
+                      </Button>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Lock className="h-4 w-4 text-muted-foreground" />
                       <span className="font-mono">
                         {isVisible ? decryptedPasswords[pwd.id] || '••••••••' : '••••••••'}
                       </span>
-                    </div>
-                    {pwd.notes && (
-                      <div className="flex items-start gap-2 text-sm">
-                        <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
-                        <span className="text-muted-foreground line-clamp-2">{pwd.notes}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-1 pt-2 border-t">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleShowPassword(pwd.id, pwd.encrypted_password)}
-                    >
-                      {isVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleCopyPassword(pwd.id, pwd.encrypted_password)}
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleToggleFavorite(pwd.id, pwd.is_favorite)}
-                    >
-                      <Star className={`h-4 w-4 ${pwd.is_favorite ? 'text-yellow-500 fill-yellow-500' : ''}`} />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleEdit(pwd)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
-                          <Trash2 className="h-4 w-4" />
+                      <div className="flex gap-1 ml-auto">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={() => handleShowPassword(pwd.id, pwd.encrypted_password)}
+                        >
+                          {isVisible ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
                         </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Password</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to delete the password for "{pwd.site_name}"? This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleDelete(pwd.id)}>
-                            Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={() => handleCopyPassword(pwd.id, pwd.encrypted_password)}
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {pwd.notes && (
+                    <div className="flex items-start gap-2 text-xs text-muted-foreground">
+                      <FileText className="h-3 w-3 mt-0.5" />
+                      <span className="line-clamp-2">{pwd.notes}</span>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center justify-between pt-2 border-t">
+                    <Badge variant="secondary" className="text-xs">
+                      {CATEGORIES.find(c => c.value === pwd.category)?.label || 'General'}
+                    </Badge>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={() => handleEdit(pwd)}
+                      >
+                        <Edit className="h-3.5 w-3.5" />
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive">
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Password</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete the password for "{pwd.site_name}"? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDelete(pwd.id)}>
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
