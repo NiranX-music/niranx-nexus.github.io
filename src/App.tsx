@@ -535,6 +535,9 @@ const App = () => (
                     <Route path="/xvibe/upload" element={<XVibeUpload />} />
                     <Route path="/xvibe/artist-register" element={<XVibeArtistRegister />} />
                     <Route path="/xvibe/moderation" element={<XVibeModeration />} />
+                    <Route path="/xvibe/releases" element={<XVibeReleaseDashboard />} />
+                    <Route path="/xvibe/releases/:releaseId" element={<XVibeReleaseEditor />} />
+                    <Route path="/xvibe/admin" element={<XVibeAdminDashboard />} />
                     
                     <Route path="/shared/resource/:token" element={<SharedResource />} />
                     <Route path="/w/:slug" element={<PublishedWebsite />} />
