@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Music2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { useXVibePlayer } from '../../contexts/XVibePlayerContext';
 
 interface LyricsViewProps {
@@ -14,6 +13,10 @@ export function LyricsView({ isOpen, onClose }: LyricsViewProps) {
   const { currentTrack } = useXVibePlayer();
 
   if (!isOpen) return null;
+
+  const artistName = typeof currentTrack?.artist === 'string' 
+    ? currentTrack.artist 
+    : currentTrack?.artist?.name || 'Unknown Artist';
 
   return (
     <AnimatePresence>
@@ -30,7 +33,7 @@ export function LyricsView({ isOpen, onClose }: LyricsViewProps) {
             )}
             <div>
               <h3 className="text-white font-semibold">{currentTrack?.title}</h3>
-              <p className="text-[#B3B3B3] text-sm">{currentTrack?.artist}</p>
+              <p className="text-[#B3B3B3] text-sm">{artistName}</p>
             </div>
           </div>
           <Button variant="ghost" size="icon" onClick={onClose} className="text-white hover:bg-white/10">

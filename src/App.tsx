@@ -208,6 +208,9 @@ import XVibeArtistDashboard from "./xvibe/pages/XVibeArtistDashboard";
 import XVibeUpload from "./xvibe/pages/XVibeUpload";
 import XVibeArtistRegister from "./xvibe/pages/XVibeArtistRegister";
 import XVibeModeration from "./xvibe/pages/XVibeModeration";
+import XVibeReleaseDashboard from "./xvibe/pages/XVibeReleaseDashboard";
+import XVibeReleaseEditor from "./xvibe/pages/XVibeReleaseEditor";
+import XVibeAdminDashboard from "./xvibe/pages/XVibeAdminDashboard";
 
 const queryClient = new QueryClient();
 
