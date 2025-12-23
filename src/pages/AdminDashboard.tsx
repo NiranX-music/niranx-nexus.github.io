@@ -9,10 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Users, FileText, MessageSquare, Activity, TrendingUp, Clock, Award, BarChart3, Sparkles, UserPlus, Music } from "lucide-react";
+import { Users, FileText, MessageSquare, Activity, TrendingUp, Clock, Award, BarChart3, Sparkles, UserPlus, Music, Pencil, RotateCcw, AlertTriangle, Eye, Mail, Calendar } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { CreateUserForm } from "@/components/admin/CreateUserForm";
+import { useAdminEdit } from "@/contexts/AdminEditContext";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Stats {
   totalUsers: number;
@@ -30,6 +33,7 @@ interface Stats {
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
+  const { isEditMode, toggleEditMode, isAdmin } = useAdminEdit();
   const [stats, setStats] = useState<Stats>({
     totalUsers: 0,
     activeUsersWeek: 0,
@@ -51,8 +55,35 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [userSearchQuery, setUserSearchQuery] = useState("");
   const [roleSearchQuery, setRoleSearchQuery] = useState("");
   const [requestStatusFilter, setRequestStatusFilter] = useState<string>("all");
+  const [isResetting, setIsResetting] = useState(false);
+
+  const resetAllEditedContent = async () => {
+    setIsResetting(true);
+    try {
+      const { error } = await supabase
+        .from('admin_editable_content')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all rows
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Success",
+        description: "All edited content has been reset to defaults",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to reset content",
+        variant: "destructive",
+      });
+    } finally {
+      setIsResetting(false);
+    }
+  };
 
   useEffect(() => {
     loadDashboardData();
@@ -401,30 +432,59 @@ export default function AdminDashboard() {
 
   const COLORS = ['hsl(var(--muted))', 'hsl(var(--warning))', 'hsl(var(--success))'];
 
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = userSearchQuery === "" || 
+      (user.username?.toLowerCase().includes(userSearchQuery.toLowerCase())) ||
+      (user.display_name?.toLowerCase().includes(userSearchQuery.toLowerCase())) ||
+      (user.email?.toLowerCase().includes(userSearchQuery.toLowerCase()));
+    return matchesSearch;
+  });
+
   return (
     <div className="container max-w-7xl mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
         <div>
           <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
           <p className="text-muted-foreground">
             Monitor platform activity, manage feedback, and analyze usage statistics
           </p>
         </div>
-        <Button onClick={() => navigate('/niranx/admin/user-controls')} size="lg" className="gap-2">
-          <Activity className="h-4 w-4" />
-          Manage User Controls
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button 
+            onClick={toggleEditMode} 
+            variant={isEditMode ? "default" : "outline"}
+            className="gap-2"
+          >
+            <Pencil className="h-4 w-4" />
+            {isEditMode ? "Exit Edit Mode" : "Edit Mode"}
+          </Button>
+          <Button onClick={() => navigate('/niranx/admin/user-controls')} variant="outline" className="gap-2">
+            <Activity className="h-4 w-4" />
+            User Controls
+          </Button>
+        </div>
       </div>
 
+      {isEditMode && (
+        <Card className="border-primary/50 bg-primary/5">
+          <CardContent className="py-3 flex items-center gap-3">
+            <Pencil className="h-5 w-5 text-primary" />
+            <p className="text-sm">
+              <strong>Edit Mode Active:</strong> Click on any editable text across the platform to modify it. Changes are saved automatically and visible to all users.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-8 lg:w-auto">
+        <TabsList className="grid w-full grid-cols-4 md:grid-cols-9 lg:w-auto">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="feedback">Feedback</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="create-user">Create User</TabsTrigger>
           <TabsTrigger value="roles">Roles</TabsTrigger>
           <TabsTrigger value="requests">
-            Admin Requests
+            Requests
             {adminRequests.filter(r => r.status === 'pending').length > 0 && (
               <Badge variant="destructive" className="ml-2">
                 {adminRequests.filter(r => r.status === 'pending').length}
@@ -433,6 +493,7 @@ export default function AdminDashboard() {
           </TabsTrigger>
           <TabsTrigger value="resources">Resources</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="danger" className="text-destructive">Danger Zone</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -677,35 +738,79 @@ export default function AdminDashboard() {
         <TabsContent value="users" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>User Activity</CardTitle>
-              <CardDescription>Recent user registrations and activity</CardDescription>
+              <div className="flex flex-col md:flex-row justify-between gap-4">
+                <div>
+                  <CardTitle>User Management</CardTitle>
+                  <CardDescription>View and manage all registered users ({users.length} total)</CardDescription>
+                </div>
+                <Input
+                  placeholder="Search users by name, username or email..."
+                  value={userSearchQuery}
+                  onChange={(e) => setUserSearchQuery(e.target.value)}
+                  className="md:max-w-xs"
+                />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="rounded-md border">
+              <div className="rounded-md border overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead>User</TableHead>
                       <TableHead>Username</TableHead>
-                      <TableHead>Display Name</TableHead>
+                      <TableHead>Email</TableHead>
                       <TableHead>Level</TableHead>
                       <TableHead>XP</TableHead>
+                      <TableHead>Status</TableHead>
                       <TableHead>Joined</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {users.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell className="font-medium">{user.username || 'N/A'}</TableCell>
-                        <TableCell>{user.display_name || 'N/A'}</TableCell>
-                        <TableCell>
-                          <Badge variant="secondary">Level {user.level || 1}</Badge>
-                        </TableCell>
-                        <TableCell>{user.xp || 0}</TableCell>
-                        <TableCell>
-                          {new Date(user.created_at).toLocaleDateString()}
+                    {filteredUsers.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                          No users found
                         </TableCell>
                       </TableRow>
-                    ))}
+                    ) : (
+                      filteredUsers.map((user) => (
+                        <TableRow key={user.id}>
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <Avatar className="h-8 w-8">
+                                <AvatarImage src={user.avatar_url} />
+                                <AvatarFallback>
+                                  {(user.display_name || user.username || 'U')[0].toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="font-medium">{user.display_name || 'No name'}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground">@{user.username || 'N/A'}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1 text-muted-foreground">
+                              <Mail className="h-3 w-3" />
+                              <span className="text-sm truncate max-w-[150px]">{user.email || 'N/A'}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="secondary">Level {user.level || 1}</Badge>
+                          </TableCell>
+                          <TableCell className="font-mono">{user.xp || 0}</TableCell>
+                          <TableCell>
+                            <Badge variant={user.is_active !== false ? "default" : "secondary"}>
+                              {user.is_active !== false ? "Active" : "Inactive"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1 text-muted-foreground text-sm">
+                              <Calendar className="h-3 w-3" />
+                              {new Date(user.created_at).toLocaleDateString()}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </div>
@@ -1126,6 +1231,83 @@ export default function AdminDashboard() {
                       : 0}%
                   </p>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="danger" className="space-y-4">
+          <Card className="border-destructive/50">
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-destructive" />
+                <CardTitle className="text-destructive">Danger Zone</CardTitle>
+              </div>
+              <CardDescription>
+                These actions are irreversible. Please proceed with caution.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Reset Edited Content */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-lg border border-destructive/30 bg-destructive/5">
+                <div>
+                  <h3 className="font-semibold">Reset All Edited Content</h3>
+                  <p className="text-sm text-muted-foreground">
+                    This will reset all admin-edited text across the platform to their default values. 
+                    All customizations made via Edit Mode will be permanently deleted.
+                  </p>
+                </div>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" className="gap-2 shrink-0" disabled={isResetting}>
+                      <RotateCcw className="h-4 w-4" />
+                      {isResetting ? "Resetting..." : "Reset Content"}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. All edited content across the platform will be 
+                        permanently reset to their original default values. This affects all pages 
+                        and all users will see the default content.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={resetAllEditedContent}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        Yes, Reset Everything
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+
+              {/* View Edited Content Stats */}
+              <div className="p-4 rounded-lg border">
+                <h3 className="font-semibold mb-2">Content Statistics</h3>
+                <p className="text-sm text-muted-foreground">
+                  Monitor how much content has been customized via Edit Mode.
+                </p>
+                <Button 
+                  variant="outline" 
+                  className="mt-3 gap-2"
+                  onClick={async () => {
+                    const { count } = await supabase
+                      .from('admin_editable_content')
+                      .select('*', { count: 'exact', head: true });
+                    toast({
+                      title: "Content Statistics",
+                      description: `${count || 0} text entries have been customized via Edit Mode.`,
+                    });
+                  }}
+                >
+                  <Eye className="h-4 w-4" />
+                  Check Edited Content Count
+                </Button>
               </div>
             </CardContent>
           </Card>
