@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTeacherCheck } from '@/hooks/useTeacherCheck';
+import { useSearchParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,13 +12,69 @@ import {
   CheckCircle2, BarChart3, Search, Clock, Users, Trophy,
   Brain, Target, Zap, BookOpen, Calendar, TrendingUp,
   Play, Eye, Edit, Trash2, Copy, Share2, MoreVertical,
-  Filter, LayoutGrid, List
+  Filter, LayoutGrid, List, GraduationCap
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
-// Mock data for tests
-const mockTests = [
+// Mock data for all available tests (for students)
+const mockAllTests = [
+  {
+    id: '1',
+    title: 'Mathematics Mid-Term Exam',
+    subject: 'Mathematics',
+    questions: 50,
+    duration: 120,
+    totalMarks: 100,
+    difficulty: 'medium',
+    status: 'published',
+    teacherName: 'Dr. Smith',
+    scheduledFor: '2024-01-25',
+    participants: 156,
+  },
+  {
+    id: '2',
+    title: 'Physics Chapter 5 Quiz',
+    subject: 'Physics',
+    questions: 25,
+    duration: 45,
+    totalMarks: 50,
+    difficulty: 'easy',
+    status: 'published',
+    teacherName: 'Prof. Johnson',
+    scheduledFor: '2024-01-22',
+    participants: 89,
+  },
+  {
+    id: '3',
+    title: 'Chemistry Final Exam',
+    subject: 'Chemistry',
+    questions: 75,
+    duration: 180,
+    totalMarks: 150,
+    difficulty: 'hard',
+    status: 'scheduled',
+    teacherName: 'Dr. Williams',
+    scheduledFor: '2024-02-01',
+    participants: 0,
+  },
+  {
+    id: '4',
+    title: 'Biology Unit Test',
+    subject: 'Biology',
+    questions: 40,
+    duration: 60,
+    totalMarks: 80,
+    difficulty: 'medium',
+    status: 'published',
+    teacherName: 'Mrs. Davis',
+    scheduledFor: '2024-01-20',
+    participants: 124,
+  },
+];
+
+// Mock data for teacher's created tests
+const mockTeacherTests = [
   {
     id: '1',
     title: 'Mathematics Mid-Term Exam',
@@ -93,15 +151,44 @@ const mockAttemptedTests = [
   },
 ];
 
+// Mock data for teacher analytics
+const mockTestAnalytics = [
+  {
+    testId: '1',
+    testTitle: 'Mathematics Mid-Term Exam',
+    totalAttempts: 156,
+    avgScore: 72,
+    highestScore: 98,
+    lowestScore: 34,
+    passRate: 82,
+    students: [
+      { name: 'John Doe', score: 95, rank: 1, attemptedAt: '2024-01-16' },
+      { name: 'Jane Smith', score: 92, rank: 2, attemptedAt: '2024-01-16' },
+      { name: 'Mike Johnson', score: 88, rank: 3, attemptedAt: '2024-01-17' },
+      { name: 'Emily Brown', score: 85, rank: 4, attemptedAt: '2024-01-16' },
+      { name: 'Chris Wilson', score: 82, rank: 5, attemptedAt: '2024-01-17' },
+    ],
+  },
+];
+
 export default function TestHub() {
   const { user } = useAuth();
+  const { isTeacher, isLoading: teacherLoading } = useTeacherCheck();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('my-tests');
+  const [searchParams] = useSearchParams();
+  
+  const initialTab = searchParams.get('tab') || (isTeacher ? 'my-tests' : 'all-tests');
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [selectedTestForAnalytics, setSelectedTestForAnalytics] = useState<string | null>(null);
 
-  // For demo, assume teacher role
-  const isTeacher = true;
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -122,6 +209,24 @@ export default function TestHub() {
     }
   };
 
+  const filteredAllTests = mockAllTests.filter(test => 
+    test.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    test.subject.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredTeacherTests = mockTeacherTests.filter(test => 
+    test.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    test.subject.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  if (teacherLoading) {
+    return (
+      <div className="container mx-auto p-4 md:p-6 flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto p-4 md:p-6 space-y-6">
       {/* Header */}
@@ -134,7 +239,9 @@ export default function TestHub() {
             Test Hub
           </h1>
           <p className="text-muted-foreground mt-1">
-            Create, manage, and analyze tests & assessments
+            {isTeacher 
+              ? 'Create, manage, and analyze tests & assessments' 
+              : 'Browse available tests and track your progress'}
           </p>
         </div>
         
@@ -169,8 +276,8 @@ export default function TestHub() {
                 <ClipboardList className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <p className="text-2xl font-bold">12</p>
-                <p className="text-xs text-muted-foreground">Total Tests</p>
+                <p className="text-2xl font-bold">{isTeacher ? '12' : mockAllTests.length}</p>
+                <p className="text-xs text-muted-foreground">{isTeacher ? 'Created Tests' : 'Available Tests'}</p>
               </div>
             </div>
           </Card>
@@ -186,8 +293,8 @@ export default function TestHub() {
                 <CheckCircle2 className="h-5 w-5 text-green-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">8</p>
-                <p className="text-xs text-muted-foreground">Completed</p>
+                <p className="text-2xl font-bold">{isTeacher ? '8' : mockAttemptedTests.length}</p>
+                <p className="text-xs text-muted-foreground">{isTeacher ? 'Published' : 'Completed'}</p>
               </div>
             </div>
           </Card>
@@ -220,8 +327,8 @@ export default function TestHub() {
                 <Trophy className="h-5 w-5 text-purple-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">#5</p>
-                <p className="text-xs text-muted-foreground">Best Rank</p>
+                <p className="text-2xl font-bold">{isTeacher ? '456' : '#5'}</p>
+                <p className="text-xs text-muted-foreground">{isTeacher ? 'Total Attempts' : 'Best Rank'}</p>
               </div>
             </div>
           </Card>
@@ -231,7 +338,14 @@ export default function TestHub() {
       {/* Main Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <TabsList className="bg-muted/50 p-1">
+          <TabsList className="bg-muted/50 p-1 flex-wrap">
+            {/* All Tests Tab - Available for everyone */}
+            <TabsTrigger value="all-tests" className="gap-2 data-[state=active]:bg-background">
+              <GraduationCap className="h-4 w-4" />
+              <span className="hidden sm:inline">All Tests</span>
+            </TabsTrigger>
+
+            {/* Teacher-only tabs */}
             {isTeacher && (
               <>
                 <TabsTrigger value="create" className="gap-2 data-[state=active]:bg-background">
@@ -246,12 +360,18 @@ export default function TestHub() {
                   <Upload className="h-4 w-4" />
                   <span className="hidden sm:inline">Upload</span>
                 </TabsTrigger>
+                <TabsTrigger value="my-tests" className="gap-2 data-[state=active]:bg-background">
+                  <ClipboardList className="h-4 w-4" />
+                  <span className="hidden sm:inline">My Tests</span>
+                </TabsTrigger>
+                <TabsTrigger value="teacher-analytics" className="gap-2 data-[state=active]:bg-background">
+                  <BarChart3 className="h-4 w-4" />
+                  <span className="hidden sm:inline">Analytics</span>
+                </TabsTrigger>
               </>
             )}
-            <TabsTrigger value="my-tests" className="gap-2 data-[state=active]:bg-background">
-              <ClipboardList className="h-4 w-4" />
-              <span className="hidden sm:inline">My Tests</span>
-            </TabsTrigger>
+
+            {/* Common tabs */}
             <TabsTrigger value="live" className="gap-2 data-[state=active]:bg-background">
               <Radio className="h-4 w-4" />
               <span className="hidden sm:inline">Live</span>
@@ -263,11 +383,7 @@ export default function TestHub() {
             </TabsTrigger>
             <TabsTrigger value="attempted" className="gap-2 data-[state=active]:bg-background">
               <CheckCircle2 className="h-4 w-4" />
-              <span className="hidden sm:inline">Attempted</span>
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="gap-2 data-[state=active]:bg-background">
-              <BarChart3 className="h-4 w-4" />
-              <span className="hidden sm:inline">Analytics</span>
+              <span className="hidden sm:inline">My Attempts</span>
             </TabsTrigger>
           </TabsList>
 
@@ -302,74 +418,8 @@ export default function TestHub() {
           </div>
         </div>
 
-        {/* Create Test Tab */}
-        <TabsContent value="create" className="space-y-6">
-          <Card className="p-8 text-center border-dashed border-2">
-            <div className="flex flex-col items-center gap-4">
-              <div className="p-4 rounded-full bg-primary/10">
-                <Plus className="h-12 w-12 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold">Create New Test</h3>
-                <p className="text-muted-foreground mt-1">
-                  Build a custom test with our powerful test builder
-                </p>
-              </div>
-              <Button size="lg" onClick={() => navigate('/niranx/tests/create')}>
-                Start Building
-              </Button>
-            </div>
-          </Card>
-        </TabsContent>
-
-        {/* AI Generate Tab */}
-        <TabsContent value="ai-generate" className="space-y-6">
-          <Card className="p-8 text-center border-dashed border-2 border-purple-500/30 bg-gradient-to-br from-purple-500/5 to-transparent">
-            <div className="flex flex-col items-center gap-4">
-              <div className="p-4 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20">
-                <Sparkles className="h-12 w-12 text-purple-500" />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold">AI Test Generator</h3>
-                <p className="text-muted-foreground mt-1">
-                  Generate tests instantly using AI based on your parameters
-                </p>
-              </div>
-              <Button size="lg" variant="outline" className="gap-2" onClick={() => navigate('/niranx/tests/ai-generate')}>
-                <Brain className="h-4 w-4" />
-                Generate with AI
-              </Button>
-            </div>
-          </Card>
-        </TabsContent>
-
-        {/* Upload Tab */}
-        <TabsContent value="upload" className="space-y-6">
-          <Card className="p-8 text-center border-dashed border-2">
-            <div className="flex flex-col items-center gap-4">
-              <div className="p-4 rounded-full bg-primary/10">
-                <Upload className="h-12 w-12 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold">Upload Test</h3>
-                <p className="text-muted-foreground mt-1">
-                  Upload PDF, DOCX, or CSV files - AI will auto-parse questions
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <Badge variant="outline">PDF</Badge>
-                <Badge variant="outline">DOCX</Badge>
-                <Badge variant="outline">CSV</Badge>
-              </div>
-              <Button size="lg" variant="outline" onClick={() => navigate('/niranx/tests/upload')}>
-                Upload File
-              </Button>
-            </div>
-          </Card>
-        </TabsContent>
-
-        {/* My Tests Tab */}
-        <TabsContent value="my-tests" className="space-y-6">
+        {/* All Tests Tab - For Students to Browse and Attempt */}
+        <TabsContent value="all-tests" className="space-y-6">
           <AnimatePresence mode="wait">
             {viewMode === 'grid' ? (
               <motion.div
@@ -379,19 +429,19 @@ export default function TestHub() {
                 exit={{ opacity: 0 }}
                 className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
               >
-                {mockTests.map((test, index) => (
+                {filteredAllTests.map((test, index) => (
                   <motion.div
                     key={test.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
                   >
-                    <Card className="group hover:shadow-lg transition-all cursor-pointer" onClick={() => navigate(`/niranx/tests/${test.id}`)}>
+                    <Card className="group hover:shadow-lg transition-all">
                       <CardHeader className="pb-2">
                         <div className="flex items-start justify-between">
                           <div className="space-y-1">
                             <CardTitle className="text-lg line-clamp-1">{test.title}</CardTitle>
-                            <CardDescription>{test.subject}</CardDescription>
+                            <CardDescription>{test.subject} • By {test.teacherName}</CardDescription>
                           </div>
                           <Badge className={getStatusColor(test.status)}>
                             {test.status}
@@ -419,29 +469,25 @@ export default function TestHub() {
                           </div>
                         </div>
                         
-                        {test.status === 'published' && (
-                          <div className="flex items-center justify-between pt-2 border-t">
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <Users className="h-4 w-4" />
-                              <span>{test.attempts} attempts</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm">
-                              <TrendingUp className="h-4 w-4 text-green-500" />
-                              <span className="text-green-500">{test.avgScore}% avg</span>
-                            </div>
+                        <div className="flex items-center justify-between pt-2 border-t">
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Users className="h-4 w-4" />
+                            <span>{test.participants} participants</span>
                           </div>
-                        )}
-
-                        <div className="flex gap-2 pt-2">
-                          <Button size="sm" variant="outline" className="flex-1 gap-1">
-                            <Eye className="h-3 w-3" />
-                            Preview
-                          </Button>
-                          <Button size="sm" className="flex-1 gap-1">
-                            <Edit className="h-3 w-3" />
-                            Edit
-                          </Button>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Calendar className="h-4 w-4" />
+                            <span>{test.scheduledFor}</span>
+                          </div>
                         </div>
+
+                        <Button 
+                          className="w-full gap-2" 
+                          onClick={() => navigate(`/niranx/tests/attempt/${test.id}`)}
+                          disabled={test.status === 'scheduled'}
+                        >
+                          <Play className="h-4 w-4" />
+                          {test.status === 'scheduled' ? 'Scheduled' : 'Start Test'}
+                        </Button>
                       </CardContent>
                     </Card>
                   </motion.div>
@@ -456,14 +502,13 @@ export default function TestHub() {
               >
                 <Card>
                   <div className="divide-y">
-                    {mockTests.map((test, index) => (
+                    {filteredAllTests.map((test, index) => (
                       <motion.div
                         key={test.id}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.05 }}
-                        className="flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors cursor-pointer"
-                        onClick={() => navigate(`/niranx/tests/${test.id}`)}
+                        className="flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors"
                       >
                         <div className="p-2 rounded-lg bg-muted">
                           <FileText className="h-5 w-5" />
@@ -478,6 +523,7 @@ export default function TestHub() {
                           </div>
                           <div className="flex items-center gap-4 text-sm text-muted-foreground">
                             <span>{test.subject}</span>
+                            <span>By {test.teacherName}</span>
                             <span>{test.questions} Q</span>
                             <span>{test.duration}m</span>
                             <Badge variant="outline" className={getDifficultyColor(test.difficulty)}>
@@ -486,23 +532,14 @@ export default function TestHub() {
                           </div>
                         </div>
                         
-                        <div className="flex items-center gap-2">
-                          {test.status === 'published' && (
-                            <div className="text-right text-sm mr-4">
-                              <p className="font-medium">{test.attempts} attempts</p>
-                              <p className="text-muted-foreground">{test.avgScore}% avg</p>
-                            </div>
-                          )}
-                          <Button size="icon" variant="ghost">
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button size="icon" variant="ghost">
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button size="icon" variant="ghost">
-                            <Share2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+                        <Button 
+                          className="gap-2"
+                          onClick={() => navigate(`/niranx/tests/attempt/${test.id}`)}
+                          disabled={test.status === 'scheduled'}
+                        >
+                          <Play className="h-4 w-4" />
+                          {test.status === 'scheduled' ? 'Scheduled' : 'Start'}
+                        </Button>
                       </motion.div>
                     ))}
                   </div>
@@ -511,6 +548,352 @@ export default function TestHub() {
             )}
           </AnimatePresence>
         </TabsContent>
+
+        {/* Create Test Tab - Teacher Only */}
+        {isTeacher && (
+          <TabsContent value="create" className="space-y-6">
+            <Card className="p-8 text-center border-dashed border-2">
+              <div className="flex flex-col items-center gap-4">
+                <div className="p-4 rounded-full bg-primary/10">
+                  <Plus className="h-12 w-12 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold">Create New Test</h3>
+                  <p className="text-muted-foreground mt-1">
+                    Build a custom test with our powerful test builder
+                  </p>
+                </div>
+                <Button size="lg" onClick={() => navigate('/niranx/tests/create')}>
+                  Start Building
+                </Button>
+              </div>
+            </Card>
+          </TabsContent>
+        )}
+
+        {/* AI Generate Tab - Teacher Only */}
+        {isTeacher && (
+          <TabsContent value="ai-generate" className="space-y-6">
+            <Card className="p-8 text-center border-dashed border-2 border-purple-500/30 bg-gradient-to-br from-purple-500/5 to-transparent">
+              <div className="flex flex-col items-center gap-4">
+                <div className="p-4 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20">
+                  <Sparkles className="h-12 w-12 text-purple-500" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold">AI Test Generator</h3>
+                  <p className="text-muted-foreground mt-1">
+                    Generate tests instantly using AI based on your parameters
+                  </p>
+                </div>
+                <Button size="lg" variant="outline" className="gap-2" onClick={() => navigate('/niranx/tests/ai-generate')}>
+                  <Brain className="h-4 w-4" />
+                  Generate with AI
+                </Button>
+              </div>
+            </Card>
+          </TabsContent>
+        )}
+
+        {/* Upload Tab - Teacher Only */}
+        {isTeacher && (
+          <TabsContent value="upload" className="space-y-6">
+            <Card className="p-8 text-center border-dashed border-2">
+              <div className="flex flex-col items-center gap-4">
+                <div className="p-4 rounded-full bg-primary/10">
+                  <Upload className="h-12 w-12 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold">Upload Test</h3>
+                  <p className="text-muted-foreground mt-1">
+                    Upload PDF, DOCX, or CSV files - AI will auto-parse questions
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Badge variant="outline">PDF</Badge>
+                  <Badge variant="outline">DOCX</Badge>
+                  <Badge variant="outline">CSV</Badge>
+                </div>
+                <Button size="lg" variant="outline" onClick={() => navigate('/niranx/tests/upload')}>
+                  Upload File
+                </Button>
+              </div>
+            </Card>
+          </TabsContent>
+        )}
+
+        {/* My Tests Tab - Teacher Only */}
+        {isTeacher && (
+          <TabsContent value="my-tests" className="space-y-6">
+            <AnimatePresence mode="wait">
+              {viewMode === 'grid' ? (
+                <motion.div
+                  key="grid"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+                >
+                  {filteredTeacherTests.map((test, index) => (
+                    <motion.div
+                      key={test.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <Card className="group hover:shadow-lg transition-all cursor-pointer" onClick={() => navigate(`/niranx/tests/${test.id}`)}>
+                        <CardHeader className="pb-2">
+                          <div className="flex items-start justify-between">
+                            <div className="space-y-1">
+                              <CardTitle className="text-lg line-clamp-1">{test.title}</CardTitle>
+                              <CardDescription>{test.subject}</CardDescription>
+                            </div>
+                            <Badge className={getStatusColor(test.status)}>
+                              {test.status}
+                            </Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="grid grid-cols-2 gap-3 text-sm">
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <FileText className="h-4 w-4" />
+                              <span>{test.questions} Questions</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <Clock className="h-4 w-4" />
+                              <span>{test.duration} mins</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <Target className="h-4 w-4" />
+                              <span>{test.totalMarks} Marks</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className={getDifficultyColor(test.difficulty)}>
+                                {test.difficulty}
+                              </Badge>
+                            </div>
+                          </div>
+                          
+                          {test.status === 'published' && (
+                            <div className="flex items-center justify-between pt-2 border-t">
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Users className="h-4 w-4" />
+                                <span>{test.attempts} attempts</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-sm">
+                                <TrendingUp className="h-4 w-4 text-green-500" />
+                                <span className="text-green-500">{test.avgScore}% avg</span>
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="flex gap-2 pt-2">
+                            <Button size="sm" variant="outline" className="flex-1 gap-1">
+                              <Eye className="h-3 w-3" />
+                              Preview
+                            </Button>
+                            <Button size="sm" className="flex-1 gap-1">
+                              <Edit className="h-3 w-3" />
+                              Edit
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="list"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <Card>
+                    <div className="divide-y">
+                      {filteredTeacherTests.map((test, index) => (
+                        <motion.div
+                          key={test.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          className="flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors cursor-pointer"
+                          onClick={() => navigate(`/niranx/tests/${test.id}`)}
+                        >
+                          <div className="p-2 rounded-lg bg-muted">
+                            <FileText className="h-5 w-5" />
+                          </div>
+                          
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium truncate">{test.title}</span>
+                              <Badge className={getStatusColor(test.status)}>
+                                {test.status}
+                              </Badge>
+                            </div>
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                              <span>{test.subject}</span>
+                              <span>{test.questions} Q</span>
+                              <span>{test.duration}m</span>
+                              <Badge variant="outline" className={getDifficultyColor(test.difficulty)}>
+                                {test.difficulty}
+                              </Badge>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-2">
+                            {test.status === 'published' && (
+                              <div className="text-right text-sm mr-4">
+                                <p className="font-medium">{test.attempts} attempts</p>
+                                <p className="text-muted-foreground">{test.avgScore}% avg</p>
+                              </div>
+                            )}
+                            <Button size="icon" variant="ghost">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button size="icon" variant="ghost">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button size="icon" variant="ghost">
+                              <Share2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </Card>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </TabsContent>
+        )}
+
+        {/* Teacher Analytics Tab */}
+        {isTeacher && (
+          <TabsContent value="teacher-analytics" className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* Test Selection */}
+              <Card className="md:col-span-2">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5" />
+                    Test Analytics Dashboard
+                  </CardTitle>
+                  <CardDescription>
+                    Select a test to view detailed analytics and student performance
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-4 md:grid-cols-3">
+                    {mockTeacherTests.filter(t => t.status === 'published').map((test) => (
+                      <Card 
+                        key={test.id}
+                        className={`cursor-pointer transition-all ${selectedTestForAnalytics === test.id ? 'ring-2 ring-primary' : 'hover:shadow-md'}`}
+                        onClick={() => setSelectedTestForAnalytics(test.id)}
+                      >
+                        <CardContent className="p-4">
+                          <h4 className="font-medium truncate">{test.title}</h4>
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground mt-2">
+                            <span>{test.attempts} attempts</span>
+                            <span>{test.avgScore}% avg</span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Analytics for Selected Test */}
+              {selectedTestForAnalytics && (
+                <>
+                  {/* Overview Stats */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <TrendingUp className="h-5 w-5" />
+                        Performance Overview
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {mockTestAnalytics.map((analytics) => (
+                        <div key={analytics.testId} className="grid grid-cols-2 gap-4">
+                          <div className="p-4 rounded-lg bg-muted/50">
+                            <p className="text-sm text-muted-foreground">Total Attempts</p>
+                            <p className="text-2xl font-bold">{analytics.totalAttempts}</p>
+                          </div>
+                          <div className="p-4 rounded-lg bg-muted/50">
+                            <p className="text-sm text-muted-foreground">Average Score</p>
+                            <p className="text-2xl font-bold">{analytics.avgScore}%</p>
+                          </div>
+                          <div className="p-4 rounded-lg bg-green-500/10">
+                            <p className="text-sm text-muted-foreground">Highest Score</p>
+                            <p className="text-2xl font-bold text-green-500">{analytics.highestScore}%</p>
+                          </div>
+                          <div className="p-4 rounded-lg bg-blue-500/10">
+                            <p className="text-sm text-muted-foreground">Pass Rate</p>
+                            <p className="text-2xl font-bold text-blue-500">{analytics.passRate}%</p>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+
+                  {/* Student Performance Table */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Users className="h-5 w-5" />
+                        Student Performance
+                      </CardTitle>
+                      <CardDescription>
+                        Who attempted the test and their scores
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {mockTestAnalytics[0].students.map((student, index) => (
+                          <div 
+                            key={index}
+                            className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                                student.rank <= 3 ? 'bg-yellow-500/20 text-yellow-600' : 'bg-muted'
+                              }`}>
+                                #{student.rank}
+                              </div>
+                              <div>
+                                <p className="font-medium">{student.name}</p>
+                                <p className="text-xs text-muted-foreground">{student.attemptedAt}</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className={`font-bold ${student.score >= 80 ? 'text-green-500' : student.score >= 50 ? 'text-yellow-500' : 'text-red-500'}`}>
+                                {student.score}%
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <Button variant="outline" className="w-full mt-4 gap-2">
+                        <Eye className="h-4 w-4" />
+                        View All Students
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </>
+              )}
+
+              {!selectedTestForAnalytics && (
+                <Card className="md:col-span-2 p-12 text-center">
+                  <BarChart3 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-semibold">Select a Test</h3>
+                  <p className="text-muted-foreground">Choose a published test above to view detailed analytics</p>
+                </Card>
+              )}
+            </div>
+          </TabsContent>
+        )}
 
         {/* Live Tests Tab */}
         <TabsContent value="live" className="space-y-6">
@@ -544,7 +927,7 @@ export default function TestHub() {
                         <span>{test.timeRemaining}</span>
                       </div>
                     </div>
-                    <Button className="w-full gap-2">
+                    <Button className="w-full gap-2" onClick={() => navigate(`/niranx/tests/attempt/${test.id}`)}>
                       <Play className="h-4 w-4" />
                       Join Test
                     </Button>
@@ -609,89 +992,6 @@ export default function TestHub() {
                 </Card>
               </motion.div>
             ))}
-          </div>
-        </TabsContent>
-
-        {/* Analytics Tab */}
-        <TabsContent value="analytics" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
-                  Performance Trend
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-64 flex items-center justify-center bg-muted/50 rounded-lg">
-                  <p className="text-muted-foreground">Performance chart coming soon</p>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="h-5 w-5" />
-                  Subject-wise Analysis
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {['Mathematics', 'Physics', 'Chemistry'].map((subject) => (
-                    <div key={subject} className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span>{subject}</span>
-                        <span className="font-medium">{Math.floor(Math.random() * 30 + 70)}%</span>
-                      </div>
-                      <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-primary rounded-full transition-all"
-                          style={{ width: `${Math.floor(Math.random() * 30 + 70)}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="md:col-span-2">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Brain className="h-5 w-5" />
-                  AI Insights
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-4 md:grid-cols-3">
-                  <div className="p-4 rounded-lg bg-green-500/10">
-                    <h4 className="font-medium text-green-600">Strengths</h4>
-                    <ul className="mt-2 text-sm space-y-1">
-                      <li>• Algebra & Equations</li>
-                      <li>• Organic Chemistry</li>
-                      <li>• Mechanics</li>
-                    </ul>
-                  </div>
-                  <div className="p-4 rounded-lg bg-red-500/10">
-                    <h4 className="font-medium text-red-600">Areas to Improve</h4>
-                    <ul className="mt-2 text-sm space-y-1">
-                      <li>• Calculus</li>
-                      <li>• Electrochemistry</li>
-                      <li>• Optics</li>
-                    </ul>
-                  </div>
-                  <div className="p-4 rounded-lg bg-blue-500/10">
-                    <h4 className="font-medium text-blue-600">Recommendations</h4>
-                    <ul className="mt-2 text-sm space-y-1">
-                      <li>• Practice more calculus</li>
-                      <li>• Review optics concepts</li>
-                      <li>• Take more mock tests</li>
-                    </ul>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </TabsContent>
       </Tabs>
