@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { AIContextualSuggestions } from '@/components/AIContextualSuggestions';
+import { hashPassword } from '@/lib/passwordHashing';
 import { 
   GraduationCap, 
   Upload, 
@@ -367,7 +368,7 @@ const ExamHub = () => {
           is_shared: true,
           shared_until: expirationDate,
           permission_level: sharePermission,
-          password_hash: sharePassword || null,
+          password_hash: sharePassword ? await hashPassword(sharePassword) : null,
         })
         .eq('id', resource.id);
 

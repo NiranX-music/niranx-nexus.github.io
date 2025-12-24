@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { hashPassword, verifyPassword } from "@/lib/passwordHashing";
 
 export interface XFlowProfile {
   id: string;
@@ -90,7 +91,8 @@ export function useXFlow() {
       return null;
     }
 
-    const passwordHash = btoa(password);
+    // Hash password securely using server-side function
+    const passwordHash = await hashPassword(password);
 
     const { data, error } = await supabase
       .from('xflow_profiles')
@@ -129,8 +131,9 @@ export function useXFlow() {
       return false;
     }
 
-    const passwordHash = btoa(password);
-    if (data.password_hash !== passwordHash) {
+    // Verify password using secure server-side verification
+    const isValid = await verifyPassword(password, data.password_hash);
+    if (!isValid) {
       toast.error('Incorrect password');
       return false;
     }
