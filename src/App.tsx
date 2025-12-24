@@ -195,6 +195,14 @@ import XFlowMessages from "./pages/xflow/XFlowMessages";
 import XFlowPostView from "./pages/xflow/XFlowPostView";
 import XFlowModeration from "./pages/admin/XFlowModeration";
 
+// Test Platform
+import TestHub from "./pages/tests/TestHub";
+import TestBuilder from "./pages/tests/TestBuilder";
+import AITestGenerator from "./pages/tests/AITestGenerator";
+import TestAttempt from "./pages/tests/TestAttempt";
+import UploadTest from "./pages/tests/UploadTest";
+import TestAnalytics from "./pages/tests/TestAnalytics";
+
 // Support Pages
 import Contact from "./pages/support/Contact";
 import HelpCentre from "./pages/support/HelpCentre";
@@ -438,6 +446,14 @@ const App = () => (
                           <Route path="/xflow/profile/:username" element={<XFlowProfile />} />
                           <Route path="/xflow/messages" element={<XFlowMessages />} />
                           <Route path="/xflow/post/:postId" element={<XFlowPostView />} />
+                          
+                          {/* Test Platform */}
+                          <Route path="/tests" element={<TestHub />} />
+                          <Route path="/tests/create" element={<TestBuilder />} />
+                          <Route path="/tests/ai-generate" element={<AITestGenerator />} />
+                          <Route path="/tests/upload" element={<UploadTest />} />
+                          <Route path="/tests/attempt/:testId" element={<TestAttempt />} />
+                          <Route path="/tests/analytics" element={<TestAnalytics />} />
                           <Route path="/admin" element={
                             <AdminRoute>
                               <AdminDashboard />
