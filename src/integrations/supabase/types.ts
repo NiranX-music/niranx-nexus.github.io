@@ -6727,6 +6727,187 @@ export type Database = {
         }
         Relationships: []
       }
+      test_attempts: {
+        Row: {
+          answers: Json | null
+          created_at: string
+          id: string
+          marked_for_review: Json | null
+          percentage: number | null
+          score: number | null
+          started_at: string
+          status: string
+          student_id: string
+          submitted_at: string | null
+          tab_switches: number | null
+          test_id: string
+          time_spent_seconds: number | null
+          total_marks: number | null
+        }
+        Insert: {
+          answers?: Json | null
+          created_at?: string
+          id?: string
+          marked_for_review?: Json | null
+          percentage?: number | null
+          score?: number | null
+          started_at?: string
+          status?: string
+          student_id: string
+          submitted_at?: string | null
+          tab_switches?: number | null
+          test_id: string
+          time_spent_seconds?: number | null
+          total_marks?: number | null
+        }
+        Update: {
+          answers?: Json | null
+          created_at?: string
+          id?: string
+          marked_for_review?: Json | null
+          percentage?: number | null
+          score?: number | null
+          started_at?: string
+          status?: string
+          student_id?: string
+          submitted_at?: string | null
+          tab_switches?: number | null
+          test_id?: string
+          time_spent_seconds?: number | null
+          total_marks?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_attempts_test_id_fkey"
+            columns: ["test_id"]
+            isOneToOne: false
+            referencedRelation: "tests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_questions: {
+        Row: {
+          correct_answer: string | null
+          created_at: string
+          explanation: string | null
+          id: string
+          marks: number
+          options: Json | null
+          order_index: number
+          question_text: string
+          question_type: string
+          test_id: string
+        }
+        Insert: {
+          correct_answer?: string | null
+          created_at?: string
+          explanation?: string | null
+          id?: string
+          marks?: number
+          options?: Json | null
+          order_index?: number
+          question_text: string
+          question_type: string
+          test_id: string
+        }
+        Update: {
+          correct_answer?: string | null
+          created_at?: string
+          explanation?: string | null
+          id?: string
+          marks?: number
+          options?: Json | null
+          order_index?: number
+          question_text?: string
+          question_type?: string
+          test_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_questions_test_id_fkey"
+            columns: ["test_id"]
+            isOneToOne: false
+            referencedRelation: "tests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tests: {
+        Row: {
+          allow_copy_paste: boolean | null
+          created_at: string
+          description: string | null
+          difficulty: string
+          duration_minutes: number
+          id: string
+          max_attempts: number | null
+          passing_percentage: number | null
+          published_at: string | null
+          require_fullscreen: boolean | null
+          scheduled_for: string | null
+          show_result_immediately: boolean | null
+          shuffle_options: boolean | null
+          shuffle_questions: boolean | null
+          status: string
+          subject: string
+          tab_switch_limit: number | null
+          teacher_id: string
+          title: string
+          total_marks: number
+          updated_at: string
+          webcam_required: boolean | null
+        }
+        Insert: {
+          allow_copy_paste?: boolean | null
+          created_at?: string
+          description?: string | null
+          difficulty?: string
+          duration_minutes?: number
+          id?: string
+          max_attempts?: number | null
+          passing_percentage?: number | null
+          published_at?: string | null
+          require_fullscreen?: boolean | null
+          scheduled_for?: string | null
+          show_result_immediately?: boolean | null
+          shuffle_options?: boolean | null
+          shuffle_questions?: boolean | null
+          status?: string
+          subject: string
+          tab_switch_limit?: number | null
+          teacher_id: string
+          title: string
+          total_marks?: number
+          updated_at?: string
+          webcam_required?: boolean | null
+        }
+        Update: {
+          allow_copy_paste?: boolean | null
+          created_at?: string
+          description?: string | null
+          difficulty?: string
+          duration_minutes?: number
+          id?: string
+          max_attempts?: number | null
+          passing_percentage?: number | null
+          published_at?: string | null
+          require_fullscreen?: boolean | null
+          scheduled_for?: string | null
+          show_result_immediately?: boolean | null
+          shuffle_options?: boolean | null
+          shuffle_questions?: boolean | null
+          status?: string
+          subject?: string
+          tab_switch_limit?: number | null
+          teacher_id?: string
+          title?: string
+          total_marks?: number
+          updated_at?: string
+          webcam_required?: boolean | null
+        }
+        Relationships: []
+      }
       topic_map_history: {
         Row: {
           created_at: string
