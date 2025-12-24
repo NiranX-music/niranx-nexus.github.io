@@ -439,7 +439,6 @@ export default function XWaveSongPage() {
                           }) 
                         }}
                       />
-                      />
                     </div>
                   </CardContent>
                 </Card>
