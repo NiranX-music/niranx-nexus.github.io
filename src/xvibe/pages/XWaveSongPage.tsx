@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useXVibePlayer } from '../contexts/XVibePlayerContext';
+import DOMPurify from 'dompurify';
 
 // Platform icons mapping
 const PLATFORM_ICONS: Record<string, { name: string; color: string; icon: string }> = {
@@ -428,11 +429,16 @@ export default function XWaveSongPage() {
                       </div>
                     </div>
 
-                    {/* Blog Content */}
                     <div className="p-6">
                       <div 
                         className="prose prose-invert prose-lg max-w-none"
-                        dangerouslySetInnerHTML={{ __html: blog.content }}
+                        dangerouslySetInnerHTML={{ 
+                          __html: DOMPurify.sanitize(blog.content, {
+                            ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'a', 'img', 'blockquote', 'pre', 'code', 'span', 'div'],
+                            ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'target', 'rel']
+                          }) 
+                        }}
+                      />
                       />
                     </div>
                   </CardContent>

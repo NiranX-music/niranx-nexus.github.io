@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Download, Eye, Lock, AlertCircle, FileText, Video, Music } from "lucide-react";
 import { toast } from "sonner";
+import { verifyPassword } from "@/lib/passwordHashing";
 
 interface SharedResource {
   id: string;
@@ -104,8 +105,9 @@ const SharedResource = () => {
   const handlePasswordSubmit = async () => {
     if (!resource) return;
 
-    // Simple password check (in production, use proper hashing)
-    if (password === resource.password_hash) {
+    // Verify password using secure server-side verification
+    const isValid = await verifyPassword(password, resource.password_hash || '');
+    if (isValid) {
       await authenticateAndTrack(resource.id);
     } else {
       toast.error("Incorrect password");

@@ -38,19 +38,39 @@ export function ApplyForGuardianCard() {
         return;
       }
 
-      // Request role assignment
+      // Check for pending request
+      const { data: pendingRequest } = await supabase
+        .from('guardian_role_requests')
+        .select('id, status')
+        .eq('user_id', user.id)
+        .eq('role_type', roleType)
+        .eq('status', 'pending')
+        .single();
+
+      if (pendingRequest) {
+        toast({
+          title: "Request Pending",
+          description: `Your ${roleType} role request is already pending approval.`,
+        });
+        setOpen(false);
+        return;
+      }
+
+      // Submit request for admin approval (not direct role assignment)
       const { error } = await supabase
-        .from('user_roles')
+        .from('guardian_role_requests')
         .insert({
           user_id: user.id,
-          role: roleType
+          role_type: roleType,
+          reason: reason || null,
+          status: 'pending'
         });
 
       if (error) throw error;
 
       toast({
-        title: "Guardian Role Activated!",
-        description: `You are now registered as a ${roleType}. Go to Guardian Dashboard to request access to students.`,
+        title: "Request Submitted!",
+        description: `Your ${roleType} role request has been submitted for admin approval.`,
       });
 
       setOpen(false);
@@ -58,7 +78,7 @@ export function ApplyForGuardianCard() {
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message || "Failed to apply for guardian role",
+        description: error.message || "Failed to submit guardian role request",
         variant: "destructive",
       });
     } finally {

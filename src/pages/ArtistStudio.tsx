@@ -20,6 +20,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { toast } from "sonner";
+import { verifyPassword } from "@/lib/passwordHashing";
 
 interface Artist {
   id: string;
@@ -103,7 +104,7 @@ export default function ArtistStudio() {
     
     if (!artist) return;
 
-    // Simple password check (in production, use proper hashing)
+    // Get password hash from database
     const { data, error } = await supabase
       .from("artists")
       .select("password_hash")
@@ -115,8 +116,9 @@ export default function ArtistStudio() {
       return;
     }
 
-    // Simple comparison (in production, use bcrypt or similar)
-    if (data.password_hash === password) {
+    // Verify password using secure server-side verification
+    const isValid = await verifyPassword(password, data.password_hash);
+    if (isValid) {
       sessionStorage.setItem(`artist_studio_${artistId}`, "authenticated");
       setIsAuthenticated(true);
       toast.success(`Welcome to ${artist.name}'s Studio!`);

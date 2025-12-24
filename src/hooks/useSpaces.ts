@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { hashPassword, verifyPassword } from "@/lib/passwordHashing";
 
 export interface Space {
   id: string;
@@ -162,9 +163,9 @@ export function useSpaces() {
       // Generate space URL if not provided
       const spaceUrl = data.space_url || `space-${Date.now().toString(36)}`;
 
-      // Hash PIN (simple hash for demo - in production use bcrypt)
-      const pinHash = btoa(data.pin);
-      const passwordHash = data.password ? btoa(data.password) : null;
+      // Hash PIN and password securely using server-side function
+      const pinHash = await hashPassword(data.pin);
+      const passwordHash = data.password ? await hashPassword(data.password) : null;
 
       const { data: newSpace, error } = await supabase
         .from("spaces")
@@ -209,16 +210,24 @@ export function useSpaces() {
         return false;
       }
 
-      // Verify PIN
-      if (btoa(pin) !== (space as any).pin_hash) {
+      // Verify PIN using secure server-side verification
+      const pinValid = await verifyPassword(pin, (space as any).pin_hash);
+      if (!pinValid) {
         toast.error("Incorrect PIN");
         return false;
       }
 
       // Verify password if required
-      if (space.has_password && (!password || btoa(password) !== (space as any).password_hash)) {
-        toast.error("Incorrect password");
-        return false;
+      if (space.has_password) {
+        if (!password) {
+          toast.error("Password is required");
+          return false;
+        }
+        const passwordValid = await verifyPassword(password, (space as any).password_hash);
+        if (!passwordValid) {
+          toast.error("Incorrect password");
+          return false;
+        }
       }
 
       // Deactivate all spaces
