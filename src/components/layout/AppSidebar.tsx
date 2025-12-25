@@ -187,6 +187,7 @@ const filesNavigation = [
   { title: "My Cloud", url: "/niranx/my-cloud", icon: Cloud },
   { title: "Manage Drives", url: "/niranx/manage-drives", icon: HardDrive },
   { title: "Google Drive", url: "/niranx/google-drive", icon: HardDrive },
+  { title: "XOrbit Calendar", url: "/niranx/xorbit", icon: Calendar },
   { title: "Backblaze Storage", url: "/niranx/backblaze-storage", icon: Cloud },
   { title: "Upload", url: "/niranx/upload", icon: Upload },
 ];

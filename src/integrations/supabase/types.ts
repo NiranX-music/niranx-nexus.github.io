@@ -2387,33 +2387,78 @@ export type Database = {
         }
         Relationships: []
       }
-      google_drive_tokens: {
+      google_calendar_tokens: {
         Row: {
           access_token: string
+          account_name: string | null
           created_at: string
           expires_at: string
-          google_email: string | null
+          google_email: string
           id: string
+          is_primary: boolean | null
           refresh_token: string
           updated_at: string
           user_id: string
         }
         Insert: {
           access_token: string
+          account_name?: string | null
           created_at?: string
           expires_at: string
-          google_email?: string | null
+          google_email: string
           id?: string
+          is_primary?: boolean | null
           refresh_token: string
           updated_at?: string
           user_id: string
         }
         Update: {
           access_token?: string
+          account_name?: string | null
+          created_at?: string
+          expires_at?: string
+          google_email?: string
+          id?: string
+          is_primary?: boolean | null
+          refresh_token?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      google_drive_tokens: {
+        Row: {
+          access_token: string
+          account_name: string | null
+          created_at: string
+          expires_at: string
+          google_email: string | null
+          id: string
+          is_primary: boolean | null
+          refresh_token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          account_name?: string | null
+          created_at?: string
+          expires_at: string
+          google_email?: string | null
+          id?: string
+          is_primary?: boolean | null
+          refresh_token: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          account_name?: string | null
           created_at?: string
           expires_at?: string
           google_email?: string | null
           id?: string
+          is_primary?: boolean | null
           refresh_token?: string
           updated_at?: string
           user_id?: string
@@ -7248,6 +7293,8 @@ export type Database = {
           folder_path: string
           id: string
           is_public: boolean | null
+          source: string | null
+          source_id: string | null
           tags: string[] | null
           updated_at: string | null
           user_id: string
@@ -7263,6 +7310,8 @@ export type Database = {
           folder_path?: string
           id?: string
           is_public?: boolean | null
+          source?: string | null
+          source_id?: string | null
           tags?: string[] | null
           updated_at?: string | null
           user_id: string
@@ -7278,6 +7327,8 @@ export type Database = {
           folder_path?: string
           id?: string
           is_public?: boolean | null
+          source?: string | null
+          source_id?: string | null
           tags?: string[] | null
           updated_at?: string | null
           user_id?: string
