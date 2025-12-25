@@ -133,10 +133,6 @@ const studyNavigation = [
   { title: "Focus Engine", url: "/niranx/focus-engine", icon: Timer },
   { title: "Distraction Blocker", url: "/niranx/distraction-blocker", icon: Shield },
   { title: "Scheduler", url: "/niranx/scheduler", icon: Calendar },
-  { title: "Test Hub", url: "/niranx/tests", icon: GraduationCap },
-  { title: "All Tests", url: "/niranx/tests?tab=all-tests", icon: FileText },
-  { title: "My Attempts", url: "/niranx/tests?tab=attempted", icon: CheckSquare },
-  { title: "Test Analytics", url: "/niranx/tests/analytics", icon: BarChart3 },
   { title: "Labs", url: "/niranx/labs", icon: GraduationCap },
   { title: "Exams", url: "/niranx/exams", icon: GraduationCap },
   { title: "Whiteboard", url: "/niranx/whiteboard", icon: PenTool },
@@ -144,6 +140,14 @@ const studyNavigation = [
   { title: "AI Study Path", url: "/niranx/study-path-generator", icon: RouteIcon },
   { title: "Note Summarizer", url: "/niranx/note-summarizer", icon: FileText },
   { title: "YouTube Library", url: "/niranx/youtube-library", icon: Youtube },
+];
+
+// Test Platform
+const testNavigation = [
+  { title: "Test Hub", url: "/niranx/tests", icon: GraduationCap },
+  { title: "All Tests", url: "/niranx/tests?tab=all-tests", icon: FileText },
+  { title: "My Attempts", url: "/niranx/tests?tab=attempted", icon: CheckSquare },
+  { title: "Test Analytics", url: "/niranx/tests/analytics", icon: BarChart3 },
 ];
 
 // Progress & Gamification
@@ -325,6 +329,7 @@ export function AppSidebar() {
     aiCorner: false,
     aiDevelopment: false,
     study: false,
+    tests: false,
     progress: false,
     xvibe: false,
     media: false,
@@ -350,6 +355,7 @@ export function AppSidebar() {
     ...aiCornerNavigation,
     ...aiDevelopmentNavigation,
     ...studyNavigation,
+    ...testNavigation,
     ...progressNavigation,
     ...xvibeNavigation,
     ...mediaNavigation,
@@ -643,6 +649,26 @@ export function AppSidebar() {
             <CollapsibleContent>
               <SidebarGroupContent>
                 <SidebarMenu>{renderNavItems(studyNavigation)}</SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
+
+        {/* Test Platform */}
+        <Collapsible open={expandedSections.tests} onOpenChange={() => toggleSection('tests')}>
+          <SidebarGroup>
+            <CollapsibleTrigger asChild>
+              <SidebarGroupLabel className="cursor-pointer hover:bg-indigo-500/20 rounded-lg px-3 -mx-2 flex items-center justify-between text-white/90 font-bold text-sm uppercase tracking-wider transition-all duration-200 py-3 bg-gradient-to-r from-indigo-500/25 to-violet-500/15 border border-indigo-500/20 mb-2">
+                <span className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-indigo-400" />
+                  {!isCollapsed && "Test Platform"}
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform text-indigo-400 ${expandedSections.tests ? '' : '-rotate-90'}`} />
+              </SidebarGroupLabel>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>{renderNavItems(testNavigation)}</SidebarMenu>
               </SidebarGroupContent>
             </CollapsibleContent>
           </SidebarGroup>
