@@ -33,15 +33,28 @@ export function useGoogleDrive() {
   const [nextPageToken, setNextPageToken] = useState<string | null>(null);
 
   const invokeFunction = useCallback(async (action: string, params: Record<string, any> = {}) => {
-    if (!session?.access_token) throw new Error('Not authenticated');
+    if (!session?.access_token) {
+      console.error('No session access token available');
+      throw new Error('Please sign in to connect Google Drive');
+    }
+    
+    console.log(`Invoking google-drive function with action: ${action}`);
     
     const { data, error } = await supabase.functions.invoke('google-drive', {
       body: { action, ...params },
       headers: { Authorization: `Bearer ${session.access_token}` },
     });
 
-    if (error) throw error;
-    if (data?.error) throw new Error(data.error);
+    console.log('Response:', { data, error });
+
+    if (error) {
+      console.error('Function error:', error);
+      throw error;
+    }
+    if (data?.error) {
+      console.error('Data error:', data.error);
+      throw new Error(data.error);
+    }
     return data;
   }, [session?.access_token]);
 
@@ -68,14 +81,20 @@ export function useGoogleDrive() {
 
   const connect = useCallback(async () => {
     try {
+      if (!session?.access_token) {
+        toast.error('Please sign in first to connect Google Drive');
+        return;
+      }
       const redirectUri = `${window.location.origin}/niranx/google-drive/callback`;
+      console.log('Getting auth URL with redirect:', redirectUri);
       const data = await invokeFunction('get-auth-url', { redirectUri });
+      console.log('Received auth URL:', data.authUrl);
       window.location.href = data.authUrl;
     } catch (error: any) {
       console.error('Error getting auth URL:', error);
-      toast.error('Failed to start Google Drive connection');
+      toast.error(error.message || 'Failed to start Google Drive connection');
     }
-  }, [invokeFunction]);
+  }, [invokeFunction, session?.access_token]);
 
   const handleCallback = useCallback(async (code: string) => {
     try {
