@@ -9,7 +9,7 @@ const corsHeaders = {
 const GOOGLE_CLIENT_ID = Deno.env.get('GOOGLE_CLIENT_ID');
 const GOOGLE_CLIENT_SECRET = Deno.env.get('GOOGLE_CLIENT_SECRET');
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
-const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY');
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -17,7 +17,8 @@ serve(async (req) => {
   }
 
   try {
-    const supabase = createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!);
+    // Use service role key to bypass RLS - we authenticate the user manually
+    const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
     
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
