@@ -81,6 +81,8 @@ import FocusEngine from "./pages/FocusEngine";
 import MyCloudDrives from "./pages/MyCloudDrives";
 import MyCloudFolder from "./pages/MyCloudFolder";
 import BackblazeStorage from "./pages/BackblazeStorage";
+import GoogleDrive from "./pages/GoogleDrive";
+import GoogleDriveCallback from "./pages/GoogleDriveCallback";
 import FluxAPIImageGen from "./pages/FluxAPIImageGen";
 import ResetPassword from "./pages/ResetPassword";
 import MagicLink from "./pages/MagicLink";
@@ -333,6 +335,8 @@ const App = () => (
                           <Route path="/website/study-platforms" element={<StudyPlatforms />} />
                           <Route path="/infinite-chain" element={<InfiniteChainManager />} />
                           <Route path="/file-hub" element={<FileHub />} />
+                          <Route path="/google-drive" element={<GoogleDrive />} />
+                          <Route path="/google-drive/callback" element={<GoogleDriveCallback />} />
                           <Route path="/music-hub" element={<MusicHub />} />
                           <Route path="/music/library" element={<MusicLibrary />} />
                           <Route path="/music/upload" element={<UploadTrack />} />
