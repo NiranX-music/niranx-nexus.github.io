@@ -1,5 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTestDetails, useTestAttempts } from '@/hooks/useTests';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,85 +12,78 @@ import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { 
-  Clock, Flag, ChevronLeft, ChevronRight, Send, 
-  Maximize, Minimize, AlertTriangle, CheckCircle2,
-  Circle, Bookmark, SkipForward, Eye
+  Clock, ChevronLeft, ChevronRight, Send, 
+  Maximize, Minimize, AlertTriangle,
+  Bookmark, SkipForward, Eye, Shield
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from '@/hooks/use-toast';
-
-interface Question {
-  id: string;
-  question: string;
-  type: 'mcq' | 'numerical' | 'short' | 'long';
-  options?: string[];
-  marks: number;
-}
-
-// Mock test data
-const mockTest = {
-  id: '1',
-  title: 'Mathematics Mid-Term Exam',
-  subject: 'Mathematics',
-  duration: 120,
-  totalMarks: 100,
-  questions: [
-    {
-      id: '1',
-      question: 'What is the value of x in the equation 2x + 5 = 15?',
-      type: 'mcq' as const,
-      options: ['x = 5', 'x = 10', 'x = 7.5', 'x = 4'],
-      marks: 4,
-    },
-    {
-      id: '2',
-      question: 'Calculate the derivative of f(x) = x³ + 2x² - 5x + 3',
-      type: 'mcq' as const,
-      options: ['3x² + 4x - 5', '3x² + 2x - 5', 'x² + 4x - 5', '3x² + 4x + 5'],
-      marks: 4,
-    },
-    {
-      id: '3',
-      question: 'Find the value of sin(30°) + cos(60°)',
-      type: 'numerical' as const,
-      marks: 4,
-    },
-    {
-      id: '4',
-      question: 'Solve the quadratic equation: x² - 5x + 6 = 0. Show all steps.',
-      type: 'short' as const,
-      marks: 6,
-    },
-    {
-      id: '5',
-      question: 'Explain the concept of limits in calculus with examples.',
-      type: 'long' as const,
-      marks: 10,
-    },
-  ],
-};
+import { supabase } from '@/integrations/supabase/client';
 
 export default function TestAttempt() {
-  const { testId } = useParams();
+  const { testId, attemptId } = useParams<{ testId: string; attemptId: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  
+  const { test, questions, loading: testLoading } = useTestDetails(testId);
+  const { updateAttempt, submitAttempt } = useTestAttempts(testId);
   
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [markedForReview, setMarkedForReview] = useState<Set<string>>(new Set());
-  const [timeRemaining, setTimeRemaining] = useState(mockTest.duration * 60);
+  const [timeRemaining, setTimeRemaining] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showPalette, setShowPalette] = useState(true);
+  const [tabSwitchCount, setTabSwitchCount] = useState(0);
+  const [showTabWarning, setShowTabWarning] = useState(false);
+  const [attemptLoaded, setAttemptLoaded] = useState(false);
+  
+  const tabSwitchLimit = test?.tab_switch_limit || 5;
+  const autoSaveRef = useRef<NodeJS.Timeout>();
 
-  const currentQuestion = mockTest.questions[currentQuestionIndex];
-  const answeredCount = Object.keys(answers).length;
-  const progress = (answeredCount / mockTest.questions.length) * 100;
-
-  // Timer
+  // Load existing attempt data
   useEffect(() => {
+    if (!attemptId) return;
+
+    const loadAttempt = async () => {
+      const { data, error } = await supabase
+        .from('test_attempts')
+        .select('*')
+        .eq('id', attemptId)
+        .single();
+
+      if (error) {
+        console.error('Error loading attempt:', error);
+        navigate('/niranx/tests');
+        return;
+      }
+
+      if (data) {
+        setAnswers((data.answers as Record<string, string>) || {});
+        setMarkedForReview(new Set((data.marked_for_review as string[]) || []));
+        setTabSwitchCount(data.tab_switches || 0);
+        setAttemptLoaded(true);
+      }
+    };
+
+    loadAttempt();
+  }, [attemptId, navigate]);
+
+  // Initialize timer when test loads
+  useEffect(() => {
+    if (test && attemptLoaded) {
+      setTimeRemaining(test.duration_minutes * 60);
+    }
+  }, [test, attemptLoaded]);
+
+  // Timer countdown
+  useEffect(() => {
+    if (!attemptLoaded || timeRemaining <= 0) return;
+
     const timer = setInterval(() => {
       setTimeRemaining((prev) => {
         if (prev <= 1) {
-          handleSubmit();
+          handleAutoSubmit('time_up');
           return 0;
         }
         return prev - 1;
@@ -96,19 +91,112 @@ export default function TestAttempt() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [attemptLoaded]);
 
-  // Autosave
+  // Tab switch detection
   useEffect(() => {
-    const autoSave = setInterval(() => {
-      localStorage.setItem(`test_${testId}_answers`, JSON.stringify(answers));
-      localStorage.setItem(`test_${testId}_marked`, JSON.stringify([...markedForReview]));
+    if (!attemptLoaded) return;
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        const newCount = tabSwitchCount + 1;
+        setTabSwitchCount(newCount);
+        
+        // Update tab switches in database
+        if (attemptId) {
+          supabase
+            .from('test_attempts')
+            .update({ tab_switches: newCount })
+            .eq('id', attemptId)
+            .then();
+        }
+
+        if (newCount >= tabSwitchLimit) {
+          handleAutoSubmit('tab_limit');
+        } else {
+          setShowTabWarning(true);
+          toast({
+            title: `Warning: Tab Switch Detected!`,
+            description: `${tabSwitchLimit - newCount} switches remaining before auto-submit.`,
+            variant: 'destructive',
+          });
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [attemptLoaded, tabSwitchCount, tabSwitchLimit, attemptId]);
+
+  // Block copy/paste if disabled
+  useEffect(() => {
+    if (!test?.allow_copy_paste) {
+      const handleCopy = (e: ClipboardEvent) => {
+        e.preventDefault();
+        toast({ title: 'Copy/paste is disabled for this test', variant: 'destructive' });
+      };
+      const handlePaste = (e: ClipboardEvent) => {
+        e.preventDefault();
+        toast({ title: 'Copy/paste is disabled for this test', variant: 'destructive' });
+      };
+      
+      document.addEventListener('copy', handleCopy);
+      document.addEventListener('paste', handlePaste);
+      document.addEventListener('cut', handleCopy);
+      
+      return () => {
+        document.removeEventListener('copy', handleCopy);
+        document.removeEventListener('paste', handlePaste);
+        document.removeEventListener('cut', handleCopy);
+      };
+    }
+  }, [test?.allow_copy_paste]);
+
+  // Auto-save every 30 seconds
+  useEffect(() => {
+    if (!attemptId || !attemptLoaded) return;
+
+    autoSaveRef.current = setInterval(async () => {
+      await supabase
+        .from('test_attempts')
+        .update({ 
+          answers,
+          marked_for_review: Array.from(markedForReview),
+        })
+        .eq('id', attemptId);
     }, 30000);
 
-    return () => clearInterval(autoSave);
-  }, [answers, markedForReview, testId]);
+    return () => {
+      if (autoSaveRef.current) clearInterval(autoSaveRef.current);
+    };
+  }, [answers, markedForReview, attemptId, attemptLoaded]);
 
-  // Fullscreen
+  // Request fullscreen if required
+  useEffect(() => {
+    if (test?.require_fullscreen && attemptLoaded) {
+      document.documentElement.requestFullscreen().catch(() => {
+        toast({ title: 'Please enable fullscreen mode', variant: 'destructive' });
+      });
+      setIsFullscreen(true);
+    }
+  }, [test?.require_fullscreen, attemptLoaded]);
+
+  const handleAutoSubmit = async (reason: 'tab_limit' | 'time_up') => {
+    if (!attemptId) return;
+
+    const message = reason === 'tab_limit' 
+      ? 'Test auto-submitted due to exceeding tab switch limit!'
+      : 'Test auto-submitted: Time is up!';
+
+    toast({ title: message, variant: 'destructive' });
+    await submitAttempt(attemptId, answers, 'auto_submitted');
+    navigate(`/niranx/tests/${testId}/results`);
+  };
+
+  const currentQuestion = questions[currentQuestionIndex];
+  const answeredCount = Object.keys(answers).length;
+  const progress = questions.length > 0 ? (answeredCount / questions.length) * 100 : 0;
+
   const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen();
@@ -140,10 +228,9 @@ export default function TestAttempt() {
     setMarkedForReview(newMarked);
   };
 
-  const handleSubmit = () => {
-    localStorage.removeItem(`test_${testId}_answers`);
-    localStorage.removeItem(`test_${testId}_marked`);
-    toast({ title: 'Test submitted successfully!' });
+  const handleSubmit = async () => {
+    if (!attemptId) return;
+    await submitAttempt(attemptId, answers, 'submitted');
     navigate(`/niranx/tests/${testId}/results`);
   };
 
@@ -161,18 +248,77 @@ export default function TestAttempt() {
     }
   };
 
+  if (testLoading || !attemptLoaded) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      </div>
+    );
+  }
+
+  if (!test || !currentQuestion) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="p-8 text-center">
+          <h2 className="text-xl font-bold">Test not found</h2>
+          <Button onClick={() => navigate('/niranx/tests')} className="mt-4">
+            Back to Tests
+          </Button>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
+      {/* Tab Switch Warning Dialog */}
+      <AlertDialog open={showTabWarning} onOpenChange={setShowTabWarning}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="h-5 w-5" />
+              Tab Switch Detected!
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              <div className="space-y-4">
+                <p>Leaving this tab is not allowed during the test.</p>
+                <div className="p-4 rounded-lg bg-destructive/10">
+                  <p className="font-semibold text-destructive">
+                    Switches: {tabSwitchCount} / {tabSwitchLimit}
+                  </p>
+                  <p className="text-sm mt-1">
+                    {tabSwitchLimit - tabSwitchCount} more switches will auto-submit your test!
+                  </p>
+                </div>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setShowTabWarning(false)}>
+              I Understand
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Top Bar */}
       <div className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="font-bold text-lg">{mockTest.title}</h1>
-              <p className="text-sm text-muted-foreground">{mockTest.subject}</p>
+              <h1 className="font-bold text-lg">{test.title}</h1>
+              <p className="text-sm text-muted-foreground">{test.subject}</p>
             </div>
             
             <div className="flex items-center gap-4">
+              {/* Tab Switch Warning */}
+              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm ${
+                tabSwitchCount > 0 ? 'bg-destructive/10 text-destructive' : 'bg-muted text-muted-foreground'
+              }`}>
+                <Shield className="h-4 w-4" />
+                <span>{tabSwitchCount}/{tabSwitchLimit}</span>
+              </div>
+
               <div className={`flex items-center gap-2 px-4 py-2 rounded-lg font-mono font-bold ${
                 timeRemaining < 300 ? 'bg-red-500/10 text-red-500 animate-pulse' : 'bg-muted'
               }`}>
@@ -207,7 +353,7 @@ export default function TestAttempt() {
                             <p className="text-xs text-muted-foreground">Marked</p>
                           </div>
                           <div className="p-3 rounded-lg bg-muted text-center">
-                            <p className="text-2xl font-bold">{mockTest.questions.length - answeredCount}</p>
+                            <p className="text-2xl font-bold">{questions.length - answeredCount}</p>
                             <p className="text-xs text-muted-foreground">Unanswered</p>
                           </div>
                         </div>
@@ -227,7 +373,7 @@ export default function TestAttempt() {
           <div className="mt-3">
             <div className="flex items-center justify-between text-sm mb-1">
               <span className="text-muted-foreground">Progress</span>
-              <span className="font-medium">{answeredCount}/{mockTest.questions.length} answered</span>
+              <span className="font-medium">{answeredCount}/{questions.length} answered</span>
             </div>
             <Progress value={progress} className="h-2" />
           </div>
@@ -254,7 +400,7 @@ export default function TestAttempt() {
                           Q{currentQuestionIndex + 1}
                         </Badge>
                         <div className="flex items-center gap-2">
-                          <Badge variant="outline">{currentQuestion.type.toUpperCase()}</Badge>
+                          <Badge variant="outline">{currentQuestion.question_type.toUpperCase()}</Badge>
                           <Badge variant="outline">{currentQuestion.marks} marks</Badge>
                         </div>
                       </div>
@@ -271,17 +417,17 @@ export default function TestAttempt() {
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div className="text-lg leading-relaxed">
-                      {currentQuestion.question}
+                      {currentQuestion.question_text}
                     </div>
 
                     {/* Answer Input based on question type */}
-                    {currentQuestion.type === 'mcq' && currentQuestion.options && (
+                    {currentQuestion.question_type === 'mcq' && currentQuestion.options && (
                       <RadioGroup
                         value={answers[currentQuestion.id] || ''}
                         onValueChange={(v) => handleAnswer(currentQuestion.id, v)}
                         className="space-y-3"
                       >
-                        {currentQuestion.options.map((option, i) => (
+                        {(Array.isArray(currentQuestion.options) ? currentQuestion.options : []).map((option: string, i: number) => (
                           <div
                             key={i}
                             className={`flex items-center space-x-3 p-4 rounded-lg border transition-colors cursor-pointer ${
@@ -301,7 +447,7 @@ export default function TestAttempt() {
                       </RadioGroup>
                     )}
 
-                    {currentQuestion.type === 'numerical' && (
+                    {currentQuestion.question_type === 'numerical' && (
                       <div className="space-y-2">
                         <Label>Enter your answer:</Label>
                         <Input
@@ -314,7 +460,7 @@ export default function TestAttempt() {
                       </div>
                     )}
 
-                    {currentQuestion.type === 'short' && (
+                    {currentQuestion.question_type === 'short' && (
                       <div className="space-y-2">
                         <Label>Your answer:</Label>
                         <Textarea
@@ -326,7 +472,7 @@ export default function TestAttempt() {
                       </div>
                     )}
 
-                    {currentQuestion.type === 'long' && (
+                    {currentQuestion.question_type === 'long' && (
                       <div className="space-y-2">
                         <Label>Your answer:</Label>
                         <Textarea
@@ -354,7 +500,7 @@ export default function TestAttempt() {
                         <Button
                           variant="ghost"
                           onClick={() => {
-                            setCurrentQuestionIndex(Math.min(mockTest.questions.length - 1, currentQuestionIndex + 1));
+                            setCurrentQuestionIndex(Math.min(questions.length - 1, currentQuestionIndex + 1));
                           }}
                           className="gap-2"
                         >
@@ -364,8 +510,8 @@ export default function TestAttempt() {
                       </div>
 
                       <Button
-                        onClick={() => setCurrentQuestionIndex(Math.min(mockTest.questions.length - 1, currentQuestionIndex + 1))}
-                        disabled={currentQuestionIndex === mockTest.questions.length - 1}
+                        onClick={() => setCurrentQuestionIndex(Math.min(questions.length - 1, currentQuestionIndex + 1))}
+                        disabled={currentQuestionIndex === questions.length - 1}
                         className="gap-2"
                       >
                         Next
@@ -392,7 +538,7 @@ export default function TestAttempt() {
               {showPalette && (
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-5 gap-2">
-                    {mockTest.questions.map((q, i) => (
+                    {questions.map((q, i) => (
                       <Button
                         key={q.id}
                         variant="outline"
@@ -418,9 +564,22 @@ export default function TestAttempt() {
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <div className="w-4 h-4 rounded bg-muted border" />
-                      <span>Not Answered ({mockTest.questions.length - answeredCount})</span>
+                      <span>Not Answered ({questions.length - answeredCount})</span>
                     </div>
                   </div>
+
+                  {/* Tab Switch Warning */}
+                  {tabSwitchCount > 0 && (
+                    <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+                      <div className="flex items-center gap-2 text-destructive">
+                        <AlertTriangle className="h-4 w-4" />
+                        <span className="text-sm font-medium">Tab Switches: {tabSwitchCount}/{tabSwitchLimit}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {tabSwitchLimit - tabSwitchCount} remaining before auto-submit
+                      </p>
+                    </div>
+                  )}
                 </CardContent>
               )}
             </Card>

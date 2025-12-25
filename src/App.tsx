@@ -200,6 +200,7 @@ import TestHub from "./pages/tests/TestHub";
 import TestBuilder from "./pages/tests/TestBuilder";
 import AITestGenerator from "./pages/tests/AITestGenerator";
 import TestAttempt from "./pages/tests/TestAttempt";
+import TestDetail from "./pages/tests/TestDetail";
 import UploadTest from "./pages/tests/UploadTest";
 import TestAnalytics from "./pages/tests/TestAnalytics";
 
@@ -452,7 +453,9 @@ const App = () => (
                           <Route path="/tests/create" element={<TestBuilder />} />
                           <Route path="/tests/ai-generate" element={<AITestGenerator />} />
                           <Route path="/tests/upload" element={<UploadTest />} />
-                          <Route path="/tests/attempt/:testId" element={<TestAttempt />} />
+                          <Route path="/tests/:testId" element={<TestDetail />} />
+                          <Route path="/tests/:testId/attempt/:attemptId" element={<TestAttempt />} />
+                          <Route path="/tests/:testId/results" element={<TestAnalytics />} />
                           <Route path="/tests/analytics" element={<TestAnalytics />} />
                           <Route path="/admin" element={
                             <AdminRoute>

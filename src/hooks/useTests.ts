@@ -161,6 +161,11 @@ export function useTests() {
     }
   };
 
+  // Derived data
+  const publishedTests = tests.filter(t => t.status === 'published');
+  const myTests = user ? tests.filter(t => t.teacher_id === user.id) : [];
+  const liveTests = tests.filter(t => t.status === 'live');
+
   return {
     tests,
     loading,
@@ -169,7 +174,60 @@ export function useTests() {
     updateTest,
     publishTest,
     deleteTest,
+    publishedTests,
+    myTests,
+    liveTests,
   };
+}
+
+export function useUserAttempts() {
+  const { user } = useAuth();
+  const [attempts, setAttempts] = useState<TestAttempt[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchAttempts = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('test_attempts')
+          .select('*')
+          .eq('student_id', user.id)
+          .order('started_at', { ascending: false });
+
+        if (error) throw error;
+        setAttempts(data?.map(a => ({
+          ...a,
+          answers: a.answers as Record<string, string>,
+          marked_for_review: a.marked_for_review as string[]
+        })) || []);
+      } catch (error) {
+        console.error('Error fetching attempts:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAttempts();
+
+    // Subscribe to realtime updates
+    const channel = supabase
+      .channel('user-attempts-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'test_attempts', filter: `student_id=eq.${user.id}` },
+        () => fetchAttempts()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
+  return { attempts, loading };
 }
 
 export function useTestDetails(testId: string | undefined) {
