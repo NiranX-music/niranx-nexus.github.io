@@ -111,7 +111,10 @@ serve(async (req) => {
 
         const isPrimary = !accountCount || accountCount.length === 0;
 
+        let accountIdResult: string;
+
         if (existingAccount) {
+          accountIdResult = existingAccount.id;
           // Update existing account
           const { error: updateError } = await supabase
             .from('google_drive_tokens')
@@ -131,7 +134,7 @@ serve(async (req) => {
           }
         } else {
           // Insert new account
-          const { error: insertError } = await supabase
+          const { data: newAccount, error: insertError } = await supabase
             .from('google_drive_tokens')
             .insert({
               user_id: user.id,
@@ -141,20 +144,24 @@ serve(async (req) => {
               google_email: googleUser.email,
               account_name: googleUser.name || googleUser.email,
               is_primary: isPrimary,
-            });
+            })
+            .select('id')
+            .single();
 
-          if (insertError) {
+          if (insertError || !newAccount) {
             console.error('Token storage error:', insertError);
             return new Response(JSON.stringify({ error: 'Failed to store tokens' }), {
               status: 500,
               headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             });
           }
+          accountIdResult = newAccount.id;
         }
 
         return new Response(JSON.stringify({ 
           success: true,
           email: googleUser.email,
+          accountId: accountIdResult,
         }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });

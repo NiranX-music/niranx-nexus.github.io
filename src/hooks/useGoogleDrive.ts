@@ -127,17 +127,17 @@ export function useGoogleDrive() {
     }
   }, [invokeFunction, session?.access_token]);
 
-  const handleCallback = useCallback(async (code: string) => {
+  const handleCallback = useCallback(async (code: string): Promise<{ success: boolean; accountId?: string }> => {
     try {
       const redirectUri = `${window.location.origin}/niranx/google-drive/callback`;
       const data = await invokeFunction('exchange-code', { code, redirectUri });
       await loadAccounts();
       toast.success(`Connected to Google Drive as ${data.email}`);
-      return true;
+      return { success: true, accountId: data.accountId };
     } catch (error: any) {
       console.error('Error exchanging code:', error);
       toast.error(error.message || 'Failed to connect to Google Drive');
-      return false;
+      return { success: false };
     }
   }, [invokeFunction, loadAccounts]);
 

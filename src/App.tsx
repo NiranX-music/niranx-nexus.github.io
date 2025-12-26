@@ -341,6 +341,7 @@ const App = () => (
                           <Route path="/infinite-chain" element={<InfiniteChainManager />} />
                           <Route path="/file-hub" element={<FileHub />} />
                           <Route path="/google-drive" element={<GoogleDrive />} />
+                          <Route path="/google-drive/account/:accountId" element={<GoogleDrive />} />
                           <Route path="/google-drive/callback" element={<GoogleDriveCallback />} />
                           <Route path="xorbit" element={<XOrbit />} />
                           <Route path="xorbit/callback" element={<XOrbitCallback />} />
