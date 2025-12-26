@@ -2264,6 +2264,127 @@ export type Database = {
         }
         Relationships: []
       }
+      flashcard_decks: {
+        Row: {
+          card_count: number | null
+          created_at: string
+          description: string | null
+          id: string
+          last_studied_at: string | null
+          subject: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          card_count?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          last_studied_at?: string | null
+          subject?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          card_count?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          last_studied_at?: string | null
+          subject?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      flashcard_reviews: {
+        Row: {
+          flashcard_id: string
+          id: string
+          rating: number
+          response_time_ms: number | null
+          reviewed_at: string
+          user_id: string
+        }
+        Insert: {
+          flashcard_id: string
+          id?: string
+          rating: number
+          response_time_ms?: number | null
+          reviewed_at?: string
+          user_id: string
+        }
+        Update: {
+          flashcard_id?: string
+          id?: string
+          rating?: number
+          response_time_ms?: number | null
+          reviewed_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flashcard_reviews_flashcard_id_fkey"
+            columns: ["flashcard_id"]
+            isOneToOne: false
+            referencedRelation: "flashcards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flashcards: {
+        Row: {
+          answer: string
+          created_at: string
+          deck_id: string
+          difficulty: string | null
+          ease_factor: number | null
+          id: string
+          interval_days: number | null
+          next_review_at: string | null
+          question: string
+          review_count: number | null
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          deck_id: string
+          difficulty?: string | null
+          ease_factor?: number | null
+          id?: string
+          interval_days?: number | null
+          next_review_at?: string | null
+          question: string
+          review_count?: number | null
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          deck_id?: string
+          difficulty?: string | null
+          ease_factor?: number | null
+          id?: string
+          interval_days?: number | null
+          next_review_at?: string | null
+          question?: string
+          review_count?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flashcards_deck_id_fkey"
+            columns: ["deck_id"]
+            isOneToOne: false
+            referencedRelation: "flashcard_decks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       focus_sessions: {
         Row: {
           completed: boolean | null
@@ -6354,6 +6475,48 @@ export type Database = {
           status?: string
           student_id?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      study_analytics_cache: {
+        Row: {
+          created_at: string
+          date: string
+          flashcards_correct: number | null
+          flashcards_reviewed: number | null
+          focus_score: number | null
+          id: string
+          metrics: Json | null
+          subjects_studied: string[] | null
+          total_study_minutes: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date?: string
+          flashcards_correct?: number | null
+          flashcards_reviewed?: number | null
+          focus_score?: number | null
+          id?: string
+          metrics?: Json | null
+          subjects_studied?: string[] | null
+          total_study_minutes?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          flashcards_correct?: number | null
+          flashcards_reviewed?: number | null
+          focus_score?: number | null
+          id?: string
+          metrics?: Json | null
+          subjects_studied?: string[] | null
+          total_study_minutes?: number | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
