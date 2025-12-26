@@ -15,6 +15,7 @@ import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useNavigate } from "react-router-dom";
 import { Keyboard, Sparkles, Bell } from "lucide-react";
+import { RenameTabDialog } from "@/components/RenameTabDialog";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -148,6 +149,7 @@ export function AppLayout({ children }: AppLayoutProps) {
               </BreadcrumbList>
             </Breadcrumb>
             <div className="ml-auto flex items-center gap-2">
+              <RenameTabDialog />
               {user && <SpaceSwitcher />}
               <Button
                 variant="ghost"
