@@ -198,6 +198,9 @@ import XFlowPostView from "./pages/xflow/XFlowPostView";
 import XFlowModeration from "./pages/admin/XFlowModeration";
 import XOrbit from "./pages/XOrbit";
 import XOrbitCallback from "./pages/XOrbitCallback";
+import ShareTarget from "./pages/ShareTarget";
+import FileHandler from "./pages/FileHandler";
+import ProtocolHandler from "./pages/ProtocolHandler";
 
 // Test Platform
 import TestHub from "./pages/tests/TestHub";
