@@ -81,12 +81,13 @@ Make the content educational, engaging, and appropriate for the ${formData.diffi
 Each module should have 2-4 lessons. Each quiz should have 3-5 questions.
 Return ONLY the JSON, no additional text.`;
 
-      const response = await supabase.functions.invoke('ai-chat', {
+      const response = await supabase.functions.invoke('perplexity-chat', {
         body: {
           messages: [
             { role: 'system', content: 'You are an expert course designer. Return ONLY valid JSON, no markdown or additional text.' },
             { role: 'user', content: prompt }
           ],
+          model: 'sonar-pro',
         },
       });
 
