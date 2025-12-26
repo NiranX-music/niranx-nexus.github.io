@@ -196,6 +196,8 @@ import XFlowProfile from "./pages/xflow/XFlowProfile";
 import XFlowMessages from "./pages/xflow/XFlowMessages";
 import XFlowPostView from "./pages/xflow/XFlowPostView";
 import XFlowModeration from "./pages/admin/XFlowModeration";
+import XOrbit from "./pages/XOrbit";
+import XOrbitCallback from "./pages/XOrbitCallback";
 
 // Test Platform
 import TestHub from "./pages/tests/TestHub";
@@ -337,6 +339,8 @@ const App = () => (
                           <Route path="/file-hub" element={<FileHub />} />
                           <Route path="/google-drive" element={<GoogleDrive />} />
                           <Route path="/google-drive/callback" element={<GoogleDriveCallback />} />
+                          <Route path="/xorbit" element={<XOrbit />} />
+                          <Route path="/xorbit/callback" element={<XOrbitCallback />} />
                           <Route path="/music-hub" element={<MusicHub />} />
                           <Route path="/music/library" element={<MusicLibrary />} />
                           <Route path="/music/upload" element={<UploadTrack />} />

@@ -16,6 +16,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -28,6 +29,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   HardDrive,
   Folder,
@@ -46,10 +54,18 @@ import {
   LogOut,
   Loader2,
   RefreshCw,
+  Grid,
+  List,
+  Save,
+  Plus,
+  User,
+  Check,
 } from 'lucide-react';
-import { useGoogleDrive, DriveFile } from '@/hooks/useGoogleDrive';
+import { useGoogleDrive, DriveFile, DriveAccount } from '@/hooks/useGoogleDrive';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 
 const getFileIcon = (mimeType: string) => {
   if (mimeType === 'application/vnd.google-apps.folder') return Folder;
@@ -70,7 +86,7 @@ const formatFileSize = (bytes?: string) => {
 };
 
 export default function GoogleDrive() {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const {
     isConnected,
     connectedEmail,
@@ -89,6 +105,11 @@ export default function GoogleDrive() {
     loadMore,
     listFiles,
     currentFolderId,
+    accounts,
+    currentAccountId,
+    switchAccount,
+    disconnectAccount,
+    loadAccounts,
   } = useGoogleDrive();
 
   const [newFolderName, setNewFolderName] = useState('');
@@ -97,6 +118,13 @@ export default function GoogleDrive() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [fileToDelete, setFileToDelete] = useState<DriveFile | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [saveToXDialogOpen, setSaveToXDialogOpen] = useState(false);
+  const [fileToSave, setFileToSave] = useState<DriveFile | null>(null);
+  const [isSavingToX, setIsSavingToX] = useState(false);
+  const [cloudFolders, setCloudFolders] = useState<any[]>([]);
+  const [selectedCloudFolder, setSelectedCloudFolder] = useState<string>('root');
+  const [newCloudFolderName, setNewCloudFolderName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -141,6 +169,113 @@ export default function GoogleDrive() {
     }
   };
 
+  const loadCloudFolders = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('user_cloud_files')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('is_folder', true)
+      .order('file_name');
+    setCloudFolders(data || []);
+  };
+
+  const handleSaveToX = async () => {
+    if (!fileToSave || !user || !session) return;
+
+    setIsSavingToX(true);
+    try {
+      // First download the file from Google Drive
+      const { data, error } = await supabase.functions.invoke('google-drive', {
+        body: { 
+          action: 'download-file', 
+          fileId: fileToSave.id, 
+          mimeType: fileToSave.mimeType,
+          accountId: currentAccountId,
+        },
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+
+      if (error || data?.error) {
+        throw new Error(data?.error || 'Failed to download file');
+      }
+
+      // Convert base64 to blob
+      const byteCharacters = atob(data.content);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: data.contentType || 'application/octet-stream' });
+
+      // Upload to Supabase storage
+      const filePath = `${user.id}/${Date.now()}-${fileToSave.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from('my-cloud')
+        .upload(filePath, blob);
+
+      if (uploadError) throw uploadError;
+
+      // Determine parent folder
+      let parentId: string | null = null;
+      if (newCloudFolderName.trim()) {
+        // Create new folder first
+        const { data: folderData, error: folderError } = await supabase
+          .from('user_cloud_files')
+          .insert({
+            user_id: user.id,
+            file_name: newCloudFolderName.trim(),
+            file_path: '',
+            file_size: 0,
+            file_type: 'folder',
+            is_folder: true,
+            parent_id: selectedCloudFolder === 'root' ? null : selectedCloudFolder,
+          })
+          .select()
+          .single();
+        if (!folderError && folderData) {
+          parentId = folderData.id;
+        }
+      } else if (selectedCloudFolder !== 'root') {
+        parentId = selectedCloudFolder;
+      }
+
+      // Save file reference to database
+      const { error: dbError } = await supabase
+        .from('user_cloud_files')
+        .insert({
+          user_id: user.id,
+          file_name: fileToSave.name,
+          file_path: filePath,
+          file_size: parseInt(fileToSave.size || '0'),
+          file_type: data.contentType || 'application/octet-stream',
+          parent_id: parentId,
+          source: 'google_drive',
+          source_id: fileToSave.id,
+        });
+
+      if (dbError) throw dbError;
+
+      toast.success(`Saved "${fileToSave.name}" to X Servers`);
+      setSaveToXDialogOpen(false);
+      setFileToSave(null);
+      setNewCloudFolderName('');
+      setSelectedCloudFolder('root');
+    } catch (error: any) {
+      console.error('Error saving to X:', error);
+      toast.error(error.message || 'Failed to save file to X Servers');
+    } finally {
+      setIsSavingToX(false);
+    }
+  };
+
+  const openSaveToXDialog = async (file: DriveFile) => {
+    setFileToSave(file);
+    await loadCloudFolders();
+    setSaveToXDialogOpen(true);
+  };
+
   if (!user) {
     return (
       <div className="container mx-auto p-6 flex items-center justify-center min-h-[60vh]">
@@ -155,7 +290,7 @@ export default function GoogleDrive() {
     );
   }
 
-  if (!isConnected) {
+  if (!isConnected && accounts.length === 0) {
     return (
       <div className="container mx-auto p-6">
         <Card className="max-w-lg mx-auto">
@@ -167,7 +302,7 @@ export default function GoogleDrive() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-center text-muted-foreground">
-              Connect your Google Drive account to browse, upload, download, and manage your files directly from NiranX.
+              Connect your Google Drive accounts to browse, upload, download, and manage your files directly from NiranX.
             </p>
             <ul className="space-y-2 text-sm">
               <li className="flex items-center gap-2">
@@ -183,8 +318,12 @@ export default function GoogleDrive() {
                 Download files to your device
               </li>
               <li className="flex items-center gap-2">
-                <FolderPlus className="h-4 w-4 text-orange-500" />
-                Create and organize folders
+                <Save className="h-4 w-4 text-yellow-500" />
+                Save files to X Servers (My Cloud)
+              </li>
+              <li className="flex items-center gap-2">
+                <Plus className="h-4 w-4 text-orange-500" />
+                Connect multiple Google accounts
               </li>
             </ul>
             <Button
@@ -212,11 +351,58 @@ export default function GoogleDrive() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold gradient-text">Google Drive</h1>
-          <p className="text-muted-foreground flex items-center gap-2">
-            Connected as <Badge variant="secondary">{connectedEmail}</Badge>
-          </p>
+          <div className="flex items-center gap-2 flex-wrap mt-1">
+            {accounts.length > 0 ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <User className="h-4 w-4" />
+                    {connectedEmail || 'Select Account'}
+                    <ChevronRight className="h-3 w-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  {accounts.map((account) => (
+                    <DropdownMenuItem
+                      key={account.id}
+                      onClick={() => switchAccount(account.id)}
+                      className="flex items-center justify-between"
+                    >
+                      <span>{account.google_email}</span>
+                      {account.id === currentAccountId && <Check className="h-4 w-4 ml-2" />}
+                    </DropdownMenuItem>
+                  ))}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={connect}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Another Account
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Badge variant="secondary">{connectedEmail}</Badge>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-2">
+          <div className="flex items-center border rounded-md">
+            <Button
+              variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('grid')}
+              className="rounded-r-none"
+            >
+              <Grid className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('list')}
+              className="rounded-l-none"
+            >
+              <List className="h-4 w-4" />
+            </Button>
+          </div>
           <Button
             variant="outline"
             size="sm"
@@ -226,14 +412,26 @@ export default function GoogleDrive() {
             <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={disconnect}
-          >
-            <LogOut className="h-4 w-4 mr-2" />
-            Disconnect
-          </Button>
+          {accounts.length > 1 && currentAccountId && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => disconnectAccount(currentAccountId)}
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Disconnect Account
+            </Button>
+          )}
+          {accounts.length <= 1 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={disconnect}
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Disconnect
+            </Button>
+          )}
         </div>
       </div>
 
@@ -319,23 +517,31 @@ export default function GoogleDrive() {
         </CardContent>
       </Card>
 
-      {/* Files Grid */}
+      {/* Files View */}
       <Card>
         <ScrollArea className="h-[calc(100vh-320px)]">
           <CardContent className="py-4">
             {isLoading && files.length === 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <Skeleton key={i} className="h-24 rounded-lg" />
-                ))}
-              </div>
+              viewMode === 'grid' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <Skeleton key={i} className="h-24 rounded-lg" />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <Skeleton key={i} className="h-12 rounded-lg" />
+                  ))}
+                </div>
+              )
             ) : files.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
                 <Folder className="h-16 w-16 mb-4 opacity-50" />
                 <p className="text-lg font-medium">This folder is empty</p>
                 <p className="text-sm">Upload files or create folders to get started</p>
               </div>
-            ) : (
+            ) : viewMode === 'grid' ? (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                   {files.map((file) => {
@@ -390,16 +596,28 @@ export default function GoogleDrive() {
                                   </DropdownMenuItem>
                                 )}
                                 {!isFolder && (
-                                  <DropdownMenuItem
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      downloadFile(file);
-                                    }}
-                                  >
-                                    <Download className="h-4 w-4 mr-2" />
-                                    Download
-                                  </DropdownMenuItem>
+                                  <>
+                                    <DropdownMenuItem
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        downloadFile(file);
+                                      }}
+                                    >
+                                      <Download className="h-4 w-4 mr-2" />
+                                      Download
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        openSaveToXDialog(file);
+                                      }}
+                                    >
+                                      <Save className="h-4 w-4 mr-2" />
+                                      Save to X Servers
+                                    </DropdownMenuItem>
+                                  </>
                                 )}
+                                <DropdownMenuSeparator />
                                 <DropdownMenuItem
                                   className="text-destructive"
                                   onClick={(e) => {
@@ -416,6 +634,113 @@ export default function GoogleDrive() {
                           </div>
                         </CardContent>
                       </Card>
+                    );
+                  })}
+                </div>
+
+                {nextPageToken && (
+                  <div className="flex justify-center mt-6">
+                    <Button
+                      variant="outline"
+                      onClick={loadMore}
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : null}
+                      Load More
+                    </Button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                <div className="space-y-1">
+                  {files.map((file) => {
+                    const Icon = getFileIcon(file.mimeType);
+                    const isFolder = file.mimeType === 'application/vnd.google-apps.folder';
+
+                    return (
+                      <div
+                        key={file.id}
+                        className="group flex items-center gap-3 p-3 rounded-lg hover:bg-muted cursor-pointer"
+                        onClick={() => handleFileClick(file)}
+                      >
+                        <div className={`p-2 rounded-lg ${isFolder ? 'bg-blue-500/10 text-blue-500' : 'bg-muted'}`}>
+                          <Icon className="h-4 w-4" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate text-sm">{file.name}</p>
+                        </div>
+                        {!isFolder && (
+                          <p className="text-xs text-muted-foreground hidden sm:block">
+                            {formatFileSize(file.size)}
+                          </p>
+                        )}
+                        {file.modifiedTime && (
+                          <p className="text-xs text-muted-foreground hidden md:block">
+                            {format(new Date(file.modifiedTime), 'MMM d, yyyy')}
+                          </p>
+                        )}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 opacity-0 group-hover:opacity-100"
+                            >
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            {file.webViewLink && (
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  window.open(file.webViewLink, '_blank');
+                                }}
+                              >
+                                <ExternalLink className="h-4 w-4 mr-2" />
+                                Open in Drive
+                              </DropdownMenuItem>
+                            )}
+                            {!isFolder && (
+                              <>
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    downloadFile(file);
+                                  }}
+                                >
+                                  <Download className="h-4 w-4 mr-2" />
+                                  Download
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    openSaveToXDialog(file);
+                                  }}
+                                >
+                                  <Save className="h-4 w-4 mr-2" />
+                                  Save to X Servers
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-destructive"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setFileToDelete(file);
+                                setDeleteDialogOpen(true);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     );
                   })}
                 </div>
@@ -460,6 +785,59 @@ export default function GoogleDrive() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Save to X Servers Dialog */}
+      <Dialog open={saveToXDialogOpen} onOpenChange={setSaveToXDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Save to X Servers</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <p className="text-sm text-muted-foreground">
+              Save "{fileToSave?.name}" to your X Cloud storage
+            </p>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Select Folder</label>
+              <Select value={selectedCloudFolder} onValueChange={setSelectedCloudFolder}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select folder" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="root">My Cloud (Root)</SelectItem>
+                  {cloudFolders.map((folder) => (
+                    <SelectItem key={folder.id} value={folder.id}>
+                      {folder.file_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Or Create New Folder</label>
+              <Input
+                placeholder="New folder name (optional)"
+                value={newCloudFolderName}
+                onChange={(e) => setNewCloudFolderName(e.target.value)}
+              />
+            </div>
+
+            <Button
+              onClick={handleSaveToX}
+              disabled={isSavingToX}
+              className="w-full"
+            >
+              {isSavingToX ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4 mr-2" />
+              )}
+              Save to X Servers
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

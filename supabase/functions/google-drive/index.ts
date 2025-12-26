@@ -17,7 +17,6 @@ serve(async (req) => {
   }
 
   try {
-    // Use service role key to bypass RLS - we authenticate the user manually
     const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
     
     const authHeader = req.headers.get('Authorization');
@@ -39,8 +38,8 @@ serve(async (req) => {
       });
     }
 
-    const { action, ...params } = await req.json();
-    console.log(`Google Drive action: ${action} for user: ${user.id}`);
+    const { action, accountId, ...params } = await req.json();
+    console.log(`Google Drive action: ${action} for user: ${user.id}, accountId: ${accountId}`);
 
     switch (action) {
       case 'get-auth-url': {
@@ -96,23 +95,61 @@ serve(async (req) => {
         });
         const googleUser = await userInfoResponse.json();
 
-        // Store tokens in database
-        const { error: upsertError } = await supabase
+        // Check if this account is already connected
+        const { data: existingAccount } = await supabase
           .from('google_drive_tokens')
-          .upsert({
-            user_id: user.id,
-            access_token: tokens.access_token,
-            refresh_token: tokens.refresh_token,
-            expires_at: new Date(Date.now() + tokens.expires_in * 1000).toISOString(),
-            google_email: googleUser.email,
-          }, { onConflict: 'user_id' });
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('google_email', googleUser.email)
+          .single();
 
-        if (upsertError) {
-          console.error('Token storage error:', upsertError);
-          return new Response(JSON.stringify({ error: 'Failed to store tokens' }), {
-            status: 500,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
+        // Check how many accounts user has
+        const { data: accountCount } = await supabase
+          .from('google_drive_tokens')
+          .select('id', { count: 'exact' })
+          .eq('user_id', user.id);
+
+        const isPrimary = !accountCount || accountCount.length === 0;
+
+        if (existingAccount) {
+          // Update existing account
+          const { error: updateError } = await supabase
+            .from('google_drive_tokens')
+            .update({
+              access_token: tokens.access_token,
+              refresh_token: tokens.refresh_token || existingAccount.refresh_token,
+              expires_at: new Date(Date.now() + tokens.expires_in * 1000).toISOString(),
+            })
+            .eq('id', existingAccount.id);
+
+          if (updateError) {
+            console.error('Token update error:', updateError);
+            return new Response(JSON.stringify({ error: 'Failed to update tokens' }), {
+              status: 500,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+        } else {
+          // Insert new account
+          const { error: insertError } = await supabase
+            .from('google_drive_tokens')
+            .insert({
+              user_id: user.id,
+              access_token: tokens.access_token,
+              refresh_token: tokens.refresh_token,
+              expires_at: new Date(Date.now() + tokens.expires_in * 1000).toISOString(),
+              google_email: googleUser.email,
+              account_name: googleUser.name || googleUser.email,
+              is_primary: isPrimary,
+            });
+
+          if (insertError) {
+            console.error('Token storage error:', insertError);
+            return new Response(JSON.stringify({ error: 'Failed to store tokens' }), {
+              status: 500,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
         }
 
         return new Response(JSON.stringify({ 
@@ -123,11 +160,25 @@ serve(async (req) => {
         });
       }
 
+      case 'list-accounts': {
+        const { data: accounts } = await supabase
+          .from('google_drive_tokens')
+          .select('id, google_email, account_name, is_primary')
+          .eq('user_id', user.id)
+          .order('is_primary', { ascending: false });
+
+        return new Response(JSON.stringify({ accounts: accounts || [] }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
       case 'check-connection': {
         const { data: tokenData } = await supabase
           .from('google_drive_tokens')
           .select('*')
           .eq('user_id', user.id)
+          .order('is_primary', { ascending: false })
+          .limit(1)
           .single();
 
         return new Response(JSON.stringify({ 
@@ -139,6 +190,25 @@ serve(async (req) => {
       }
 
       case 'disconnect': {
+        if (accountId) {
+          await supabase
+            .from('google_drive_tokens')
+            .delete()
+            .eq('id', accountId)
+            .eq('user_id', user.id);
+        } else {
+          await supabase
+            .from('google_drive_tokens')
+            .delete()
+            .eq('user_id', user.id);
+        }
+
+        return new Response(JSON.stringify({ success: true }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      case 'disconnect-all': {
         await supabase
           .from('google_drive_tokens')
           .delete()
@@ -150,7 +220,7 @@ serve(async (req) => {
       }
 
       case 'list-files': {
-        const accessToken = await getValidAccessToken(supabase, user.id);
+        const accessToken = await getValidAccessToken(supabase, user.id, accountId);
         if (!accessToken) {
           return new Response(JSON.stringify({ error: 'Not connected to Google Drive' }), {
             status: 401,
@@ -196,7 +266,7 @@ serve(async (req) => {
       }
 
       case 'upload-file': {
-        const accessToken = await getValidAccessToken(supabase, user.id);
+        const accessToken = await getValidAccessToken(supabase, user.id, accountId);
         if (!accessToken) {
           return new Response(JSON.stringify({ error: 'Not connected to Google Drive' }), {
             status: 401,
@@ -206,11 +276,9 @@ serve(async (req) => {
 
         const { fileName, mimeType, content, folderId } = params;
 
-        // Create file metadata
         const metadata: any = { name: fileName };
         if (folderId) metadata.parents = [folderId];
 
-        // Create multipart upload
         const boundary = '-------314159265358979323846';
         const delimiter = `\r\n--${boundary}\r\n`;
         const closeDelimiter = `\r\n--${boundary}--`;
@@ -253,7 +321,7 @@ serve(async (req) => {
       }
 
       case 'download-file': {
-        const accessToken = await getValidAccessToken(supabase, user.id);
+        const accessToken = await getValidAccessToken(supabase, user.id, accountId);
         if (!accessToken) {
           return new Response(JSON.stringify({ error: 'Not connected to Google Drive' }), {
             status: 401,
@@ -265,7 +333,6 @@ serve(async (req) => {
         
         let url = `https://www.googleapis.com/drive/v3/files/${fileId}`;
         
-        // Google Docs need to be exported
         if (mimeType?.startsWith('application/vnd.google-apps')) {
           const exportMimeTypes: Record<string, string> = {
             'application/vnd.google-apps.document': 'application/pdf',
@@ -303,7 +370,7 @@ serve(async (req) => {
       }
 
       case 'delete-file': {
-        const accessToken = await getValidAccessToken(supabase, user.id);
+        const accessToken = await getValidAccessToken(supabase, user.id, accountId);
         if (!accessToken) {
           return new Response(JSON.stringify({ error: 'Not connected to Google Drive' }), {
             status: 401,
@@ -333,7 +400,7 @@ serve(async (req) => {
       }
 
       case 'create-folder': {
-        const accessToken = await getValidAccessToken(supabase, user.id);
+        const accessToken = await getValidAccessToken(supabase, user.id, accountId);
         if (!accessToken) {
           return new Response(JSON.stringify({ error: 'Not connected to Google Drive' }), {
             status: 401,
@@ -388,12 +455,19 @@ serve(async (req) => {
   }
 });
 
-async function getValidAccessToken(supabase: any, userId: string): Promise<string | null> {
-  const { data: tokenData } = await supabase
+async function getValidAccessToken(supabase: any, userId: string, accountId?: string): Promise<string | null> {
+  let query = supabase
     .from('google_drive_tokens')
     .select('*')
-    .eq('user_id', userId)
-    .single();
+    .eq('user_id', userId);
+
+  if (accountId) {
+    query = query.eq('id', accountId);
+  } else {
+    query = query.order('is_primary', { ascending: false }).limit(1);
+  }
+
+  const { data: tokenData } = await query.single();
 
   if (!tokenData) return null;
 
@@ -431,7 +505,7 @@ async function getValidAccessToken(supabase: any, userId: string): Promise<strin
       access_token: tokens.access_token,
       expires_at: new Date(Date.now() + tokens.expires_in * 1000).toISOString(),
     })
-    .eq('user_id', userId);
+    .eq('id', tokenData.id);
 
   return tokens.access_token;
 }

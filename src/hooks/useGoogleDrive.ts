@@ -20,6 +20,13 @@ export interface DriveListResponse {
   nextPageToken?: string;
 }
 
+export interface DriveAccount {
+  id: string;
+  google_email: string;
+  account_name?: string;
+  is_primary: boolean;
+}
+
 export function useGoogleDrive() {
   const { user, session } = useAuth();
   const [isConnected, setIsConnected] = useState(false);
@@ -31,6 +38,8 @@ export function useGoogleDrive() {
     { id: null, name: 'My Drive' }
   ]);
   const [nextPageToken, setNextPageToken] = useState<string | null>(null);
+  const [accounts, setAccounts] = useState<DriveAccount[]>([]);
+  const [currentAccountId, setCurrentAccountId] = useState<string | null>(null);
 
   const invokeFunction = useCallback(async (action: string, params: Record<string, any> = {}) => {
     if (!session?.access_token) {
@@ -41,7 +50,7 @@ export function useGoogleDrive() {
     console.log(`Invoking google-drive function with action: ${action}`);
     
     const { data, error } = await supabase.functions.invoke('google-drive', {
-      body: { action, ...params },
+      body: { action, accountId: currentAccountId, ...params },
       headers: { Authorization: `Bearer ${session.access_token}` },
     });
 
@@ -56,7 +65,27 @@ export function useGoogleDrive() {
       throw new Error(data.error);
     }
     return data;
-  }, [session?.access_token]);
+  }, [session?.access_token, currentAccountId]);
+
+  const loadAccounts = useCallback(async () => {
+    if (!user) return;
+    
+    try {
+      const data = await invokeFunction('list-accounts');
+      setAccounts(data.accounts || []);
+      
+      if (data.accounts?.length > 0) {
+        const primaryAccount = data.accounts.find((a: DriveAccount) => a.is_primary) || data.accounts[0];
+        setCurrentAccountId(primaryAccount.id);
+        setConnectedEmail(primaryAccount.google_email);
+        setIsConnected(true);
+      } else {
+        setIsConnected(false);
+      }
+    } catch (error) {
+      console.error('Error loading accounts:', error);
+    }
+  }, [user, invokeFunction]);
 
   const checkConnection = useCallback(async () => {
     if (!user) {
@@ -65,19 +94,21 @@ export function useGoogleDrive() {
     }
     
     try {
-      const data = await invokeFunction('check-connection');
-      setIsConnected(data.connected);
-      setConnectedEmail(data.email);
+      await loadAccounts();
     } catch (error) {
       console.error('Error checking connection:', error);
     } finally {
       setIsLoading(false);
     }
-  }, [user, invokeFunction]);
+  }, [user, loadAccounts]);
 
   useEffect(() => {
-    checkConnection();
-  }, [checkConnection]);
+    if (session?.access_token) {
+      checkConnection();
+    } else {
+      setIsLoading(false);
+    }
+  }, [checkConnection, session?.access_token]);
 
   const connect = useCallback(async () => {
     try {
@@ -100,8 +131,7 @@ export function useGoogleDrive() {
     try {
       const redirectUri = `${window.location.origin}/niranx/google-drive/callback`;
       const data = await invokeFunction('exchange-code', { code, redirectUri });
-      setIsConnected(true);
-      setConnectedEmail(data.email);
+      await loadAccounts();
       toast.success(`Connected to Google Drive as ${data.email}`);
       return true;
     } catch (error: any) {
@@ -109,22 +139,47 @@ export function useGoogleDrive() {
       toast.error(error.message || 'Failed to connect to Google Drive');
       return false;
     }
-  }, [invokeFunction]);
+  }, [invokeFunction, loadAccounts]);
 
   const disconnect = useCallback(async () => {
     try {
-      await invokeFunction('disconnect');
+      await invokeFunction('disconnect-all');
       setIsConnected(false);
       setConnectedEmail(null);
       setFiles([]);
       setCurrentFolderId(null);
       setFolderPath([{ id: null, name: 'My Drive' }]);
+      setAccounts([]);
+      setCurrentAccountId(null);
       toast.success('Disconnected from Google Drive');
     } catch (error: any) {
       console.error('Error disconnecting:', error);
       toast.error('Failed to disconnect from Google Drive');
     }
   }, [invokeFunction]);
+
+  const disconnectAccount = useCallback(async (accountId: string) => {
+    try {
+      await invokeFunction('disconnect', { accountId });
+      await loadAccounts();
+      toast.success('Disconnected account');
+    } catch (error: any) {
+      console.error('Error disconnecting account:', error);
+      toast.error('Failed to disconnect account');
+    }
+  }, [invokeFunction, loadAccounts]);
+
+  const switchAccount = useCallback((accountId: string) => {
+    const account = accounts.find(a => a.id === accountId);
+    if (account) {
+      setCurrentAccountId(accountId);
+      setConnectedEmail(account.google_email);
+      setFiles([]);
+      setCurrentFolderId(null);
+      setFolderPath([{ id: null, name: 'My Drive' }]);
+      setNextPageToken(null);
+    }
+  }, [accounts]);
 
   const listFiles = useCallback(async (folderId?: string | null, pageToken?: string) => {
     try {
@@ -169,7 +224,7 @@ export function useGoogleDrive() {
       const base64Content = await new Promise<string>((resolve, reject) => {
         reader.onload = () => {
           const result = reader.result as string;
-          resolve(result.split(',')[1]); // Remove data URL prefix
+          resolve(result.split(',')[1]);
         };
         reader.onerror = reject;
         reader.readAsDataURL(file);
@@ -200,7 +255,6 @@ export function useGoogleDrive() {
         mimeType: file.mimeType,
       });
 
-      // Convert base64 to blob and trigger download
       const byteCharacters = atob(data.content);
       const byteNumbers = new Array(byteCharacters.length);
       for (let i = 0; i < byteCharacters.length; i++) {
@@ -252,12 +306,11 @@ export function useGoogleDrive() {
     }
   }, [invokeFunction, currentFolderId, listFiles]);
 
-  // Reload files when folder changes
   useEffect(() => {
-    if (isConnected) {
+    if (isConnected && currentAccountId) {
       listFiles(currentFolderId);
     }
-  }, [currentFolderId, isConnected]);
+  }, [currentFolderId, isConnected, currentAccountId]);
 
   return {
     isConnected,
@@ -278,5 +331,10 @@ export function useGoogleDrive() {
     deleteFile,
     createFolder,
     loadMore: () => listFiles(currentFolderId, nextPageToken || undefined),
+    accounts,
+    currentAccountId,
+    switchAccount,
+    disconnectAccount,
+    loadAccounts,
   };
 }
