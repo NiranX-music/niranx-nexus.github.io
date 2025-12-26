@@ -26,7 +26,7 @@ export default defineConfig(({ mode }) => ({
         background_color: '#0a0a0a',
         display: 'standalone',
         display_override: ['standalone', 'minimal-ui', 'window-controls-overlay'],
-        orientation: 'portrait',
+        orientation: 'portrait-primary',
         scope: '/',
         start_url: '/',
         categories: ['education', 'productivity', 'utilities'],
@@ -77,27 +77,90 @@ export default defineConfig(({ mode }) => ({
         shortcuts: [
           {
             name: 'Focus Engine',
+            short_name: 'Focus',
             url: '/niranx/focus-engine',
             description: 'Start a focus session',
             icons: [{ src: 'pwa-192x192.png', sizes: '192x192' }]
           },
           {
             name: 'Tasks',
+            short_name: 'Tasks',
             url: '/niranx/tasks',
             description: 'View your tasks',
             icons: [{ src: 'pwa-192x192.png', sizes: '192x192' }]
           },
           {
             name: 'AI Solver',
+            short_name: 'AI',
             url: '/niranx/ai-solver',
             description: 'Get AI help with problems',
             icons: [{ src: 'pwa-192x192.png', sizes: '192x192' }]
+          },
+          {
+            name: 'XVibe Music',
+            short_name: 'Music',
+            url: '/niranx/xvibe',
+            description: 'Listen to music',
+            icons: [{ src: 'pwa-192x192.png', sizes: '192x192' }]
           }
-        ]
+        ],
+        // Share Target - allows sharing content to NiranX
+        share_target: {
+          action: '/niranx/share-target',
+          method: 'POST',
+          enctype: 'multipart/form-data',
+          params: {
+            title: 'title',
+            text: 'text',
+            url: 'url',
+            files: [
+              {
+                name: 'files',
+                accept: ['image/*', 'application/pdf', 'text/*', 'audio/*', 'video/*']
+              }
+            ]
+          }
+        },
+        // File Handlers - handle opening files with NiranX
+        file_handlers: [
+          {
+            action: '/niranx/file-handler',
+            accept: {
+              'application/pdf': ['.pdf'],
+              'text/plain': ['.txt', '.md'],
+              'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp'],
+              'audio/*': ['.mp3', '.wav', '.ogg', '.m4a'],
+              'video/*': ['.mp4', '.webm', '.mov']
+            }
+          }
+        ],
+        // Protocol Handlers - handle custom protocols
+        protocol_handlers: [
+          {
+            protocol: 'web+niranx',
+            url: '/niranx/protocol-handler?url=%s'
+          },
+          {
+            protocol: 'web+study',
+            url: '/niranx/protocol-handler?url=%s'
+          }
+        ],
+        // Launch Handler - control how app launches
+        launch_handler: {
+          client_mode: ['navigate-existing', 'auto']
+        },
+        // Edge Side Panel - allows opening as side panel
+        edge_side_panel: {
+          preferred_width: 400
+        },
+        // Handle Links - capture links
+        handle_links: 'preferred'
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,mp3}'],
         maximumFileSizeToCacheInBytes: 20 * 1024 * 1024, // 20 MB
+        // Enable navigation preload for faster navigation
+        navigationPreload: true,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/rest\/.*/i,
@@ -110,7 +173,8 @@ export default defineConfig(({ mode }) => ({
               },
               cacheableResponse: {
                 statuses: [0, 200]
-              }
+              },
+              networkTimeoutSeconds: 10
             }
           },
           {
@@ -137,8 +201,41 @@ export default defineConfig(({ mode }) => ({
                 maxAgeSeconds: 60 * 60 * 24 * 7 // 7 days
               }
             }
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-stylesheets',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+              }
+            }
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-webfonts',
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
           }
-        ]
+        ],
+        // Skip waiting to activate new service worker immediately
+        skipWaiting: true,
+        clientsClaim: true
+      },
+      // Development options
+      devOptions: {
+        enabled: true,
+        type: 'module'
       }
     })
   ].filter(Boolean),
