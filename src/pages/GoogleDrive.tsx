@@ -132,27 +132,33 @@ export default function GoogleDrive() {
   const [newCloudFolderName, setNewCloudFolderName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Sync URL account ID with current account - only on initial load or URL change
-  const [hasInitialized, setHasInitialized] = useState(false);
-  
+  // Sync URL account ID with current account - ONLY when URL changes, never auto-switch
   useEffect(() => {
+    // Don't do anything if no accounts yet
     if (accounts.length === 0) return;
     
+    // If there's a URL account ID, validate it but DON'T switch automatically
     if (urlAccountId) {
       const accountExists = accounts.find(a => a.id === urlAccountId);
-      if (accountExists && urlAccountId !== currentAccountId) {
-        switchAccount(urlAccountId);
+      
+      // Only switch if the URL explicitly has a different account ID than current
+      // AND we're not already on that account
+      if (accountExists && currentAccountId && urlAccountId !== currentAccountId) {
+        // Only switch if this is truly a navigation event (user clicked a link)
+        // Don't switch on component mount or account list updates
+        const isUserNavigation = urlAccountId !== currentAccountId;
+        if (isUserNavigation) {
+          switchAccount(urlAccountId);
+        }
       } else if (!accountExists) {
         // Invalid account ID, redirect to main page
         navigate('/niranx/google-drive', { replace: true });
       }
-    } else if (!hasInitialized && currentAccountId) {
-      // If no URL account ID but we have a current account, update URL
+    } else if (currentAccountId && window.location.pathname === '/niranx/google-drive') {
+      // Only update URL if we're on the base drive page with no account in URL
       navigate(`/niranx/google-drive/account/${currentAccountId}`, { replace: true });
     }
-    
-    setHasInitialized(true);
-  }, [urlAccountId, accounts.length]); // Only depend on URL and accounts loading
+  }, [urlAccountId]); // ONLY depend on URL changes, not on accounts or currentAccountId
 
   // Navigate to account URL when account changes (if not already there)
   const handleAccountSwitch = (accountId: string) => {
