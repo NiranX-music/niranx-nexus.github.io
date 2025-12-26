@@ -130,6 +130,7 @@ export default function GoogleDrive() {
   const [cloudFolders, setCloudFolders] = useState<any[]>([]);
   const [selectedCloudFolder, setSelectedCloudFolder] = useState<string>('root');
   const [newCloudFolderName, setNewCloudFolderName] = useState('');
+  const [isSavingAllToX, setIsSavingAllToX] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Sync URL account ID with current account - ONLY when URL changes, never auto-switch
@@ -321,6 +322,88 @@ export default function GoogleDrive() {
     setSaveToXDialogOpen(true);
   };
 
+  const handleSaveAllToX = async () => {
+    if (!user || !session) return;
+
+    const filesToSave = files.filter(f => f.mimeType !== 'application/vnd.google-apps.folder');
+    if (filesToSave.length === 0) {
+      toast.info('No files to save in current folder');
+      return;
+    }
+
+    setIsSavingAllToX(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    try {
+      for (const file of filesToSave) {
+        try {
+          const { data, error } = await supabase.functions.invoke('google-drive', {
+            body: { 
+              action: 'download-file', 
+              fileId: file.id, 
+              mimeType: file.mimeType,
+              accountId: currentAccountId,
+            },
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          });
+
+          if (error || data?.error) {
+            failCount++;
+            continue;
+          }
+
+          const byteCharacters = atob(data.content);
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          const blob = new Blob([byteArray], { type: data.contentType || 'application/octet-stream' });
+
+          const filePath = `${user.id}/${Date.now()}-${file.name}`;
+          const { error: uploadError } = await supabase.storage
+            .from('my-cloud')
+            .upload(filePath, blob);
+
+          if (uploadError) {
+            failCount++;
+            continue;
+          }
+
+          const { error: dbError } = await supabase
+            .from('user_cloud_files')
+            .insert({
+              user_id: user.id,
+              file_name: file.name,
+              file_path: filePath,
+              file_size: parseInt(file.size || '0'),
+              file_type: data.contentType || 'application/octet-stream',
+              source: 'google_drive',
+              source_id: file.id,
+            });
+
+          if (!dbError) {
+            successCount++;
+          } else {
+            failCount++;
+          }
+        } catch {
+          failCount++;
+        }
+      }
+
+      if (successCount > 0) {
+        toast.success(`Saved ${successCount} files to Site Servers`);
+      }
+      if (failCount > 0) {
+        toast.error(`Failed to save ${failCount} files`);
+      }
+    } finally {
+      setIsSavingAllToX(false);
+    }
+  };
+
   if (!user) {
     return (
       <div className="container mx-auto p-6 flex items-center justify-center min-h-[60vh]">
@@ -491,6 +574,19 @@ export default function GoogleDrive() {
               Disconnect Account
             </Button>
           )}
+          <Button
+            variant="default"
+            size="sm"
+            onClick={handleSaveAllToX}
+            disabled={isSavingAllToX || files.filter(f => f.mimeType !== 'application/vnd.google-apps.folder').length === 0}
+          >
+            {isSavingAllToX ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Save className="h-4 w-4 mr-2" />
+            )}
+            Save All to Site
+          </Button>
           {accounts.length <= 1 && (
             <Button
               variant="outline"
