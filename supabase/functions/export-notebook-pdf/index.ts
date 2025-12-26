@@ -6,6 +6,22 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// HTML escape function to prevent XSS
+const escapeHtml = (text: string | null | undefined): string => {
+  if (!text) return '';
+  const htmlEscapes: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;',
+    '/': '&#x2F;',
+    '`': '&#x60;',
+    '=': '&#x3D;'
+  };
+  return text.replace(/[&<>"'`=/]/g, (match) => htmlEscapes[match] || match);
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -13,7 +29,7 @@ serve(async (req) => {
 
   try {
     const supabaseClient = createClient(
-      Denv.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       {
         global: {
@@ -24,6 +40,15 @@ serve(async (req) => {
 
     const { entryId } = await req.json();
 
+    // Validate entryId format (UUID)
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!entryId || !uuidRegex.test(entryId)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid entry ID format' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Fetch the notebook entry
     const { data: entry, error } = await supabaseClient
       .from('lab_notebook_entries')
@@ -33,13 +58,21 @@ serve(async (req) => {
 
     if (error) throw error;
 
-    // Generate HTML content for PDF
+    // Sanitize all user-controlled content
+    const safeExperimentName = escapeHtml(entry.experiment_name);
+    const safeLabType = escapeHtml(entry.lab_type);
+    const safeObservations = escapeHtml(entry.observations);
+    const safeResults = escapeHtml(entry.results);
+    const safeData = entry.data ? escapeHtml(JSON.stringify(entry.data, null, 2)) : null;
+
+    // Generate HTML content for PDF with sanitized data
     const htmlContent = `
       <!DOCTYPE html>
       <html>
         <head>
           <meta charset="UTF-8">
-          <title>Lab Notebook - ${entry.experiment_name}</title>
+          <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'unsafe-inline';">
+          <title>Lab Notebook - ${safeExperimentName}</title>
           <style>
             body {
               font-family: Arial, sans-serif;
@@ -90,6 +123,8 @@ serve(async (req) => {
               border-radius: 4px;
               padding: 15px;
               overflow-x: auto;
+              white-space: pre-wrap;
+              word-wrap: break-word;
             }
           </style>
         </head>
@@ -97,29 +132,29 @@ serve(async (req) => {
           <h1>Lab Notebook Entry</h1>
           
           <div class="meta">
-            <p><strong>Experiment:</strong> ${entry.experiment_name}</p>
-            <p><strong>Lab Type:</strong> ${entry.lab_type.charAt(0).toUpperCase() + entry.lab_type.slice(1)}</p>
+            <p><strong>Experiment:</strong> ${safeExperimentName}</p>
+            <p><strong>Lab Type:</strong> ${safeLabType.charAt(0).toUpperCase() + safeLabType.slice(1)}</p>
             <p><strong>Date:</strong> ${new Date(entry.created_at).toLocaleDateString()}</p>
           </div>
 
-          ${entry.observations ? `
+          ${safeObservations ? `
             <div class="section">
               <h2>Observations</h2>
-              <p>${entry.observations}</p>
+              <p>${safeObservations}</p>
             </div>
           ` : ''}
 
-          ${entry.results ? `
+          ${safeResults ? `
             <div class="section">
               <h2>Results</h2>
-              <p>${entry.results}</p>
+              <p>${safeResults}</p>
             </div>
           ` : ''}
 
-          ${entry.data && Object.keys(entry.data).length > 0 ? `
+          ${safeData ? `
             <div class="section">
               <h2>Experimental Data</h2>
-              <pre>${JSON.stringify(entry.data, null, 2)}</pre>
+              <pre>${safeData}</pre>
             </div>
           ` : ''}
 

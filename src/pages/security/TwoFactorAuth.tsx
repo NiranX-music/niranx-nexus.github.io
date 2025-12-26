@@ -36,10 +36,17 @@ export default function TwoFactorAuth() {
     }
   };
 
-  const generateBackupCodes = () => {
-    const codes = [];
+  const generateSecureRandomString = (length: number): string => {
+    const array = new Uint8Array(length);
+    crypto.getRandomValues(array);
+    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('').substring(0, length).toUpperCase();
+  };
+
+  const generateBackupCodes = (): string[] => {
+    const codes: string[] = [];
     for (let i = 0; i < 10; i++) {
-      codes.push(Math.random().toString(36).substring(2, 10).toUpperCase());
+      // Generate 8-character cryptographically secure backup codes
+      codes.push(generateSecureRandomString(8));
     }
     return codes;
   };
@@ -47,7 +54,8 @@ export default function TwoFactorAuth() {
   const enableTwoFactor = async () => {
     setLoading(true);
     try {
-      const newSecret = Math.random().toString(36).substring(2, 15);
+      // Generate cryptographically secure secret (32 characters)
+      const newSecret = generateSecureRandomString(32);
       const codes = generateBackupCodes();
 
       const { error } = await supabase

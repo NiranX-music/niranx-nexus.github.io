@@ -20,41 +20,27 @@ serve(async (req) => {
       throw new Error("OPENROUTER_API_KEY is not configured");
     }
 
-    // Create service role client to check admin settings
-    const serviceClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
-
-    // Check if unauthorized access is allowed
-    const { data: unauthorizedSetting } = await serviceClient.rpc('get_admin_setting', {
-      p_setting_key: 'allow_unauthorized_ai'
-    });
-    
-    const allowUnauthorized = unauthorizedSetting?.enabled || false;
-
-    // Get user from JWT
+    // Get user from JWT - authentication is REQUIRED
     const authHeader = req.headers.get('Authorization');
-    let user = null;
-    let supabaseClient = null;
-
-    if (authHeader) {
-      supabaseClient = createClient(
-        Deno.env.get('SUPABASE_URL') ?? '',
-        Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-        { global: { headers: { Authorization: authHeader } } }
+    
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - authentication required' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
       );
-
-      const { data: { user: authenticatedUser }, error: userError } = await supabaseClient.auth.getUser();
-      
-      if (!userError && authenticatedUser) {
-        user = authenticatedUser;
-      }
     }
 
-    if (!allowUnauthorized && !user) {
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    
+    if (userError || !user) {
       return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
+        JSON.stringify({ error: 'Unauthorized - invalid token' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
       );
     }

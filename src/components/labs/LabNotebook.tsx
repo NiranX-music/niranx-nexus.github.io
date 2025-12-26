@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import DOMPurify from 'dompurify';
 
 interface NotebookEntry {
   id: string;
@@ -145,10 +146,16 @@ export function LabNotebook({ labType }: LabNotebookProps) {
 
       if (error) throw error;
 
+      // Sanitize HTML before rendering to prevent XSS
+      const sanitizedHtml = DOMPurify.sanitize(data.html, {
+        ALLOWED_TAGS: ['html', 'head', 'body', 'h1', 'h2', 'p', 'div', 'strong', 'em', 'pre', 'meta', 'title', 'style'],
+        ALLOWED_ATTR: ['class', 'style', 'charset', 'http-equiv', 'content']
+      });
+
       // Create HTML window for printing
       const printWindow = window.open('', '_blank');
       if (printWindow) {
-        printWindow.document.write(data.html);
+        printWindow.document.write(sanitizedHtml);
         printWindow.document.close();
         
         // Wait for content to load, then trigger print dialog
