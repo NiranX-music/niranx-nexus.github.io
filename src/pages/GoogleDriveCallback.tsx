@@ -30,10 +30,13 @@ export default function GoogleDriveCallback() {
       return;
     }
 
-    handleCallback(code).then((success) => {
-      if (success) {
+    handleCallback(code).then((result) => {
+      if (result.success) {
         setStatus('success');
-        setTimeout(() => navigate('/niranx/google-drive'), 1500);
+        const redirectUrl = result.accountId 
+          ? `/niranx/google-drive/account/${result.accountId}`
+          : '/niranx/google-drive';
+        setTimeout(() => navigate(redirectUrl), 1500);
       } else {
         setStatus('error');
         setError('Failed to complete authentication');

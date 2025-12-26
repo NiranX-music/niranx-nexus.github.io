@@ -1,4 +1,5 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -60,6 +61,8 @@ import {
   Plus,
   User,
   Check,
+  Link,
+  Copy,
 } from 'lucide-react';
 import { useGoogleDrive, DriveFile, DriveAccount } from '@/hooks/useGoogleDrive';
 import { useAuth } from '@/contexts/AuthContext';
@@ -87,6 +90,8 @@ const formatFileSize = (bytes?: string) => {
 
 export default function GoogleDrive() {
   const { user, session } = useAuth();
+  const { accountId: urlAccountId } = useParams<{ accountId: string }>();
+  const navigate = useNavigate();
   const {
     isConnected,
     connectedEmail,
@@ -126,6 +131,35 @@ export default function GoogleDrive() {
   const [selectedCloudFolder, setSelectedCloudFolder] = useState<string>('root');
   const [newCloudFolderName, setNewCloudFolderName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Sync URL account ID with current account
+  useEffect(() => {
+    if (urlAccountId && accounts.length > 0 && urlAccountId !== currentAccountId) {
+      const accountExists = accounts.find(a => a.id === urlAccountId);
+      if (accountExists) {
+        switchAccount(urlAccountId);
+      } else {
+        // Invalid account ID, redirect to main page
+        navigate('/niranx/google-drive', { replace: true });
+      }
+    }
+  }, [urlAccountId, accounts, currentAccountId, switchAccount, navigate]);
+
+  // Navigate to account URL when account changes (if not already there)
+  const handleAccountSwitch = (accountId: string) => {
+    switchAccount(accountId);
+    navigate(`/niranx/google-drive/account/${accountId}`);
+  };
+
+  const copyAccountUrl = (accountId: string) => {
+    const url = `${window.location.origin}/niranx/google-drive/account/${accountId}`;
+    navigator.clipboard.writeText(url);
+    toast.success('Account URL copied to clipboard');
+  };
+
+  const getAccountUrl = (accountId: string) => {
+    return `${window.location.origin}/niranx/google-drive/account/${accountId}`;
+  };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const uploadFiles = e.target.files;
@@ -357,16 +391,29 @@ export default function GoogleDrive() {
                     <ChevronRight className="h-3 w-3" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
+                <DropdownMenuContent align="start" className="w-72">
                   {accounts.map((account) => (
-                    <DropdownMenuItem
-                      key={account.id}
-                      onClick={() => switchAccount(account.id)}
-                      className="flex items-center justify-between"
-                    >
-                      <span>{account.google_email}</span>
-                      {account.id === currentAccountId && <Check className="h-4 w-4 ml-2" />}
-                    </DropdownMenuItem>
+                    <div key={account.id} className="flex items-center">
+                      <DropdownMenuItem
+                        onClick={() => handleAccountSwitch(account.id)}
+                        className="flex-1 flex items-center justify-between"
+                      >
+                        <span className="truncate">{account.google_email}</span>
+                        {account.id === currentAccountId && <Check className="h-4 w-4 ml-2 flex-shrink-0" />}
+                      </DropdownMenuItem>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 flex-shrink-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copyAccountUrl(account.id);
+                        }}
+                        title="Copy account URL"
+                      >
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                    </div>
                   ))}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={connect}>
@@ -377,6 +424,17 @@ export default function GoogleDrive() {
               </DropdownMenu>
             ) : (
               <Badge variant="secondary">{connectedEmail}</Badge>
+            )}
+            {currentAccountId && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => copyAccountUrl(currentAccountId)}
+                className="gap-1 text-xs text-muted-foreground"
+              >
+                <Link className="h-3 w-3" />
+                Copy URL
+              </Button>
             )}
           </div>
         </div>
