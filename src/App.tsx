@@ -201,6 +201,9 @@ import XOrbitCallback from "./pages/XOrbitCallback";
 import ShareTarget from "./pages/ShareTarget";
 import FileHandler from "./pages/FileHandler";
 import ProtocolHandler from "./pages/ProtocolHandler";
+import LocalServerSaves from "./pages/LocalServerSaves";
+import RecycleBin from "./pages/RecycleBin";
+import AdminArtistAccounts from "./pages/admin/AdminArtistAccounts";
 
 // Test Platform
 import TestHub from "./pages/tests/TestHub";
@@ -257,6 +260,7 @@ import XVibeAdminDashboard from "./xvibe/pages/XVibeAdminDashboard";
 import XWaveSongPage from "./xvibe/pages/XWaveSongPage";
 import XWaveBlogEditor from "./xvibe/pages/XWaveBlogEditor";
 import XWaveEditorDashboard from "./xvibe/pages/XWaveEditorDashboard";
+import { XVibeLayout } from "./xvibe/components/layout/XVibeLayout";
 
 const queryClient = new QueryClient();
 
@@ -601,6 +605,21 @@ const App = () => (
                               <XFlowModeration />
                             </AdminRoute>
                           } />
+                          <Route path="/admin/artist-accounts" element={
+                            <AdminRoute>
+                              <AdminArtistAccounts />
+                            </AdminRoute>
+                          } />
+                          <Route path="local-server-saves" element={
+                            <ProtectedRoute>
+                              <LocalServerSaves />
+                            </ProtectedRoute>
+                          } />
+                          <Route path="recycle-bin" element={
+                            <ProtectedRoute>
+                              <RecycleBin />
+                            </ProtectedRoute>
+                          } />
                           <Route path="share-target" element={<ShareTarget />} />
                           <Route path="file-handler" element={<FileHandler />} />
                           <Route path="protocol-handler" element={<ProtocolHandler />} />
@@ -610,27 +629,27 @@ const App = () => (
                         </AppLayout>
                       } />
                     
-                    {/* XVibe Music Platform Routes */}
-                    <Route path="/xvibe" element={<XVibeLanding />} />
-                    <Route path="/xvibe/auth" element={<XVibeAuth />} />
-                    <Route path="/xvibe/onboarding" element={<XVibeOnboarding />} />
-                    <Route path="/xvibe/home" element={<XVibeHome />} />
-                    <Route path="/xvibe/search" element={<XVibeSearch />} />
-                    <Route path="/xvibe/library" element={<XVibeLibrary />} />
-                    <Route path="/xvibe/artist/:artistId" element={<XVibeArtistPage />} />
-                    <Route path="/xvibe/album/:albumId" element={<XVibeAlbumPage />} />
-                    <Route path="/xvibe/playlist/:playlistId" element={<XVibePlaylistPage />} />
-                    <Route path="/xvibe/artist-dashboard" element={<XVibeArtistDashboard />} />
-                    <Route path="/xvibe/upload" element={<XVibeUpload />} />
-                    <Route path="/xvibe/artist-register" element={<XVibeArtistRegister />} />
-                    <Route path="/xvibe/moderation" element={<XVibeModeration />} />
-                    <Route path="/xvibe/releases" element={<XVibeReleaseDashboard />} />
-                    <Route path="/xvibe/releases/:releaseId" element={<XVibeReleaseEditor />} />
-                    <Route path="/xvibe/admin" element={<XVibeAdminDashboard />} />
-                    <Route path="/xvibe/song/:songId" element={<XWaveSongPage />} />
-                    <Route path="/xvibe/blog/new" element={<XWaveBlogEditor />} />
-                    <Route path="/xvibe/blog/:blogId" element={<XWaveBlogEditor />} />
-                    <Route path="/xvibe/editor" element={<XWaveEditorDashboard />} />
+                    {/* XVibe Music Platform Routes - with /niranx/xvibe/ prefix */}
+                    <Route path="/niranx/xvibe" element={<XVibeLayout><XVibeLanding /></XVibeLayout>} />
+                    <Route path="/niranx/xvibe/auth" element={<XVibeLayout><XVibeAuth /></XVibeLayout>} />
+                    <Route path="/niranx/xvibe/onboarding" element={<XVibeLayout><XVibeOnboarding /></XVibeLayout>} />
+                    <Route path="/niranx/xvibe/home" element={<XVibeLayout><XVibeHome /></XVibeLayout>} />
+                    <Route path="/niranx/xvibe/search" element={<XVibeLayout><XVibeSearch /></XVibeLayout>} />
+                    <Route path="/niranx/xvibe/library" element={<XVibeLayout><XVibeLibrary /></XVibeLayout>} />
+                    <Route path="/niranx/xvibe/artist/:artistId" element={<XVibeLayout><XVibeArtistPage /></XVibeLayout>} />
+                    <Route path="/niranx/xvibe/album/:albumId" element={<XVibeLayout><XVibeAlbumPage /></XVibeLayout>} />
+                    <Route path="/niranx/xvibe/playlist/:playlistId" element={<XVibeLayout><XVibePlaylistPage /></XVibeLayout>} />
+                    <Route path="/niranx/xvibe/artist-dashboard" element={<XVibeLayout><XVibeArtistDashboard /></XVibeLayout>} />
+                    <Route path="/niranx/xvibe/upload" element={<XVibeLayout><XVibeUpload /></XVibeLayout>} />
+                    <Route path="/niranx/xvibe/artist-register" element={<XVibeLayout><XVibeArtistRegister /></XVibeLayout>} />
+                    <Route path="/niranx/xvibe/moderation" element={<XVibeLayout><XVibeModeration /></XVibeLayout>} />
+                    <Route path="/niranx/xvibe/releases" element={<XVibeLayout><XVibeReleaseDashboard /></XVibeLayout>} />
+                    <Route path="/niranx/xvibe/releases/:releaseId" element={<XVibeLayout><XVibeReleaseEditor /></XVibeLayout>} />
+                    <Route path="/niranx/xvibe/admin" element={<XVibeLayout><XVibeAdminDashboard /></XVibeLayout>} />
+                    <Route path="/niranx/xvibe/song/:songId" element={<XVibeLayout><XWaveSongPage /></XVibeLayout>} />
+                    <Route path="/niranx/xvibe/blog/new" element={<XVibeLayout><XWaveBlogEditor /></XVibeLayout>} />
+                    <Route path="/niranx/xvibe/blog/:blogId" element={<XVibeLayout><XWaveBlogEditor /></XVibeLayout>} />
+                    <Route path="/niranx/xvibe/editor" element={<XVibeLayout><XWaveEditorDashboard /></XVibeLayout>} />
                     
                     {/* Support Pages */}
                     <Route path="/support/contact" element={<Contact />} />

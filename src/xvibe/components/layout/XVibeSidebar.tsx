@@ -16,9 +16,9 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 
 const navItems = [
-  { icon: Home, label: 'Home', path: '/xvibe' },
-  { icon: Search, label: 'Search', path: '/xvibe/search' },
-  { icon: Library, label: 'Your Library', path: '/xvibe/library' },
+  { icon: Home, label: 'Home', path: '/niranx/xvibe' },
+  { icon: Search, label: 'Search', path: '/niranx/xvibe/search' },
+  { icon: Library, label: 'Your Library', path: '/niranx/xvibe/library' },
 ];
 
 export function XVibeSidebar() {
@@ -41,7 +41,7 @@ export function XVibeSidebar() {
     <div className="w-[240px] bg-black flex flex-col h-full">
       {/* Logo */}
       <div className="p-6">
-        <Link to="/xvibe" className="flex items-center gap-2">
+        <Link to="/niranx/xvibe" className="flex items-center gap-2">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#1DB954] to-[#1ed760] flex items-center justify-center">
             <Music className="h-6 w-6 text-black" />
           </div>
@@ -118,7 +118,7 @@ export function XVibeSidebar() {
           <div className="space-y-1">
             {/* Liked Songs */}
             <Link
-              to="/xvibe/library?tab=liked"
+              to="/niranx/xvibe/library?tab=liked"
               className={cn(
                 'flex items-center gap-3 px-3 py-2 rounded-md transition-colors',
                 'text-[#B3B3B3] hover:text-white hover:bg-[#282828]'
@@ -134,10 +134,10 @@ export function XVibeSidebar() {
             {playlists.map((playlist) => (
               <Link
                 key={playlist.id}
-                to={`/xvibe/playlist/${playlist.id}`}
+                to={`/niranx/xvibe/playlist/${playlist.id}`}
                 className={cn(
                   'flex items-center gap-3 px-3 py-2 rounded-md transition-colors',
-                  location.pathname === `/xvibe/playlist/${playlist.id}`
+                  location.pathname === `/niranx/xvibe/playlist/${playlist.id}`
                     ? 'bg-[#282828] text-white'
                     : 'text-[#B3B3B3] hover:text-white hover:bg-[#282828]'
                 )}
