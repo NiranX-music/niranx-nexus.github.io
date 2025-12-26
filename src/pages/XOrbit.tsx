@@ -267,6 +267,24 @@ export default function XOrbit() {
         if (error) {
           failCount++;
         } else {
+          // Also save to local_server_saves for admin visibility
+          await supabase
+            .from('local_server_saves')
+            .insert({
+              user_id: user.id,
+              source_type: 'google_calendar',
+              source_id: event.id,
+              file_name: event.summary || 'Untitled Event',
+              file_type: 'calendar_event',
+              metadata: { 
+                event_data: taskData, 
+                original_source: 'google_calendar',
+                start: event.start,
+                end: event.end,
+                location: event.location,
+                description: event.description,
+              },
+            });
           successCount++;
         }
       }

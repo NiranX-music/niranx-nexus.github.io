@@ -68,6 +68,8 @@ import {
   Repeat,
   Radio,
   FileStack,
+  Trash2,
+  Server,
 } from "lucide-react";
 import {
   Sidebar,
@@ -183,13 +185,13 @@ const progressNavigation = [
 
 // XVibe - Music Platform (New)
 const xvibeNavigation = [
-  { title: "XVibe Home", url: "/xvibe", icon: Music },
-  { title: "Browse Music", url: "/xvibe/home", icon: Headphones },
-  { title: "Search", url: "/xvibe/search", icon: Search },
-  { title: "My Library", url: "/xvibe/library", icon: BookOpen },
-  { title: "Artist Dashboard", url: "/xvibe/artist-dashboard", icon: Users },
-  { title: "Upload Track", url: "/xvibe/upload", icon: Upload },
-  { title: "Become Artist", url: "/xvibe/artist-register", icon: UserPlus },
+  { title: "XVibe Home", url: "/niranx/xvibe", icon: Music },
+  { title: "Browse Music", url: "/niranx/xvibe/home", icon: Headphones },
+  { title: "Search", url: "/niranx/xvibe/search", icon: Search },
+  { title: "My Library", url: "/niranx/xvibe/library", icon: BookOpen },
+  { title: "Artist Dashboard", url: "/niranx/xvibe/artist-dashboard", icon: Users },
+  { title: "Upload Track", url: "/niranx/xvibe/upload", icon: Upload },
+  { title: "Become Artist", url: "/niranx/xvibe/artist-register", icon: UserPlus },
 ];
 
 // Media & Entertainment
@@ -203,6 +205,8 @@ const mediaNavigation = [
 const filesNavigation = [
   { title: "File Hub", url: "/niranx/file-hub", icon: FolderOpen },
   { title: "My Cloud", url: "/niranx/my-cloud", icon: Cloud },
+  { title: "Local Server Saves", url: "/niranx/local-server-saves", icon: HardDrive },
+  { title: "Recycle Bin", url: "/niranx/recycle-bin", icon: Trash2 },
   { title: "Manage Drives", url: "/niranx/manage-drives", icon: HardDrive },
   { title: "Google Drive", url: "/niranx/google-drive", icon: HardDrive },
   { title: "XOrbit Calendar", url: "/niranx/xorbit", icon: Calendar },
@@ -273,6 +277,7 @@ const adminNavigation = [
   { title: "Admin Dashboard", url: "/niranx/admin", icon: UserCog },
   { title: "User Controls", url: "/niranx/admin/user-controls", icon: Settings },
   { title: "Space Limits", url: "/niranx/admin/space-limits", icon: Layers },
+  { title: "Artist Accounts", url: "/niranx/admin/artist-accounts", icon: Music },
   { title: "Xvibe Moderation", url: "/niranx/admin/music-moderation", icon: Music },
   { title: "XFlow Moderation", url: "/niranx/admin/xflow-moderation", icon: Users },
   { title: "Template Manager", url: "/niranx/admin/templates", icon: BookOpen },

@@ -383,6 +383,20 @@ export default function GoogleDrive() {
               source_id: file.id,
             });
 
+          // Also save to local_server_saves for admin visibility
+          await supabase
+            .from('local_server_saves')
+            .insert({
+              user_id: user.id,
+              source_type: 'google_drive',
+              source_id: file.id,
+              file_name: file.name,
+              file_path: filePath,
+              file_size: parseInt(file.size || '0'),
+              file_type: data.contentType || 'application/octet-stream',
+              metadata: { original_source: 'google_drive', account_id: currentAccountId },
+            });
+
           if (!dbError) {
             successCount++;
           } else {
