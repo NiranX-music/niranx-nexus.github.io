@@ -211,6 +211,13 @@ import TestDetail from "./pages/tests/TestDetail";
 import UploadTest from "./pages/tests/UploadTest";
 import TestAnalytics from "./pages/tests/TestAnalytics";
 
+// Flashcard System
+import Flashcards from "./pages/Flashcards";
+import FlashcardDeck from "./pages/FlashcardDeck";
+import FlashcardStudy from "./pages/FlashcardStudy";
+import FlashcardCreate from "./pages/FlashcardCreate";
+import StudyAnalytics from "./pages/StudyAnalytics";
+
 // Support Pages
 import Contact from "./pages/support/Contact";
 import HelpCentre from "./pages/support/HelpCentre";
@@ -448,6 +455,13 @@ const App = () => (
                           <Route path="/groq-chat" element={<GroqChat />} />
                           <Route path="/groq-chat-history" element={<GroqChatHistory />} />
                           <Route path="/password-manager" element={<PasswordManager />} />
+                          
+                          {/* Flashcard System */}
+                          <Route path="/flashcards" element={<Flashcards />} />
+                          <Route path="/flashcards/deck/:deckId" element={<FlashcardDeck />} />
+                          <Route path="/flashcards/study/:deckId" element={<FlashcardStudy />} />
+                          <Route path="/flashcards/create" element={<FlashcardCreate />} />
+                          <Route path="/study-analytics" element={<StudyAnalytics />} />
                           <Route path="/mailbox" element={<Mailbox />} />
                           <Route path="/xmail" element={<Mailbox />} />
                           <Route path="/xmail/profile/:slug" element={<XmailProfile />} />
