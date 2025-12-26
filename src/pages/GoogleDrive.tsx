@@ -171,12 +171,8 @@ export default function GoogleDrive() {
 
   const loadCloudFolders = async () => {
     if (!user) return;
-    const { data } = await supabase
-      .from('user_cloud_files')
-      .select('*')
-      .eq('user_id', user.id)
-      .eq('is_folder', true)
-      .order('file_name');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data } = await (supabase as any).from('user_cloud_files').select('id, file_name').eq('user_id', user.id).eq('is_folder', true);
     setCloudFolders(data || []);
   };
 
