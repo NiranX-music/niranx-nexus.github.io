@@ -118,3 +118,6 @@ verify_jwt = true
 [functions.generate-flashcards]
 verify_jwt = true
 
+[functions.perplexity-chat]
+verify_jwt = false
+
