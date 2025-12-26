@@ -4264,6 +4264,51 @@ export type Database = {
           },
         ]
       }
+      local_server_saves: {
+        Row: {
+          bucket_name: string | null
+          created_at: string
+          file_name: string | null
+          file_size: number | null
+          file_type: string | null
+          id: string
+          original_data: Json | null
+          source_id: string | null
+          source_type: string
+          storage_path: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bucket_name?: string | null
+          created_at?: string
+          file_name?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          original_data?: Json | null
+          source_id?: string | null
+          source_type: string
+          storage_path?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bucket_name?: string | null
+          created_at?: string
+          file_name?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          original_data?: Json | null
+          source_id?: string | null
+          source_type?: string
+          storage_path?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       login_streaks: {
         Row: {
           created_at: string | null
@@ -6063,6 +6108,54 @@ export type Database = {
           user_id?: string
           visit_count?: number | null
           visited_at?: string | null
+        }
+        Relationships: []
+      }
+      recycle_bin: {
+        Row: {
+          bucket_name: string | null
+          created_at: string
+          deleted_at: string
+          file_path: string | null
+          id: string
+          is_permanently_deleted: boolean | null
+          original_data: Json
+          original_id: string
+          original_table: string
+          restored_at: string | null
+          retention_days: number | null
+          scheduled_permanent_delete: string | null
+          user_id: string
+        }
+        Insert: {
+          bucket_name?: string | null
+          created_at?: string
+          deleted_at?: string
+          file_path?: string | null
+          id?: string
+          is_permanently_deleted?: boolean | null
+          original_data: Json
+          original_id: string
+          original_table: string
+          restored_at?: string | null
+          retention_days?: number | null
+          scheduled_permanent_delete?: string | null
+          user_id: string
+        }
+        Update: {
+          bucket_name?: string | null
+          created_at?: string
+          deleted_at?: string
+          file_path?: string | null
+          id?: string
+          is_permanently_deleted?: boolean | null
+          original_data?: Json
+          original_id?: string
+          original_table?: string
+          restored_at?: string | null
+          retention_days?: number | null
+          scheduled_permanent_delete?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -8340,6 +8433,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_recycle_settings: {
+        Row: {
+          auto_delete_enabled: boolean | null
+          created_at: string
+          id: string
+          retention_days: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_delete_enabled?: boolean | null
+          created_at?: string
+          id?: string
+          retention_days?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_delete_enabled?: boolean | null
+          created_at?: string
+          id?: string
+          retention_days?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           role: Database["public"]["Enums"]["app_role"]
@@ -9246,6 +9366,50 @@ export type Database = {
           target_type?: string
         }
         Relationships: []
+      }
+      xvibe_admin_artist_accounts: {
+        Row: {
+          admin_user_id: string
+          artist_id: string
+          created_at: string
+          custom_url: string | null
+          email: string | null
+          id: string
+          is_active: boolean | null
+          password_hash: string | null
+          updated_at: string
+        }
+        Insert: {
+          admin_user_id: string
+          artist_id: string
+          created_at?: string
+          custom_url?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          password_hash?: string | null
+          updated_at?: string
+        }
+        Update: {
+          admin_user_id?: string
+          artist_id?: string
+          created_at?: string
+          custom_url?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          password_hash?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xvibe_admin_artist_accounts_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "xvibe_artists"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       xvibe_ai_profiles: {
         Row: {
