@@ -45,10 +45,11 @@ export function RenameTabDialog() {
         <Button
           variant="ghost"
           size="icon"
-          className="hover:bg-accent"
+          className="hover:bg-accent h-9 w-9"
           title="Rename Tab"
+          aria-label="Rename browser tab"
         >
-          <FileEdit className="h-4 w-4" />
+          <FileEdit className="h-5 w-5" />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
