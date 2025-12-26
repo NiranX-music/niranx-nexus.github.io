@@ -66,7 +66,7 @@ export const useHabits = () => {
     }
   };
 
-  const createHabit = async (habit: Partial<StudyHabit>) => {
+  const createHabit = async (habit: Omit<Partial<StudyHabit>, 'name'> & { name: string }) => {
     if (!user) return;
 
     try {
