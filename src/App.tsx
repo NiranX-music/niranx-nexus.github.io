@@ -218,6 +218,17 @@ import FlashcardStudy from "./pages/FlashcardStudy";
 import FlashcardCreate from "./pages/FlashcardCreate";
 import StudyAnalytics from "./pages/StudyAnalytics";
 
+// Phase 2 & 3 Features
+import HabitTracker from "./pages/HabitTracker";
+import SmartBookmarks from "./pages/SmartBookmarks";
+import CourseGenerator from "./pages/CourseGenerator";
+import CourseViewer from "./pages/CourseViewer";
+import StudyRooms from "./pages/StudyRooms";
+import StudyRoom from "./pages/StudyRoom";
+import DocumentScanner from "./pages/DocumentScanner";
+import FocusSounds from "./pages/FocusSounds";
+import EmailReports from "./pages/settings/EmailReports";
+
 // Support Pages
 import Contact from "./pages/support/Contact";
 import HelpCentre from "./pages/support/HelpCentre";
@@ -462,6 +473,18 @@ const App = () => (
                           <Route path="/flashcards/study/:deckId" element={<FlashcardStudy />} />
                           <Route path="/flashcards/create" element={<FlashcardCreate />} />
                           <Route path="/study-analytics" element={<StudyAnalytics />} />
+                          
+                          {/* Phase 2 & 3 Features */}
+                          <Route path="/habit-tracker" element={<HabitTracker />} />
+                          <Route path="/smart-bookmarks" element={<SmartBookmarks />} />
+                          <Route path="/course-generator" element={<CourseGenerator />} />
+                          <Route path="/course/:courseId" element={<CourseViewer />} />
+                          <Route path="/study-rooms" element={<StudyRooms />} />
+                          <Route path="/study-room/:roomId" element={<StudyRoom />} />
+                          <Route path="/document-scanner" element={<DocumentScanner />} />
+                          <Route path="/focus-sounds" element={<FocusSounds />} />
+                          <Route path="/settings/email-reports" element={<EmailReports />} />
+                          
                           <Route path="/mailbox" element={<Mailbox />} />
                           <Route path="/xmail" element={<Mailbox />} />
                           <Route path="/xmail/profile/:slug" element={<XmailProfile />} />
