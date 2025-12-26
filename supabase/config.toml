@@ -115,3 +115,6 @@ verify_jwt = false
 [functions.lovable-image-gen]
 verify_jwt = true
 
+[functions.generate-flashcards]
+verify_jwt = true
+

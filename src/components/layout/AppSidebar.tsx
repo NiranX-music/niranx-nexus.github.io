@@ -131,6 +131,8 @@ const aiDevelopmentNavigation = [
 const studyNavigation = [
   { title: "Tasks", url: "/niranx/tasks", icon: CheckSquare },
   { title: "Focus Engine", url: "/niranx/focus-engine", icon: Timer },
+  { title: "Flashcards", url: "/niranx/flashcards", icon: Layers },
+  { title: "Study Analytics", url: "/niranx/study-analytics", icon: BarChart3 },
   { title: "Distraction Blocker", url: "/niranx/distraction-blocker", icon: Shield },
   { title: "Scheduler", url: "/niranx/scheduler", icon: Calendar },
   { title: "Labs", url: "/niranx/labs", icon: GraduationCap },
