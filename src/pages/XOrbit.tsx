@@ -62,7 +62,9 @@ import {
 } from 'lucide-react';
 import { useGoogleCalendar, CalendarEvent, CalendarAccount } from '@/hooks/useGoogleCalendar';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, addMonths, subMonths, startOfWeek, endOfWeek, parseISO } from 'date-fns';
+import { toast } from 'sonner';
 
 export default function XOrbit() {
   const { user } = useAuth();
@@ -101,6 +103,7 @@ export default function XOrbit() {
     endTime: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSavingToSite, setIsSavingToSite] = useState(false);
 
   // Extract links from description
   const extractLinks = (text: string | undefined): string[] => {
@@ -224,6 +227,64 @@ export default function XOrbit() {
     setEventDialogOpen(true);
   };
 
+  const handleSaveAllToSite = async () => {
+    if (!user || events.length === 0) return;
+
+    setIsSavingToSite(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    try {
+      for (const event of events) {
+        const startDT = event.start.dateTime 
+          ? parseISO(event.start.dateTime) 
+          : event.start.date 
+            ? parseISO(event.start.date) 
+            : new Date();
+        const endDT = event.end.dateTime 
+          ? parseISO(event.end.dateTime) 
+          : event.end.date 
+            ? parseISO(event.end.date) 
+            : new Date();
+
+        const taskData = {
+          user_id: user.id,
+          task_name: event.summary || 'Untitled Event',
+          subject: 'Google Calendar',
+          day_of_week: format(startDT, 'EEEE'),
+          start_time: format(startDT, 'HH:mm:ss'),
+          end_time: format(endDT, 'HH:mm:ss'),
+          notes: `${event.description || ''}\n\nSource: Google Calendar (${event.id})`.trim(),
+          class_link: event.location || null,
+          is_recurring: false,
+          task_type: 'event',
+        };
+
+        const { error } = await supabase
+          .from('schedule_tasks')
+          .insert(taskData);
+
+        if (error) {
+          failCount++;
+        } else {
+          successCount++;
+        }
+      }
+
+      if (successCount > 0) {
+        toast.success(`Saved ${successCount} events to Site Servers`);
+      }
+      if (failCount > 0) {
+        toast.error(`Failed to save ${failCount} events`);
+      }
+    } catch (error: any) {
+      console.error('Error saving events:', error);
+      toast.error(error.message || 'Failed to save events');
+    } finally {
+      setIsSavingToSite(false);
+    }
+  };
+
   if (!user) {
     return (
       <div className="container mx-auto p-6 flex items-center justify-center min-h-[60vh]">
@@ -334,6 +395,20 @@ export default function XOrbit() {
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
+          </Button>
+
+          <Button
+            variant="default"
+            size="sm"
+            onClick={handleSaveAllToSite}
+            disabled={isSavingToSite || events.length === 0}
+          >
+            {isSavingToSite ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <CalendarIcon className="h-4 w-4 mr-2" />
+            )}
+            Save All to Site
           </Button>
 
           <DropdownMenu>
