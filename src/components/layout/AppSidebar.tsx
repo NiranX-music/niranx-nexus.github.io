@@ -62,6 +62,12 @@ import {
   Route as RouteIcon,
   HelpCircle,
   Layers,
+  Bookmark,
+  ScanLine,
+  Volume2,
+  Repeat,
+  Radio,
+  FileStack,
 } from "lucide-react";
 import {
   Sidebar,
@@ -131,15 +137,25 @@ const aiDevelopmentNavigation = [
 const studyNavigation = [
   { title: "Tasks", url: "/niranx/tasks", icon: CheckSquare },
   { title: "Focus Engine", url: "/niranx/focus-engine", icon: Timer },
+  { title: "Focus Sounds", url: "/niranx/focus-sounds", icon: Volume2 },
   { title: "Flashcards", url: "/niranx/flashcards", icon: Layers },
+  { title: "Habit Tracker", url: "/niranx/habit-tracker", icon: Repeat },
   { title: "Study Analytics", url: "/niranx/study-analytics", icon: BarChart3 },
+  { title: "Smart Bookmarks", url: "/niranx/smart-bookmarks", icon: Bookmark },
   { title: "Distraction Blocker", url: "/niranx/distraction-blocker", icon: Shield },
   { title: "Scheduler", url: "/niranx/scheduler", icon: Calendar },
   { title: "Labs", url: "/niranx/labs", icon: GraduationCap },
   { title: "Exams", url: "/niranx/exams", icon: GraduationCap },
   { title: "Whiteboard", url: "/niranx/whiteboard", icon: PenTool },
-  { title: "Study Groups", url: "/niranx/study-groups", icon: Users },
+];
+
+// Learning & Courses
+const learningNavigation = [
+  { title: "Course Generator", url: "/niranx/course-generator", icon: FileStack },
   { title: "AI Study Path", url: "/niranx/study-path-generator", icon: RouteIcon },
+  { title: "Study Rooms", url: "/niranx/study-rooms", icon: Radio },
+  { title: "Study Groups", url: "/niranx/study-groups", icon: Users },
+  { title: "Document Scanner", url: "/niranx/document-scanner", icon: ScanLine },
   { title: "Note Summarizer", url: "/niranx/note-summarizer", icon: FileText },
   { title: "YouTube Library", url: "/niranx/youtube-library", icon: Youtube },
 ];
@@ -333,6 +349,7 @@ export function AppSidebar() {
     aiCorner: false,
     aiDevelopment: false,
     study: false,
+    learning: false,
     tests: false,
     progress: false,
     xvibe: false,
@@ -359,6 +376,7 @@ export function AppSidebar() {
     ...aiCornerNavigation,
     ...aiDevelopmentNavigation,
     ...studyNavigation,
+    ...learningNavigation,
     ...testNavigation,
     ...progressNavigation,
     ...xvibeNavigation,
@@ -653,6 +671,26 @@ export function AppSidebar() {
             <CollapsibleContent>
               <SidebarGroupContent>
                 <SidebarMenu>{renderNavItems(studyNavigation)}</SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
+
+        {/* Learning & Courses */}
+        <Collapsible open={expandedSections.learning} onOpenChange={() => toggleSection('learning')}>
+          <SidebarGroup>
+            <CollapsibleTrigger asChild>
+              <SidebarGroupLabel className="cursor-pointer hover:bg-cyan-500/20 rounded-lg px-3 -mx-2 flex items-center justify-between text-white/90 font-bold text-sm uppercase tracking-wider transition-all duration-200 py-3 bg-gradient-to-r from-cyan-500/25 to-teal-500/15 border border-cyan-500/20 mb-2">
+                <span className="flex items-center gap-2">
+                  <BookOpen className="h-4 w-4 text-cyan-400" />
+                  {!isCollapsed && "Learning & Courses"}
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform text-cyan-400 ${expandedSections.learning ? '' : '-rotate-90'}`} />
+              </SidebarGroupLabel>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>{renderNavItems(learningNavigation)}</SidebarMenu>
               </SidebarGroupContent>
             </CollapsibleContent>
           </SidebarGroup>
