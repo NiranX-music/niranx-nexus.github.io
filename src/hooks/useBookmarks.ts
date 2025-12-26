@@ -68,7 +68,7 @@ export const useBookmarks = () => {
     }
   };
 
-  const createBookmark = async (bookmark: Partial<SmartBookmark>) => {
+  const createBookmark = async (bookmark: Omit<Partial<SmartBookmark>, 'url' | 'title'> & { url: string; title: string }) => {
     if (!user) return;
 
     try {
@@ -123,7 +123,7 @@ export const useBookmarks = () => {
     }
   };
 
-  const createCollection = async (collection: Partial<BookmarkCollection>) => {
+  const createCollection = async (collection: Omit<Partial<BookmarkCollection>, 'name'> & { name: string }) => {
     if (!user) return;
 
     try {
