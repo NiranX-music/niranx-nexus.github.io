@@ -132,18 +132,27 @@ export default function GoogleDrive() {
   const [newCloudFolderName, setNewCloudFolderName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Sync URL account ID with current account
+  // Sync URL account ID with current account - only on initial load or URL change
+  const [hasInitialized, setHasInitialized] = useState(false);
+  
   useEffect(() => {
-    if (urlAccountId && accounts.length > 0 && urlAccountId !== currentAccountId) {
+    if (accounts.length === 0) return;
+    
+    if (urlAccountId) {
       const accountExists = accounts.find(a => a.id === urlAccountId);
-      if (accountExists) {
+      if (accountExists && urlAccountId !== currentAccountId) {
         switchAccount(urlAccountId);
-      } else {
+      } else if (!accountExists) {
         // Invalid account ID, redirect to main page
         navigate('/niranx/google-drive', { replace: true });
       }
+    } else if (!hasInitialized && currentAccountId) {
+      // If no URL account ID but we have a current account, update URL
+      navigate(`/niranx/google-drive/account/${currentAccountId}`, { replace: true });
     }
-  }, [urlAccountId, accounts, currentAccountId, switchAccount, navigate]);
+    
+    setHasInitialized(true);
+  }, [urlAccountId, accounts.length]); // Only depend on URL and accounts loading
 
   // Navigate to account URL when account changes (if not already there)
   const handleAccountSwitch = (accountId: string) => {
