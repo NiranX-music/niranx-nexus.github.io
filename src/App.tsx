@@ -563,6 +563,9 @@ const App = () => (
                               <XFlowModeration />
                             </AdminRoute>
                           } />
+                          <Route path="share-target" element={<ShareTarget />} />
+                          <Route path="file-handler" element={<FileHandler />} />
+                          <Route path="protocol-handler" element={<ProtocolHandler />} />
                           <Route path="*" element={<NotFound />} />
                           </Routes>
                           <VoiceCommand />
