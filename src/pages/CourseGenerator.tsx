@@ -81,17 +81,13 @@ Make the content educational, engaging, and appropriate for the ${formData.diffi
 Each module should have 2-4 lessons. Each quiz should have 3-5 questions.
 Return ONLY the JSON, no additional text.`;
 
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      const response = await supabase.functions.invoke('openrouter-chat', {
+      const response = await supabase.functions.invoke('ai-chat', {
         body: {
-          messages: [{ role: 'user', content: prompt }],
-          provider: provider,
-          model: model,
+          messages: [
+            { role: 'system', content: 'You are an expert course designer. Return ONLY valid JSON, no markdown or additional text.' },
+            { role: 'user', content: prompt }
+          ],
         },
-        headers: session?.access_token ? {
-          Authorization: `Bearer ${session.access_token}`,
-        } : undefined,
       });
 
       if (response.error) throw new Error(response.error.message);
