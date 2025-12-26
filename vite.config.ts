@@ -18,43 +18,80 @@ export default defineConfig(({ mode }) => ({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
       manifest: {
+        id: '/niranx/',
         name: 'NiranX StudyVerse',
         short_name: 'NiranX',
-        description: 'Your Ultimate Study Companion',
+        description: 'Your Ultimate Study Companion - AI-powered learning, focus tools, and productivity features',
         theme_color: '#7c3aed',
         background_color: '#0a0a0a',
         display: 'standalone',
+        display_override: ['standalone', 'minimal-ui', 'window-controls-overlay'],
         orientation: 'portrait',
         scope: '/',
         start_url: '/',
+        categories: ['education', 'productivity', 'utilities'],
+        prefer_related_applications: false,
+        iarc_rating_id: '045e3ded-fbb4-4ae8-afac-6d2c9821e0e5',
         icons: [
           {
             src: 'pwa-192x192.png',
             sizes: '192x192',
-            type: 'image/png'
-          },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any'
           },
           {
             src: 'pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'any'
+          },
+          {
+            src: 'pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
+          },
+          {
+            src: 'apple-touch-icon.png',
+            sizes: '180x180',
+            type: 'image/png',
+            purpose: 'apple touch icon'
+          }
+        ],
+        screenshots: [
+          {
+            src: 'logo.jpg',
+            sizes: '1280x720',
+            type: 'image/jpeg',
+            form_factor: 'wide',
+            label: 'NiranX Dashboard'
+          },
+          {
+            src: 'logo.jpg',
+            sizes: '750x1334',
+            type: 'image/jpeg',
+            form_factor: 'narrow',
+            label: 'NiranX Mobile View'
           }
         ],
         shortcuts: [
           {
             name: 'Focus Engine',
             url: '/niranx/focus-engine',
-            description: 'Start a focus session'
+            description: 'Start a focus session',
+            icons: [{ src: 'pwa-192x192.png', sizes: '192x192' }]
           },
           {
             name: 'Tasks',
             url: '/niranx/tasks',
-            description: 'View your tasks'
+            description: 'View your tasks',
+            icons: [{ src: 'pwa-192x192.png', sizes: '192x192' }]
+          },
+          {
+            name: 'AI Solver',
+            url: '/niranx/ai-solver',
+            description: 'Get AI help with problems',
+            icons: [{ src: 'pwa-192x192.png', sizes: '192x192' }]
           }
         ]
       },
