@@ -70,6 +70,8 @@ import {
   FileStack,
   Trash2,
   Server,
+  Plug,
+  Database,
 } from "lucide-react";
 import {
   Sidebar,
@@ -194,9 +196,14 @@ const xvibeNavigation = [
   { title: "Become Artist", url: "/niranx/xvibe/artist-register", icon: UserPlus },
 ];
 
+// Integrations
+const integrationsNavigation = [
+  { title: "Integrations Hub", url: "/niranx/integrations", icon: Plug },
+  { title: "FerqX Radio", url: "/niranx/ferqx", icon: Radio },
+];
+
 // Media & Entertainment
 const mediaNavigation = [
-  { title: "FerqX Radio", url: "/niranx/ferqx", icon: Radio },
   { title: "Video Player", url: "/niranx/video-player", icon: Video },
   { title: "Video Library", url: "/niranx/video-library", icon: Video },
   { title: "StreamSphere", url: "/niranx/stream-sphere", icon: Youtube },
@@ -359,6 +366,7 @@ export function AppSidebar() {
     tests: false,
     progress: false,
     xvibe: false,
+    integrations: false,
     media: false,
     files: false,
     xmail: false,
@@ -757,6 +765,26 @@ export function AppSidebar() {
             <CollapsibleContent>
               <SidebarGroupContent>
                 <SidebarMenu>{renderNavItems(xvibeNavigation)}</SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
+
+        {/* Integrations */}
+        <Collapsible open={expandedSections.integrations} onOpenChange={() => toggleSection('integrations')}>
+          <SidebarGroup>
+            <CollapsibleTrigger asChild>
+              <SidebarGroupLabel className="cursor-pointer hover:bg-blue-500/20 rounded-lg px-3 -mx-2 flex items-center justify-between text-white/90 font-bold text-sm uppercase tracking-wider transition-all duration-200 py-3 bg-gradient-to-r from-blue-500/25 to-purple-500/15 border border-blue-500/20 mb-2">
+                <span className="flex items-center gap-2">
+                  <Plug className="h-4 w-4 text-blue-400" />
+                  {!isCollapsed && "Integrations"}
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform text-blue-400 ${expandedSections.integrations ? '' : '-rotate-90'}`} />
+              </SidebarGroupLabel>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>{renderNavItems(integrationsNavigation)}</SidebarMenu>
               </SidebarGroupContent>
             </CollapsibleContent>
           </SidebarGroup>
