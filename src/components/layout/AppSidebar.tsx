@@ -110,7 +110,8 @@ import niranxLogo from '@/assets/niranx-logo.jpg';
 // Core Navigation
 const coreNavigation = [
   { title: "Dashboard", url: "/niranx/dashboard", icon: Home },
-  { title: "What's New", url: "/niranx/whats-new", icon: Sparkles },
+  { title: "BYTEZ AI", url: "/niranx/bytez-ai", icon: Sparkles, highlight: true },
+  { title: "What's New", url: "/niranx/whats-new", icon: Bell },
   { title: "Notifications", url: "/niranx/notifications", icon: Bell },
   { title: "AI Chat", url: "/niranx/ai-chat", icon: Brain },
   { title: "AI Chat History", url: "/niranx/ai-chat-history", icon: ScrollText },
@@ -199,7 +200,6 @@ const xvibeNavigation = [
 // Integrations
 const integrationsNavigation = [
   { title: "Integrations Hub", url: "/niranx/integrations", icon: Plug },
-  { title: "BYTEZ AI", url: "/niranx/integrations?tab=bytez", icon: Sparkles },
   { title: "FerqX Radio", url: "/niranx/integrations?tab=radio", icon: Radio },
 ];
 

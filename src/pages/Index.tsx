@@ -185,6 +185,14 @@ const Index = () => {
         {/* Action Buttons */}
         <div className="flex flex-wrap justify-center gap-3 mb-6 animate-slide-up" style={{ animationDelay: '0.3s' }}>
           <Button
+            onClick={() => navigate('/niranx/bytez-ai')}
+            className="flex items-center gap-2 transform-3d hover:scale-110 transition-all shadow-lg bg-gradient-to-r from-primary via-purple-500 to-accent text-white border-0 animate-pulse-scale"
+            size="lg"
+          >
+            <Sparkles className="w-5 h-5 animate-bounce" />
+            BYTEZ AI ✨
+          </Button>
+          <Button
             onClick={() => navigate('/niranx/focus-engine')}
             className="glass-button flex items-center gap-2 transform-3d hover:scale-110 transition-all shadow-lg"
             size="lg"
