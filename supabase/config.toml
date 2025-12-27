@@ -121,3 +121,6 @@ verify_jwt = true
 [functions.perplexity-chat]
 verify_jwt = false
 
+[functions.radio-api]
+verify_jwt = false
+
