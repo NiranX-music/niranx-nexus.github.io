@@ -5,6 +5,22 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Fallback genres when API is unavailable
+const fallbackGenres = [
+  { id: "1", name: "Pop" },
+  { id: "2", name: "Rock" },
+  { id: "3", name: "Jazz" },
+  { id: "4", name: "Classical" },
+  { id: "5", name: "Hip Hop" },
+  { id: "6", name: "Electronic" },
+  { id: "7", name: "Country" },
+  { id: "8", name: "R&B" },
+  { id: "9", name: "Latin" },
+  { id: "10", name: "Indie" },
+  { id: "11", name: "Metal" },
+  { id: "12", name: "Blues" },
+];
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -89,13 +105,42 @@ serve(async (req) => {
       headers,
     });
 
+    // Handle Radio API errors with fallbacks
     if (!response.ok) {
       const errorText = await response.text();
       console.error('API Error:', errorText);
+      
+      // Return fallback data for genres when API is unavailable
+      if (action === 'getGenres' && (response.status === 502 || response.status === 429)) {
+        console.log('Returning fallback genres');
+        return new Response(JSON.stringify({ genres: fallbackGenres }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
       throw new Error(`API request failed: ${response.status}`);
     }
 
-    const data = await response.json();
+    // Handle empty or null responses from TheAudioDB
+    const responseText = await response.text();
+    
+    if (!responseText || responseText.trim() === '' || responseText === 'null') {
+      console.log('Empty response from API, returning empty result');
+      return new Response(JSON.stringify({ artists: null, album: null, track: null }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError);
+      return new Response(JSON.stringify({ artists: null, album: null, track: null }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    
     console.log('API Response received successfully');
 
     return new Response(JSON.stringify(data), {
