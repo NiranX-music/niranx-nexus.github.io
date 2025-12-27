@@ -204,6 +204,7 @@ import ProtocolHandler from "./pages/ProtocolHandler";
 import LocalServerSaves from "./pages/LocalServerSaves";
 import RecycleBin from "./pages/RecycleBin";
 import AdminArtistAccounts from "./pages/admin/AdminArtistAccounts";
+import FerqX from "./pages/FerqX";
 
 // Test Platform
 import TestHub from "./pages/tests/TestHub";
@@ -488,6 +489,7 @@ const App = () => (
                           <Route path="/document-scanner" element={<DocumentScanner />} />
                           <Route path="/focus-sounds" element={<FocusSounds />} />
                           <Route path="/settings/email-reports" element={<EmailReports />} />
+                          <Route path="/ferqx" element={<FerqX />} />
                           
                           <Route path="/mailbox" element={<Mailbox />} />
                           <Route path="/xmail" element={<Mailbox />} />

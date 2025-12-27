@@ -196,6 +196,7 @@ const xvibeNavigation = [
 
 // Media & Entertainment
 const mediaNavigation = [
+  { title: "FerqX Radio", url: "/niranx/ferqx", icon: Radio },
   { title: "Video Player", url: "/niranx/video-player", icon: Video },
   { title: "Video Library", url: "/niranx/video-library", icon: Video },
   { title: "StreamSphere", url: "/niranx/stream-sphere", icon: Youtube },

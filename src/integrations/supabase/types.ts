@@ -6084,6 +6084,48 @@ export type Database = {
         }
         Relationships: []
       }
+      radio_listening_history: {
+        Row: {
+          country: string | null
+          created_at: string
+          duration_seconds: number | null
+          genre: string | null
+          id: string
+          listened_at: string
+          station_id: string
+          station_logo: string | null
+          station_name: string
+          station_url: string | null
+          user_id: string
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          genre?: string | null
+          id?: string
+          listened_at?: string
+          station_id: string
+          station_logo?: string | null
+          station_name: string
+          station_url?: string | null
+          user_id: string
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          genre?: string | null
+          id?: string
+          listened_at?: string
+          station_id?: string
+          station_logo?: string | null
+          station_name?: string
+          station_url?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       recent_pages: {
         Row: {
           id: string
