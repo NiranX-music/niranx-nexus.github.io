@@ -11,22 +11,28 @@ serve(async (req) => {
   }
 
   try {
-    const { action, genreId, countryCode, searchQuery, page = 1 } = await req.json();
+    const { action, genreId, countryCode, searchQuery, searchType, artistId, page = 1 } = await req.json();
     const rapidApiKey = Deno.env.get('RAPIDAPI_KEY');
 
     if (!rapidApiKey) {
       throw new Error('RAPIDAPI_KEY not configured');
     }
 
-    const baseUrl = 'https://radio-world-50-000-radios-stations.p.rapidapi.com';
-    const headers = {
+    // TheAudioDB API endpoints (free tier)
+    const audioDbBaseUrl = 'https://www.theaudiodb.com/api/v1/json/2';
+    
+    // Radio World API
+    const radioBaseUrl = 'https://radio-world-50-000-radios-stations.p.rapidapi.com';
+    const radioHeaders = {
       'x-rapidapi-key': rapidApiKey,
       'x-rapidapi-host': 'radio-world-50-000-radios-stations.p.rapidapi.com',
     };
 
     let endpoint = '';
+    let useRadioApi = true;
     
     switch (action) {
+      // Radio World API actions
       case 'getGenres':
         endpoint = '/v1/genres/getAll';
         break;
@@ -45,13 +51,40 @@ serve(async (req) => {
       case 'getTopStations':
         endpoint = `/v1/radios/getTopVoted?page=${page}`;
         break;
+      
+      // TheAudioDB API actions (free API, no key needed)
+      case 'searchAudioDB':
+        useRadioApi = false;
+        if (searchType === 'artist') {
+          endpoint = `/search.php?s=${encodeURIComponent(searchQuery)}`;
+        } else if (searchType === 'album') {
+          endpoint = `/searchalbum.php?s=${encodeURIComponent(searchQuery)}`;
+        } else if (searchType === 'track') {
+          endpoint = `/searchtrack.php?s=${encodeURIComponent(searchQuery)}`;
+        }
+        break;
+      case 'getArtistDetails':
+        useRadioApi = false;
+        endpoint = `/artist.php?i=${artistId}`;
+        break;
+      case 'getArtistAlbums':
+        useRadioApi = false;
+        endpoint = `/album.php?i=${artistId}`;
+        break;
+      case 'getAlbumTracks':
+        useRadioApi = false;
+        endpoint = `/track.php?m=${artistId}`;
+        break;
       default:
         throw new Error('Invalid action');
     }
 
-    console.log(`Fetching: ${baseUrl}${endpoint}`);
+    const url = useRadioApi ? `${radioBaseUrl}${endpoint}` : `${audioDbBaseUrl}${endpoint}`;
+    const headers = useRadioApi ? radioHeaders : {};
     
-    const response = await fetch(`${baseUrl}${endpoint}`, {
+    console.log(`Fetching: ${url}`);
+    
+    const response = await fetch(url, {
       method: 'GET',
       headers,
     });

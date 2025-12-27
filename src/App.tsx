@@ -205,6 +205,7 @@ import LocalServerSaves from "./pages/LocalServerSaves";
 import RecycleBin from "./pages/RecycleBin";
 import AdminArtistAccounts from "./pages/admin/AdminArtistAccounts";
 import FerqX from "./pages/FerqX";
+import Integrations from "./pages/Integrations";
 
 // Test Platform
 import TestHub from "./pages/tests/TestHub";
@@ -490,6 +491,7 @@ const App = () => (
                           <Route path="/focus-sounds" element={<FocusSounds />} />
                           <Route path="/settings/email-reports" element={<EmailReports />} />
                           <Route path="/ferqx" element={<FerqX />} />
+                          <Route path="/integrations" element={<Integrations />} />
                           
                           <Route path="/mailbox" element={<Mailbox />} />
                           <Route path="/xmail" element={<Mailbox />} />
