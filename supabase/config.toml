@@ -124,3 +124,6 @@ verify_jwt = false
 [functions.radio-api]
 verify_jwt = false
 
+[functions.bytez-chat]
+verify_jwt = true
+

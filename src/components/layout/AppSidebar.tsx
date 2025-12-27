@@ -199,7 +199,8 @@ const xvibeNavigation = [
 // Integrations
 const integrationsNavigation = [
   { title: "Integrations Hub", url: "/niranx/integrations", icon: Plug },
-  { title: "FerqX Radio", url: "/niranx/ferqx", icon: Radio },
+  { title: "BYTEZ AI", url: "/niranx/integrations?tab=bytez", icon: Sparkles },
+  { title: "FerqX Radio", url: "/niranx/integrations?tab=radio", icon: Radio },
 ];
 
 // Media & Entertainment

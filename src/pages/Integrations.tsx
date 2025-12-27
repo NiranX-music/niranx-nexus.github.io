@@ -1,11 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Radio, Music, Database, Plug } from "lucide-react";
+import { Radio, Database, Plug, Sparkles } from "lucide-react";
 import FerqXRadio from "@/components/integrations/FerqXRadio";
 import TheAudioDBIntegration from "@/components/integrations/TheAudioDBIntegration";
+import BytezAIChat from "@/components/integrations/BytezAIChat";
 
 export default function Integrations() {
-  const [activeTab, setActiveTab] = useState("radio");
+  const [searchParams] = useSearchParams();
+  const tabParam = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState(tabParam || "bytez");
+
+  useEffect(() => {
+    if (tabParam) setActiveTab(tabParam);
+  }, [tabParam]);
 
   return (
     <div className="container mx-auto p-4 pb-32 space-y-6">
@@ -23,7 +31,11 @@ export default function Integrations() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
+        <TabsList className="grid w-full max-w-lg grid-cols-3">
+          <TabsTrigger value="bytez" className="gap-2">
+            <Sparkles className="h-4 w-4" />
+            BYTEZ AI
+          </TabsTrigger>
           <TabsTrigger value="radio" className="gap-2">
             <Radio className="h-4 w-4" />
             FerqX Radio
@@ -33,6 +45,10 @@ export default function Integrations() {
             TheAudioDB
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="bytez">
+          <BytezAIChat />
+        </TabsContent>
 
         <TabsContent value="radio">
           <FerqXRadio />
