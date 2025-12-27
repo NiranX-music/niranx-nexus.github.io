@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Radio, Database, Plug, Sparkles } from "lucide-react";
+import { Radio, Database, Plug, Sparkles, ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import FerqXRadio from "@/components/integrations/FerqXRadio";
 import TheAudioDBIntegration from "@/components/integrations/TheAudioDBIntegration";
-import BytezAIChat from "@/components/integrations/BytezAIChat";
 
 export default function Integrations() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const tabParam = searchParams.get('tab');
-  const [activeTab, setActiveTab] = useState(tabParam || "bytez");
+  const [activeTab, setActiveTab] = useState(tabParam || "radio");
 
   useEffect(() => {
     if (tabParam) setActiveTab(tabParam);
@@ -30,12 +32,34 @@ export default function Integrations() {
         </div>
       </div>
 
+      {/* BYTEZ AI Feature Card */}
+      <Card className="border-2 border-primary/30 bg-gradient-to-r from-primary/10 via-purple-500/10 to-accent/10 overflow-hidden">
+        <CardContent className="p-6">
+          <div className="flex flex-col md:flex-row items-center gap-4">
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-primary to-accent">
+              <Sparkles className="h-10 w-10 text-white" />
+            </div>
+            <div className="flex-1 text-center md:text-left">
+              <h2 className="text-2xl font-bold gradient-text mb-1">BYTEZ AI</h2>
+              <p className="text-muted-foreground">
+                Multimodal Vision AI - Analyze images, documents & get intelligent responses
+              </p>
+            </div>
+            <Button 
+              onClick={() => navigate('/niranx/bytez-ai')}
+              className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
+              size="lg"
+            >
+              <Sparkles className="h-4 w-4" />
+              Open BYTEZ AI
+              <ExternalLink className="h-4 w-4" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full max-w-lg grid-cols-3">
-          <TabsTrigger value="bytez" className="gap-2">
-            <Sparkles className="h-4 w-4" />
-            BYTEZ AI
-          </TabsTrigger>
+        <TabsList className="grid w-full max-w-md grid-cols-2">
           <TabsTrigger value="radio" className="gap-2">
             <Radio className="h-4 w-4" />
             FerqX Radio
@@ -45,10 +69,6 @@ export default function Integrations() {
             TheAudioDB
           </TabsTrigger>
         </TabsList>
-
-        <TabsContent value="bytez">
-          <BytezAIChat />
-        </TabsContent>
 
         <TabsContent value="radio">
           <FerqXRadio />
