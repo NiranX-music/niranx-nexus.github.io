@@ -53,12 +53,55 @@ interface Conversation {
   updated_at: string;
 }
 
-const VISION_MODELS = [
-  { id: 'Qwen/Qwen2-VL-72B-Instruct', name: 'Qwen2 VL 72B', description: 'Best for complex vision tasks' },
-  { id: 'Qwen/Qwen2.5-VL-72B-Instruct', name: 'Qwen2.5 VL 72B', description: 'Latest Qwen vision model' },
-  { id: 'mistralai/Pixtral-Large-Instruct-2411', name: 'Pixtral Large', description: 'Mistral vision model' },
-  { id: 'meta-llama/Llama-3.2-90B-Vision-Instruct', name: 'Llama 3.2 90B Vision', description: 'Meta vision model' },
+interface AIModel {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+}
+
+const AI_MODELS: AIModel[] = [
+  // Vision Models
+  { id: 'Qwen/Qwen2-VL-72B-Instruct', name: 'Qwen2 VL 72B', description: 'Best for complex vision tasks', category: 'Vision' },
+  { id: 'Qwen/Qwen2.5-VL-72B-Instruct', name: 'Qwen2.5 VL 72B', description: 'Latest Qwen vision model', category: 'Vision' },
+  { id: 'Qwen/Qwen2.5-VL-7B-Instruct', name: 'Qwen2.5 VL 7B', description: 'Efficient vision model', category: 'Vision' },
+  { id: 'mistralai/Pixtral-Large-Instruct-2411', name: 'Pixtral Large', description: 'Mistral vision model', category: 'Vision' },
+  { id: 'meta-llama/Llama-3.2-90B-Vision-Instruct', name: 'Llama 3.2 90B Vision', description: 'Meta vision model', category: 'Vision' },
+  { id: 'meta-llama/Llama-3.2-11B-Vision-Instruct', name: 'Llama 3.2 11B Vision', description: 'Compact Meta vision', category: 'Vision' },
+  { id: 'microsoft/Phi-3.5-vision-instruct', name: 'Phi 3.5 Vision', description: 'Microsoft vision model', category: 'Vision' },
+  
+  // Chat & Reasoning Models
+  { id: 'Qwen/Qwen2.5-72B-Instruct', name: 'Qwen2.5 72B', description: 'Powerful reasoning model', category: 'Chat' },
+  { id: 'Qwen/QwQ-32B', name: 'QwQ 32B', description: 'Advanced reasoning', category: 'Chat' },
+  { id: 'meta-llama/Llama-3.3-70B-Instruct', name: 'Llama 3.3 70B', description: 'Latest Llama chat', category: 'Chat' },
+  { id: 'meta-llama/Llama-3.1-405B-Instruct', name: 'Llama 3.1 405B', description: 'Largest Llama model', category: 'Chat' },
+  { id: 'meta-llama/Llama-3.1-70B-Instruct', name: 'Llama 3.1 70B', description: 'Balanced Llama chat', category: 'Chat' },
+  { id: 'mistralai/Mistral-Large-Instruct-2411', name: 'Mistral Large', description: 'Mistral flagship', category: 'Chat' },
+  { id: 'deepseek-ai/DeepSeek-R1', name: 'DeepSeek R1', description: 'Advanced reasoning', category: 'Chat' },
+  { id: 'deepseek-ai/DeepSeek-V3', name: 'DeepSeek V3', description: 'Latest DeepSeek', category: 'Chat' },
+  
+  // Code Models
+  { id: 'Qwen/Qwen2.5-Coder-32B-Instruct', name: 'Qwen2.5 Coder 32B', description: 'Expert code generation', category: 'Code' },
+  { id: 'deepseek-ai/DeepSeek-Coder-V2-Instruct', name: 'DeepSeek Coder V2', description: 'Code specialist', category: 'Code' },
+  { id: 'codellama/CodeLlama-70b-Instruct-hf', name: 'CodeLlama 70B', description: 'Meta code model', category: 'Code' },
+  
+  // Math & Science Models
+  { id: 'Qwen/Qwen2.5-Math-72B-Instruct', name: 'Qwen2.5 Math 72B', description: 'Advanced mathematics', category: 'Math' },
+  { id: 'deepseek-ai/DeepSeek-Math-7B-Instruct', name: 'DeepSeek Math 7B', description: 'Math specialist', category: 'Math' },
+  
+  // Fast & Efficient Models
+  { id: 'Qwen/Qwen2.5-7B-Instruct', name: 'Qwen2.5 7B', description: 'Fast & efficient', category: 'Fast' },
+  { id: 'meta-llama/Llama-3.2-3B-Instruct', name: 'Llama 3.2 3B', description: 'Ultra fast', category: 'Fast' },
+  { id: 'microsoft/Phi-3.5-mini-instruct', name: 'Phi 3.5 Mini', description: 'Compact & quick', category: 'Fast' },
+  { id: 'google/gemma-2-9b-it', name: 'Gemma 2 9B', description: 'Google efficient', category: 'Fast' },
+  { id: 'google/gemma-2-27b-it', name: 'Gemma 2 27B', description: 'Google balanced', category: 'Fast' },
+  
+  // Creative & Writing Models
+  { id: 'mistralai/Mixtral-8x22B-Instruct-v0.1', name: 'Mixtral 8x22B', description: 'Creative writing', category: 'Creative' },
+  { id: 'NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO', name: 'Hermes 2 Mixtral', description: 'Story generation', category: 'Creative' },
 ];
+
+const MODEL_CATEGORIES = ['All', 'Vision', 'Chat', 'Code', 'Math', 'Fast', 'Creative'];
 
 const BytezAI = () => {
   const { user } = useAuth();
@@ -68,7 +111,9 @@ const BytezAI = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedModel, setSelectedModel] = useState(VISION_MODELS[0].id);
+  const [selectedModel, setSelectedModel] = useState(AI_MODELS[0].id);
+  const [modelSearch, setModelSearch] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
   const [attachments, setAttachments] = useState<{ type: string; data: string; name: string }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -300,15 +345,22 @@ const BytezAI = () => {
 
     } catch (error) {
       console.error('Error sending message:', error);
-      toast({
-        title: "Error",
-        description: "Failed to get response from BYTEZ AI",
-        variant: "destructive"
-      });
+        toast({
+          title: "Error",
+          description: "Failed to get response from Nexus X AI",
+          variant: "destructive"
+        });
     } finally {
       setIsLoading(false);
     }
   };
+
+  const filteredModels = AI_MODELS.filter(model => {
+    const matchesSearch = model.name.toLowerCase().includes(modelSearch.toLowerCase()) ||
+                         model.description.toLowerCase().includes(modelSearch.toLowerCase());
+    const matchesCategory = selectedCategory === 'All' || model.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   if (!user) {
     return (
@@ -318,8 +370,8 @@ const BytezAI = () => {
             <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
               <Bot className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-2xl font-bold mb-2">BYTEZ AI</h2>
-            <p className="text-muted-foreground mb-6">Please sign in to access BYTEZ AI chat with vision capabilities</p>
+            <h2 className="text-2xl font-bold mb-2">Nexus X AI</h2>
+            <p className="text-muted-foreground mb-6">Please sign in to access Nexus X AI with vision capabilities</p>
             <Button onClick={() => window.location.href = '/niranx/auth'} className="w-full">
               Sign In
             </Button>
@@ -339,8 +391,8 @@ const BytezAI = () => {
             <Sparkles className="w-5 h-5 text-accent absolute -top-1 -right-1 animate-bounce" />
           </div>
           <div className="text-left">
-            <h1 className="text-3xl md:text-4xl font-bold gradient-text">BYTEZ AI</h1>
-            <p className="text-sm text-muted-foreground">Multimodal Vision AI • Images & Documents</p>
+            <h1 className="text-3xl md:text-4xl font-bold gradient-text">Nexus X AI</h1>
+            <p className="text-sm text-muted-foreground">30+ AI Models • Vision • Code • Math • Creative</p>
           </div>
           <Wand2 className="w-8 h-8 text-accent animate-float" />
         </div>
@@ -428,26 +480,64 @@ const BytezAI = () => {
           {/* Main Chat Area */}
           <div className="lg:col-span-3">
             <Card className="glass-card border-primary/20 h-[calc(100vh-300px)] min-h-[500px] flex flex-col">
-              {/* Model Selector */}
+              {/* Model Selector with Categories and Search */}
               <CardHeader className="pb-3 border-b border-border/50">
-                <div className="flex items-center justify-between flex-wrap gap-3">
-                  <div className="flex items-center gap-2">
-                    <Brain className="w-5 h-5 text-primary" />
-                    <span className="font-medium">Model:</span>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between flex-wrap gap-3">
+                    <div className="flex items-center gap-2">
+                      <Brain className="w-5 h-5 text-primary" />
+                      <span className="font-medium">Model:</span>
+                      <Badge variant="outline" className="text-xs">
+                        {AI_MODELS.find(m => m.id === selectedModel)?.category}
+                      </Badge>
+                    </div>
+                    <Input
+                      placeholder="Search models..."
+                      value={modelSearch}
+                      onChange={(e) => setModelSearch(e.target.value)}
+                      className="w-[200px] h-8 text-sm"
+                    />
                   </div>
+                  
+                  {/* Category Tabs */}
+                  <div className="flex flex-wrap gap-1">
+                    {MODEL_CATEGORIES.map(cat => (
+                      <Button
+                        key={cat}
+                        size="sm"
+                        variant={selectedCategory === cat ? "default" : "outline"}
+                        className="h-7 text-xs"
+                        onClick={() => setSelectedCategory(cat)}
+                      >
+                        {cat}
+                      </Button>
+                    ))}
+                  </div>
+                  
+                  {/* Model Dropdown */}
                   <Select value={selectedModel} onValueChange={setSelectedModel}>
-                    <SelectTrigger className="w-[280px]">
+                    <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      {VISION_MODELS.map(model => (
+                    <SelectContent className="max-h-[300px]">
+                      {filteredModels.map(model => (
                         <SelectItem key={model.id} value={model.id}>
-                          <div className="flex flex-col">
-                            <span className="font-medium">{model.name}</span>
-                            <span className="text-xs text-muted-foreground">{model.description}</span>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="secondary" className="text-[10px] px-1">
+                              {model.category}
+                            </Badge>
+                            <div className="flex flex-col">
+                              <span className="font-medium">{model.name}</span>
+                              <span className="text-xs text-muted-foreground">{model.description}</span>
+                            </div>
                           </div>
                         </SelectItem>
                       ))}
+                      {filteredModels.length === 0 && (
+                        <div className="p-2 text-center text-sm text-muted-foreground">
+                          No models found
+                        </div>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -463,7 +553,7 @@ const BytezAI = () => {
                       </div>
                       <h3 className="text-xl font-semibold mb-2">Start a Conversation</h3>
                       <p className="text-muted-foreground max-w-md">
-                        Upload images or documents and ask questions. BYTEZ AI can analyze visual content and provide intelligent responses.
+                        Upload images or documents and ask questions. Nexus X AI can analyze visual content, write code, solve math, and provide intelligent responses.
                       </p>
                       <div className="flex flex-wrap justify-center gap-2 mt-4">
                         <Badge variant="secondary">📸 Analyze Images</Badge>

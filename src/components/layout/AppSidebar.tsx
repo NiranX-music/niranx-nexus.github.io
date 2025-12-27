@@ -110,7 +110,7 @@ import niranxLogo from '@/assets/niranx-logo.jpg';
 // Core Navigation
 const coreNavigation = [
   { title: "Dashboard", url: "/niranx/dashboard", icon: Home },
-  { title: "BYTEZ AI", url: "/niranx/bytez-ai", icon: Sparkles, highlight: true },
+  { title: "Nexus X AI", url: "/niranx/bytez-ai", icon: Sparkles, highlight: true },
   { title: "What's New", url: "/niranx/whats-new", icon: Bell },
   { title: "Notifications", url: "/niranx/notifications", icon: Bell },
   { title: "AI Chat", url: "/niranx/ai-chat", icon: Brain },
