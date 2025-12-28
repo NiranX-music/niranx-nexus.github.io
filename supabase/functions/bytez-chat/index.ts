@@ -13,12 +13,13 @@ serve(async (req) => {
   try {
     const BYTEZ_API_KEY = Deno.env.get('BYTEZ_API_KEY');
     if (!BYTEZ_API_KEY) {
+      console.error('BYTEZ_API_KEY is not configured');
       throw new Error('BYTEZ_API_KEY is not configured');
     }
 
     const { messages, model = 'Qwen/Qwen2.5-VL-7B-Instruct', stream = false } = await req.json();
 
-    console.log('BYTEZ Chat request:', { model, messageCount: messages?.length, stream });
+    console.log('NiranX Nexus Chat request:', { model, messageCount: messages?.length, stream });
 
     // Format messages for BYTEZ API (OpenAI-compatible format)
     const formattedMessages = messages.map((msg: any) => {
@@ -34,15 +35,16 @@ serve(async (req) => {
         // Add image/document attachments
         for (const attachment of msg.attachments) {
           if (attachment.type === 'image') {
+            // Use base64 data URL format
             content.push({
               type: 'image_url',
-              image_url: { url: attachment.url }
+              image_url: { url: `data:image/jpeg;base64,${attachment.data}` }
             });
           } else if (attachment.type === 'document') {
             // For documents, include the text content
             content.push({
               type: 'text',
-              text: `[Document: ${attachment.name}]\n${attachment.content || ''}`
+              text: `[Document: ${attachment.name}]\n${attachment.data || ''}`
             });
           }
         }
@@ -53,12 +55,14 @@ serve(async (req) => {
       return { role: msg.role, content: msg.content };
     });
 
+    console.log('Sending request to BYTEZ API with model:', model);
+
     // Call BYTEZ API (OpenAI-compatible endpoint)
     const response = await fetch('https://api.bytez.com/models/v2/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': BYTEZ_API_KEY,
+        'Authorization': `Bearer ${BYTEZ_API_KEY}`,
       },
       body: JSON.stringify({
         model,
@@ -86,13 +90,20 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    console.log('BYTEZ response received successfully');
+    console.log('BYTEZ response received:', JSON.stringify(data).slice(0, 200));
 
-    return new Response(JSON.stringify(data), {
+    // Extract the content from OpenAI-compatible response format
+    const content = data.choices?.[0]?.message?.content || data.message || 'No response generated';
+    
+    return new Response(JSON.stringify({ 
+      content,
+      model: data.model,
+      usage: data.usage
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    console.error('BYTEZ chat error:', error);
+    console.error('NiranX Nexus chat error:', error);
     return new Response(JSON.stringify({ 
       error: error instanceof Error ? error.message : 'Unknown error' 
     }), {

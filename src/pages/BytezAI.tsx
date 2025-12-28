@@ -347,7 +347,7 @@ const BytezAI = () => {
       console.error('Error sending message:', error);
         toast({
           title: "Error",
-          description: "Failed to get response from Nexus X AI",
+          description: "Failed to get response from NiranX Nexus",
           variant: "destructive"
         });
     } finally {
@@ -370,8 +370,8 @@ const BytezAI = () => {
             <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
               <Bot className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-2xl font-bold mb-2">Nexus X AI</h2>
-            <p className="text-muted-foreground mb-6">Please sign in to access Nexus X AI with vision capabilities</p>
+            <h2 className="text-2xl font-bold mb-2">NiranX Nexus</h2>
+            <p className="text-muted-foreground mb-6">Please sign in to access NiranX Nexus with vision capabilities</p>
             <Button onClick={() => window.location.href = '/niranx/auth'} className="w-full">
               Sign In
             </Button>
@@ -391,7 +391,7 @@ const BytezAI = () => {
             <Sparkles className="w-5 h-5 text-accent absolute -top-1 -right-1 animate-bounce" />
           </div>
           <div className="text-left">
-            <h1 className="text-3xl md:text-4xl font-bold gradient-text">Nexus X AI</h1>
+            <h1 className="text-3xl md:text-4xl font-bold gradient-text">NiranX Nexus</h1>
             <p className="text-sm text-muted-foreground">30+ AI Models • Vision • Code • Math • Creative</p>
           </div>
           <Wand2 className="w-8 h-8 text-accent animate-float" />
@@ -553,7 +553,7 @@ const BytezAI = () => {
                       </div>
                       <h3 className="text-xl font-semibold mb-2">Start a Conversation</h3>
                       <p className="text-muted-foreground max-w-md">
-                        Upload images or documents and ask questions. Nexus X AI can analyze visual content, write code, solve math, and provide intelligent responses.
+                        Upload images or documents and ask questions. NiranX Nexus can analyze visual content, write code, solve math, and provide intelligent responses.
                       </p>
                       <div className="flex flex-wrap justify-center gap-2 mt-4">
                         <Badge variant="secondary">📸 Analyze Images</Badge>

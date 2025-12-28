@@ -32,7 +32,7 @@ export default function Integrations() {
         </div>
       </div>
 
-      {/* Nexus X AI Feature Card */}
+      {/* NiranX Nexus Feature Card */}
       <Card className="border-2 border-primary/30 bg-gradient-to-r from-primary/10 via-purple-500/10 to-accent/10 overflow-hidden">
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row items-center gap-4">
@@ -40,7 +40,7 @@ export default function Integrations() {
               <Sparkles className="h-10 w-10 text-white" />
             </div>
             <div className="flex-1 text-center md:text-left">
-              <h2 className="text-2xl font-bold gradient-text mb-1">Nexus X AI</h2>
+              <h2 className="text-2xl font-bold gradient-text mb-1">NiranX Nexus</h2>
               <p className="text-muted-foreground">
                 30+ AI Models - Vision, Code, Math, Creative & more with intelligent responses
               </p>
@@ -51,7 +51,7 @@ export default function Integrations() {
               size="lg"
             >
               <Sparkles className="h-4 w-4" />
-              Open Nexus X AI
+              Open NiranX Nexus
               <ExternalLink className="h-4 w-4" />
             </Button>
           </div>
