@@ -190,7 +190,7 @@ const Index = () => {
             size="lg"
           >
             <Sparkles className="w-5 h-5 animate-bounce" />
-            Nexus X AI ✨
+            NiranX Nexus ✨
           </Button>
           <Button
             onClick={() => navigate('/niranx/focus-engine')}
