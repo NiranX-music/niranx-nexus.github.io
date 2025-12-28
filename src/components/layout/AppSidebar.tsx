@@ -324,6 +324,7 @@ const systemNavigation = [
 
 // Archive - Old Pages (includes old music)
 const archiveNavigation = [
+  { title: "NiranX Nexus AI", url: "/niranx/bytez-ai", icon: Sparkles },
   { title: "Global Search", url: "/niranx/search", icon: Search },
   { title: "Pomodoro", url: "/niranx/pomodoro", icon: Timer },
   { title: "Smart Timetable", url: "/niranx/smart-timetable", icon: Calendar },

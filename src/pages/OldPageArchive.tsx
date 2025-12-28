@@ -1,10 +1,19 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Archive, Clock, Calendar, BookOpen, ArrowRight, Info } from 'lucide-react';
+import { Archive, Clock, Calendar, BookOpen, ArrowRight, Info, Brain } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const archivedPages = [
+  {
+    id: 'nexus-ai',
+    title: 'NiranX Nexus AI',
+    description: 'Multi-model AI chat with Bytez API integration',
+    icon: Brain,
+    route: '/niranx/bytez-ai',
+    color: 'text-purple-500',
+    features: ['Multiple AI models', 'Vision capabilities', 'Code assistance'],
+  },
   {
     id: 'pomodoro',
     title: 'Pomodoro Timer',
