@@ -61,39 +61,27 @@ interface AIModel {
 }
 
 const AI_MODELS: AIModel[] = [
-  // Vision Models (Small - Free Plan Compatible)
-  { id: 'Qwen/Qwen2.5-VL-7B-Instruct', name: 'Qwen2.5 VL 7B', description: 'Efficient vision model', category: 'Vision' },
-  { id: 'microsoft/Phi-3.5-vision-instruct', name: 'Phi 3.5 Vision', description: 'Microsoft vision model', category: 'Vision' },
-  { id: 'meta-llama/Llama-3.2-11B-Vision-Instruct', name: 'Llama 3.2 11B Vision', description: 'Compact Meta vision', category: 'Vision' },
+  // Chat Models (Free Plan)
+  { id: 'meta-llama/Llama-3.2-3B-Instruct', name: 'Llama 3.2 3B', description: 'Fast & reliable chat', category: 'Chat' },
+  { id: 'meta-llama/Llama-3.2-1B-Instruct', name: 'Llama 3.2 1B', description: 'Ultra fast responses', category: 'Chat' },
+  { id: 'microsoft/Phi-3.5-mini-instruct', name: 'Phi 3.5 Mini', description: 'Efficient reasoning', category: 'Chat' },
+  { id: 'Qwen/Qwen2.5-3B-Instruct', name: 'Qwen 2.5 3B', description: 'Balanced performance', category: 'Chat' },
   
-  // Chat & Reasoning Models (Small - Free Plan Compatible)
-  { id: 'Qwen/Qwen2.5-7B-Instruct', name: 'Qwen2.5 7B', description: 'Fast & efficient chat', category: 'Chat' },
-  { id: 'meta-llama/Llama-3.2-3B-Instruct', name: 'Llama 3.2 3B', description: 'Ultra fast chat', category: 'Chat' },
-  { id: 'microsoft/Phi-3.5-mini-instruct', name: 'Phi 3.5 Mini', description: 'Compact reasoning', category: 'Chat' },
-  { id: 'google/gemma-2-9b-it', name: 'Gemma 2 9B', description: 'Google efficient', category: 'Chat' },
-  { id: 'deepseek-ai/DeepSeek-Math-7B-Instruct', name: 'DeepSeek 7B', description: 'DeepSeek compact', category: 'Chat' },
+  // Code Models (Free Plan)
+  { id: 'meta-llama/Llama-3.2-3B-Instruct', name: 'Llama 3.2 3B Code', description: 'Code assistance', category: 'Code' },
+  { id: 'microsoft/Phi-3.5-mini-instruct', name: 'Phi 3.5 Code', description: 'Programming help', category: 'Code' },
   
-  // Code Models (Small - Free Plan Compatible)
-  { id: 'Qwen/Qwen2.5-Coder-7B-Instruct', name: 'Qwen2.5 Coder 7B', description: 'Code generation', category: 'Code' },
-  { id: 'codellama/CodeLlama-7b-Instruct-hf', name: 'CodeLlama 7B', description: 'Meta code model', category: 'Code' },
-  { id: 'deepseek-ai/deepseek-coder-6.7b-instruct', name: 'DeepSeek Coder 6.7B', description: 'Code specialist', category: 'Code' },
+  // Fast Models
+  { id: 'meta-llama/Llama-3.2-1B-Instruct', name: 'Llama 1B (Fastest)', description: 'Lightning fast', category: 'Fast' },
+  { id: 'microsoft/Phi-3.5-mini-instruct', name: 'Phi Mini (Fast)', description: 'Quick responses', category: 'Fast' },
+  { id: 'Qwen/Qwen2.5-3B-Instruct', name: 'Qwen 3B', description: 'Speed & quality', category: 'Fast' },
   
-  // Math & Science Models (Small - Free Plan Compatible)
-  { id: 'deepseek-ai/DeepSeek-Math-7B-Instruct', name: 'DeepSeek Math 7B', description: 'Math specialist', category: 'Math' },
-  { id: 'Qwen/Qwen2.5-Math-7B-Instruct', name: 'Qwen2.5 Math 7B', description: 'Mathematics', category: 'Math' },
-  
-  // Fast & Efficient Models
-  { id: 'meta-llama/Llama-3.2-1B-Instruct', name: 'Llama 3.2 1B', description: 'Fastest', category: 'Fast' },
-  { id: 'meta-llama/Llama-3.2-3B-Instruct', name: 'Llama 3.2 3B', description: 'Ultra fast', category: 'Fast' },
-  { id: 'microsoft/Phi-3.5-mini-instruct', name: 'Phi 3.5 Mini', description: 'Compact & quick', category: 'Fast' },
-  { id: 'google/gemma-2-2b-it', name: 'Gemma 2 2B', description: 'Tiny & fast', category: 'Fast' },
-  
-  // Creative & Writing Models (Small - Free Plan Compatible)
-  { id: 'NousResearch/Nous-Hermes-2-Mistral-7B-DPO', name: 'Hermes 2 7B', description: 'Creative writing', category: 'Creative' },
-  { id: 'mistralai/Mistral-7B-Instruct-v0.3', name: 'Mistral 7B', description: 'Story generation', category: 'Creative' },
+  // Creative Models
+  { id: 'meta-llama/Llama-3.2-3B-Instruct', name: 'Llama 3.2 Creative', description: 'Creative writing', category: 'Creative' },
+  { id: 'Qwen/Qwen2.5-3B-Instruct', name: 'Qwen 2.5 Creative', description: 'Story generation', category: 'Creative' },
 ];
 
-const MODEL_CATEGORIES = ['All', 'Vision', 'Chat', 'Code', 'Math', 'Fast', 'Creative'];
+const MODEL_CATEGORIES = ['All', 'Chat', 'Code', 'Fast', 'Creative'];
 
 const BytezAI = () => {
   const { user } = useAuth();
@@ -384,20 +372,20 @@ const BytezAI = () => {
           </div>
           <div className="text-left">
             <h1 className="text-3xl md:text-4xl font-bold gradient-text">NiranX Nexus</h1>
-            <p className="text-sm text-muted-foreground">30+ AI Models • Vision • Code • Math • Creative</p>
+            <p className="text-sm text-muted-foreground">Free AI Models • Chat • Code • Fast • Creative</p>
           </div>
           <Wand2 className="w-8 h-8 text-accent animate-float" />
         </div>
         
         <div className="flex flex-wrap justify-center gap-2 mb-4">
           <Badge variant="outline" className="bg-primary/10 border-primary/30">
-            <Cpu className="w-3 h-3 mr-1" /> Vision Models
+            <Zap className="w-3 h-3 mr-1" /> Fast Models
           </Badge>
           <Badge variant="outline" className="bg-accent/10 border-accent/30">
-            <ImageIcon className="w-3 h-3 mr-1" /> Image Analysis
+            <Cpu className="w-3 h-3 mr-1" /> Code Assistance
           </Badge>
           <Badge variant="outline" className="bg-success/10 border-success/30">
-            <FileText className="w-3 h-3 mr-1" /> Document Understanding
+            <Brain className="w-3 h-3 mr-1" /> Smart Chat
           </Badge>
           <Badge variant="outline" className="bg-warning/10 border-warning/30">
             <Star className="w-3 h-3 mr-1" /> Chat History

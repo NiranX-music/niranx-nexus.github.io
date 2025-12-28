@@ -17,7 +17,7 @@ serve(async (req) => {
       throw new Error('BYTEZ_API_KEY is not configured');
     }
 
-    const { messages, model = 'Qwen/Qwen2.5-VL-7B-Instruct', stream = false } = await req.json();
+    const { messages, model = 'meta-llama/Llama-3.2-3B-Instruct', stream = false } = await req.json();
 
     console.log('NiranX Nexus Chat request:', { model, messageCount: messages?.length, stream });
 
