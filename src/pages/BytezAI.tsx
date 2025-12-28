@@ -61,44 +61,36 @@ interface AIModel {
 }
 
 const AI_MODELS: AIModel[] = [
-  // Vision Models
-  { id: 'Qwen/Qwen2-VL-72B-Instruct', name: 'Qwen2 VL 72B', description: 'Best for complex vision tasks', category: 'Vision' },
-  { id: 'Qwen/Qwen2.5-VL-72B-Instruct', name: 'Qwen2.5 VL 72B', description: 'Latest Qwen vision model', category: 'Vision' },
+  // Vision Models (Small - Free Plan Compatible)
   { id: 'Qwen/Qwen2.5-VL-7B-Instruct', name: 'Qwen2.5 VL 7B', description: 'Efficient vision model', category: 'Vision' },
-  { id: 'mistralai/Pixtral-Large-Instruct-2411', name: 'Pixtral Large', description: 'Mistral vision model', category: 'Vision' },
-  { id: 'meta-llama/Llama-3.2-90B-Vision-Instruct', name: 'Llama 3.2 90B Vision', description: 'Meta vision model', category: 'Vision' },
-  { id: 'meta-llama/Llama-3.2-11B-Vision-Instruct', name: 'Llama 3.2 11B Vision', description: 'Compact Meta vision', category: 'Vision' },
   { id: 'microsoft/Phi-3.5-vision-instruct', name: 'Phi 3.5 Vision', description: 'Microsoft vision model', category: 'Vision' },
+  { id: 'meta-llama/Llama-3.2-11B-Vision-Instruct', name: 'Llama 3.2 11B Vision', description: 'Compact Meta vision', category: 'Vision' },
   
-  // Chat & Reasoning Models
-  { id: 'Qwen/Qwen2.5-72B-Instruct', name: 'Qwen2.5 72B', description: 'Powerful reasoning model', category: 'Chat' },
-  { id: 'Qwen/QwQ-32B', name: 'QwQ 32B', description: 'Advanced reasoning', category: 'Chat' },
-  { id: 'meta-llama/Llama-3.3-70B-Instruct', name: 'Llama 3.3 70B', description: 'Latest Llama chat', category: 'Chat' },
-  { id: 'meta-llama/Llama-3.1-405B-Instruct', name: 'Llama 3.1 405B', description: 'Largest Llama model', category: 'Chat' },
-  { id: 'meta-llama/Llama-3.1-70B-Instruct', name: 'Llama 3.1 70B', description: 'Balanced Llama chat', category: 'Chat' },
-  { id: 'mistralai/Mistral-Large-Instruct-2411', name: 'Mistral Large', description: 'Mistral flagship', category: 'Chat' },
-  { id: 'deepseek-ai/DeepSeek-R1', name: 'DeepSeek R1', description: 'Advanced reasoning', category: 'Chat' },
-  { id: 'deepseek-ai/DeepSeek-V3', name: 'DeepSeek V3', description: 'Latest DeepSeek', category: 'Chat' },
+  // Chat & Reasoning Models (Small - Free Plan Compatible)
+  { id: 'Qwen/Qwen2.5-7B-Instruct', name: 'Qwen2.5 7B', description: 'Fast & efficient chat', category: 'Chat' },
+  { id: 'meta-llama/Llama-3.2-3B-Instruct', name: 'Llama 3.2 3B', description: 'Ultra fast chat', category: 'Chat' },
+  { id: 'microsoft/Phi-3.5-mini-instruct', name: 'Phi 3.5 Mini', description: 'Compact reasoning', category: 'Chat' },
+  { id: 'google/gemma-2-9b-it', name: 'Gemma 2 9B', description: 'Google efficient', category: 'Chat' },
+  { id: 'deepseek-ai/DeepSeek-Math-7B-Instruct', name: 'DeepSeek 7B', description: 'DeepSeek compact', category: 'Chat' },
   
-  // Code Models
-  { id: 'Qwen/Qwen2.5-Coder-32B-Instruct', name: 'Qwen2.5 Coder 32B', description: 'Expert code generation', category: 'Code' },
-  { id: 'deepseek-ai/DeepSeek-Coder-V2-Instruct', name: 'DeepSeek Coder V2', description: 'Code specialist', category: 'Code' },
-  { id: 'codellama/CodeLlama-70b-Instruct-hf', name: 'CodeLlama 70B', description: 'Meta code model', category: 'Code' },
+  // Code Models (Small - Free Plan Compatible)
+  { id: 'Qwen/Qwen2.5-Coder-7B-Instruct', name: 'Qwen2.5 Coder 7B', description: 'Code generation', category: 'Code' },
+  { id: 'codellama/CodeLlama-7b-Instruct-hf', name: 'CodeLlama 7B', description: 'Meta code model', category: 'Code' },
+  { id: 'deepseek-ai/deepseek-coder-6.7b-instruct', name: 'DeepSeek Coder 6.7B', description: 'Code specialist', category: 'Code' },
   
-  // Math & Science Models
-  { id: 'Qwen/Qwen2.5-Math-72B-Instruct', name: 'Qwen2.5 Math 72B', description: 'Advanced mathematics', category: 'Math' },
+  // Math & Science Models (Small - Free Plan Compatible)
   { id: 'deepseek-ai/DeepSeek-Math-7B-Instruct', name: 'DeepSeek Math 7B', description: 'Math specialist', category: 'Math' },
+  { id: 'Qwen/Qwen2.5-Math-7B-Instruct', name: 'Qwen2.5 Math 7B', description: 'Mathematics', category: 'Math' },
   
   // Fast & Efficient Models
-  { id: 'Qwen/Qwen2.5-7B-Instruct', name: 'Qwen2.5 7B', description: 'Fast & efficient', category: 'Fast' },
+  { id: 'meta-llama/Llama-3.2-1B-Instruct', name: 'Llama 3.2 1B', description: 'Fastest', category: 'Fast' },
   { id: 'meta-llama/Llama-3.2-3B-Instruct', name: 'Llama 3.2 3B', description: 'Ultra fast', category: 'Fast' },
   { id: 'microsoft/Phi-3.5-mini-instruct', name: 'Phi 3.5 Mini', description: 'Compact & quick', category: 'Fast' },
-  { id: 'google/gemma-2-9b-it', name: 'Gemma 2 9B', description: 'Google efficient', category: 'Fast' },
-  { id: 'google/gemma-2-27b-it', name: 'Gemma 2 27B', description: 'Google balanced', category: 'Fast' },
+  { id: 'google/gemma-2-2b-it', name: 'Gemma 2 2B', description: 'Tiny & fast', category: 'Fast' },
   
-  // Creative & Writing Models
-  { id: 'mistralai/Mixtral-8x22B-Instruct-v0.1', name: 'Mixtral 8x22B', description: 'Creative writing', category: 'Creative' },
-  { id: 'NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO', name: 'Hermes 2 Mixtral', description: 'Story generation', category: 'Creative' },
+  // Creative & Writing Models (Small - Free Plan Compatible)
+  { id: 'NousResearch/Nous-Hermes-2-Mistral-7B-DPO', name: 'Hermes 2 7B', description: 'Creative writing', category: 'Creative' },
+  { id: 'mistralai/Mistral-7B-Instruct-v0.3', name: 'Mistral 7B', description: 'Story generation', category: 'Creative' },
 ];
 
 const MODEL_CATEGORIES = ['All', 'Vision', 'Chat', 'Code', 'Math', 'Fast', 'Creative'];
