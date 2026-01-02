@@ -196,6 +196,18 @@ const xvibeNavigation = [
   { title: "Become Artist", url: "/niranx/xvibe/artist-register", icon: UserPlus },
 ];
 
+// Xstage - Music Collaboration Platform
+const xstageNavigation = [
+  { title: "Xstage Home", url: "/niranx/xstage", icon: Music },
+  { title: "Dashboard", url: "/niranx/xstage/app", icon: Home },
+  { title: "Calendar", url: "/niranx/xstage/app/calendar", icon: Calendar },
+  { title: "Chat", url: "/niranx/xstage/app/chat", icon: MessageCircle },
+  { title: "Files", url: "/niranx/xstage/app/files", icon: FolderOpen },
+  { title: "Songs & Setlists", url: "/niranx/xstage/app/songs", icon: FileMusic },
+  { title: "SoundLab X", url: "/niranx/xstage/app/soundlab", icon: Headphones },
+  { title: "Team", url: "/niranx/xstage/app/team", icon: Users },
+];
+
 // Integrations
 const integrationsNavigation = [
   { title: "Integrations Hub", url: "/niranx/integrations", icon: Plug },
@@ -367,6 +379,7 @@ export function AppSidebar() {
     tests: false,
     progress: false,
     xvibe: false,
+    xstage: false,
     integrations: false,
     media: false,
     files: false,
@@ -395,6 +408,7 @@ export function AppSidebar() {
     ...testNavigation,
     ...progressNavigation,
     ...xvibeNavigation,
+    ...xstageNavigation,
     ...mediaNavigation,
     ...filesNavigation,
     ...xmailNavigation,
@@ -766,6 +780,26 @@ export function AppSidebar() {
             <CollapsibleContent>
               <SidebarGroupContent>
                 <SidebarMenu>{renderNavItems(xvibeNavigation)}</SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
+
+        {/* Xstage - Music Collaboration */}
+        <Collapsible open={expandedSections.xstage} onOpenChange={() => toggleSection('xstage')}>
+          <SidebarGroup>
+            <CollapsibleTrigger asChild>
+              <SidebarGroupLabel className="cursor-pointer hover:bg-fuchsia-500/20 rounded-lg px-3 -mx-2 flex items-center justify-between text-white/90 font-bold text-sm uppercase tracking-wider transition-all duration-200 py-3 bg-gradient-to-r from-fuchsia-500/25 to-pink-500/15 border border-fuchsia-500/20 mb-2">
+                <span className="flex items-center gap-2">
+                  <Music className="h-4 w-4 text-fuchsia-400" />
+                  {!isCollapsed && "Xstage"}
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform text-fuchsia-400 ${expandedSections.xstage ? '' : '-rotate-90'}`} />
+              </SidebarGroupLabel>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>{renderNavItems(xstageNavigation)}</SidebarMenu>
               </SidebarGroupContent>
             </CollapsibleContent>
           </SidebarGroup>
