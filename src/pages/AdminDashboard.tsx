@@ -9,13 +9,19 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Users, FileText, MessageSquare, Activity, TrendingUp, Clock, Award, BarChart3, Sparkles, UserPlus, Music, Pencil, RotateCcw, AlertTriangle, Eye, Mail, Calendar } from "lucide-react";
+import { Users, FileText, MessageSquare, Activity, TrendingUp, Clock, Award, BarChart3, Sparkles, UserPlus, Music, Pencil, RotateCcw, AlertTriangle, Eye, Mail, Calendar, Globe, Link2, Newspaper, Layers } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { CreateUserForm } from "@/components/admin/CreateUserForm";
 import { useAdminEdit } from "@/contexts/AdminEditContext";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { NiranXMusicManager } from "@/components/admin/NiranXMusicManager";
+import { NiranXProjectsManager } from "@/components/admin/NiranXProjectsManager";
+import { NiranXNexusManager } from "@/components/admin/NiranXNexusManager";
+import { NiranXSongsManager } from "@/components/admin/NiranXSongsManager";
+import { NiranXContactManager } from "@/components/admin/NiranXContactManager";
+import { NiranXNewsletterManager } from "@/components/admin/NiranXNewsletterManager";
 
 interface Stats {
   totalUsers: number;
@@ -477,7 +483,7 @@ export default function AdminDashboard() {
       )}
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 md:grid-cols-9 lg:w-auto">
+        <TabsList className="flex flex-wrap gap-1 h-auto p-1">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="feedback">Feedback</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
@@ -493,6 +499,24 @@ export default function AdminDashboard() {
           </TabsTrigger>
           <TabsTrigger value="resources">Resources</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="niranx-music" className="gap-1">
+            <Music className="h-3 w-3" /> Music
+          </TabsTrigger>
+          <TabsTrigger value="niranx-projects" className="gap-1">
+            <Layers className="h-3 w-3" /> Projects
+          </TabsTrigger>
+          <TabsTrigger value="niranx-nexus" className="gap-1">
+            <Link2 className="h-3 w-3" /> Nexus
+          </TabsTrigger>
+          <TabsTrigger value="niranx-songs" className="gap-1">
+            <Globe className="h-3 w-3" /> Songs
+          </TabsTrigger>
+          <TabsTrigger value="niranx-contact" className="gap-1">
+            <Mail className="h-3 w-3" /> Contact
+          </TabsTrigger>
+          <TabsTrigger value="niranx-newsletter" className="gap-1">
+            <Newspaper className="h-3 w-3" /> Newsletter
+          </TabsTrigger>
           <TabsTrigger value="danger" className="text-destructive">Danger Zone</TabsTrigger>
         </TabsList>
 
@@ -1309,6 +1333,79 @@ export default function AdminDashboard() {
                   Check Edited Content Count
                 </Button>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* NiranX Universe Management Tabs */}
+        <TabsContent value="niranx-music">
+          <Card>
+            <CardHeader>
+              <CardTitle>NiranX Music Releases</CardTitle>
+              <CardDescription>Manage music releases displayed on the landing page</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <NiranXMusicManager />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="niranx-projects">
+          <Card>
+            <CardHeader>
+              <CardTitle>NiranX Projects</CardTitle>
+              <CardDescription>Manage projects displayed on the landing page</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <NiranXProjectsManager />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="niranx-nexus">
+          <Card>
+            <CardHeader>
+              <CardTitle>Nexus Portal</CardTitle>
+              <CardDescription>Manage Nexus categories and links</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <NiranXNexusManager />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="niranx-songs">
+          <Card>
+            <CardHeader>
+              <CardTitle>Artists & Songs</CardTitle>
+              <CardDescription>Manage artists and songs for the Songs page</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <NiranXSongsManager />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="niranx-contact">
+          <Card>
+            <CardHeader>
+              <CardTitle>Contact Submissions</CardTitle>
+              <CardDescription>View messages from the contact form</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <NiranXContactManager />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="niranx-newsletter">
+          <Card>
+            <CardHeader>
+              <CardTitle>Newsletter Subscribers</CardTitle>
+              <CardDescription>Manage newsletter subscriptions</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <NiranXNewsletterManager />
             </CardContent>
           </Card>
         </TabsContent>
