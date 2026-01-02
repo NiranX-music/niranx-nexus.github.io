@@ -9441,6 +9441,674 @@ export type Database = {
           },
         ]
       }
+      xstage_channels: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          name: string
+          project_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          name: string
+          project_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          name?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xstage_channels_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "xstage_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xstage_event_rsvps: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          status: Database["public"]["Enums"]["xstage_rsvp_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          status?: Database["public"]["Enums"]["xstage_rsvp_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          status?: Database["public"]["Enums"]["xstage_rsvp_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xstage_event_rsvps_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "xstage_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xstage_events: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          end_time: string | null
+          event_date: string
+          event_type: Database["public"]["Enums"]["xstage_event_type"]
+          id: string
+          location: string | null
+          project_id: string
+          start_time: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          end_time?: string | null
+          event_date: string
+          event_type?: Database["public"]["Enums"]["xstage_event_type"]
+          id?: string
+          location?: string | null
+          project_id: string
+          start_time?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          end_time?: string | null
+          event_date?: string
+          event_type?: Database["public"]["Enums"]["xstage_event_type"]
+          id?: string
+          location?: string | null
+          project_id?: string
+          start_time?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xstage_events_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "xstage_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xstage_file_comments: {
+        Row: {
+          content: string
+          created_at: string
+          file_id: string
+          id: string
+          timestamp_seconds: number | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          file_id: string
+          id?: string
+          timestamp_seconds?: number | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          file_id?: string
+          id?: string
+          timestamp_seconds?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xstage_file_comments_file_id_fkey"
+            columns: ["file_id"]
+            isOneToOne: false
+            referencedRelation: "xstage_files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xstage_file_versions: {
+        Row: {
+          created_at: string
+          file_id: string
+          file_size: number | null
+          file_url: string
+          id: string
+          uploaded_by: string
+          version_number: number
+        }
+        Insert: {
+          created_at?: string
+          file_id: string
+          file_size?: number | null
+          file_url: string
+          id?: string
+          uploaded_by: string
+          version_number?: number
+        }
+        Update: {
+          created_at?: string
+          file_id?: string
+          file_size?: number | null
+          file_url?: string
+          id?: string
+          uploaded_by?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xstage_file_versions_file_id_fkey"
+            columns: ["file_id"]
+            isOneToOne: false
+            referencedRelation: "xstage_files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xstage_files: {
+        Row: {
+          created_at: string
+          file_size: number | null
+          file_url: string | null
+          id: string
+          is_folder: boolean
+          mime_type: string | null
+          name: string
+          parent_id: string | null
+          project_id: string
+          updated_at: string
+          uploaded_by: string
+        }
+        Insert: {
+          created_at?: string
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          is_folder?: boolean
+          mime_type?: string | null
+          name: string
+          parent_id?: string | null
+          project_id: string
+          updated_at?: string
+          uploaded_by: string
+        }
+        Update: {
+          created_at?: string
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          is_folder?: boolean
+          mime_type?: string | null
+          name?: string
+          parent_id?: string | null
+          project_id?: string
+          updated_at?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xstage_files_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "xstage_files"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xstage_files_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "xstage_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xstage_invites: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          email: string
+          id: string
+          invited_by: string
+          project_id: string
+          role: Database["public"]["Enums"]["xstage_project_role"]
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          invited_by: string
+          project_id: string
+          role?: Database["public"]["Enums"]["xstage_project_role"]
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          invited_by?: string
+          project_id?: string
+          role?: Database["public"]["Enums"]["xstage_project_role"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xstage_invites_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "xstage_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xstage_message_reactions: {
+        Row: {
+          created_at: string
+          emoji: string
+          id: string
+          message_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          emoji: string
+          id?: string
+          message_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          emoji?: string
+          id?: string
+          message_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xstage_message_reactions_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "xstage_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xstage_message_reads: {
+        Row: {
+          id: string
+          message_id: string
+          read_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          message_id: string
+          read_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          message_id?: string
+          read_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xstage_message_reads_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "xstage_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xstage_messages: {
+        Row: {
+          channel_id: string | null
+          content: string | null
+          created_at: string
+          duration: number | null
+          file_name: string | null
+          file_size: number | null
+          file_url: string | null
+          id: string
+          is_pinned: boolean | null
+          message_type: Database["public"]["Enums"]["xstage_message_type"]
+          parent_message_id: string | null
+          project_id: string
+          recipient_id: string | null
+          sender_id: string
+          updated_at: string
+        }
+        Insert: {
+          channel_id?: string | null
+          content?: string | null
+          created_at?: string
+          duration?: number | null
+          file_name?: string | null
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          message_type?: Database["public"]["Enums"]["xstage_message_type"]
+          parent_message_id?: string | null
+          project_id: string
+          recipient_id?: string | null
+          sender_id: string
+          updated_at?: string
+        }
+        Update: {
+          channel_id?: string | null
+          content?: string | null
+          created_at?: string
+          duration?: number | null
+          file_name?: string | null
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          message_type?: Database["public"]["Enums"]["xstage_message_type"]
+          parent_message_id?: string | null
+          project_id?: string
+          recipient_id?: string | null
+          sender_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xstage_messages_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "xstage_channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xstage_messages_parent_message_id_fkey"
+            columns: ["parent_message_id"]
+            isOneToOne: false
+            referencedRelation: "xstage_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xstage_messages_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "xstage_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xstage_project_members: {
+        Row: {
+          id: string
+          instrument: string | null
+          joined_at: string
+          project_id: string
+          role: Database["public"]["Enums"]["xstage_project_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          instrument?: string | null
+          joined_at?: string
+          project_id: string
+          role?: Database["public"]["Enums"]["xstage_project_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          instrument?: string | null
+          joined_at?: string
+          project_id?: string
+          role?: Database["public"]["Enums"]["xstage_project_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xstage_project_members_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "xstage_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xstage_projects: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          name: string
+          type: Database["public"]["Enums"]["xstage_project_type"]
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          name: string
+          type?: Database["public"]["Enums"]["xstage_project_type"]
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          name?: string
+          type?: Database["public"]["Enums"]["xstage_project_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      xstage_setlist_songs: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          position: number
+          setlist_id: string
+          song_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          position?: number
+          setlist_id: string
+          song_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          position?: number
+          setlist_id?: string
+          song_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xstage_setlist_songs_setlist_id_fkey"
+            columns: ["setlist_id"]
+            isOneToOne: false
+            referencedRelation: "xstage_setlists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xstage_setlist_songs_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "xstage_songs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xstage_setlists: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          name: string
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          name: string
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          name?: string
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xstage_setlists_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "xstage_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xstage_songs: {
+        Row: {
+          bpm: number | null
+          created_at: string
+          created_by: string
+          duration_seconds: number | null
+          id: string
+          key: string | null
+          lyrics: string | null
+          notes: string | null
+          project_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          bpm?: number | null
+          created_at?: string
+          created_by: string
+          duration_seconds?: number | null
+          id?: string
+          key?: string | null
+          lyrics?: string | null
+          notes?: string | null
+          project_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          bpm?: number | null
+          created_at?: string
+          created_by?: string
+          duration_seconds?: number | null
+          id?: string
+          key?: string | null
+          lyrics?: string | null
+          notes?: string | null
+          project_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xstage_songs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "xstage_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xstage_typing_indicators: {
+        Row: {
+          channel_id: string | null
+          id: string
+          project_id: string
+          recipient_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          channel_id?: string | null
+          id?: string
+          project_id: string
+          recipient_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          channel_id?: string | null
+          id?: string
+          project_id?: string
+          recipient_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xstage_typing_indicators_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "xstage_channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xstage_typing_indicators_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "xstage_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       xvibe_admin_actions: {
         Row: {
           action_type: string
@@ -11066,6 +11734,14 @@ export type Database = {
         Returns: boolean
       }
       is_member_of_chat_room: { Args: { _room_id: string }; Returns: boolean }
+      is_xstage_project_admin: {
+        Args: { p_project_id: string; p_user_id: string }
+        Returns: boolean
+      }
+      is_xstage_project_member: {
+        Args: { p_project_id: string; p_user_id: string }
+        Returns: boolean
+      }
       notify_user: {
         Args: {
           p_data?: Json
@@ -11112,6 +11788,21 @@ export type Database = {
       debate_stance: "for" | "against" | "neutral"
       debate_target_type: "topic" | "comment"
       debate_vote_type: "upvote" | "downvote"
+      xstage_event_type:
+        | "rehearsal"
+        | "gig"
+        | "recording"
+        | "deadline"
+        | "meeting"
+      xstage_message_type: "text" | "image" | "video" | "file" | "voice"
+      xstage_project_role:
+        | "owner"
+        | "admin"
+        | "member"
+        | "session_musician"
+        | "viewer"
+      xstage_project_type: "band" | "solo" | "side_project" | "collaboration"
+      xstage_rsvp_status: "attending" | "maybe" | "declined"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -11253,6 +11944,23 @@ export const Constants = {
       debate_stance: ["for", "against", "neutral"],
       debate_target_type: ["topic", "comment"],
       debate_vote_type: ["upvote", "downvote"],
+      xstage_event_type: [
+        "rehearsal",
+        "gig",
+        "recording",
+        "deadline",
+        "meeting",
+      ],
+      xstage_message_type: ["text", "image", "video", "file", "voice"],
+      xstage_project_role: [
+        "owner",
+        "admin",
+        "member",
+        "session_musician",
+        "viewer",
+      ],
+      xstage_project_type: ["band", "solo", "side_project", "collaboration"],
+      xstage_rsvp_status: ["attending", "maybe", "declined"],
     },
   },
 } as const
