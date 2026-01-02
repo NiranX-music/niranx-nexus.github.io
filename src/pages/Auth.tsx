@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,6 +39,8 @@ const classSchema = z.string().min(1, "Class is required");
 
 const Auth = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectPath = searchParams.get('redirect') || '/niranx/dashboard';
   const { toast } = useToast();
   const { user, loading: authLoading } = useAuth();
   const { enableGuestMode } = useGuestMode();
@@ -62,9 +64,9 @@ const Auth = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (!authLoading && user) {
-      navigate('/niranx/dashboard');
+      navigate(redirectPath);
     }
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading, navigate, redirectPath]);
 
   useEffect(() => {
     generateCaptcha();
@@ -146,7 +148,7 @@ const Auth = () => {
         });
         // Auto-navigate if email confirmation is disabled
         if (data.session) {
-          navigate('/niranx/dashboard');
+          navigate(redirectPath);
         }
       }
     } catch (error: any) {
@@ -189,7 +191,7 @@ const Auth = () => {
           title: "Welcome back!",
           description: "Successfully logged in",
         });
-        navigate('/niranx/dashboard');
+        navigate(redirectPath);
       }
     } catch (error: any) {
       toast({

@@ -174,7 +174,7 @@ export function HeroSection() {
           >
             <Button
               size="lg"
-              onClick={() => navigate(user ? '/nexus' : '/auth')}
+              onClick={() => navigate(user ? '/nexus' : '/auth?redirect=/nexus')}
               className="text-lg px-10 py-7 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-full shadow-lg shadow-primary/30"
             >
               Enter Nexus
