@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Play, Pause, Heart, MoreHorizontal, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { XVibeTrack } from '../../types';
-import { useXVibePlayer } from '../../contexts/XVibePlayerContext';
+import { useMusicPlayer } from '@/contexts/MusicPlayerContext';
 import { useXVibeLikes } from '../../hooks/useXVibeLibrary';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,7 +22,7 @@ interface TrackRowProps {
 
 export function TrackRow({ track, index, queue, showAlbum = true, showCover = true }: TrackRowProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const { currentTrack, isPlaying, playTrack, togglePlayPause } = useXVibePlayer();
+  const { currentTrack, isPlaying, playTrack, togglePlayPause } = useMusicPlayer();
   const { isLiked, toggleLike } = useXVibeLikes();
   
   const isCurrentTrack = currentTrack?.id === track.id;
@@ -32,7 +32,15 @@ export function TrackRow({ track, index, queue, showAlbum = true, showCover = tr
     if (isCurrentTrack) {
       togglePlayPause();
     } else {
-      playTrack(track, queue);
+      // Convert XVibeTrack to Music Player Track format
+      playTrack({
+        id: track.id,
+        name: track.title,
+        url: track.audio_url,
+        artist: track.artist?.name,
+        album: track.album?.title,
+        duration: track.duration
+      });
     }
   };
 

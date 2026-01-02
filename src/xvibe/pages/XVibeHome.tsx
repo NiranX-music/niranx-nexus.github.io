@@ -7,7 +7,7 @@ import { TrackCard } from '../components/ui/TrackCard';
 import { ArtistCard } from '../components/ui/ArtistCard';
 import { AlbumCard } from '../components/ui/AlbumCard';
 import { useXVibeTracks, useXVibeArtists, useXVibeAlbums, useXVibeListeningHistory } from '../hooks/useXVibeTracks';
-import { useXVibePlayer } from '../contexts/XVibePlayerContext';
+import { useMusicPlayer } from '@/contexts/MusicPlayerContext';
 import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -46,7 +46,9 @@ export default function XVibeHome() {
   const { artists, loading: artistsLoading } = useXVibeArtists();
   const { albums, loading: albumsLoading } = useXVibeAlbums();
   const { history, loading: historyLoading } = useXVibeListeningHistory();
-  const { playTrack, toggleDJMode, isDJMode } = useXVibePlayer();
+  const { playTrack } = useMusicPlayer();
+  const isDJMode = false; // DJ Mode archived
+  const toggleDJMode = () => {}; // DJ Mode archived
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -95,7 +97,7 @@ export default function XVibeHome() {
               <motion.button
                 key={track.id}
                 whileHover={{ scale: 1.02 }}
-                onClick={() => playTrack(track, history)}
+                onClick={() => playTrack({ id: track.id, name: track.title, url: track.audio_url, artist: track.artist?.name })}
                 className="flex items-center gap-4 p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-left"
               >
                 <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0">

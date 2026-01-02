@@ -13,7 +13,7 @@ import {
   BookOpen, Brain, Zap, Music, User, Calendar, Eye, MessageCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useXVibePlayer } from '../contexts/XVibePlayerContext';
+import { useMusicPlayer } from '@/contexts/MusicPlayerContext';
 import DOMPurify from 'dompurify';
 
 // Platform icons mapping
@@ -72,7 +72,7 @@ interface AIInsight {
 export default function XWaveSongPage() {
   const { songId } = useParams();
   const navigate = useNavigate();
-  const { playTrack, currentTrack, isPlaying, togglePlayPause } = useXVibePlayer();
+  const { playTrack, currentTrack, isPlaying, togglePlayPause } = useMusicPlayer();
   
   const [song, setSong] = useState<Song | null>(null);
   const [blog, setBlog] = useState<BlogPost | null>(null);

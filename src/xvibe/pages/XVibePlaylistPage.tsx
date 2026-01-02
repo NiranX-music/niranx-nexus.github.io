@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { XVibeLayout } from '../components/layout/XVibeLayout';
 import { TrackRow, TrackRowHeader } from '../components/ui/TrackRow';
 import { XVibePlaylist, XVibeTrack } from '../types';
-import { useXVibePlayer } from '../contexts/XVibePlayerContext';
+import { useMusicPlayer } from '@/contexts/MusicPlayerContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -22,7 +22,7 @@ export default function XVibePlaylistPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const { currentTrack, isPlaying, playTrack, togglePlayPause } = useXVibePlayer();
+  const { currentTrack, isPlaying, playTrack, togglePlayPause } = useMusicPlayer();
 
   useEffect(() => {
     if (id) fetchPlaylistData();
@@ -76,7 +76,7 @@ export default function XVibePlaylistPage() {
       if (isPlaylistPlaying) {
         togglePlayPause();
       } else {
-        playTrack(tracks[0], tracks);
+        playTrack({ id: tracks[0].id, name: tracks[0].title, url: tracks[0].audio_url, artist: tracks[0].artist?.name });
       }
     }
   };

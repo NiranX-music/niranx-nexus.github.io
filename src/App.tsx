@@ -241,9 +241,7 @@ import HelpCentre from "./pages/support/HelpCentre";
 import PrivacyPolicy from "./pages/support/PrivacyPolicy";
 import TermsConditions from "./pages/support/TermsConditions";
 
-// XVibe Music Platform
-import { XVibePlayerProvider } from "./xvibe/contexts/XVibePlayerContext";
-import { PersistentXVibeMiniPlayer } from "./xvibe/components/player/PersistentXVibeMiniPlayer";
+// XVibe Music Platform (Player archived)
 import XVibeLanding from "./xvibe/pages/XVibeLanding";
 import XVibeAuth from "./xvibe/pages/XVibeAuth";
 import XVibeOnboarding from "./xvibe/pages/XVibeOnboarding";
@@ -291,13 +289,11 @@ const App = () => (
                   <Toaster />
                   <Sonner />
                   <BrowserRouter>
-                    <XVibePlayerProvider>
                     <MusicPlayerProvider>
                     <AuthProvider>
                       <AdminEditProvider>
                       <NotificationListener />
                       <GlobalRealtimeSync />
-                      <PersistentXVibeMiniPlayer />
                       <Routes>
                         <Route path="/" element={<Landing />} />
                         <Route path="/niranx/auth" element={<Auth />} />
@@ -697,7 +693,6 @@ const App = () => (
                   </AuthProvider>
                   <UniversalMusicPlayer />
                   </MusicPlayerProvider>
-                  </XVibePlayerProvider>
                 </BrowserRouter>
                 </TooltipProvider>
               </NowPlayingProvider>
