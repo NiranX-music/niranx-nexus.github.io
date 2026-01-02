@@ -4631,6 +4631,116 @@ export type Database = {
         }
         Relationships: []
       }
+      nexus_categories: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          icon: string | null
+          id: string
+          is_visible: boolean | null
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          icon?: string | null
+          id?: string
+          is_visible?: boolean | null
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          icon?: string | null
+          id?: string
+          is_visible?: boolean | null
+          name?: string
+        }
+        Relationships: []
+      }
+      nexus_links: {
+        Row: {
+          category_id: string | null
+          comment_color: string | null
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          effect_type: string | null
+          id: string
+          image_url: string | null
+          is_visible: boolean | null
+          name: string
+          special_comment: string | null
+          tile_color: string | null
+          url: string
+        }
+        Insert: {
+          category_id?: string | null
+          comment_color?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          effect_type?: string | null
+          id?: string
+          image_url?: string | null
+          is_visible?: boolean | null
+          name: string
+          special_comment?: string | null
+          tile_color?: string | null
+          url: string
+        }
+        Update: {
+          category_id?: string | null
+          comment_color?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          effect_type?: string | null
+          id?: string
+          image_url?: string | null
+          is_visible?: boolean | null
+          name?: string
+          special_comment?: string | null
+          tile_color?: string | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nexus_links_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "nexus_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nexus_settings: {
+        Row: {
+          created_at: string | null
+          id: string
+          setting_key: string
+          setting_value: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          setting_key: string
+          setting_value?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          setting_key?: string
+          setting_value?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       niranx_ai_suggestions: {
         Row: {
           created_at: string | null
@@ -4662,6 +4772,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      niranx_artists: {
+        Row: {
+          created_at: string | null
+          display_order: number | null
+          id: string
+          image_url: string | null
+          is_visible: boolean | null
+          name: string
+          spotify_url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          is_visible?: boolean | null
+          name: string
+          spotify_url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          is_visible?: boolean | null
+          name?: string
+          spotify_url?: string | null
+        }
+        Relationships: []
       }
       niranx_blocked_senders: {
         Row: {
@@ -5483,6 +5623,44 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      niranx_songs: {
+        Row: {
+          artist_id: string | null
+          created_at: string | null
+          display_order: number | null
+          id: string
+          is_visible: boolean | null
+          spotify_url: string | null
+          title: string
+        }
+        Insert: {
+          artist_id?: string | null
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_visible?: boolean | null
+          spotify_url?: string | null
+          title: string
+        }
+        Update: {
+          artist_id?: string | null
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_visible?: boolean | null
+          spotify_url?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "niranx_songs_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "niranx_artists"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       niranx_tech_stack: {
         Row: {
