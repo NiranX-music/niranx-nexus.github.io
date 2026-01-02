@@ -192,26 +192,10 @@ export default function XWaveSongPage() {
     } else {
       playTrack({
         id: song.id,
-        title: song.title,
-        artist_id: song.artist.id,
-        audio_url: song.audio_url,
-        cover_url: song.cover_url || undefined,
-        duration: song.duration,
-        genre: song.genre || undefined,
-        is_explicit: false,
-        play_count: 0,
-        status: 'approved',
-        created_at: '',
-        artist: {
-          id: song.artist.id,
-          name: song.artist.name,
-          avatar_url: song.artist.avatar_url || undefined,
-          is_verified: song.artist.is_verified,
-          monthly_listeners: 0,
-          follower_count: 0,
-          status: 'approved',
-          created_at: ''
-        }
+        name: song.title,
+        url: song.audio_url,
+        artist: song.artist.name,
+        duration: song.duration
       });
     }
   };
