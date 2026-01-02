@@ -17,6 +17,8 @@ import { AdminEditProvider } from "./contexts/AdminEditContext";
 import { AppLayout } from "./components/layout/AppLayout";
 import VoiceCommand from "./components/VoiceCommand";
 import Landing from "./pages/Landing";
+import Nexus from "./pages/Nexus";
+import Songs from "./pages/Songs";
 import Auth from "./pages/Auth";
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
@@ -296,6 +298,8 @@ const App = () => (
                       <GlobalRealtimeSync />
                       <Routes>
                         <Route path="/" element={<Landing />} />
+                        <Route path="/nexus" element={<Nexus />} />
+                        <Route path="/songs" element={<Songs />} />
                         <Route path="/niranx/auth" element={<Auth />} />
                         <Route path="/niranx/reset-password" element={<ResetPassword />} />
                         <Route path="/niranx/magic-link" element={<MagicLink />} />
