@@ -37,9 +37,11 @@ import {
   Grid,
   List,
   ArrowLeft,
+  FolderUp,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 
 const getFileIcon = (mimeType: string | null) => {
@@ -79,7 +81,9 @@ export const XstageFiles = () => {
   const [previewFile, setPreviewFile] = useState<XstageFile | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const folderInputRef = useRef<HTMLInputElement>(null);
   const dropRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -168,10 +172,13 @@ export const XstageFiles = () => {
   const handleFileUpload = async (fileList: FileList | null) => {
     if (!fileList || !currentProject || !user) return;
 
+    const filesArray = Array.from(fileList);
     setUploading(true);
+    setUploadProgress({ current: 0, total: filesArray.length });
+
     try {
-      for (const file of Array.from(fileList)) {
-        const fileExt = file.name.split('.').pop();
+      for (let i = 0; i < filesArray.length; i++) {
+        const file = filesArray[i];
         const filePath = `${currentProject.id}/${user.id}/${Date.now()}-${file.name}`;
 
         const { error: uploadError } = await supabase.storage
@@ -198,6 +205,7 @@ export const XstageFiles = () => {
           });
 
         if (error) throw error;
+        setUploadProgress({ current: i + 1, total: filesArray.length });
       }
 
       fetchFiles();
@@ -206,6 +214,137 @@ export const XstageFiles = () => {
       toast.error(error.message || 'Failed to upload files');
     } finally {
       setUploading(false);
+      setUploadProgress({ current: 0, total: 0 });
+    }
+  };
+
+  const handleFolderUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !currentProject || !user) return;
+
+    const filesArray = Array.from(e.target.files);
+    if (filesArray.length === 0) return;
+
+    setUploading(true);
+    setUploadProgress({ current: 0, total: filesArray.length });
+
+    try {
+      // Extract folder structure from webkitRelativePath
+      const folderMap = new Map<string, string>(); // path -> folder id
+      
+      // Get root folder name from first file's path
+      const firstFilePath = (filesArray[0] as any).webkitRelativePath || filesArray[0].name;
+      const rootFolderName = firstFilePath.split('/')[0];
+
+      // Create the root folder
+      const { data: rootFolderData, error: rootFolderError } = await supabase
+        .from('xstage_files')
+        .insert({
+          project_id: currentProject.id,
+          parent_id: currentFolder,
+          name: rootFolderName,
+          is_folder: true,
+          uploaded_by: user.id,
+        })
+        .select('id')
+        .single();
+
+      if (rootFolderError) throw rootFolderError;
+      folderMap.set(rootFolderName, rootFolderData.id);
+
+      // Process each file
+      for (let i = 0; i < filesArray.length; i++) {
+        const file = filesArray[i];
+        const relativePath = (file as any).webkitRelativePath || file.name;
+        const pathParts = relativePath.split('/');
+        
+        // Create intermediate folders if needed
+        let parentId = currentFolder;
+        for (let j = 0; j < pathParts.length - 1; j++) {
+          const folderPath = pathParts.slice(0, j + 1).join('/');
+          
+          if (!folderMap.has(folderPath)) {
+            const parentPath = j > 0 ? pathParts.slice(0, j).join('/') : null;
+            const parentFolderId = parentPath ? folderMap.get(parentPath) : currentFolder;
+
+            const { data: folderData, error: folderError } = await supabase
+              .from('xstage_files')
+              .insert({
+                project_id: currentProject.id,
+                parent_id: parentFolderId,
+                name: pathParts[j],
+                is_folder: true,
+                uploaded_by: user.id,
+              })
+              .select('id')
+              .single();
+
+            if (folderError) {
+              // Folder might already exist, try to fetch it
+              const { data: existingFolder } = await supabase
+                .from('xstage_files')
+                .select('id')
+                .eq('project_id', currentProject.id)
+                .eq('parent_id', parentFolderId)
+                .eq('name', pathParts[j])
+                .eq('is_folder', true)
+                .single();
+
+              if (existingFolder) {
+                folderMap.set(folderPath, existingFolder.id);
+              }
+            } else {
+              folderMap.set(folderPath, folderData.id);
+            }
+          }
+          parentId = folderMap.get(folderPath) || parentId;
+        }
+
+        // Upload the file
+        const storagePath = `${currentProject.id}/${user.id}/${Date.now()}-${file.name}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('xstage-files')
+          .upload(storagePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('xstage-files')
+          .getPublicUrl(storagePath);
+
+        // Get the parent folder for this file
+        const fileParentPath = pathParts.slice(0, -1).join('/');
+        const fileParentId = folderMap.get(fileParentPath) || currentFolder;
+
+        const { error } = await supabase
+          .from('xstage_files')
+          .insert({
+            project_id: currentProject.id,
+            parent_id: fileParentId,
+            name: file.name,
+            is_folder: false,
+            file_url: publicUrl,
+            file_size: file.size,
+            mime_type: file.type,
+            uploaded_by: user.id,
+          });
+
+        if (error) throw error;
+        setUploadProgress({ current: i + 1, total: filesArray.length });
+      }
+
+      fetchFiles();
+      toast.success(`Folder "${rootFolderName}" uploaded with ${filesArray.length} files`);
+    } catch (error: any) {
+      console.error('Folder upload error:', error);
+      toast.error(error.message || 'Failed to upload folder');
+    } finally {
+      setUploading(false);
+      setUploadProgress({ current: 0, total: 0 });
+      // Reset the input
+      if (folderInputRef.current) {
+        folderInputRef.current.value = '';
+      }
     }
   };
 
@@ -261,9 +400,29 @@ export const XstageFiles = () => {
             className="hidden"
             multiple
           />
-          <Button onClick={() => fileInputRef.current?.click()} className="bg-gradient-to-r from-cyan-500 to-fuchsia-500">
+          <input
+            type="file"
+            ref={folderInputRef}
+            onChange={handleFolderUpload}
+            className="hidden"
+            {...{ webkitdirectory: '', directory: '' } as any}
+            multiple
+          />
+          <Button 
+            variant="outline" 
+            onClick={() => folderInputRef.current?.click()}
+            disabled={uploading}
+          >
+            <FolderUp className="mr-2 h-4 w-4" />
+            Upload Folder
+          </Button>
+          <Button 
+            onClick={() => fileInputRef.current?.click()} 
+            className="bg-gradient-to-r from-cyan-500 to-fuchsia-500"
+            disabled={uploading}
+          >
             <Upload className="mr-2 h-4 w-4" />
-            Upload
+            Upload Files
           </Button>
         </div>
       </div>
@@ -292,6 +451,17 @@ export const XstageFiles = () => {
       </div>
 
       {/* Drop Zone */}
+      {/* Upload Progress */}
+      {uploading && uploadProgress.total > 0 && (
+        <div className="bg-muted/50 rounded-xl p-4 space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Uploading files...</span>
+            <span className="font-medium">{uploadProgress.current} / {uploadProgress.total}</span>
+          </div>
+          <Progress value={(uploadProgress.current / uploadProgress.total) * 100} className="h-2" />
+        </div>
+      )}
+
       <div
         ref={dropRef}
         onDragOver={(e) => e.preventDefault()}
