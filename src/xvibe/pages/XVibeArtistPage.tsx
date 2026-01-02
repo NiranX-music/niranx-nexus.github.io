@@ -7,7 +7,7 @@ import { TrackRow, TrackRowHeader } from '../components/ui/TrackRow';
 import { AlbumCard } from '../components/ui/AlbumCard';
 import { ArtistCard } from '../components/ui/ArtistCard';
 import { XVibeArtist, XVibeTrack, XVibeAlbum } from '../types';
-import { useXVibePlayer } from '../contexts/XVibePlayerContext';
+import { useMusicPlayer } from '@/contexts/MusicPlayerContext';
 import { useXVibeFollowedArtists } from '../hooks/useXVibeLibrary';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -25,7 +25,7 @@ export default function XVibeArtistPage() {
   const [loading, setLoading] = useState(true);
   const [showAllTracks, setShowAllTracks] = useState(false);
 
-  const { currentTrack, isPlaying, playTrack, togglePlayPause } = useXVibePlayer();
+  const { currentTrack, isPlaying, playTrack, togglePlayPause } = useMusicPlayer();
   const { isFollowing, toggleFollow } = useXVibeFollowedArtists();
 
   useEffect(() => {
@@ -95,7 +95,7 @@ export default function XVibeArtistPage() {
       if (isArtistPlaying) {
         togglePlayPause();
       } else {
-        playTrack(topTracks[0], topTracks);
+        playTrack({ id: topTracks[0].id, name: topTracks[0].title, url: topTracks[0].audio_url, artist: topTracks[0].artist?.name });
       }
     }
   };

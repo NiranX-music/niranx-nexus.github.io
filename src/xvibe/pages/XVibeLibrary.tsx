@@ -7,7 +7,7 @@ import { PlaylistCard } from '../components/ui/PlaylistCard';
 import { AlbumCard } from '../components/ui/AlbumCard';
 import { ArtistCard } from '../components/ui/ArtistCard';
 import { useXVibeLikes, useXVibePlaylists, useXVibeSavedAlbums, useXVibeFollowedArtists } from '../hooks/useXVibeLibrary';
-import { useXVibePlayer } from '../contexts/XVibePlayerContext';
+import { useMusicPlayer } from '@/contexts/MusicPlayerContext';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -22,7 +22,7 @@ export default function XVibeLibrary() {
   const { likedTracks, loading: likesLoading } = useXVibeLikes();
   const { albums: savedAlbums, loading: albumsLoading } = useXVibeSavedAlbums();
   const { artists: followedArtists, loading: artistsLoading } = useXVibeFollowedArtists();
-  const { playTrack } = useXVibePlayer();
+  const { playTrack } = useMusicPlayer();
 
   const setTab = (tab: string) => {
     setSearchParams({ tab });
