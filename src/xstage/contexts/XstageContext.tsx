@@ -121,11 +121,14 @@ export const XstageProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
       const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
 
-      const typedMembers = (data || []).map(m => ({
-        ...m,
-        role: m.role as ProjectRole,
-        profile: m.profile as { full_name: string | null; avatar_url: string | null } | undefined
-      })) as XstageProjectMember[];
+      const typedMembers = (data || []).map(m => {
+        const profile = profileMap.get(m.user_id);
+        return {
+          ...m,
+          role: m.role as ProjectRole,
+          profile: profile ? { full_name: profile.full_name, avatar_url: profile.avatar_url } : undefined
+        };
+      }) as XstageProjectMember[];
 
       setMembers(typedMembers);
 
