@@ -265,6 +265,17 @@ import XWaveBlogEditor from "./xvibe/pages/XWaveBlogEditor";
 import XWaveEditorDashboard from "./xvibe/pages/XWaveEditorDashboard";
 import { XVibeLayout } from "./xvibe/components/layout/XVibeLayout";
 
+// Xstage Music Collaboration Platform
+import { XstageLayout } from "./xstage/components/layout/XstageLayout";
+import { XstageLanding } from "./xstage/pages/XstageLanding";
+import { XstageDashboard } from "./xstage/pages/XstageDashboard";
+import { XstageCalendar } from "./xstage/pages/XstageCalendar";
+import { XstageChat } from "./xstage/pages/XstageChat";
+import { XstageFiles } from "./xstage/pages/XstageFiles";
+import { XstageTeam } from "./xstage/pages/XstageTeam";
+import { XstageProjectSettings } from "./xstage/pages/XstageProjectSettings";
+import { XstageSongs, XstageSoundLab, XstageSettings } from "./xstage/pages/XstagePlaceholders";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -656,6 +667,20 @@ const App = () => (
                     <Route path="/niranx/xvibe/blog/new" element={<XVibeLayout><XWaveBlogEditor /></XVibeLayout>} />
                     <Route path="/niranx/xvibe/blog/:blogId" element={<XVibeLayout><XWaveBlogEditor /></XVibeLayout>} />
                     <Route path="/niranx/xvibe/editor" element={<XVibeLayout><XWaveEditorDashboard /></XVibeLayout>} />
+                    
+                    {/* Xstage Music Collaboration Platform Routes */}
+                    <Route path="/niranx/xstage" element={<XstageLanding />} />
+                    <Route path="/niranx/xstage/*" element={<XstageLayout />}>
+                      <Route path="app" element={<XstageDashboard />} />
+                      <Route path="app/calendar" element={<XstageCalendar />} />
+                      <Route path="app/chat" element={<XstageChat />} />
+                      <Route path="app/files" element={<XstageFiles />} />
+                      <Route path="app/songs" element={<XstageSongs />} />
+                      <Route path="app/soundlab" element={<XstageSoundLab />} />
+                      <Route path="app/team" element={<XstageTeam />} />
+                      <Route path="app/settings" element={<XstageSettings />} />
+                      <Route path="app/project-settings" element={<XstageProjectSettings />} />
+                    </Route>
                     
                     {/* Support Pages */}
                     <Route path="/support/contact" element={<Contact />} />
