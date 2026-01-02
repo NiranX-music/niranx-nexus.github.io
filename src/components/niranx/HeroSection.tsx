@@ -4,9 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Sparkles, Play, Pause, Volume2, VolumeX } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function HeroSection() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
@@ -172,7 +174,7 @@ export function HeroSection() {
           >
             <Button
               size="lg"
-              onClick={() => navigate('/niranx/dashboard')}
+              onClick={() => navigate(user ? '/nexus' : '/auth')}
               className="text-lg px-10 py-7 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-full shadow-lg shadow-primary/30"
             >
               Enter Nexus
