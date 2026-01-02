@@ -5,9 +5,9 @@ import { XstageProvider } from '../../contexts/XstageContext';
 export const XstageLayout = () => {
   return (
     <XstageProvider>
-      <div className="min-h-screen bg-background">
+      <div className="h-screen bg-background overflow-hidden">
         <XstageSidebar />
-        <main className="md:ml-64 min-h-screen">
+        <main className="md:ml-64 h-screen overflow-y-auto">
           <Outlet />
         </main>
       </div>
