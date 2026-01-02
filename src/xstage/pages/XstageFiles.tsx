@@ -379,7 +379,7 @@ export const XstageFiles = () => {
   const regularFiles = files.filter(f => !f.is_folder);
 
   return (
-    <div className="p-4 md:p-6 lg:p-8 space-y-6">
+    <div className="p-4 md:p-6 lg:p-8 space-y-6 pb-20">
       {/* Header */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-2">
