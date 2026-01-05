@@ -151,8 +151,11 @@ const studyNavigation = [
   { title: "Distraction Blocker", url: "/niranx/distraction-blocker", icon: Shield },
   { title: "Scheduler", url: "/niranx/scheduler", icon: Calendar },
   { title: "Labs", url: "/niranx/labs", icon: GraduationCap },
+  { title: "3D Virtual Labs", url: "/niranx/virtual-labs", icon: Zap },
+  { title: "AR Flashcards", url: "/niranx/ar-flashcards", icon: Eye },
   { title: "Exams", url: "/niranx/exams", icon: GraduationCap },
   { title: "Whiteboard", url: "/niranx/whiteboard", icon: PenTool },
+  { title: "Mind Map Builder", url: "/niranx/mind-maps", icon: Map },
 ];
 
 // Learning & Courses

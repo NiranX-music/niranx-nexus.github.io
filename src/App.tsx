@@ -242,6 +242,11 @@ import AIVoiceTutor from "./pages/AIVoiceTutor";
 import LearningStyleAnalyzer from "./pages/LearningStyleAnalyzer";
 import EssayGrader from "./pages/EssayGrader";
 
+// Phase 2: Immersive & Interactive Learning
+import VirtualLabs from "./pages/VirtualLabs";
+import ARFlashcards from "./pages/ARFlashcards";
+import MindMapBuilder from "./pages/MindMapBuilder";
+
 // Support Pages
 import Contact from "./pages/support/Contact";
 import HelpCentre from "./pages/support/HelpCentre";
@@ -512,6 +517,12 @@ const App = () => (
                           <Route path="/ai-voice-tutor" element={<AIVoiceTutor />} />
                           <Route path="/learning-style" element={<LearningStyleAnalyzer />} />
                           <Route path="/essay-grader" element={<EssayGrader />} />
+                          
+                          {/* Phase 2: Immersive & Interactive Learning */}
+                          <Route path="/virtual-labs" element={<VirtualLabs />} />
+                          <Route path="/ar-flashcards" element={<ARFlashcards />} />
+                          <Route path="/mind-maps" element={<MindMapBuilder />} />
+                          
                           <Route path="/ferqx" element={<FerqX />} />
                           <Route path="/integrations" element={<Integrations />} />
                           <Route path="/bytez-ai" element={<BytezAI />} />
