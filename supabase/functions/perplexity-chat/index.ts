@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, model = 'sonar' } = await req.json();
+    const { messages, model = 'sonar', stream = false, search_domain_filter, search_recency_filter } = await req.json();
     
     const PERPLEXITY_API_KEY = Deno.env.get('PERPLEXITY_API_KEY');
     if (!PERPLEXITY_API_KEY) {
@@ -20,23 +20,56 @@ serve(async (req) => {
 
     console.log('Calling Perplexity with model:', model);
 
+    const requestBody: Record<string, unknown> = {
+      model,
+      messages,
+      max_tokens: 4000,
+    };
+
+    // Add optional filters
+    if (search_domain_filter) {
+      requestBody.search_domain_filter = search_domain_filter;
+    }
+    if (search_recency_filter) {
+      requestBody.search_recency_filter = search_recency_filter;
+    }
+    if (stream) {
+      requestBody.stream = true;
+    }
+
     const response = await fetch('https://api.perplexity.ai/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${PERPLEXITY_API_KEY}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        model,
-        messages,
-        max_tokens: 4000,
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Perplexity API error:', response.status, errorText);
+      
+      if (response.status === 429) {
+        return new Response(
+          JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
+          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
       throw new Error(`Perplexity API error: ${response.status}`);
+    }
+
+    // Handle streaming
+    if (stream && response.body) {
+      return new Response(response.body, {
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+        },
+      });
     }
 
     const data = await response.json();
