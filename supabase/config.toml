@@ -145,3 +145,15 @@ verify_jwt = true
 [functions.analyze-experiment]
 verify_jwt = true
 
+[functions.ai-writing-assistant]
+verify_jwt = true
+
+[functions.smart-pdf-chat]
+verify_jwt = true
+
+[functions.ai-meeting-minutes]
+verify_jwt = true
+
+[functions.auto-study-planner]
+verify_jwt = true
+
