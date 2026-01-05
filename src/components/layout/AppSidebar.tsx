@@ -72,6 +72,10 @@ import {
   Server,
   Plug,
   Database,
+  Mic,
+  FileSearch,
+  CalendarClock,
+  Chrome,
 } from "lucide-react";
 import {
   Sidebar,
@@ -106,6 +110,8 @@ import { useClassroom } from "@/hooks/useClassroom";
 import { useXP } from "@/contexts/XPContext";
 import * as LucideIcons from "lucide-react";
 import niranxLogo from '@/assets/niranx-logo.jpg';
+import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Core Navigation
 const coreNavigation = [
@@ -132,6 +138,8 @@ const aiCornerNavigation = [
   { title: "AI Library", url: "/ai-library", icon: Archive },
   { title: "Topic Map Generator", url: "/ai-topic-map-generator", icon: RouteIcon },
   { title: "AI Image Generator", url: "/lovable-image-gen", icon: Image },
+  { title: "Smart PDF Chat", url: "/smart-pdf-chat", icon: FileSearch },
+  { title: "AI Meeting Minutes", url: "/ai-meeting-minutes", icon: Mic },
 ];
 
 // AI Development
@@ -156,6 +164,7 @@ const studyNavigation = [
   { title: "Exams", url: "/exams", icon: GraduationCap },
   { title: "Whiteboard", url: "/whiteboard", icon: PenTool },
   { title: "Mind Map Builder", url: "/mind-maps", icon: Map },
+  { title: "Auto Study Planner", url: "/auto-study-planner", icon: CalendarClock },
 ];
 
 // Learning & Courses
@@ -218,6 +227,7 @@ const xstageNavigation = [
 const integrationsNavigation = [
   { title: "Integrations Hub", url: "/integrations", icon: Plug },
   { title: "FerqX Radio", url: "/integrations?tab=radio", icon: Radio },
+  { title: "Browser Extension", url: "/browser-extension-sync", icon: Chrome },
 ];
 
 // Media & Entertainment
@@ -342,16 +352,7 @@ const systemNavigation = [
 
 // Archive - Old Pages (includes old music)
 const archiveNavigation = [
-  { title: "NiranX Nexus AI", url: "/bytez-ai", icon: Sparkles },
-  { title: "Global Search", url: "/search", icon: Search },
-  { title: "Pomodoro", url: "/pomodoro", icon: Timer },
-  { title: "Smart Timetable", url: "/smart-timetable", icon: Calendar },
-  { title: "Library", url: "/library", icon: BookOpen },
-  // Old music pages
-  { title: "Listed Songs", url: "/music/listed-songs", icon: FileMusic },
-  { title: "Old Music Hub", url: "/music-hub", icon: FileMusic },
-  { title: "Old Music Library", url: "/music/library", icon: Headphones },
-  { title: "Listening Library", url: "/listening-library", icon: Headphones },
+  { title: "Old Pages Archive", url: "/old-pages", icon: Archive },
 ];
 
 // More Pages
@@ -359,9 +360,46 @@ const morePages = [
   { title: "Website Guide", url: "/guide", icon: BookOpen },
   { title: "App Guide", url: "#", icon: HelpCircle, onClick: () => window.dispatchEvent(new Event("restart-guide")) },
   { title: "Sitemap", url: "/sitemap", icon: Map },
-  { title: "Old Pages", url: "/old-pages", icon: Archive },
   { title: "Feature Ideas", url: "/feature-suggestions", icon: Sparkles },
 ];
+
+// Animation variants
+const sidebarItemVariants = {
+  hidden: { opacity: 0, x: -20 },
+  visible: (i: number) => ({
+    opacity: 1,
+    x: 0,
+    transition: {
+      delay: i * 0.02,
+      duration: 0.3,
+      ease: "easeOut" as const,
+    },
+  }),
+  hover: {
+    x: 4,
+    transition: { duration: 0.2 },
+  },
+};
+
+const groupVariants = {
+  hidden: { opacity: 0, height: 0 },
+  visible: {
+    opacity: 1,
+    height: "auto",
+    transition: {
+      duration: 0.3,
+      ease: "easeOut" as const,
+      staggerChildren: 0.03,
+    },
+  },
+  exit: {
+    opacity: 0,
+    height: 0,
+    transition: {
+      duration: 0.2,
+    },
+  },
+};
 
 export function AppSidebar() {
   const { state } = useSidebar();
@@ -377,7 +415,7 @@ export function AppSidebar() {
   
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    favorites: false,
+    favorites: true,
     aiCorner: false,
     aiDevelopment: false,
     study: false,
@@ -462,61 +500,91 @@ export function AppSidebar() {
     );
   };
 
-  const renderNavItem = (item: any, showFavoriteButton = true) => {
+  const renderNavItem = (item: any, showFavoriteButton = true, index = 0) => {
     const Icon = item.icon;
     const external = (item as any).external;
     const itemIsFavorite = isFavorite(item.url);
+    const active = isActive(item.url);
     
     return (
-      <SidebarMenuItem key={item.url}>
-        <SidebarMenuButton asChild isActive={isActive(item.url)}>
-          {external ? (
-            <a 
-              href={item.url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center gap-2"
-            >
-              <Icon className="h-4 w-4" />
-              {!isCollapsed && (
-                <>
-                  <span className="flex-1">{item.title}</span>
-                  <ExternalLink className="h-3 w-3 opacity-50" />
-                </>
-              )}
-            </a>
-          ) : (
-            <NavLink to={item.url} className="flex items-center gap-2 group">
-              <Icon className="h-4 w-4" />
-              {!isCollapsed && (
-                <>
-                  <span className="flex-1">{item.title}</span>
-                  {showFavoriteButton && (
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        if (itemIsFavorite) {
-                          removeFavorite(item.url);
-                        } else {
-                          handleAddFavorite(item);
-                        }
-                      }}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      {itemIsFavorite ? (
-                        <StarOff className="h-3 w-3 text-yellow-500" />
-                      ) : (
-                        <Star className="h-3 w-3 text-muted-foreground hover:text-yellow-500" />
-                      )}
-                    </button>
-                  )}
-                </>
-              )}
-            </NavLink>
-          )}
-        </SidebarMenuButton>
-      </SidebarMenuItem>
+      <motion.div
+        key={item.url}
+        custom={index}
+        variants={sidebarItemVariants}
+        initial="hidden"
+        animate="visible"
+        whileHover="hover"
+      >
+        <SidebarMenuItem>
+          <SidebarMenuButton 
+            asChild 
+            isActive={active}
+            className={cn(
+              "group relative overflow-hidden transition-all duration-300",
+              active && "bg-gradient-to-r from-primary/20 to-transparent border-l-2 border-primary"
+            )}
+          >
+            {external ? (
+              <a 
+                href={item.url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-3"
+              >
+                <div className={cn(
+                  "p-1.5 rounded-lg transition-all duration-300",
+                  active ? "bg-primary/20 text-primary" : "text-muted-foreground group-hover:text-foreground"
+                )}>
+                  <Icon className="h-4 w-4" />
+                </div>
+                {!isCollapsed && (
+                  <>
+                    <span className="flex-1 font-medium">{item.title}</span>
+                    <ExternalLink className="h-3 w-3 opacity-50" />
+                  </>
+                )}
+              </a>
+            ) : (
+              <NavLink to={item.url} className="flex items-center gap-3">
+                <div className={cn(
+                  "p-1.5 rounded-lg transition-all duration-300",
+                  active ? "bg-primary/20 text-primary" : "text-muted-foreground group-hover:text-foreground group-hover:bg-muted/50"
+                )}>
+                  <Icon className="h-4 w-4" />
+                </div>
+                {!isCollapsed && (
+                  <>
+                    <span className={cn(
+                      "flex-1 font-medium transition-colors",
+                      active ? "text-primary" : "text-foreground/80 group-hover:text-foreground"
+                    )}>{item.title}</span>
+                    {showFavoriteButton && (
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (itemIsFavorite) {
+                            removeFavorite(item.url);
+                          } else {
+                            handleAddFavorite(item);
+                          }
+                        }}
+                        className="opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
+                      >
+                        {itemIsFavorite ? (
+                          <StarOff className="h-3.5 w-3.5 text-yellow-500" />
+                        ) : (
+                          <Star className="h-3.5 w-3.5 text-muted-foreground hover:text-yellow-500" />
+                        )}
+                      </button>
+                    )}
+                  </>
+                )}
+              </NavLink>
+            )}
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </motion.div>
     );
   };
 
@@ -524,176 +592,274 @@ export function AppSidebar() {
     title: string,
     items: any[],
     sectionKey: string,
-    icon?: React.ReactNode
+    icon?: React.ReactNode,
+    accentColor?: string
   ) => (
-    <SidebarGroup>
+    <SidebarGroup className="py-1">
       <Collapsible
         open={expandedSections[sectionKey]}
         onOpenChange={() => toggleSection(sectionKey)}
       >
         <CollapsibleTrigger className="w-full">
-          <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-sidebar-accent/50 rounded-md px-2 py-1.5 transition-colors">
-            <div className="flex items-center gap-2">
-              {icon}
-              {!isCollapsed && <span>{title}</span>}
-            </div>
-            {!isCollapsed && (
-              <ChevronDown
-                className={`h-4 w-4 transition-transform ${
-                  expandedSections[sectionKey] ? "rotate-180" : ""
-                }`}
-              />
-            )}
-          </SidebarGroupLabel>
+          <motion.div
+            whileHover={{ x: 2 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <SidebarGroupLabel className={cn(
+              "flex items-center justify-between cursor-pointer rounded-xl px-3 py-2.5 transition-all duration-300",
+              "hover:bg-gradient-to-r hover:from-muted/80 hover:to-transparent",
+              expandedSections[sectionKey] && "bg-muted/50"
+            )}>
+              <div className="flex items-center gap-3">
+                <div className={cn(
+                  "p-1.5 rounded-lg transition-all duration-300",
+                  expandedSections[sectionKey] ? "bg-primary/20 text-primary" : "text-muted-foreground"
+                )}>
+                  {icon}
+                </div>
+                {!isCollapsed && (
+                  <span className={cn(
+                    "font-semibold text-sm transition-colors",
+                    expandedSections[sectionKey] ? "text-foreground" : "text-muted-foreground"
+                  )}>{title}</span>
+                )}
+              </div>
+              {!isCollapsed && (
+                <motion.div
+                  animate={{ rotate: expandedSections[sectionKey] ? 180 : 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                </motion.div>
+              )}
+            </SidebarGroupLabel>
+          </motion.div>
         </CollapsibleTrigger>
-        <CollapsibleContent>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => renderNavItem(item))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </CollapsibleContent>
+        <AnimatePresence>
+          {expandedSections[sectionKey] && (
+            <CollapsibleContent forceMount>
+              <motion.div
+                variants={groupVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+              >
+                <SidebarGroupContent className="pl-2">
+                  <SidebarMenu>
+                    {items.map((item, index) => renderNavItem(item, true, index))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </motion.div>
+            </CollapsibleContent>
+          )}
+        </AnimatePresence>
       </Collapsible>
     </SidebarGroup>
   );
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border">
-      <SidebarHeader className="border-b border-sidebar-border p-4">
-        <div className="flex items-center gap-3">
-          <NavLink to="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-br from-primary to-accent p-0.5 flex-shrink-0">
-              <img src={niranxLogo} alt="NiranX" className="w-full h-full object-cover rounded-lg" />
-            </div>
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border/50 bg-gradient-to-b from-sidebar to-sidebar/95 backdrop-blur-xl">
+      <SidebarHeader className="border-b border-sidebar-border/50 p-4">
+        <motion.div 
+          className="flex items-center gap-3"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <NavLink to="/" className="flex items-center gap-3 group">
+            <motion.div 
+              className="w-11 h-11 rounded-2xl overflow-hidden bg-gradient-to-br from-primary via-accent to-primary p-0.5 flex-shrink-0 shadow-lg"
+              whileHover={{ scale: 1.05, rotate: 5 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <img src={niranxLogo} alt="NiranX" className="w-full h-full object-cover rounded-xl" />
+            </motion.div>
             {!isCollapsed && (
-              <div className="flex flex-col">
-                <span className="font-bold text-lg leading-tight">NiranX</span>
-                <span className="text-xs text-muted-foreground">StudyVerse</span>
-              </div>
+              <motion.div 
+                className="flex flex-col"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <span className="font-bold text-lg bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">NiranX</span>
+                <span className="text-xs text-muted-foreground font-medium">StudyVerse Pro</span>
+              </motion.div>
             )}
           </NavLink>
-        </div>
+        </motion.div>
         
         {!isCollapsed && (
-          <div className="mt-4">
+          <motion.div 
+            className="mt-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
             <XPDisplay />
-          </div>
+          </motion.div>
         )}
       </SidebarHeader>
 
-      <SidebarContent className="px-2">
+      <SidebarContent className="px-2 sidebar-scroll">
         {/* Search */}
         {!isCollapsed && (
-          <div className="p-2">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <motion.div 
+            className="p-2 pt-3"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <div className="relative group">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
               <Input
                 placeholder="Search pages..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 h-9 bg-sidebar-accent/50"
+                className="pl-9 h-10 bg-muted/30 border-muted/50 rounded-xl transition-all duration-300 focus:bg-background focus:shadow-lg focus:shadow-primary/10 focus:border-primary/50"
               />
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Search Results */}
-        {filteredNavItems && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Search Results</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {filteredNavItems.length > 0 ? (
-                  filteredNavItems.map((item) => renderNavItem(item))
-                ) : (
-                  <div className="px-3 py-2 text-sm text-muted-foreground">
-                    No results found
-                  </div>
-                )}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
+        <AnimatePresence>
+          {filteredNavItems && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+            >
+              <SidebarGroup>
+                <SidebarGroupLabel className="flex items-center gap-2 px-3">
+                  <Search className="h-4 w-4 text-primary" />
+                  <span className="font-semibold">Search Results</span>
+                  <Badge variant="secondary" className="ml-auto text-xs">{filteredNavItems.length}</Badge>
+                </SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {filteredNavItems.length > 0 ? (
+                      filteredNavItems.map((item, index) => renderNavItem(item, true, index))
+                    ) : (
+                      <div className="px-4 py-6 text-center">
+                        <p className="text-sm text-muted-foreground">No results found</p>
+                        <p className="text-xs text-muted-foreground/70 mt-1">Try different keywords</p>
+                      </div>
+                    )}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Favorites */}
         {!filteredNavItems && favorites.length > 0 && (
-          <SidebarGroup>
+          <SidebarGroup className="py-1">
             <Collapsible
               open={expandedSections.favorites}
               onOpenChange={() => toggleSection("favorites")}
             >
               <CollapsibleTrigger className="w-full">
-                <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-sidebar-accent/50 rounded-md px-2 py-1.5 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <Star className="h-4 w-4 text-yellow-500" />
-                    {!isCollapsed && <span>Favorites</span>}
-                  </div>
-                  {!isCollapsed && (
-                    <ChevronDown
-                      className={`h-4 w-4 transition-transform ${
-                        expandedSections.favorites ? "rotate-180" : ""
-                      }`}
-                    />
-                  )}
-                </SidebarGroupLabel>
+                <motion.div whileHover={{ x: 2 }} whileTap={{ scale: 0.98 }}>
+                  <SidebarGroupLabel className="flex items-center justify-between cursor-pointer rounded-xl px-3 py-2.5 hover:bg-gradient-to-r hover:from-yellow-500/10 hover:to-transparent transition-all duration-300">
+                    <div className="flex items-center gap-3">
+                      <div className="p-1.5 rounded-lg bg-yellow-500/20 text-yellow-500">
+                        <Star className="h-4 w-4" />
+                      </div>
+                      {!isCollapsed && <span className="font-semibold text-sm">Favorites</span>}
+                    </div>
+                    {!isCollapsed && (
+                      <motion.div
+                        animate={{ rotate: expandedSections.favorites ? 180 : 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                      </motion.div>
+                    )}
+                  </SidebarGroupLabel>
+                </motion.div>
               </CollapsibleTrigger>
-              <CollapsibleContent>
-                <SidebarGroupContent>
-                  <DraggableFavorites
-                    favorites={favorites}
-                    navItems={allNavItems}
-                    onReorder={reorderFavorites}
-                    onRemove={removeFavorite}
-                    currentPath={currentPath}
-                  />
-                </SidebarGroupContent>
-              </CollapsibleContent>
+              <AnimatePresence>
+                {expandedSections.favorites && (
+                  <CollapsibleContent forceMount>
+                    <motion.div
+                      variants={groupVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                    >
+                      <SidebarGroupContent className="pl-2">
+                        <DraggableFavorites
+                          favorites={favorites}
+                          navItems={allNavItems}
+                          onReorder={reorderFavorites}
+                          onRemove={removeFavorite}
+                          currentPath={currentPath}
+                        />
+                      </SidebarGroupContent>
+                    </motion.div>
+                  </CollapsibleContent>
+                )}
+              </AnimatePresence>
             </Collapsible>
           </SidebarGroup>
         )}
 
         {/* Quick Links */}
         {!filteredNavItems && quickLinks.length > 0 && (
-          <SidebarGroup>
-            <SidebarGroupLabel className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Link2 className="h-4 w-4" />
-                {!isCollapsed && <span>Quick Links</span>}
+          <SidebarGroup className="py-1">
+            <SidebarGroupLabel className="flex items-center justify-between px-3 py-2.5">
+              <div className="flex items-center gap-3">
+                <div className="p-1.5 rounded-lg bg-accent/20 text-accent">
+                  <Link2 className="h-4 w-4" />
+                </div>
+                {!isCollapsed && <span className="font-semibold text-sm">Quick Links</span>}
               </div>
               {!isCollapsed && <AddQuickLinkDialog onAdd={addQuickLink} />}
             </SidebarGroupLabel>
-            <SidebarGroupContent>
+            <SidebarGroupContent className="pl-2">
               <SidebarMenu>
-                {quickLinks.map((link) => {
+                {quickLinks.map((link, index) => {
                   const IconComponent = getLucideIcon(link.icon_name);
                   return (
-                    <SidebarMenuItem key={link.id}>
-                      <SidebarMenuButton asChild>
-                        <a
-                          href={link.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 group"
-                        >
-                          <IconComponent className="h-4 w-4" />
-                          {!isCollapsed && (
-                            <>
-                              <span className="flex-1 truncate">{link.title}</span>
-                              <button
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  removeQuickLink(link.id);
-                                }}
-                                className="opacity-0 group-hover:opacity-100 transition-opacity"
-                              >
-                                <StarOff className="h-3 w-3 text-muted-foreground hover:text-red-500" />
-                              </button>
-                            </>
-                          )}
-                        </a>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
+                    <motion.div
+                      key={link.id}
+                      custom={index}
+                      variants={sidebarItemVariants}
+                      initial="hidden"
+                      animate="visible"
+                      whileHover="hover"
+                    >
+                      <SidebarMenuItem>
+                        <SidebarMenuButton asChild className="group">
+                          <a
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-3"
+                          >
+                            <div className="p-1.5 rounded-lg text-muted-foreground group-hover:text-foreground group-hover:bg-muted/50 transition-all">
+                              <IconComponent className="h-4 w-4" />
+                            </div>
+                            {!isCollapsed && (
+                              <>
+                                <span className="flex-1 truncate font-medium">{link.title}</span>
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    removeQuickLink(link.id);
+                                  }}
+                                  className="opacity-0 group-hover:opacity-100 transition-all hover:scale-110"
+                                >
+                                  <StarOff className="h-3.5 w-3.5 text-muted-foreground hover:text-red-500" />
+                                </button>
+                              </>
+                            )}
+                          </a>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    </motion.div>
                   );
                 })}
               </SidebarMenu>
@@ -704,16 +870,16 @@ export function AppSidebar() {
         {/* Core Navigation */}
         {!filteredNavItems && (
           <>
-            <SidebarGroup>
-              <SidebarGroupLabel>
-                <div className="flex items-center gap-2">
+            <SidebarGroup className="py-1">
+              <SidebarGroupLabel className="flex items-center gap-3 px-3 py-2.5">
+                <div className="p-1.5 rounded-lg bg-primary/20 text-primary">
                   <Home className="h-4 w-4" />
-                  {!isCollapsed && <span>Core</span>}
                 </div>
+                {!isCollapsed && <span className="font-semibold text-sm">Core</span>}
               </SidebarGroupLabel>
-              <SidebarGroupContent>
+              <SidebarGroupContent className="pl-2">
                 <SidebarMenu>
-                  {coreNavigation.map((item) => renderNavItem(item))}
+                  {coreNavigation.map((item, index) => renderNavItem(item, true, index))}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
@@ -741,42 +907,69 @@ export function AppSidebar() {
             
             {/* My Classes */}
             {classrooms.length > 0 && (
-              <SidebarGroup>
+              <SidebarGroup className="py-1">
                 <Collapsible
                   open={expandedSections.liveClasses}
                   onOpenChange={() => toggleSection("liveClasses")}
                 >
                   <CollapsibleTrigger className="w-full">
-                    <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-sidebar-accent/50 rounded-md px-2 py-1.5 transition-colors">
-                      <div className="flex items-center gap-2">
-                        <GraduationCap className="h-4 w-4" />
-                        {!isCollapsed && <span>My Classes</span>}
-                      </div>
-                      {!isCollapsed && (
-                        <ChevronDown
-                          className={`h-4 w-4 transition-transform ${
-                            expandedSections.liveClasses ? "rotate-180" : ""
-                          }`}
-                        />
-                      )}
-                    </SidebarGroupLabel>
+                    <motion.div whileHover={{ x: 2 }} whileTap={{ scale: 0.98 }}>
+                      <SidebarGroupLabel className="flex items-center justify-between cursor-pointer rounded-xl px-3 py-2.5 hover:bg-muted/50 transition-all">
+                        <div className="flex items-center gap-3">
+                          <div className="p-1.5 rounded-lg bg-success/20 text-success">
+                            <GraduationCap className="h-4 w-4" />
+                          </div>
+                          {!isCollapsed && <span className="font-semibold text-sm">My Classes</span>}
+                        </div>
+                        {!isCollapsed && (
+                          <motion.div
+                            animate={{ rotate: expandedSections.liveClasses ? 180 : 0 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                          </motion.div>
+                        )}
+                      </SidebarGroupLabel>
+                    </motion.div>
                   </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <SidebarGroupContent>
-                      <SidebarMenu>
-                        {classrooms.map((classroom) => (
-                          <SidebarMenuItem key={classroom.id}>
-                            <SidebarMenuButton asChild isActive={isActive(`/teacher/classrooms/${classroom.id}`)}>
-                              <NavLink to={`/teacher/classrooms/${classroom.id}`} className="flex items-center gap-2">
-                                <BookOpen className="h-4 w-4" />
-                                {!isCollapsed && <span className="truncate">{classroom.name}</span>}
-                              </NavLink>
-                            </SidebarMenuButton>
-                          </SidebarMenuItem>
-                        ))}
-                      </SidebarMenu>
-                    </SidebarGroupContent>
-                  </CollapsibleContent>
+                  <AnimatePresence>
+                    {expandedSections.liveClasses && (
+                      <CollapsibleContent forceMount>
+                        <motion.div
+                          variants={groupVariants}
+                          initial="hidden"
+                          animate="visible"
+                          exit="exit"
+                        >
+                          <SidebarGroupContent className="pl-2">
+                            <SidebarMenu>
+                              {classrooms.map((classroom, index) => (
+                                <motion.div
+                                  key={classroom.id}
+                                  custom={index}
+                                  variants={sidebarItemVariants}
+                                  initial="hidden"
+                                  animate="visible"
+                                  whileHover="hover"
+                                >
+                                  <SidebarMenuItem>
+                                    <SidebarMenuButton asChild isActive={isActive(`/teacher/classrooms/${classroom.id}`)}>
+                                      <NavLink to={`/teacher/classrooms/${classroom.id}`} className="flex items-center gap-3">
+                                        <div className="p-1.5 rounded-lg text-muted-foreground">
+                                          <BookOpen className="h-4 w-4" />
+                                        </div>
+                                        {!isCollapsed && <span className="truncate font-medium">{classroom.name}</span>}
+                                      </NavLink>
+                                    </SidebarMenuButton>
+                                  </SidebarMenuItem>
+                                </motion.div>
+                              ))}
+                            </SidebarMenu>
+                          </SidebarGroupContent>
+                        </motion.div>
+                      </CollapsibleContent>
+                    )}
+                  </AnimatePresence>
                 </Collapsible>
               </SidebarGroup>
             )}
@@ -794,16 +987,33 @@ export function AppSidebar() {
         )}
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border p-2">
+      <SidebarFooter className="border-t border-sidebar-border/50 p-3">
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive("/settings")}>
-              <NavLink to="/settings" className="flex items-center gap-2">
-                <Settings className="h-4 w-4" />
-                {!isCollapsed && <span>Settings</span>}
-              </NavLink>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          <motion.div
+            whileHover={{ x: 4 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <SidebarMenuItem>
+              <SidebarMenuButton 
+                asChild 
+                isActive={isActive("/settings")}
+                className={cn(
+                  "rounded-xl transition-all duration-300",
+                  isActive("/settings") && "bg-gradient-to-r from-primary/20 to-transparent"
+                )}
+              >
+                <NavLink to="/settings" className="flex items-center gap-3">
+                  <div className={cn(
+                    "p-1.5 rounded-lg transition-all",
+                    isActive("/settings") ? "bg-primary/20 text-primary" : "text-muted-foreground"
+                  )}>
+                    <Settings className="h-4 w-4" />
+                  </div>
+                  {!isCollapsed && <span className="font-medium">Settings</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </motion.div>
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
