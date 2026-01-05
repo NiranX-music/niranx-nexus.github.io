@@ -11,7 +11,7 @@ export default function AISolverWidget() {
 
   return (
     <Button
-      onClick={() => navigate("/niranx/ai-corner")}
+      onClick={() => navigate("/ai-corner")}
       className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg z-50 bg-gradient-to-br from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 transition-all duration-300 hover:scale-110"
       size="icon"
       title="AI Corner"

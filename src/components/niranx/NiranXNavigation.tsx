@@ -55,13 +55,13 @@ export function NiranXNavigation() {
           <div className="hidden md:flex items-center space-x-4">
             <Button
               variant="ghost"
-              onClick={() => navigate('/niranx/auth')}
+              onClick={() => navigate('/auth')}
               className="text-muted-foreground hover:text-foreground"
             >
               Sign In
             </Button>
             <Button
-              onClick={() => navigate('/niranx/dashboard')}
+              onClick={() => navigate('/dashboard')}
               className="bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90"
             >
               Enter Nexus
@@ -98,14 +98,14 @@ export function NiranXNavigation() {
                   </Link>
                 ))}
                 <Button
-                  onClick={() => { navigate('/niranx/auth'); setIsOpen(false); }}
+                  onClick={() => { navigate('/auth'); setIsOpen(false); }}
                   variant="outline"
                   className="w-full"
                 >
                   Sign In
                 </Button>
                 <Button
-                  onClick={() => { navigate('/niranx/dashboard'); setIsOpen(false); }}
+                  onClick={() => { navigate('/dashboard'); setIsOpen(false); }}
                   className="w-full bg-gradient-to-r from-primary to-accent"
                 >
                   Enter Nexus
