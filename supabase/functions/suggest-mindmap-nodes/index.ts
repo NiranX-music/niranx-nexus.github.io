@@ -57,7 +57,25 @@ Suggest 5 new related concepts for this mind map.`;
           { role: 'user', content: userPrompt },
         ],
       };
+    } else if (provider === 'openai-direct') {
+      apiUrl = 'https://api.openai.com/v1/chat/completions';
+      const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+      if (!OPENAI_API_KEY) {
+        throw new Error('OPENAI_API_KEY is not configured');
+      }
+      headers = {
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
+      };
+      body = {
+        model: model || 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ],
+      };
     } else {
+      // OpenRouter or other providers
       apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
       const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
       if (!OPENROUTER_API_KEY) {
@@ -66,6 +84,8 @@ Suggest 5 new related concepts for this mind map.`;
       headers = {
         'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://niranx.lovable.app',
+        'X-Title': 'NiranX Mind Map Builder',
       };
       body = {
         model: model || 'openai/gpt-4o-mini',
@@ -76,7 +96,7 @@ Suggest 5 new related concepts for this mind map.`;
       };
     }
 
-    console.log(`Mind map suggestion with provider: ${provider}`);
+    console.log(`Mind map suggestion with provider: ${provider}, model: ${body.model}`);
 
     const response = await fetch(apiUrl, {
       method: 'POST',
@@ -87,6 +107,20 @@ Suggest 5 new related concepts for this mind map.`;
     if (!response.ok) {
       const errorText = await response.text();
       console.error('AI API error:', response.status, errorText);
+      
+      if (response.status === 429) {
+        return new Response(
+          JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
+          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      if (response.status === 402) {
+        return new Response(
+          JSON.stringify({ error: 'Payment required. Please add credits to your account.' }),
+          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
       throw new Error(`AI API error: ${response.status}`);
     }
 

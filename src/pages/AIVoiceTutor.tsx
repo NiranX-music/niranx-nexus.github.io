@@ -181,7 +181,13 @@ export default function AIVoiceTutor() {
       }
     } catch (error: any) {
       console.error('Chat error:', error);
-      toast.error(error.message || 'Failed to get response');
+      if (error.message?.includes('429') || error.message?.includes('Rate limit')) {
+        toast.error('Rate limit exceeded. Please wait a moment and try again.');
+      } else if (error.message?.includes('402') || error.message?.includes('Payment')) {
+        toast.error('Credits exhausted. Please add credits to continue.');
+      } else {
+        toast.error(error.message || 'Failed to get response');
+      }
     } finally {
       setIsLoading(false);
     }

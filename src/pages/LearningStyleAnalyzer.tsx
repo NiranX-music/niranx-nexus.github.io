@@ -213,7 +213,13 @@ export default function LearningStyleAnalyzer() {
       toast.success('Analysis complete!');
     } catch (error: any) {
       console.error('Analysis error:', error);
-      toast.error(error.message || 'Failed to analyze learning style');
+      if (error.message?.includes('429') || error.message?.includes('Rate limit')) {
+        toast.error('Rate limit exceeded. Please wait a moment and try again.');
+      } else if (error.message?.includes('402') || error.message?.includes('Payment')) {
+        toast.error('Credits exhausted. Please add credits to continue.');
+      } else {
+        toast.error(error.message || 'Failed to analyze learning style');
+      }
     } finally {
       setIsAnalyzing(false);
     }

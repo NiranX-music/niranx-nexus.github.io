@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { AIProviderSelector, useAIProvider } from "@/components/ai/AIProviderSelector";
 
 interface MindMapNode {
   id: string;
@@ -52,6 +53,7 @@ export default function MindMapBuilder() {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const { toast } = useToast();
+  const { provider, model, setProvider, setModel } = useAIProvider('mind-map');
 
   const addNode = useCallback((label: string, category?: string, color?: string) => {
     const centerNode = nodes.find(n => n.id === "center");
@@ -124,18 +126,33 @@ export default function MindMapBuilder() {
         body: {
           centralTopic: centerNode.label,
           existingNodes: nodes,
-          provider: 'lovable',
+          provider,
+          model,
         },
       });
 
       if (error) throw error;
       setSuggestions(data.suggestions || []);
     } catch (error: any) {
-      toast({ 
-        title: "Failed to get suggestions", 
-        description: error.message,
-        variant: "destructive" 
-      });
+      if (error.message?.includes('429') || error.message?.includes('Rate limit')) {
+        toast({ 
+          title: "Rate limit exceeded", 
+          description: "Please wait a moment and try again.",
+          variant: "destructive" 
+        });
+      } else if (error.message?.includes('402') || error.message?.includes('Payment')) {
+        toast({ 
+          title: "Credits exhausted", 
+          description: "Please add credits to continue.",
+          variant: "destructive" 
+        });
+      } else {
+        toast({ 
+          title: "Failed to get suggestions", 
+          description: error.message,
+          variant: "destructive" 
+        });
+      }
     } finally {
       setIsLoadingSuggestions(false);
     }
