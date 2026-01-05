@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { AIProviderSelector, useAIProvider } from "@/components/ai/AIProviderSelector";
 
 interface LabExperiment {
   id: string;
@@ -78,6 +79,7 @@ export default function VirtualLabs() {
   const [aiFeedback, setAiFeedback] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const { toast } = useToast();
+  const { provider, model, setProvider, setModel } = useAIProvider('virtual-labs');
 
   const experiments = selectedLab === "chemistry" ? chemistryExperiments : physicsExperiments;
 
@@ -154,23 +156,37 @@ export default function VirtualLabs() {
     try {
       const { data, error } = await supabase.functions.invoke('analyze-experiment', {
         body: {
-          labType: selectedLab,
-          experimentName: selectedExperiment.name,
-          variables,
+          experimentType: selectedExperiment.id,
+          experimentData: { ...variables, results },
           observations,
-          provider: 'lovable',
+          provider,
+          model,
         },
       });
 
       if (error) throw error;
-      setAiFeedback(data.feedback);
+      setAiFeedback(data);
       toast({ title: "Analysis complete!", description: "AI feedback is ready" });
     } catch (error: any) {
-      toast({ 
-        title: "Analysis failed", 
-        description: error.message,
-        variant: "destructive" 
-      });
+      if (error.message?.includes('429') || error.message?.includes('Rate limit')) {
+        toast({ 
+          title: "Rate limit exceeded", 
+          description: "Please wait a moment and try again.",
+          variant: "destructive" 
+        });
+      } else if (error.message?.includes('402') || error.message?.includes('Payment')) {
+        toast({ 
+          title: "Credits exhausted", 
+          description: "Please add credits to continue.",
+          variant: "destructive" 
+        });
+      } else {
+        toast({ 
+          title: "Analysis failed", 
+          description: error.message,
+          variant: "destructive" 
+        });
+      }
     } finally {
       setIsAnalyzing(false);
     }

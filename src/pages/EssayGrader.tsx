@@ -116,7 +116,13 @@ export default function EssayGrader() {
       toast.success('Essay graded successfully!');
     } catch (error: any) {
       console.error('Grading error:', error);
-      toast.error(error.message || 'Failed to grade essay');
+      if (error.message?.includes('429') || error.message?.includes('Rate limit')) {
+        toast.error('Rate limit exceeded. Please wait a moment and try again.');
+      } else if (error.message?.includes('402') || error.message?.includes('Payment')) {
+        toast.error('Credits exhausted. Please add credits to continue.');
+      } else {
+        toast.error(error.message || 'Failed to grade essay');
+      }
     } finally {
       setIsGrading(false);
     }
