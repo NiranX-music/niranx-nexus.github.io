@@ -3,10 +3,10 @@ import { Home, CheckSquare, Timer, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navigationItems = [
-  { title: "Dashboard", url: "/niranx/dashboard", icon: Home },
-  { title: "Tasks", url: "/niranx/tasks", icon: CheckSquare },
-  { title: "Focus", url: "/niranx/focus-engine", icon: Timer },
-  { title: "Profile", url: "/niranx/profile", icon: User },
+  { title: "Dashboard", url: "/dashboard", icon: Home },
+  { title: "Tasks", url: "/tasks", icon: CheckSquare },
+  { title: "Focus", url: "/focus-engine", icon: Timer },
+  { title: "Profile", url: "/profile", icon: User },
 ];
 
 export function MobileBottomNav() {

@@ -33,18 +33,18 @@ interface DockItem {
 }
 
 const dockItems: DockItem[] = [
-  { id: 'ai-chat', label: 'AI Chat', icon: Brain, route: '/niranx/ai-chat', color: 'text-primary' },
-  { id: 'tasks', label: 'Tasks', icon: CheckSquare, route: '/niranx/tasks', color: 'text-accent' },
-  { id: 'focus', label: 'Focus Engine', icon: Flame, route: '/niranx/focus-engine', color: 'text-orange-500' },
-  { id: 'timer', label: 'Pomodoro', icon: Timer, route: '/niranx/pomodoro', color: 'text-red-500' },
-  { id: 'analytics', label: 'Analytics', icon: BarChart3, route: '/niranx/analytics', color: 'text-blue-500' },
-  { id: 'music', label: 'Music', icon: Music, route: '/niranx/music', color: 'text-purple-500' },
-  { id: 'debates', label: 'Debates', icon: MessageCircle, route: '/niranx/debates', color: 'text-cyan-500' },
-  { id: 'scheduler', label: 'Scheduler', icon: Calendar, route: '/niranx/class-scheduler', color: 'text-green-500' },
-  { id: 'labs', label: 'Labs', icon: GraduationCap, route: '/niranx/labs', color: 'text-yellow-500' },
-  { id: 'leaderboard', label: 'Leaderboard', icon: Trophy, route: '/niranx/leaderboard', color: 'text-amber-500' },
-  { id: 'guilds', label: 'Guilds', icon: Users, route: '/niranx/guilds', color: 'text-indigo-500' },
-  { id: 'challenges', label: 'Challenges', icon: Zap, route: '/niranx/daily-challenges', color: 'text-pink-500' },
+  { id: 'ai-chat', label: 'AI Chat', icon: Brain, route: '/ai-chat', color: 'text-primary' },
+  { id: 'tasks', label: 'Tasks', icon: CheckSquare, route: '/tasks', color: 'text-accent' },
+  { id: 'focus', label: 'Focus Engine', icon: Flame, route: '/focus-engine', color: 'text-orange-500' },
+  { id: 'timer', label: 'Pomodoro', icon: Timer, route: '/pomodoro', color: 'text-red-500' },
+  { id: 'analytics', label: 'Analytics', icon: BarChart3, route: '/analytics', color: 'text-blue-500' },
+  { id: 'music', label: 'Music', icon: Music, route: '/music', color: 'text-purple-500' },
+  { id: 'debates', label: 'Debates', icon: MessageCircle, route: '/debates', color: 'text-cyan-500' },
+  { id: 'scheduler', label: 'Scheduler', icon: Calendar, route: '/class-scheduler', color: 'text-green-500' },
+  { id: 'labs', label: 'Labs', icon: GraduationCap, route: '/labs', color: 'text-yellow-500' },
+  { id: 'leaderboard', label: 'Leaderboard', icon: Trophy, route: '/leaderboard', color: 'text-amber-500' },
+  { id: 'guilds', label: 'Guilds', icon: Users, route: '/guilds', color: 'text-indigo-500' },
+  { id: 'challenges', label: 'Challenges', icon: Zap, route: '/daily-challenges', color: 'text-pink-500' },
 ];
 
 const MacDock = () => {

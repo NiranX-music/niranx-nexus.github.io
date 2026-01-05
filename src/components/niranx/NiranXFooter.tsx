@@ -43,7 +43,7 @@ export function NiranXFooter() {
               <Link to="/nexus" className="text-muted-foreground hover:text-foreground transition-colors text-sm">Nexus Portal</Link>
               <Link to="/songs" className="text-muted-foreground hover:text-foreground transition-colors text-sm">Songs</Link>
               <Link to="/xvibe" className="text-muted-foreground hover:text-foreground transition-colors text-sm">XVibe Music</Link>
-              <Link to="/niranx/dashboard" className="text-muted-foreground hover:text-foreground transition-colors text-sm">StudyVerse</Link>
+              <Link to="/dashboard" className="text-muted-foreground hover:text-foreground transition-colors text-sm">StudyVerse</Link>
             </nav>
           </div>
 
@@ -68,7 +68,7 @@ export function NiranXFooter() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => navigate('/niranx/auth')}
+              onClick={() => navigate('/auth')}
               className="text-xs"
             >
               <Mail className="w-3 h-3 mr-1" /> Admin Login

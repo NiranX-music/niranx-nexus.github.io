@@ -310,14 +310,14 @@ const App = () => (
                         <Route path="/" element={<Landing />} />
                         <Route path="/nexus" element={<Nexus />} />
                         <Route path="/songs" element={<Songs />} />
-                        <Route path="/niranx/auth" element={<Auth />} />
-                        <Route path="/niranx/reset-password" element={<ResetPassword />} />
-                        <Route path="/niranx/magic-link" element={<MagicLink />} />
-                        <Route path="/niranx/confirm-signup" element={<ConfirmSignup />} />
-                        <Route path="/niranx/invite-user" element={<InviteUser />} />
-                        <Route path="/niranx/reauthentication" element={<Reauthentication />} />
+                        <Route path="/auth" element={<Auth />} />
+                        <Route path="/reset-password" element={<ResetPassword />} />
+                        <Route path="/magic-link" element={<MagicLink />} />
+                        <Route path="/confirm-signup" element={<ConfirmSignup />} />
+                        <Route path="/invite-user" element={<InviteUser />} />
+                        <Route path="/reauthentication" element={<Reauthentication />} />
                         <Route
-                          path="/niranx/backblaze-storage"
+                          path="/backblaze-storage"
                           element={
                             <AppLayout>
                               <BackblazeStorage />
@@ -325,7 +325,7 @@ const App = () => (
                           }
                         />
                         <Route
-                          path="/niranx/fluxapi-image"
+                          path="/fluxapi-image"
                           element={
                             <AppLayout>
                               <FluxAPIImageGen />
@@ -333,7 +333,7 @@ const App = () => (
                           }
                         />
                         <Route
-                          path="/niranx/deepseek-chat"
+                          path="/deepseek-chat"
                           element={
                             <AppLayout>
                               <DeepSeekChat />
@@ -341,7 +341,7 @@ const App = () => (
                           }
                         />
                         <Route
-                          path="/niranx/lovable-image-gen"
+                          path="/lovable-image-gen"
                           element={
                             <AppLayout>
                               <LovableImageGen />
@@ -349,7 +349,7 @@ const App = () => (
                           }
                         />
                         <Route
-                          path="/niranx/*"
+                          path="/*"
                           element={
                             <AppLayout>
                               <Routes>
@@ -667,31 +667,31 @@ const App = () => (
                         </AppLayout>
                       } />
                     
-                    {/* XVibe Music Platform Routes - with /niranx/xvibe/ prefix */}
-                    <Route path="/niranx/xvibe" element={<XVibeLayout><XVibeLanding /></XVibeLayout>} />
-                    <Route path="/niranx/xvibe/auth" element={<XVibeLayout><XVibeAuth /></XVibeLayout>} />
-                    <Route path="/niranx/xvibe/onboarding" element={<XVibeLayout><XVibeOnboarding /></XVibeLayout>} />
-                    <Route path="/niranx/xvibe/home" element={<XVibeLayout><XVibeHome /></XVibeLayout>} />
-                    <Route path="/niranx/xvibe/search" element={<XVibeLayout><XVibeSearch /></XVibeLayout>} />
-                    <Route path="/niranx/xvibe/library" element={<XVibeLayout><XVibeLibrary /></XVibeLayout>} />
-                    <Route path="/niranx/xvibe/artist/:artistId" element={<XVibeLayout><XVibeArtistPage /></XVibeLayout>} />
-                    <Route path="/niranx/xvibe/album/:albumId" element={<XVibeLayout><XVibeAlbumPage /></XVibeLayout>} />
-                    <Route path="/niranx/xvibe/playlist/:playlistId" element={<XVibeLayout><XVibePlaylistPage /></XVibeLayout>} />
-                    <Route path="/niranx/xvibe/artist-dashboard" element={<XVibeLayout><XVibeArtistDashboard /></XVibeLayout>} />
-                    <Route path="/niranx/xvibe/upload" element={<XVibeLayout><XVibeUpload /></XVibeLayout>} />
-                    <Route path="/niranx/xvibe/artist-register" element={<XVibeLayout><XVibeArtistRegister /></XVibeLayout>} />
-                    <Route path="/niranx/xvibe/moderation" element={<XVibeLayout><XVibeModeration /></XVibeLayout>} />
-                    <Route path="/niranx/xvibe/releases" element={<XVibeLayout><XVibeReleaseDashboard /></XVibeLayout>} />
-                    <Route path="/niranx/xvibe/releases/:releaseId" element={<XVibeLayout><XVibeReleaseEditor /></XVibeLayout>} />
-                    <Route path="/niranx/xvibe/admin" element={<XVibeLayout><XVibeAdminDashboard /></XVibeLayout>} />
-                    <Route path="/niranx/xvibe/song/:songId" element={<XVibeLayout><XWaveSongPage /></XVibeLayout>} />
-                    <Route path="/niranx/xvibe/blog/new" element={<XVibeLayout><XWaveBlogEditor /></XVibeLayout>} />
-                    <Route path="/niranx/xvibe/blog/:blogId" element={<XVibeLayout><XWaveBlogEditor /></XVibeLayout>} />
-                    <Route path="/niranx/xvibe/editor" element={<XVibeLayout><XWaveEditorDashboard /></XVibeLayout>} />
+                    {/* XVibe Music Platform Routes */}
+                    <Route path="/xvibe" element={<XVibeLayout><XVibeLanding /></XVibeLayout>} />
+                    <Route path="/xvibe/auth" element={<XVibeLayout><XVibeAuth /></XVibeLayout>} />
+                    <Route path="/xvibe/onboarding" element={<XVibeLayout><XVibeOnboarding /></XVibeLayout>} />
+                    <Route path="/xvibe/home" element={<XVibeLayout><XVibeHome /></XVibeLayout>} />
+                    <Route path="/xvibe/search" element={<XVibeLayout><XVibeSearch /></XVibeLayout>} />
+                    <Route path="/xvibe/library" element={<XVibeLayout><XVibeLibrary /></XVibeLayout>} />
+                    <Route path="/xvibe/artist/:artistId" element={<XVibeLayout><XVibeArtistPage /></XVibeLayout>} />
+                    <Route path="/xvibe/album/:albumId" element={<XVibeLayout><XVibeAlbumPage /></XVibeLayout>} />
+                    <Route path="/xvibe/playlist/:playlistId" element={<XVibeLayout><XVibePlaylistPage /></XVibeLayout>} />
+                    <Route path="/xvibe/artist-dashboard" element={<XVibeLayout><XVibeArtistDashboard /></XVibeLayout>} />
+                    <Route path="/xvibe/upload" element={<XVibeLayout><XVibeUpload /></XVibeLayout>} />
+                    <Route path="/xvibe/artist-register" element={<XVibeLayout><XVibeArtistRegister /></XVibeLayout>} />
+                    <Route path="/xvibe/moderation" element={<XVibeLayout><XVibeModeration /></XVibeLayout>} />
+                    <Route path="/xvibe/releases" element={<XVibeLayout><XVibeReleaseDashboard /></XVibeLayout>} />
+                    <Route path="/xvibe/releases/:releaseId" element={<XVibeLayout><XVibeReleaseEditor /></XVibeLayout>} />
+                    <Route path="/xvibe/admin" element={<XVibeLayout><XVibeAdminDashboard /></XVibeLayout>} />
+                    <Route path="/xvibe/song/:songId" element={<XVibeLayout><XWaveSongPage /></XVibeLayout>} />
+                    <Route path="/xvibe/blog/new" element={<XVibeLayout><XWaveBlogEditor /></XVibeLayout>} />
+                    <Route path="/xvibe/blog/:blogId" element={<XVibeLayout><XWaveBlogEditor /></XVibeLayout>} />
+                    <Route path="/xvibe/editor" element={<XVibeLayout><XWaveEditorDashboard /></XVibeLayout>} />
                     
                     {/* Xstage Music Collaboration Platform Routes */}
-                    <Route path="/niranx/xstage" element={<XstageLanding />} />
-                    <Route path="/niranx/xstage/*" element={<XstageLayout />}>
+                    <Route path="/xstage" element={<XstageLanding />} />
+                    <Route path="/xstage/*" element={<XstageLayout />}>
                       <Route path="app" element={<XstageDashboard />} />
                       <Route path="app/calendar" element={<XstageCalendar />} />
                       <Route path="app/chat" element={<XstageChat />} />
