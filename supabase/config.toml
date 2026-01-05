@@ -127,3 +127,15 @@ verify_jwt = false
 [functions.bytez-chat]
 verify_jwt = true
 
+[functions.elevenlabs-tts]
+verify_jwt = false
+
+[functions.voice-tutor-chat]
+verify_jwt = true
+
+[functions.analyze-learning-style]
+verify_jwt = true
+
+[functions.grade-essay]
+verify_jwt = true
+
