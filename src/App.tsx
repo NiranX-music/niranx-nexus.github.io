@@ -268,6 +268,13 @@ import CodePlayground from "./pages/CodePlayground";
 import VocabularyBuilder from "./pages/VocabularyBuilder";
 import ProgressJournal from "./pages/ProgressJournal";
 import StudyTimerAnalytics from "./pages/StudyTimerAnalytics";
+import MathSolver from "./pages/MathSolver";
+import LectureTranscriber from "./pages/LectureTranscriber";
+import FlashcardGenerator from "./pages/FlashcardGenerator";
+import GradeCalculator from "./pages/GradeCalculator";
+import ReadingTrainer from "./pages/ReadingTrainer";
+import ExamSimulator from "./pages/ExamSimulator";
+import ConceptExplainer from "./pages/ConceptExplainer";
 
 // Support Pages
 import Contact from "./pages/support/Contact";
@@ -566,6 +573,13 @@ const App = () => (
                           <Route path="/vocabulary-builder" element={<VocabularyBuilder />} />
                           <Route path="/progress-journal" element={<ProgressJournal />} />
                           <Route path="/study-timer" element={<StudyTimerAnalytics />} />
+                          <Route path="/math-solver" element={<MathSolver />} />
+                          <Route path="/lecture-transcriber" element={<LectureTranscriber />} />
+                          <Route path="/flashcard-generator" element={<FlashcardGenerator />} />
+                          <Route path="/grade-calculator" element={<GradeCalculator />} />
+                          <Route path="/reading-trainer" element={<ReadingTrainer />} />
+                          <Route path="/exam-simulator" element={<ExamSimulator />} />
+                          <Route path="/concept-explainer" element={<ConceptExplainer />} />
                           
                           <Route path="/ferqx" element={<FerqX />} />
                           <Route path="/integrations" element={<Integrations />} />
