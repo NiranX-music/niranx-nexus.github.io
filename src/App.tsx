@@ -237,6 +237,11 @@ import DocumentScanner from "./pages/DocumentScanner";
 import FocusSounds from "./pages/FocusSounds";
 import EmailReports from "./pages/settings/EmailReports";
 
+// Phase 1: AI Voice & Interactive Learning
+import AIVoiceTutor from "./pages/AIVoiceTutor";
+import LearningStyleAnalyzer from "./pages/LearningStyleAnalyzer";
+import EssayGrader from "./pages/EssayGrader";
+
 // Support Pages
 import Contact from "./pages/support/Contact";
 import HelpCentre from "./pages/support/HelpCentre";
@@ -502,6 +507,11 @@ const App = () => (
                           <Route path="/document-scanner" element={<DocumentScanner />} />
                           <Route path="/focus-sounds" element={<FocusSounds />} />
                           <Route path="/settings/email-reports" element={<EmailReports />} />
+                          
+                          {/* Phase 1: AI Voice & Interactive Learning */}
+                          <Route path="/ai-voice-tutor" element={<AIVoiceTutor />} />
+                          <Route path="/learning-style" element={<LearningStyleAnalyzer />} />
+                          <Route path="/essay-grader" element={<EssayGrader />} />
                           <Route path="/ferqx" element={<FerqX />} />
                           <Route path="/integrations" element={<Integrations />} />
                           <Route path="/bytez-ai" element={<BytezAI />} />

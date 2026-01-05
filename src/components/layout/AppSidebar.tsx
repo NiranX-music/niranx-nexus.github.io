@@ -123,10 +123,12 @@ const coreNavigation = [
 // AI Corner
 const aiCornerNavigation = [
   { title: "AI Hub", url: "/niranx/ai-corner", icon: Sparkles },
+  { title: "AI Voice Tutor", url: "/niranx/ai-voice-tutor", icon: Volume2 },
   { title: "AI Solver", url: "/niranx/ai-solver", icon: Brain },
   { title: "AI Chat Hub", url: "/niranx/groq-chat", icon: Zap },
   { title: "Chat History", url: "/niranx/groq-chat-history", icon: ScrollText },
   { title: "PDF Summarizer", url: "/niranx/pdf-summarizer", icon: FileText },
+  { title: "Essay Grader", url: "/niranx/essay-grader", icon: FileText },
   { title: "AI Library", url: "/niranx/ai-library", icon: Archive },
   { title: "Topic Map Generator", url: "/niranx/ai-topic-map-generator", icon: RouteIcon },
   { title: "AI Image Generator", url: "/niranx/lovable-image-gen", icon: Image },
@@ -156,6 +158,7 @@ const studyNavigation = [
 // Learning & Courses
 const learningNavigation = [
   { title: "Course Generator", url: "/niranx/course-generator", icon: FileStack },
+  { title: "Learning Style Quiz", url: "/niranx/learning-style", icon: Brain },
   { title: "AI Study Path", url: "/niranx/study-path-generator", icon: RouteIcon },
   { title: "Study Rooms", url: "/niranx/study-rooms", icon: Radio },
   { title: "Study Groups", url: "/niranx/study-groups", icon: Users },
