@@ -260,6 +260,15 @@ import IntegrationHub from "./pages/IntegrationHub";
 import SpacedRepetition from "./pages/SpacedRepetition";
 import QuickNotes from "./pages/QuickNotes";
 
+// Additional Phase 1-4 Features
+import QuizGenerator from "./pages/QuizGenerator";
+import CitationGenerator from "./pages/CitationGenerator";
+import ResearchAssistant from "./pages/ResearchAssistant";
+import CodePlayground from "./pages/CodePlayground";
+import VocabularyBuilder from "./pages/VocabularyBuilder";
+import ProgressJournal from "./pages/ProgressJournal";
+import StudyTimerAnalytics from "./pages/StudyTimerAnalytics";
+
 // Support Pages
 import Contact from "./pages/support/Contact";
 import HelpCentre from "./pages/support/HelpCentre";
@@ -548,6 +557,15 @@ const App = () => (
                           <Route path="/integration-hub" element={<IntegrationHub />} />
                           <Route path="/spaced-repetition" element={<SpacedRepetition />} />
                           <Route path="/quick-notes" element={<QuickNotes />} />
+                          
+                          {/* Additional Phase 1-4 Features */}
+                          <Route path="/quiz-generator" element={<QuizGenerator />} />
+                          <Route path="/citation-generator" element={<CitationGenerator />} />
+                          <Route path="/research-assistant" element={<ResearchAssistant />} />
+                          <Route path="/code-playground" element={<CodePlayground />} />
+                          <Route path="/vocabulary-builder" element={<VocabularyBuilder />} />
+                          <Route path="/progress-journal" element={<ProgressJournal />} />
+                          <Route path="/study-timer" element={<StudyTimerAnalytics />} />
                           
                           <Route path="/ferqx" element={<FerqX />} />
                           <Route path="/integrations" element={<Integrations />} />
