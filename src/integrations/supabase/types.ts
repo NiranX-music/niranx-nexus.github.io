@@ -2198,6 +2198,84 @@ export type Database = {
         }
         Relationships: []
       }
+      essay_rubrics: {
+        Row: {
+          created_at: string | null
+          criteria: Json
+          id: string
+          is_public: boolean | null
+          max_score: number | null
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          criteria: Json
+          id?: string
+          is_public?: boolean | null
+          max_score?: number | null
+          name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          criteria?: Json
+          id?: string
+          is_public?: boolean | null
+          max_score?: number | null
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      essay_submissions: {
+        Row: {
+          ai_grade: Json | null
+          ai_provider: string | null
+          content: string
+          created_at: string | null
+          feedback: string | null
+          id: string
+          improvements: string[] | null
+          rubric_id: string | null
+          score: number | null
+          strengths: string[] | null
+          title: string | null
+          user_id: string
+          word_count: number | null
+        }
+        Insert: {
+          ai_grade?: Json | null
+          ai_provider?: string | null
+          content: string
+          created_at?: string | null
+          feedback?: string | null
+          id?: string
+          improvements?: string[] | null
+          rubric_id?: string | null
+          score?: number | null
+          strengths?: string[] | null
+          title?: string | null
+          user_id: string
+          word_count?: number | null
+        }
+        Update: {
+          ai_grade?: Json | null
+          ai_provider?: string | null
+          content?: string
+          created_at?: string | null
+          feedback?: string | null
+          id?: string
+          improvements?: string[] | null
+          rubric_id?: string | null
+          score?: number | null
+          strengths?: string[] | null
+          title?: string | null
+          user_id?: string
+          word_count?: number | null
+        }
+        Relationships: []
+      }
       exam_resources: {
         Row: {
           created_at: string | null
@@ -3487,6 +3565,63 @@ export type Database = {
           rank?: number | null
           score?: number | null
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      learning_style_adaptations: {
+        Row: {
+          adapted_settings: Json | null
+          feature_key: string | null
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          adapted_settings?: Json | null
+          feature_key?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          adapted_settings?: Json | null
+          feature_key?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      learning_style_assessments: {
+        Row: {
+          created_at: string | null
+          id: string
+          primary_style: string | null
+          recommendations: Json | null
+          responses: Json | null
+          secondary_style: string | null
+          style_results: Json | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          primary_style?: string | null
+          recommendations?: Json | null
+          responses?: Json | null
+          secondary_style?: string | null
+          style_results?: Json | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          primary_style?: string | null
+          recommendations?: Json | null
+          responses?: Json | null
+          secondary_style?: string | null
+          style_results?: Json | null
           user_id?: string
         }
         Relationships: []
@@ -9246,6 +9381,69 @@ export type Database = {
           metadata?: Json | null
           success?: boolean | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      voice_preferences: {
+        Row: {
+          auto_play: boolean | null
+          created_at: string | null
+          id: string
+          preferred_voice: string | null
+          preferred_voice_id: string | null
+          speed: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          auto_play?: boolean | null
+          created_at?: string | null
+          id?: string
+          preferred_voice?: string | null
+          preferred_voice_id?: string | null
+          speed?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          auto_play?: boolean | null
+          created_at?: string | null
+          id?: string
+          preferred_voice?: string | null
+          preferred_voice_id?: string | null
+          speed?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      voice_tutor_sessions: {
+        Row: {
+          created_at: string | null
+          id: string
+          messages: Json | null
+          subject: string | null
+          updated_at: string | null
+          user_id: string
+          voice_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          messages?: Json | null
+          subject?: string | null
+          updated_at?: string | null
+          user_id: string
+          voice_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          messages?: Json | null
+          subject?: string | null
+          updated_at?: string | null
+          user_id?: string
+          voice_id?: string | null
         }
         Relationships: []
       }
