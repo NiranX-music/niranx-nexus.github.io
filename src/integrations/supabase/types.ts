@@ -618,6 +618,36 @@ export type Database = {
         }
         Relationships: []
       }
+      ar_flashcard_sessions: {
+        Row: {
+          cards_viewed: number | null
+          created_at: string | null
+          deck_id: string | null
+          duration_seconds: number | null
+          id: string
+          session_date: string | null
+          user_id: string
+        }
+        Insert: {
+          cards_viewed?: number | null
+          created_at?: string | null
+          deck_id?: string | null
+          duration_seconds?: number | null
+          id?: string
+          session_date?: string | null
+          user_id: string
+        }
+        Update: {
+          cards_viewed?: number | null
+          created_at?: string | null
+          deck_id?: string | null
+          duration_seconds?: number | null
+          id?: string
+          session_date?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       artist_catalogue_folders: {
         Row: {
           artist_id: string
@@ -3458,6 +3488,30 @@ export type Database = {
         }
         Relationships: []
       }
+      lab_achievements: {
+        Row: {
+          achievement_key: string
+          id: string
+          lab_type: string
+          unlocked_at: string | null
+          user_id: string
+        }
+        Insert: {
+          achievement_key: string
+          id?: string
+          lab_type: string
+          unlocked_at?: string | null
+          user_id: string
+        }
+        Update: {
+          achievement_key?: string
+          id?: string
+          lab_type?: string
+          unlocked_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       lab_notebook_entries: {
         Row: {
           created_at: string | null
@@ -4738,6 +4792,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      mind_maps: {
+        Row: {
+          connections: Json | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_public: boolean | null
+          nodes: Json | null
+          style_config: Json | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          connections?: Json | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          nodes?: Json | null
+          style_config?: Json | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          connections?: Json | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          nodes?: Json | null
+          style_config?: Json | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       music_playlists: {
         Row: {
@@ -9351,6 +9444,48 @@ export type Database = {
           user_id?: string
           video_url?: string
           views?: number | null
+        }
+        Relationships: []
+      }
+      virtual_lab_experiments: {
+        Row: {
+          ai_feedback: Json | null
+          completed_at: string | null
+          conclusion: string | null
+          created_at: string | null
+          experiment_name: string
+          id: string
+          is_completed: boolean | null
+          lab_type: string
+          observations: string | null
+          user_id: string
+          variables: Json | null
+        }
+        Insert: {
+          ai_feedback?: Json | null
+          completed_at?: string | null
+          conclusion?: string | null
+          created_at?: string | null
+          experiment_name: string
+          id?: string
+          is_completed?: boolean | null
+          lab_type: string
+          observations?: string | null
+          user_id: string
+          variables?: Json | null
+        }
+        Update: {
+          ai_feedback?: Json | null
+          completed_at?: string | null
+          conclusion?: string | null
+          created_at?: string | null
+          experiment_name?: string
+          id?: string
+          is_completed?: boolean | null
+          lab_type?: string
+          observations?: string | null
+          user_id?: string
+          variables?: Json | null
         }
         Relationships: []
       }
