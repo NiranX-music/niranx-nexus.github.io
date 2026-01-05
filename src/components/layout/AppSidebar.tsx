@@ -47,6 +47,7 @@ import {
   Zap,
   Archive,
   ChevronDown,
+  ChevronRight,
   Bell,
   UserCog,
   Star as StarIcon,
@@ -69,9 +70,7 @@ import {
   Radio,
   FileStack,
   Trash2,
-  Server,
   Plug,
-  Database,
   Mic,
   FileSearch,
   CalendarClock,
@@ -79,6 +78,13 @@ import {
   Pen,
   StickyNote,
   Combine,
+  Menu,
+  X,
+  Compass,
+  LayoutGrid,
+  Workflow,
+  Cpu,
+  Rocket,
 } from "lucide-react";
 import {
   Sidebar,
@@ -106,7 +112,6 @@ import { useTeacherCheck } from "@/hooks/useTeacherCheck";
 import { useFavorites } from "@/hooks/useFavorites";
 import { DraggableFavorites } from "@/components/DraggableFavorites";
 import { getValidIconOrFallback, getLucideIcon } from "@/lib/iconValidator";
-
 import { useQuickLinks } from "@/hooks/useQuickLinks";
 import { AddQuickLinkDialog } from "@/components/AddQuickLinkDialog";
 import { useClassroom } from "@/hooks/useClassroom";
@@ -115,277 +120,242 @@ import * as LucideIcons from "lucide-react";
 import niranxLogo from '@/assets/niranx-logo.jpg';
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
-// Core Navigation
-const coreNavigation = [
-  { title: "Dashboard", url: "/dashboard", icon: Home },
-  { title: "What's New", url: "/whats-new", icon: Bell },
-  { title: "Notifications", url: "/notifications", icon: Bell },
-  { title: "AI Chat", url: "/ai-chat", icon: Brain },
-  { title: "AI Chat History", url: "/ai-chat-history", icon: ScrollText },
-  { title: "AI Scheduler", url: "/ai-scheduler", icon: Calendar },
-  { title: "Class Manager", url: "/class-scheduler", icon: CalendarCheck },
-  { title: "Web Search", url: "/web-search", icon: Search },
-  { title: "Profile", url: "/profile", icon: User },
-];
+// Navigation Configuration - Organized by category
+const navigationConfig = {
+  main: {
+    title: "Main",
+    icon: Compass,
+    color: "from-blue-500 to-cyan-500",
+    items: [
+      { title: "Dashboard", url: "/dashboard", icon: Home },
+      { title: "What's New", url: "/whats-new", icon: Bell },
+      { title: "Notifications", url: "/notifications", icon: Bell },
+      { title: "Profile", url: "/profile", icon: User },
+    ],
+  },
+  ai: {
+    title: "AI Hub",
+    icon: Brain,
+    color: "from-purple-500 to-pink-500",
+    items: [
+      { title: "AI Corner", url: "/ai-corner", icon: Sparkles },
+      { title: "AI Chat", url: "/ai-chat", icon: Brain },
+      { title: "AI Solver", url: "/ai-solver", icon: Zap },
+      { title: "AI Voice Tutor", url: "/ai-voice-tutor", icon: Volume2 },
+      { title: "Smart PDF Chat", url: "/smart-pdf-chat", icon: FileSearch },
+      { title: "AI Meeting Minutes", url: "/ai-meeting-minutes", icon: Mic },
+      { title: "AI Writing Assistant", url: "/ai-writing-assistant", icon: Pen },
+      { title: "PDF Summarizer", url: "/pdf-summarizer", icon: FileText },
+      { title: "Essay Grader", url: "/essay-grader", icon: FileText },
+      { title: "Topic Map Generator", url: "/ai-topic-map-generator", icon: RouteIcon },
+      { title: "AI Image Generator", url: "/lovable-image-gen", icon: Image },
+      { title: "DeepSeek Coder", url: "/deepseek-chat", icon: Cpu },
+    ],
+  },
+  study: {
+    title: "Study & Focus",
+    icon: Target,
+    color: "from-green-500 to-emerald-500",
+    items: [
+      { title: "Tasks", url: "/tasks", icon: CheckSquare },
+      { title: "Focus Engine", url: "/focus-engine", icon: Timer },
+      { title: "Focus Sounds", url: "/focus-sounds", icon: Volume2 },
+      { title: "Flashcards", url: "/flashcards", icon: Layers },
+      { title: "Spaced Repetition", url: "/spaced-repetition", icon: Brain },
+      { title: "Quick Notes", url: "/quick-notes", icon: StickyNote },
+      { title: "Habit Tracker", url: "/habit-tracker", icon: Repeat },
+      { title: "Scheduler", url: "/scheduler", icon: Calendar },
+      { title: "Auto Study Planner", url: "/auto-study-planner", icon: CalendarClock },
+      { title: "Exams", url: "/exams", icon: GraduationCap },
+      { title: "Whiteboard", url: "/whiteboard", icon: PenTool },
+      { title: "Collaborative Whiteboard", url: "/collaborative-whiteboard", icon: Combine },
+      { title: "Mind Maps", url: "/mind-maps", icon: Map },
+    ],
+  },
+  learning: {
+    title: "Learning",
+    icon: GraduationCap,
+    color: "from-orange-500 to-amber-500",
+    items: [
+      { title: "Course Generator", url: "/course-generator", icon: FileStack },
+      { title: "Learning Style Quiz", url: "/learning-style", icon: Brain },
+      { title: "AI Study Path", url: "/study-path-generator", icon: RouteIcon },
+      { title: "Study Rooms", url: "/study-rooms", icon: Radio },
+      { title: "Study Groups", url: "/study-groups", icon: Users },
+      { title: "Document Scanner", url: "/document-scanner", icon: ScanLine },
+      { title: "Note Summarizer", url: "/note-summarizer", icon: FileText },
+      { title: "YouTube Library", url: "/youtube-library", icon: Youtube },
+      { title: "Labs", url: "/labs", icon: GraduationCap },
+      { title: "3D Virtual Labs", url: "/virtual-labs", icon: Zap },
+    ],
+  },
+  progress: {
+    title: "Progress",
+    icon: TrendingUp,
+    color: "from-rose-500 to-red-500",
+    items: [
+      { title: "Advanced Dashboard", url: "/advanced-dashboard", icon: BarChart3 },
+      { title: "Study Analytics", url: "/study-analytics", icon: BarChart3 },
+      { title: "Analytics", url: "/analytics", icon: TrendingUp },
+      { title: "Goals", url: "/goals", icon: Target },
+      { title: "Daily Challenges", url: "/daily-challenges", icon: Star },
+      { title: "Daily Rewards", url: "/daily-rewards", icon: Gift },
+      { title: "Study Streaks", url: "/study-streak-challenges", icon: Flame },
+      { title: "Leaderboard", url: "/leaderboard", icon: Trophy },
+      { title: "Reward Store", url: "/reward-store", icon: ShoppingBag },
+      { title: "Games", url: "/games", icon: Gamepad2 },
+    ],
+  },
+  tests: {
+    title: "Tests",
+    icon: FileText,
+    color: "from-indigo-500 to-violet-500",
+    items: [
+      { title: "Test Hub", url: "/tests", icon: GraduationCap },
+      { title: "All Tests", url: "/tests?tab=all-tests", icon: FileText },
+      { title: "My Attempts", url: "/tests?tab=attempted", icon: CheckSquare },
+      { title: "Test Analytics", url: "/tests/analytics", icon: BarChart3 },
+    ],
+  },
+  xvibe: {
+    title: "XVibe Music",
+    icon: Music,
+    color: "from-fuchsia-500 to-purple-500",
+    items: [
+      { title: "XVibe Home", url: "/xvibe", icon: Music },
+      { title: "Browse Music", url: "/xvibe/home", icon: Headphones },
+      { title: "Search", url: "/xvibe/search", icon: Search },
+      { title: "My Library", url: "/xvibe/library", icon: BookOpen },
+      { title: "Artist Dashboard", url: "/xvibe/artist-dashboard", icon: Users },
+      { title: "Upload Track", url: "/xvibe/upload", icon: Upload },
+    ],
+  },
+  xstage: {
+    title: "Xstage",
+    icon: FileMusic,
+    color: "from-cyan-500 to-teal-500",
+    items: [
+      { title: "Xstage Home", url: "/xstage", icon: Music },
+      { title: "Dashboard", url: "/xstage/app", icon: Home },
+      { title: "Calendar", url: "/xstage/app/calendar", icon: Calendar },
+      { title: "Chat", url: "/xstage/app/chat", icon: MessageCircle },
+      { title: "Files", url: "/xstage/app/files", icon: FolderOpen },
+      { title: "SoundLab X", url: "/xstage/app/soundlab", icon: Headphones },
+    ],
+  },
+  social: {
+    title: "Social",
+    icon: Users,
+    color: "from-sky-500 to-blue-500",
+    items: [
+      { title: "Messages", url: "/messages", icon: MessageCircle },
+      { title: "Community", url: "/community", icon: MessagesSquare },
+      { title: "Study Guilds", url: "/guilds", icon: Shield },
+      { title: "Blogs", url: "/blogs", icon: BookOpen },
+      { title: "XFlow Home", url: "/xflow", icon: Users },
+      { title: "XFlow Feed", url: "/xflow/feed", icon: Play },
+    ],
+  },
+  debate: {
+    title: "Debates",
+    icon: MessageCircle,
+    color: "from-amber-500 to-yellow-500",
+    items: [
+      { title: "Debate Hub", url: "/debates", icon: MessageCircle },
+      { title: "My Debates", url: "/debates/mine", icon: User },
+      { title: "Categories", url: "/debates/categories", icon: Target },
+      { title: "Tournaments", url: "/debates/tournaments", icon: Trophy },
+    ],
+  },
+  files: {
+    title: "Files & Cloud",
+    icon: Cloud,
+    color: "from-slate-500 to-gray-500",
+    items: [
+      { title: "File Hub", url: "/file-hub", icon: FolderOpen },
+      { title: "My Cloud", url: "/my-cloud", icon: Cloud },
+      { title: "Google Drive", url: "/google-drive", icon: HardDrive },
+      { title: "Backblaze Storage", url: "/backblaze-storage", icon: Cloud },
+      { title: "Recycle Bin", url: "/recycle-bin", icon: Trash2 },
+    ],
+  },
+  tools: {
+    title: "Tools",
+    icon: Workflow,
+    color: "from-zinc-500 to-neutral-500",
+    items: [
+      { title: "Integration Hub", url: "/integration-hub", icon: Plug },
+      { title: "Browser Extension", url: "/browser-extension-sync", icon: Chrome },
+      { title: "Password Manager", url: "/password-manager", icon: Lock },
+      { title: "AI Website Generator", url: "/ai-website-generator", icon: Sparkles },
+      { title: "Web Search", url: "/web-search", icon: Search },
+      { title: "Xmail", url: "/xmail", icon: Mail },
+      { title: "Video Player", url: "/video-player", icon: Video },
+    ],
+  },
+  settings: {
+    title: "Settings",
+    icon: Settings,
+    color: "from-gray-500 to-stone-500",
+    items: [
+      { title: "Theme Customization", url: "/theme-customization", icon: Palette },
+      { title: "Accessibility", url: "/accessibility-settings", icon: Eye },
+      { title: "Notifications", url: "/notification-settings", icon: Bell },
+      { title: "Feedback", url: "/feedback", icon: MessagesSquare },
+      { title: "Guide", url: "/guide", icon: BookOpen },
+      { title: "Sitemap", url: "/sitemap", icon: Map },
+    ],
+  },
+  archive: {
+    title: "Archive",
+    icon: Archive,
+    color: "from-stone-500 to-neutral-600",
+    items: [
+      { title: "Old Pages", url: "/old-pages", icon: Archive },
+    ],
+  },
+};
 
-// AI Corner
-const aiCornerNavigation = [
-  { title: "AI Hub", url: "/ai-corner", icon: Sparkles },
-  { title: "AI Voice Tutor", url: "/ai-voice-tutor", icon: Volume2 },
-  { title: "AI Solver", url: "/ai-solver", icon: Brain },
-  { title: "AI Chat Hub", url: "/groq-chat", icon: Zap },
-  { title: "Chat History", url: "/groq-chat-history", icon: ScrollText },
-  { title: "PDF Summarizer", url: "/pdf-summarizer", icon: FileText },
-  { title: "Essay Grader", url: "/essay-grader", icon: FileText },
-  { title: "AI Library", url: "/ai-library", icon: Archive },
-  { title: "Topic Map Generator", url: "/ai-topic-map-generator", icon: RouteIcon },
-  { title: "AI Image Generator", url: "/lovable-image-gen", icon: Image },
-  { title: "Smart PDF Chat", url: "/smart-pdf-chat", icon: FileSearch },
-  { title: "AI Meeting Minutes", url: "/ai-meeting-minutes", icon: Mic },
-  { title: "AI Writing Assistant", url: "/ai-writing-assistant", icon: Pen },
-];
-
-// AI Development
-const aiDevelopmentNavigation = [
-  { title: "DeepSeek Coder", url: "/deepseek-chat", icon: Brain },
-];
-
-// Study & Focus
-const studyNavigation = [
-  { title: "Tasks", url: "/tasks", icon: CheckSquare },
-  { title: "Focus Engine", url: "/focus-engine", icon: Timer },
-  { title: "Focus Sounds", url: "/focus-sounds", icon: Volume2 },
-  { title: "Flashcards", url: "/flashcards", icon: Layers },
-  { title: "Habit Tracker", url: "/habit-tracker", icon: Repeat },
-  { title: "Study Analytics", url: "/study-analytics", icon: BarChart3 },
-  { title: "Smart Bookmarks", url: "/smart-bookmarks", icon: Bookmark },
-  { title: "Distraction Blocker", url: "/distraction-blocker", icon: Shield },
-  { title: "Scheduler", url: "/scheduler", icon: Calendar },
-  { title: "Labs", url: "/labs", icon: GraduationCap },
-  { title: "3D Virtual Labs", url: "/virtual-labs", icon: Zap },
-  { title: "AR Flashcards", url: "/ar-flashcards", icon: Eye },
-  { title: "Exams", url: "/exams", icon: GraduationCap },
-  { title: "Whiteboard", url: "/whiteboard", icon: PenTool },
-  { title: "Collaborative Whiteboard", url: "/collaborative-whiteboard", icon: Combine },
-  { title: "Mind Map Builder", url: "/mind-maps", icon: Map },
-  { title: "Auto Study Planner", url: "/auto-study-planner", icon: CalendarClock },
-  { title: "Spaced Repetition", url: "/spaced-repetition", icon: Brain },
-  { title: "Quick Notes", url: "/quick-notes", icon: StickyNote },
-];
-
-// Learning & Courses
-const learningNavigation = [
-  { title: "Course Generator", url: "/course-generator", icon: FileStack },
-  { title: "Learning Style Quiz", url: "/learning-style", icon: Brain },
-  { title: "AI Study Path", url: "/study-path-generator", icon: RouteIcon },
-  { title: "Study Rooms", url: "/study-rooms", icon: Radio },
-  { title: "Study Groups", url: "/study-groups", icon: Users },
-  { title: "Document Scanner", url: "/document-scanner", icon: ScanLine },
-  { title: "Note Summarizer", url: "/note-summarizer", icon: FileText },
-  { title: "YouTube Library", url: "/youtube-library", icon: Youtube },
-];
-
-// Test Platform
-const testNavigation = [
-  { title: "Test Hub", url: "/tests", icon: GraduationCap },
-  { title: "All Tests", url: "/tests?tab=all-tests", icon: FileText },
-  { title: "My Attempts", url: "/tests?tab=attempted", icon: CheckSquare },
-  { title: "Test Analytics", url: "/tests/analytics", icon: BarChart3 },
-];
-
-// Progress & Gamification
-const progressNavigation = [
-  { title: "Advanced Dashboard", url: "/advanced-dashboard", icon: BarChart3 },
-  { title: "Analytics", url: "/analytics", icon: TrendingUp },
-  { title: "Goals", url: "/goals", icon: Target },
-  { title: "Daily Challenges", url: "/daily-challenges", icon: Star },
-  { title: "Daily Rewards", url: "/daily-rewards", icon: Gift },
-  { title: "Study Streaks", url: "/study-streak-challenges", icon: Flame },
-  { title: "Leaderboard", url: "/leaderboard", icon: Trophy },
-  { title: "Reward Store", url: "/reward-store", icon: ShoppingBag },
-  { title: "Games", url: "/games", icon: Gamepad2 },
-];
-
-// XVibe - Music Platform (New)
-const xvibeNavigation = [
-  { title: "XVibe Home", url: "/xvibe", icon: Music },
-  { title: "Browse Music", url: "/xvibe/home", icon: Headphones },
-  { title: "Search", url: "/xvibe/search", icon: Search },
-  { title: "My Library", url: "/xvibe/library", icon: BookOpen },
-  { title: "Artist Dashboard", url: "/xvibe/artist-dashboard", icon: Users },
-  { title: "Upload Track", url: "/xvibe/upload", icon: Upload },
-  { title: "Become Artist", url: "/xvibe/artist-register", icon: UserPlus },
-];
-
-// Xstage - Music Collaboration Platform
-const xstageNavigation = [
-  { title: "Xstage Home", url: "/xstage", icon: Music },
-  { title: "Dashboard", url: "/xstage/app", icon: Home },
-  { title: "Calendar", url: "/xstage/app/calendar", icon: Calendar },
-  { title: "Chat", url: "/xstage/app/chat", icon: MessageCircle },
-  { title: "Files", url: "/xstage/app/files", icon: FolderOpen },
-  { title: "Songs & Setlists", url: "/xstage/app/songs", icon: FileMusic },
-  { title: "SoundLab X", url: "/xstage/app/soundlab", icon: Headphones },
-  { title: "Team", url: "/xstage/app/team", icon: Users },
-];
-
-// Integrations
-const integrationsNavigation = [
-  { title: "Integration Hub", url: "/integration-hub", icon: Plug },
-  { title: "Integrations", url: "/integrations", icon: Plug },
-  { title: "FerqX Radio", url: "/integrations?tab=radio", icon: Radio },
-  { title: "Browser Extension", url: "/browser-extension-sync", icon: Chrome },
-];
-
-// Media & Entertainment
-const mediaNavigation = [
-  { title: "Video Player", url: "/video-player", icon: Video },
-  { title: "Video Library", url: "/video-library", icon: Video },
-  { title: "StreamSphere", url: "/stream-sphere", icon: Youtube },
-];
-
-// Files & Cloud
-const filesNavigation = [
-  { title: "File Hub", url: "/file-hub", icon: FolderOpen },
-  { title: "My Cloud", url: "/my-cloud", icon: Cloud },
-  { title: "Local Server Saves", url: "/local-server-saves", icon: HardDrive },
-  { title: "Recycle Bin", url: "/recycle-bin", icon: Trash2 },
-  { title: "Manage Drives", url: "/manage-drives", icon: HardDrive },
-  { title: "Google Drive", url: "/google-drive", icon: HardDrive },
-  { title: "XOrbit Calendar", url: "/xorbit", icon: Calendar },
-  { title: "Backblaze Storage", url: "/backblaze-storage", icon: Cloud },
-  { title: "Upload", url: "/upload", icon: Upload },
-];
-
-// Xmail - Email System
-const xmailNavigation = [
-  { title: "Xmail Inbox", url: "/xmail", icon: Mail },
-  { title: "Compose", url: "/xmail", icon: PenTool },
-];
-
-// Communication & Social
-const socialNavigation = [
-  { title: "Messages", url: "/messages", icon: MessageCircle },
-  { title: "Community", url: "/community", icon: MessagesSquare },
-  { title: "Study Guilds", url: "/guilds", icon: Shield },
-  { title: "Study Groups", url: "/study-groups", icon: Users },
-  { title: "Blogs", url: "/blogs", icon: BookOpen },
-  { title: "Picture Share", url: "/picture-share", icon: Image },
-  { title: "Video Share", url: "/video-share", icon: Play },
-];
-
-// Debate Platform
-const debateNavigation = [
-  { title: "Debate Hub", url: "/debates", icon: MessageCircle },
-  { title: "My Debates", url: "/debates/mine", icon: User },
-  { title: "Bookmarked", url: "/debates/bookmarks", icon: StarIcon },
-  { title: "Categories", url: "/debates/categories", icon: Target },
-  { title: "Leaderboard", url: "/debates/leaderboard", icon: Trophy },
-  { title: "Tournaments", url: "/debates/tournaments", icon: Trophy },
-  { title: "Live Rooms", url: "/debates/live", icon: Zap },
-];
-
-// XFlow Social Platform
-const xflowNavigation = [
-  { title: "XFlow Home", url: "/xflow", icon: Users },
-  { title: "XFlow Feed", url: "/xflow/feed", icon: Play },
-  { title: "XFlow Messages", url: "/xflow/messages", icon: MessageCircle },
-];
-
-// Tools & Utilities
-const toolsNavigation = [
-  { title: "Password Manager", url: "/password-manager", icon: Lock },
-  { title: "AI Website Generator", url: "/ai-website-generator", icon: Sparkles },
-  { title: "My Websites", url: "/ai-website-generator", icon: Layout },
-  { title: "Website Embedder", url: "/website", icon: Globe },
-  { title: "Study Platforms", url: "/website/study-platforms", icon: GraduationCap },
-  { title: "Infinite Chain", url: "/infinite-chain", icon: Infinity },
-  { title: "Website Manager", url: "/website-manager", icon: Globe },
-  { title: "Web Search", url: "/web-search", icon: Search },
-  { title: "PWA Download", url: "/pwa-download", icon: Smartphone },
-  { title: "Kiosk Mode", url: "/kiosk-mode", icon: Lock },
-];
-
-// External Study Platforms
-const externalPlatforms = [
-  { title: "Allen Digital", url: "https://allen.ac.in/", icon: Target, external: true },
-  { title: "Physics Wallah", url: "https://www.pw.live/", icon: Users, external: true },
-  { title: "Spotify", url: "https://open.spotify.com/", icon: Music, external: true },
-  { title: "YouTube", url: "https://youtube.com/", icon: Youtube, external: true },
-  { title: "ChatGPT", url: "https://chat.openai.com/", icon: Brain, external: true },
-];
-
-// Admin & System
 const adminNavigation = [
   { title: "Admin Dashboard", url: "/admin", icon: UserCog },
   { title: "User Controls", url: "/admin/user-controls", icon: Settings },
   { title: "Space Limits", url: "/admin/space-limits", icon: Layers },
   { title: "Artist Accounts", url: "/admin/artist-accounts", icon: Music },
-  { title: "Xvibe Moderation", url: "/admin/music-moderation", icon: Music },
-  { title: "XFlow Moderation", url: "/admin/xflow-moderation", icon: Users },
-  { title: "Template Manager", url: "/admin/templates", icon: BookOpen },
   { title: "Feedback List", url: "/admin/feedback-list", icon: MessagesSquare },
-  { title: "What's New Manager", url: "/admin/whats-new", icon: Sparkles },
-  { title: "Custom Notifications", url: "/admin/custom-notifications", icon: Bell },
-  { title: "Guardian Dashboard", url: "/guardian-dashboard", icon: Users },
 ];
 
 const teacherNavigation = [
   { title: "Teacher Portal", url: "/teacher/dashboard", icon: GraduationCap },
   { title: "Role Management", url: "/admin/roles", icon: ShieldCheck },
-];
-
-const liveClassroomNavigation = [
   { title: "Live Classroom", url: "/live-classroom", icon: Video },
-  { title: "Browse Classrooms", url: "/classrooms", icon: BookOpen },
-];
-
-const systemNavigation = [
-  { title: "Explore Public Spaces", url: "/explore-spaces", icon: Layers },
-  { title: "Widget Settings", url: "/widget-settings", icon: Layout },
-  { title: "Notification Settings", url: "/notification-settings", icon: Bell },
-  { title: "Smart Notifications", url: "/smart-notifications", icon: Zap },
-  { title: "Accessibility Settings", url: "/accessibility-settings", icon: Eye },
-  { title: "Theme Customization", url: "/theme-customization", icon: Palette },
-  { title: "Guardian Settings", url: "/guardian-settings", icon: ShieldCheck },
-  { title: "OAuth Settings", url: "/oauth-settings", icon: Link2 },
-  { title: "Persona Setup", url: "/persona-setup", icon: User },
-  { title: "Study Templates", url: "/study-templates", icon: BookOpen },
-  { title: "Activity Log", url: "/security/activity-log", icon: Eye },
-  { title: "Feedback & Suggestions", url: "/feedback", icon: MessagesSquare },
-  { title: "Android TWA Setup", url: "/twa-setup", icon: Smartphone },
-  { title: "Become an Admin", url: "/become-admin", icon: UserPlus },
-];
-
-// Archive - Old Pages (includes old music)
-const archiveNavigation = [
-  { title: "Old Pages Archive", url: "/old-pages", icon: Archive },
-];
-
-// More Pages
-const morePages = [
-  { title: "Website Guide", url: "/guide", icon: BookOpen },
-  { title: "App Guide", url: "#", icon: HelpCircle, onClick: () => window.dispatchEvent(new Event("restart-guide")) },
-  { title: "Sitemap", url: "/sitemap", icon: Map },
-  { title: "Feature Ideas", url: "/feature-suggestions", icon: Sparkles },
 ];
 
 // Animation variants
-const sidebarItemVariants = {
-  hidden: { opacity: 0, x: -20 },
-  visible: (i: number) => ({
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, x: -20, scale: 0.95 },
+  visible: {
     opacity: 1,
     x: 0,
+    scale: 1,
     transition: {
-      delay: i * 0.02,
-      duration: 0.3,
-      ease: "easeOut" as const,
+      type: "spring" as const,
+      stiffness: 300,
+      damping: 24,
     },
-  }),
-  hover: {
-    x: 4,
-    transition: { duration: 0.2 },
   },
 };
 
@@ -395,18 +365,26 @@ const groupVariants = {
     opacity: 1,
     height: "auto",
     transition: {
-      duration: 0.3,
-      ease: "easeOut" as const,
+      height: { type: "spring" as const, stiffness: 300, damping: 30 },
+      opacity: { duration: 0.2 },
       staggerChildren: 0.03,
+      delayChildren: 0.05,
     },
   },
   exit: {
     opacity: 0,
     height: 0,
     transition: {
-      duration: 0.2,
+      height: { duration: 0.2 },
+      opacity: { duration: 0.1 },
     },
   },
+};
+
+const iconVariants = {
+  rest: { scale: 1, rotate: 0 },
+  hover: { scale: 1.1, rotate: 5 },
+  tap: { scale: 0.95 },
 };
 
 export function AppSidebar() {
@@ -424,63 +402,23 @@ export function AppSidebar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     favorites: true,
-    aiCorner: false,
-    aiDevelopment: false,
-    study: false,
-    learning: false,
-    tests: false,
-    progress: false,
-    xvibe: false,
-    xstage: false,
-    integrations: false,
-    media: false,
-    files: false,
-    xmail: false,
-    social: false,
-    debate: false,
-    xflow: false,
-    tools: false,
-    external: false,
-    admin: false,
-    teacher: false,
-    liveClassrooms: false,
-    liveClasses: false,
-    system: false,
-    archive: false,
-    more: false,
+    main: true,
   });
 
   // Combine all navigation items for search
-  const allNavItems = useMemo(() => [
-    ...coreNavigation,
-    ...aiCornerNavigation,
-    ...aiDevelopmentNavigation,
-    ...studyNavigation,
-    ...learningNavigation,
-    ...testNavigation,
-    ...progressNavigation,
-    ...xvibeNavigation,
-    ...xstageNavigation,
-    ...mediaNavigation,
-    ...filesNavigation,
-    ...xmailNavigation,
-    ...socialNavigation,
-    ...debateNavigation,
-    ...xflowNavigation,
-    ...toolsNavigation,
-    ...externalPlatforms,
-    ...(isAdmin ? adminNavigation : []),
-    ...(isTeacher || isAdmin ? teacherNavigation : []),
-    ...liveClassroomNavigation,
-    ...systemNavigation,
-    ...archiveNavigation,
-    ...morePages,
-  ], [isAdmin, isTeacher]);
+  const allNavItems = useMemo(() => {
+    const items: any[] = [];
+    Object.values(navigationConfig).forEach(section => {
+      items.push(...section.items);
+    });
+    if (isAdmin) items.push(...adminNavigation);
+    if (isTeacher || isAdmin) items.push(...teacherNavigation);
+    return items;
+  }, [isAdmin, isTeacher]);
 
   // Filter navigation items based on search query
   const filteredNavItems = useMemo(() => {
     if (!searchQuery.trim()) return null;
-    
     return allNavItems.filter(item =>
       item.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -514,22 +452,21 @@ export function AppSidebar() {
     const itemIsFavorite = isFavorite(item.url);
     const active = isActive(item.url);
     
-    return (
+    const content = (
       <motion.div
-        key={item.url}
-        custom={index}
-        variants={sidebarItemVariants}
-        initial="hidden"
-        animate="visible"
-        whileHover="hover"
+        variants={itemVariants}
+        whileHover={{ x: 4 }}
+        whileTap={{ scale: 0.98 }}
       >
         <SidebarMenuItem>
           <SidebarMenuButton 
             asChild 
             isActive={active}
             className={cn(
-              "group relative overflow-hidden transition-all duration-300",
-              active && "bg-gradient-to-r from-primary/20 to-transparent border-l-2 border-primary"
+              "group relative overflow-hidden rounded-xl transition-all duration-300 h-10",
+              active 
+                ? "bg-gradient-to-r from-primary/20 via-primary/10 to-transparent shadow-sm shadow-primary/20" 
+                : "hover:bg-muted/60"
             )}
           >
             {external ? (
@@ -537,37 +474,58 @@ export function AppSidebar() {
                 href={item.url} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="flex items-center gap-3"
+                className="flex items-center gap-3 px-3"
               >
-                <div className={cn(
-                  "p-1.5 rounded-lg transition-all duration-300",
-                  active ? "bg-primary/20 text-primary" : "text-muted-foreground group-hover:text-foreground"
-                )}>
+                <motion.div 
+                  variants={iconVariants}
+                  initial="rest"
+                  whileHover="hover"
+                  whileTap="tap"
+                  className={cn(
+                    "flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-300",
+                    active 
+                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30" 
+                      : "bg-muted/50 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"
+                  )}
+                >
                   <Icon className="h-4 w-4" />
-                </div>
+                </motion.div>
                 {!isCollapsed && (
                   <>
-                    <span className="flex-1 font-medium">{item.title}</span>
-                    <ExternalLink className="h-3 w-3 opacity-50" />
+                    <span className={cn(
+                      "flex-1 font-medium text-sm transition-colors",
+                      active ? "text-foreground" : "text-foreground/70 group-hover:text-foreground"
+                    )}>{item.title}</span>
+                    <ExternalLink className="h-3 w-3 opacity-40 group-hover:opacity-70 transition-opacity" />
                   </>
                 )}
               </a>
             ) : (
-              <NavLink to={item.url} className="flex items-center gap-3">
-                <div className={cn(
-                  "p-1.5 rounded-lg transition-all duration-300",
-                  active ? "bg-primary/20 text-primary" : "text-muted-foreground group-hover:text-foreground group-hover:bg-muted/50"
-                )}>
+              <NavLink to={item.url} className="flex items-center gap-3 px-3">
+                <motion.div 
+                  variants={iconVariants}
+                  initial="rest"
+                  whileHover="hover"
+                  whileTap="tap"
+                  className={cn(
+                    "flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-300",
+                    active 
+                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30" 
+                      : "bg-muted/50 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"
+                  )}
+                >
                   <Icon className="h-4 w-4" />
-                </div>
+                </motion.div>
                 {!isCollapsed && (
                   <>
                     <span className={cn(
-                      "flex-1 font-medium transition-colors",
-                      active ? "text-primary" : "text-foreground/80 group-hover:text-foreground"
+                      "flex-1 font-medium text-sm transition-colors truncate",
+                      active ? "text-foreground" : "text-foreground/70 group-hover:text-foreground"
                     )}>{item.title}</span>
                     {showFavoriteButton && (
-                      <button
+                      <motion.button
+                        whileHover={{ scale: 1.2 }}
+                        whileTap={{ scale: 0.9 }}
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
@@ -577,14 +535,14 @@ export function AppSidebar() {
                             handleAddFavorite(item);
                           }
                         }}
-                        className="opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
+                        className="opacity-0 group-hover:opacity-100 transition-all duration-200"
                       >
                         {itemIsFavorite ? (
-                          <StarOff className="h-3.5 w-3.5 text-yellow-500" />
+                          <Star className="h-3.5 w-3.5 fill-yellow-500 text-yellow-500" />
                         ) : (
                           <Star className="h-3.5 w-3.5 text-muted-foreground hover:text-yellow-500" />
                         )}
-                      </button>
+                      </motion.button>
                     )}
                   </>
                 )}
@@ -594,103 +552,148 @@ export function AppSidebar() {
         </SidebarMenuItem>
       </motion.div>
     );
+
+    if (isCollapsed) {
+      return (
+        <Tooltip key={item.url} delayDuration={0}>
+          <TooltipTrigger asChild>
+            {content}
+          </TooltipTrigger>
+          <TooltipContent side="right" className="font-medium">
+            {item.title}
+          </TooltipContent>
+        </Tooltip>
+      );
+    }
+
+    return <div key={item.url}>{content}</div>;
   };
 
   const renderNavGroup = (
-    title: string,
-    items: any[],
-    sectionKey: string,
-    icon?: React.ReactNode,
-    accentColor?: string
-  ) => (
-    <SidebarGroup className="py-1">
-      <Collapsible
-        open={expandedSections[sectionKey]}
-        onOpenChange={() => toggleSection(sectionKey)}
-      >
-        <CollapsibleTrigger className="w-full">
-          <motion.div
-            whileHover={{ x: 2 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <SidebarGroupLabel className={cn(
-              "flex items-center justify-between cursor-pointer rounded-xl px-3 py-2.5 transition-all duration-300",
-              "hover:bg-gradient-to-r hover:from-muted/80 hover:to-transparent",
-              expandedSections[sectionKey] && "bg-muted/50"
-            )}>
-              <div className="flex items-center gap-3">
-                <div className={cn(
-                  "p-1.5 rounded-lg transition-all duration-300",
-                  expandedSections[sectionKey] ? "bg-primary/20 text-primary" : "text-muted-foreground"
-                )}>
-                  {icon}
+    key: string,
+    config: { title: string; icon: any; color: string; items: any[] }
+  ) => {
+    const GroupIcon = config.icon;
+    const isExpanded = expandedSections[key];
+    
+    return (
+      <SidebarGroup key={key} className="py-0.5">
+        <Collapsible
+          open={isExpanded}
+          onOpenChange={() => toggleSection(key)}
+        >
+          <CollapsibleTrigger className="w-full">
+            <motion.div
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+            >
+              <SidebarGroupLabel className={cn(
+                "flex items-center justify-between cursor-pointer rounded-xl px-3 py-2.5 mx-1 transition-all duration-300",
+                "hover:bg-muted/60",
+                isExpanded && "bg-muted/40"
+              )}>
+                <div className="flex items-center gap-3">
+                  <motion.div 
+                    animate={{ rotate: isExpanded ? 5 : 0 }}
+                    className={cn(
+                      "flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br shadow-sm",
+                      config.color,
+                      "text-white"
+                    )}
+                  >
+                    <GroupIcon className="h-4 w-4" />
+                  </motion.div>
+                  {!isCollapsed && (
+                    <span className={cn(
+                      "font-semibold text-sm transition-colors",
+                      isExpanded ? "text-foreground" : "text-muted-foreground"
+                    )}>{config.title}</span>
+                  )}
                 </div>
                 {!isCollapsed && (
-                  <span className={cn(
-                    "font-semibold text-sm transition-colors",
-                    expandedSections[sectionKey] ? "text-foreground" : "text-muted-foreground"
-                  )}>{title}</span>
+                  <motion.div
+                    animate={{ rotate: isExpanded ? 180 : 0 }}
+                    transition={{ duration: 0.3, type: "spring", stiffness: 200 }}
+                  >
+                    <ChevronDown className={cn(
+                      "h-4 w-4 transition-colors",
+                      isExpanded ? "text-foreground" : "text-muted-foreground"
+                    )} />
+                  </motion.div>
                 )}
-              </div>
-              {!isCollapsed && (
+              </SidebarGroupLabel>
+            </motion.div>
+          </CollapsibleTrigger>
+          <AnimatePresence initial={false}>
+            {isExpanded && (
+              <CollapsibleContent forceMount>
                 <motion.div
-                  animate={{ rotate: expandedSections[sectionKey] ? 180 : 0 }}
-                  transition={{ duration: 0.3 }}
+                  variants={groupVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  className="overflow-hidden"
                 >
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  <SidebarGroupContent className="pl-3 pr-1 py-1">
+                    <SidebarMenu className="space-y-0.5">
+                      {config.items.map((item, index) => renderNavItem(item, true, index))}
+                    </SidebarMenu>
+                  </SidebarGroupContent>
                 </motion.div>
-              )}
-            </SidebarGroupLabel>
-          </motion.div>
-        </CollapsibleTrigger>
-        <AnimatePresence>
-          {expandedSections[sectionKey] && (
-            <CollapsibleContent forceMount>
-              <motion.div
-                variants={groupVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-              >
-                <SidebarGroupContent className="pl-2">
-                  <SidebarMenu>
-                    {items.map((item, index) => renderNavItem(item, true, index))}
-                  </SidebarMenu>
-                </SidebarGroupContent>
-              </motion.div>
-            </CollapsibleContent>
-          )}
-        </AnimatePresence>
-      </Collapsible>
-    </SidebarGroup>
-  );
+              </CollapsibleContent>
+            )}
+          </AnimatePresence>
+        </Collapsible>
+      </SidebarGroup>
+    );
+  };
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border/50 bg-gradient-to-b from-sidebar to-sidebar/95 backdrop-blur-xl">
-      <SidebarHeader className="border-b border-sidebar-border/50 p-4">
+    <Sidebar 
+      collapsible="icon" 
+      className={cn(
+        "border-r border-sidebar-border/30 backdrop-blur-xl",
+        "bg-gradient-to-b from-sidebar via-sidebar/98 to-sidebar/95"
+      )}
+    >
+      {/* Header */}
+      <SidebarHeader className="border-b border-sidebar-border/30 p-4">
         <motion.div 
           className="flex items-center gap-3"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.5, type: "spring" }}
         >
           <NavLink to="/" className="flex items-center gap-3 group">
             <motion.div 
-              className="w-11 h-11 rounded-2xl overflow-hidden bg-gradient-to-br from-primary via-accent to-primary p-0.5 flex-shrink-0 shadow-lg"
-              whileHover={{ scale: 1.05, rotate: 5 }}
+              className="relative w-11 h-11 rounded-2xl overflow-hidden flex-shrink-0"
+              whileHover={{ scale: 1.08, rotate: 3 }}
               whileTap={{ scale: 0.95 }}
             >
-              <img src={niranxLogo} alt="NiranX" className="w-full h-full object-cover rounded-xl" />
+              <div className="absolute inset-0 bg-gradient-to-br from-primary via-accent to-primary rounded-2xl p-0.5">
+                <img 
+                  src={niranxLogo} 
+                  alt="NiranX" 
+                  className="w-full h-full object-cover rounded-xl" 
+                />
+              </div>
+              <motion.div 
+                className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"
+              />
             </motion.div>
             {!isCollapsed && (
               <motion.div 
                 className="flex flex-col"
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
+                transition={{ delay: 0.2, type: "spring" }}
               >
-                <span className="font-bold text-lg bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">NiranX</span>
-                <span className="text-xs text-muted-foreground font-medium">StudyVerse Pro</span>
+                <span className="font-bold text-lg bg-gradient-to-r from-foreground via-foreground to-foreground/60 bg-clip-text text-transparent">
+                  NiranX
+                </span>
+                <span className="text-[10px] text-muted-foreground font-medium tracking-wide uppercase">
+                  StudyVerse Pro
+                </span>
               </motion.div>
             )}
           </NavLink>
@@ -699,9 +702,9 @@ export function AppSidebar() {
         {!isCollapsed && (
           <motion.div 
             className="mt-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, type: "spring" }}
           >
             <XPDisplay />
           </motion.div>
@@ -712,48 +715,65 @@ export function AppSidebar() {
         {/* Search */}
         {!isCollapsed && (
           <motion.div 
-            className="p-2 pt-3"
+            className="p-2 pt-4"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
             <div className="relative group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors duration-200 group-focus-within:text-primary" />
               <Input
                 placeholder="Search pages..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 h-10 bg-muted/30 border-muted/50 rounded-xl transition-all duration-300 focus:bg-background focus:shadow-lg focus:shadow-primary/10 focus:border-primary/50"
+                className={cn(
+                  "pl-9 h-10 rounded-xl transition-all duration-300",
+                  "bg-muted/30 border-muted/30 placeholder:text-muted-foreground/50",
+                  "focus:bg-background focus:shadow-lg focus:shadow-primary/5 focus:border-primary/30",
+                  "hover:bg-muted/40"
+                )}
               />
             </div>
           </motion.div>
         )}
 
         {/* Search Results */}
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
           {filteredNavItems && (
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="py-2"
             >
               <SidebarGroup>
-                <SidebarGroupLabel className="flex items-center gap-2 px-3">
-                  <Search className="h-4 w-4 text-primary" />
-                  <span className="font-semibold">Search Results</span>
-                  <Badge variant="secondary" className="ml-auto text-xs">{filteredNavItems.length}</Badge>
+                <SidebarGroupLabel className="flex items-center gap-2 px-4 py-2">
+                  <div className="flex items-center justify-center w-6 h-6 rounded-md bg-primary/10">
+                    <Search className="h-3.5 w-3.5 text-primary" />
+                  </div>
+                  <span className="font-semibold text-sm">Results</span>
+                  <Badge variant="secondary" className="ml-auto text-[10px] px-1.5 py-0">
+                    {filteredNavItems.length}
+                  </Badge>
                 </SidebarGroupLabel>
-                <SidebarGroupContent>
-                  <SidebarMenu>
-                    {filteredNavItems.length > 0 ? (
-                      filteredNavItems.map((item, index) => renderNavItem(item, true, index))
-                    ) : (
-                      <div className="px-4 py-6 text-center">
-                        <p className="text-sm text-muted-foreground">No results found</p>
-                        <p className="text-xs text-muted-foreground/70 mt-1">Try different keywords</p>
-                      </div>
-                    )}
-                  </SidebarMenu>
+                <SidebarGroupContent className="px-1">
+                  <motion.div variants={containerVariants} initial="hidden" animate="visible">
+                    <SidebarMenu className="space-y-0.5">
+                      {filteredNavItems.length > 0 ? (
+                        filteredNavItems.map((item, index) => renderNavItem(item, true, index))
+                      ) : (
+                        <motion.div 
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="px-4 py-8 text-center"
+                        >
+                          <p className="text-sm text-muted-foreground">No results found</p>
+                          <p className="text-xs text-muted-foreground/60 mt-1">Try different keywords</p>
+                        </motion.div>
+                      )}
+                    </SidebarMenu>
+                  </motion.div>
                 </SidebarGroupContent>
               </SidebarGroup>
             </motion.div>
@@ -762,32 +782,44 @@ export function AppSidebar() {
 
         {/* Favorites */}
         {!filteredNavItems && favorites.length > 0 && (
-          <SidebarGroup className="py-1">
+          <SidebarGroup className="py-0.5">
             <Collapsible
               open={expandedSections.favorites}
               onOpenChange={() => toggleSection("favorites")}
             >
               <CollapsibleTrigger className="w-full">
-                <motion.div whileHover={{ x: 2 }} whileTap={{ scale: 0.98 }}>
-                  <SidebarGroupLabel className="flex items-center justify-between cursor-pointer rounded-xl px-3 py-2.5 hover:bg-gradient-to-r hover:from-yellow-500/10 hover:to-transparent transition-all duration-300">
+                <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+                  <SidebarGroupLabel className={cn(
+                    "flex items-center justify-between cursor-pointer rounded-xl px-3 py-2.5 mx-1 transition-all duration-300",
+                    "hover:bg-yellow-500/10",
+                    expandedSections.favorites && "bg-yellow-500/5"
+                  )}>
                     <div className="flex items-center gap-3">
-                      <div className="p-1.5 rounded-lg bg-yellow-500/20 text-yellow-500">
+                      <motion.div 
+                        animate={{ rotate: expandedSections.favorites ? 5 : 0 }}
+                        className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-500 to-amber-500 text-white shadow-sm"
+                      >
                         <Star className="h-4 w-4" />
-                      </div>
+                      </motion.div>
                       {!isCollapsed && <span className="font-semibold text-sm">Favorites</span>}
                     </div>
                     {!isCollapsed && (
-                      <motion.div
-                        animate={{ rotate: expandedSections.favorites ? 180 : 0 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                      </motion.div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400">
+                          {favorites.length}
+                        </Badge>
+                        <motion.div
+                          animate={{ rotate: expandedSections.favorites ? 180 : 0 }}
+                          transition={{ duration: 0.3, type: "spring", stiffness: 200 }}
+                        >
+                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                        </motion.div>
+                      </div>
                     )}
                   </SidebarGroupLabel>
                 </motion.div>
               </CollapsibleTrigger>
-              <AnimatePresence>
+              <AnimatePresence initial={false}>
                 {expandedSections.favorites && (
                   <CollapsibleContent forceMount>
                     <motion.div
@@ -795,8 +827,9 @@ export function AppSidebar() {
                       initial="hidden"
                       animate="visible"
                       exit="exit"
+                      className="overflow-hidden"
                     >
-                      <SidebarGroupContent className="pl-2">
+                      <SidebarGroupContent className="pl-3 pr-1 py-1">
                         <DraggableFavorites
                           favorites={favorites}
                           navItems={allNavItems}
@@ -813,126 +846,45 @@ export function AppSidebar() {
           </SidebarGroup>
         )}
 
-        {/* Quick Links */}
-        {!filteredNavItems && quickLinks.length > 0 && (
-          <SidebarGroup className="py-1">
-            <SidebarGroupLabel className="flex items-center justify-between px-3 py-2.5">
-              <div className="flex items-center gap-3">
-                <div className="p-1.5 rounded-lg bg-accent/20 text-accent">
-                  <Link2 className="h-4 w-4" />
-                </div>
-                {!isCollapsed && <span className="font-semibold text-sm">Quick Links</span>}
-              </div>
-              {!isCollapsed && <AddQuickLinkDialog onAdd={addQuickLink} />}
-            </SidebarGroupLabel>
-            <SidebarGroupContent className="pl-2">
-              <SidebarMenu>
-                {quickLinks.map((link, index) => {
-                  const IconComponent = getLucideIcon(link.icon_name);
-                  return (
-                    <motion.div
-                      key={link.id}
-                      custom={index}
-                      variants={sidebarItemVariants}
-                      initial="hidden"
-                      animate="visible"
-                      whileHover="hover"
-                    >
-                      <SidebarMenuItem>
-                        <SidebarMenuButton asChild className="group">
-                          <a
-                            href={link.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-3"
-                          >
-                            <div className="p-1.5 rounded-lg text-muted-foreground group-hover:text-foreground group-hover:bg-muted/50 transition-all">
-                              <IconComponent className="h-4 w-4" />
-                            </div>
-                            {!isCollapsed && (
-                              <>
-                                <span className="flex-1 truncate font-medium">{link.title}</span>
-                                <button
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    removeQuickLink(link.id);
-                                  }}
-                                  className="opacity-0 group-hover:opacity-100 transition-all hover:scale-110"
-                                >
-                                  <StarOff className="h-3.5 w-3.5 text-muted-foreground hover:text-red-500" />
-                                </button>
-                              </>
-                            )}
-                          </a>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    </motion.div>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {/* Core Navigation */}
+        {/* Navigation Groups */}
         {!filteredNavItems && (
-          <>
-            <SidebarGroup className="py-1">
-              <SidebarGroupLabel className="flex items-center gap-3 px-3 py-2.5">
-                <div className="p-1.5 rounded-lg bg-primary/20 text-primary">
-                  <Home className="h-4 w-4" />
-                </div>
-                {!isCollapsed && <span className="font-semibold text-sm">Core</span>}
-              </SidebarGroupLabel>
-              <SidebarGroupContent className="pl-2">
-                <SidebarMenu>
-                  {coreNavigation.map((item, index) => renderNavItem(item, true, index))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="space-y-0.5 py-2"
+          >
+            {Object.entries(navigationConfig).map(([key, config]) => 
+              renderNavGroup(key, config)
+            )}
 
-            {renderNavGroup("AI Corner", aiCornerNavigation, "aiCorner", <Sparkles className="h-4 w-4" />)}
-            {renderNavGroup("AI Development", aiDevelopmentNavigation, "aiDevelopment", <Brain className="h-4 w-4" />)}
-            {renderNavGroup("Study & Focus", studyNavigation, "study", <Timer className="h-4 w-4" />)}
-            {renderNavGroup("Learning & Courses", learningNavigation, "learning", <BookOpen className="h-4 w-4" />)}
-            {renderNavGroup("Test Platform", testNavigation, "tests", <GraduationCap className="h-4 w-4" />)}
-            {renderNavGroup("Progress & Gamification", progressNavigation, "progress", <Trophy className="h-4 w-4" />)}
-            {renderNavGroup("XVibe Music", xvibeNavigation, "xvibe", <Music className="h-4 w-4" />)}
-            {renderNavGroup("Xstage Collaboration", xstageNavigation, "xstage", <Users className="h-4 w-4" />)}
-            {renderNavGroup("Integrations", integrationsNavigation, "integrations", <Plug className="h-4 w-4" />)}
-            {renderNavGroup("Media", mediaNavigation, "media", <Video className="h-4 w-4" />)}
-            {renderNavGroup("Files & Cloud", filesNavigation, "files", <Cloud className="h-4 w-4" />)}
-            {renderNavGroup("Xmail", xmailNavigation, "xmail", <Mail className="h-4 w-4" />)}
-            {renderNavGroup("Social", socialNavigation, "social", <MessageCircle className="h-4 w-4" />)}
-            {renderNavGroup("Debates", debateNavigation, "debate", <MessagesSquare className="h-4 w-4" />)}
-            {renderNavGroup("XFlow", xflowNavigation, "xflow", <Play className="h-4 w-4" />)}
-            {renderNavGroup("Tools & Utilities", toolsNavigation, "tools", <Settings className="h-4 w-4" />)}
-            {renderNavGroup("External Platforms", externalPlatforms, "external", <ExternalLink className="h-4 w-4" />)}
-            
-            {/* Live Classrooms */}
-            {renderNavGroup("Live Classrooms", liveClassroomNavigation, "liveClassrooms", <Video className="h-4 w-4" />)}
-            
-            {/* My Classes */}
-            {classrooms.length > 0 && (
-              <SidebarGroup className="py-1">
+            {/* Admin Section */}
+            {isAdmin && !adminLoading && (
+              <SidebarGroup className="py-0.5">
                 <Collapsible
-                  open={expandedSections.liveClasses}
-                  onOpenChange={() => toggleSection("liveClasses")}
+                  open={expandedSections.admin}
+                  onOpenChange={() => toggleSection("admin")}
                 >
                   <CollapsibleTrigger className="w-full">
-                    <motion.div whileHover={{ x: 2 }} whileTap={{ scale: 0.98 }}>
-                      <SidebarGroupLabel className="flex items-center justify-between cursor-pointer rounded-xl px-3 py-2.5 hover:bg-muted/50 transition-all">
+                    <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+                      <SidebarGroupLabel className={cn(
+                        "flex items-center justify-between cursor-pointer rounded-xl px-3 py-2.5 mx-1 transition-all duration-300",
+                        "hover:bg-red-500/10",
+                        expandedSections.admin && "bg-red-500/5"
+                      )}>
                         <div className="flex items-center gap-3">
-                          <div className="p-1.5 rounded-lg bg-success/20 text-success">
-                            <GraduationCap className="h-4 w-4" />
-                          </div>
-                          {!isCollapsed && <span className="font-semibold text-sm">My Classes</span>}
+                          <motion.div 
+                            animate={{ rotate: expandedSections.admin ? 5 : 0 }}
+                            className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 to-rose-500 text-white shadow-sm"
+                          >
+                            <ShieldCheck className="h-4 w-4" />
+                          </motion.div>
+                          {!isCollapsed && <span className="font-semibold text-sm">Admin</span>}
                         </div>
                         {!isCollapsed && (
                           <motion.div
-                            animate={{ rotate: expandedSections.liveClasses ? 180 : 0 }}
-                            transition={{ duration: 0.3 }}
+                            animate={{ rotate: expandedSections.admin ? 180 : 0 }}
+                            transition={{ duration: 0.3, type: "spring", stiffness: 200 }}
                           >
                             <ChevronDown className="h-4 w-4 text-muted-foreground" />
                           </motion.div>
@@ -940,38 +892,19 @@ export function AppSidebar() {
                       </SidebarGroupLabel>
                     </motion.div>
                   </CollapsibleTrigger>
-                  <AnimatePresence>
-                    {expandedSections.liveClasses && (
+                  <AnimatePresence initial={false}>
+                    {expandedSections.admin && (
                       <CollapsibleContent forceMount>
                         <motion.div
                           variants={groupVariants}
                           initial="hidden"
                           animate="visible"
                           exit="exit"
+                          className="overflow-hidden"
                         >
-                          <SidebarGroupContent className="pl-2">
-                            <SidebarMenu>
-                              {classrooms.map((classroom, index) => (
-                                <motion.div
-                                  key={classroom.id}
-                                  custom={index}
-                                  variants={sidebarItemVariants}
-                                  initial="hidden"
-                                  animate="visible"
-                                  whileHover="hover"
-                                >
-                                  <SidebarMenuItem>
-                                    <SidebarMenuButton asChild isActive={isActive(`/teacher/classrooms/${classroom.id}`)}>
-                                      <NavLink to={`/teacher/classrooms/${classroom.id}`} className="flex items-center gap-3">
-                                        <div className="p-1.5 rounded-lg text-muted-foreground">
-                                          <BookOpen className="h-4 w-4" />
-                                        </div>
-                                        {!isCollapsed && <span className="truncate font-medium">{classroom.name}</span>}
-                                      </NavLink>
-                                    </SidebarMenuButton>
-                                  </SidebarMenuItem>
-                                </motion.div>
-                              ))}
+                          <SidebarGroupContent className="pl-3 pr-1 py-1">
+                            <SidebarMenu className="space-y-0.5">
+                              {adminNavigation.map((item, index) => renderNavItem(item, false, index))}
                             </SidebarMenu>
                           </SidebarGroupContent>
                         </motion.div>
@@ -982,47 +915,99 @@ export function AppSidebar() {
               </SidebarGroup>
             )}
 
-            {/* Teacher Navigation */}
-            {(isTeacher || isAdmin) && !teacherLoading && renderNavGroup("Teacher", teacherNavigation, "teacher", <GraduationCap className="h-4 w-4" />)}
-            
-            {/* Admin Navigation */}
-            {isAdmin && !adminLoading && renderNavGroup("Admin", adminNavigation, "admin", <UserCog className="h-4 w-4" />)}
-            
-            {renderNavGroup("System & Settings", systemNavigation, "system", <Settings className="h-4 w-4" />)}
-            {renderNavGroup("Archive", archiveNavigation, "archive", <Archive className="h-4 w-4" />)}
-            {renderNavGroup("More", morePages, "more", <HelpCircle className="h-4 w-4" />)}
-          </>
+            {/* Teacher Section */}
+            {(isTeacher || isAdmin) && !teacherLoading && (
+              <SidebarGroup className="py-0.5">
+                <Collapsible
+                  open={expandedSections.teacher}
+                  onOpenChange={() => toggleSection("teacher")}
+                >
+                  <CollapsibleTrigger className="w-full">
+                    <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+                      <SidebarGroupLabel className={cn(
+                        "flex items-center justify-between cursor-pointer rounded-xl px-3 py-2.5 mx-1 transition-all duration-300",
+                        "hover:bg-blue-500/10",
+                        expandedSections.teacher && "bg-blue-500/5"
+                      )}>
+                        <div className="flex items-center gap-3">
+                          <motion.div 
+                            animate={{ rotate: expandedSections.teacher ? 5 : 0 }}
+                            className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 text-white shadow-sm"
+                          >
+                            <GraduationCap className="h-4 w-4" />
+                          </motion.div>
+                          {!isCollapsed && <span className="font-semibold text-sm">Teacher</span>}
+                        </div>
+                        {!isCollapsed && (
+                          <motion.div
+                            animate={{ rotate: expandedSections.teacher ? 180 : 0 }}
+                            transition={{ duration: 0.3, type: "spring", stiffness: 200 }}
+                          >
+                            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                          </motion.div>
+                        )}
+                      </SidebarGroupLabel>
+                    </motion.div>
+                  </CollapsibleTrigger>
+                  <AnimatePresence initial={false}>
+                    {expandedSections.teacher && (
+                      <CollapsibleContent forceMount>
+                        <motion.div
+                          variants={groupVariants}
+                          initial="hidden"
+                          animate="visible"
+                          exit="exit"
+                          className="overflow-hidden"
+                        >
+                          <SidebarGroupContent className="pl-3 pr-1 py-1">
+                            <SidebarMenu className="space-y-0.5">
+                              {teacherNavigation.map((item, index) => renderNavItem(item, false, index))}
+                            </SidebarMenu>
+                          </SidebarGroupContent>
+                        </motion.div>
+                      </CollapsibleContent>
+                    )}
+                  </AnimatePresence>
+                </Collapsible>
+              </SidebarGroup>
+            )}
+          </motion.div>
         )}
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border/50 p-3">
-        <SidebarMenu>
-          <motion.div
-            whileHover={{ x: 4 }}
-            whileTap={{ scale: 0.98 }}
+      {/* Footer */}
+      <SidebarFooter className="border-t border-sidebar-border/30 p-3">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+        >
+          <NavLink 
+            to="/profile" 
+            className={cn(
+              "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300",
+              "hover:bg-muted/60 group"
+            )}
           >
-            <SidebarMenuItem>
-              <SidebarMenuButton 
-                asChild 
-                isActive={isActive("/settings")}
-                className={cn(
-                  "rounded-xl transition-all duration-300",
-                  isActive("/settings") && "bg-gradient-to-r from-primary/20 to-transparent"
-                )}
-              >
-                <NavLink to="/settings" className="flex items-center gap-3">
-                  <div className={cn(
-                    "p-1.5 rounded-lg transition-all",
-                    isActive("/settings") ? "bg-primary/20 text-primary" : "text-muted-foreground"
-                  )}>
-                    <Settings className="h-4 w-4" />
-                  </div>
-                  {!isCollapsed && <span className="font-medium">Settings</span>}
-                </NavLink>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </motion.div>
-        </SidebarMenu>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Avatar className="h-9 w-9 ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
+                <AvatarImage src="" />
+                <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-white text-sm font-medium">
+                  U
+                </AvatarFallback>
+              </Avatar>
+            </motion.div>
+            {!isCollapsed && (
+              <div className="flex flex-col min-w-0">
+                <span className="font-medium text-sm truncate">User Profile</span>
+                <span className="text-[10px] text-muted-foreground">Level {level}</span>
+              </div>
+            )}
+          </NavLink>
+        </motion.div>
       </SidebarFooter>
     </Sidebar>
   );
