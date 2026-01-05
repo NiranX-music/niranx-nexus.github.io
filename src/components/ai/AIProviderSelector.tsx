@@ -1,7 +1,8 @@
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Bot, Sparkles, Zap, Brain, MessageSquare, Cpu, Globe, Star } from 'lucide-react';
+import { Bot, Sparkles, Zap, Brain, MessageSquare, Cpu, Globe, Star, Search, CheckCircle2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 export interface AIProvider {
   id: string;
@@ -11,9 +12,63 @@ export interface AIProvider {
   models: { id: string; name: string; description?: string }[];
   requiresApiKey: boolean;
   apiKeyName?: string;
+  isConfigured?: boolean; // Whether API key is already set up
 }
 
+// These providers have API keys configured in the system
+const CONFIGURED_PROVIDERS = ['lovable', 'openrouter', 'perplexity', 'openai-direct', 'groq', 'deepseek', 'aiml'];
+
 export const AI_PROVIDERS: AIProvider[] = [
+  {
+    id: 'lovable',
+    name: 'Lovable AI',
+    description: 'Built-in AI (No API key needed)',
+    icon: <Star className="h-4 w-4 text-yellow-500" />,
+    models: [
+      { id: 'google/gemini-2.5-flash', name: 'Gemini 2.5 Flash', description: 'Fast & capable' },
+      { id: 'google/gemini-2.5-pro', name: 'Gemini 2.5 Pro', description: 'Most capable' },
+      { id: 'google/gemini-2.5-flash-lite', name: 'Gemini 2.5 Flash Lite', description: 'Fastest' },
+      { id: 'openai/gpt-5', name: 'GPT-5', description: 'Powerful all-rounder' },
+      { id: 'openai/gpt-5-mini', name: 'GPT-5 Mini', description: 'Balanced performance' },
+      { id: 'openai/gpt-5-nano', name: 'GPT-5 Nano', description: 'Fast & cheap' },
+    ],
+    requiresApiKey: false,
+    isConfigured: true,
+  },
+  {
+    id: 'openrouter',
+    name: 'OpenRouter',
+    description: 'Access 100+ AI models',
+    icon: <Globe className="h-4 w-4 text-purple-500" />,
+    models: [
+      { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet', description: 'Latest Claude' },
+      { id: 'anthropic/claude-3-opus', name: 'Claude 3 Opus', description: 'Most intelligent' },
+      { id: 'google/gemini-pro-1.5', name: 'Gemini Pro 1.5', description: 'Advanced reasoning' },
+      { id: 'meta-llama/llama-3.1-405b-instruct', name: 'Llama 3.1 405B', description: 'Largest open model' },
+      { id: 'mistralai/mistral-large', name: 'Mistral Large', description: 'Powerful Mistral' },
+      { id: 'openai/gpt-4-turbo', name: 'GPT-4 Turbo', description: 'Fast GPT-4' },
+      { id: 'cohere/command-r-plus', name: 'Command R+', description: 'Great for RAG' },
+    ],
+    requiresApiKey: true,
+    apiKeyName: 'OPENROUTER_API_KEY',
+    isConfigured: true,
+  },
+  {
+    id: 'perplexity',
+    name: 'Perplexity AI',
+    description: 'AI-powered search & research',
+    icon: <Search className="h-4 w-4 text-cyan-500" />,
+    models: [
+      { id: 'sonar', name: 'Sonar', description: 'Fast search' },
+      { id: 'sonar-pro', name: 'Sonar Pro', description: '2x more citations' },
+      { id: 'sonar-reasoning', name: 'Sonar Reasoning', description: 'Chain-of-thought' },
+      { id: 'sonar-reasoning-pro', name: 'Sonar Reasoning Pro', description: 'Advanced reasoning' },
+      { id: 'sonar-deep-research', name: 'Sonar Deep Research', description: 'Expert research' },
+    ],
+    requiresApiKey: true,
+    apiKeyName: 'PERPLEXITY_API_KEY',
+    isConfigured: true,
+  },
   {
     id: 'openai-direct',
     name: 'OpenAI (Direct)',
@@ -27,50 +82,13 @@ export const AI_PROVIDERS: AIProvider[] = [
     ],
     requiresApiKey: true,
     apiKeyName: 'OPENAI_API_KEY',
-  },
-  {
-    id: 'openai',
-    name: 'OpenAI (OpenRouter)',
-    description: 'GPT-4, GPT-3.5 via OpenRouter',
-    icon: <Bot className="h-4 w-4" />,
-    models: [
-      { id: 'openai/gpt-4-turbo', name: 'GPT-4 Turbo', description: 'Most capable' },
-      { id: 'openai/gpt-4', name: 'GPT-4', description: 'High quality' },
-      { id: 'openai/gpt-3.5-turbo', name: 'GPT-3.5 Turbo', description: 'Fast & efficient' },
-    ],
-    requiresApiKey: true,
-    apiKeyName: 'OPENROUTER_API_KEY',
-  },
-  {
-    id: 'anthropic',
-    name: 'Anthropic Claude',
-    description: 'Claude 3 models via OpenRouter',
-    icon: <Brain className="h-4 w-4" />,
-    models: [
-      { id: 'anthropic/claude-3-opus', name: 'Claude 3 Opus', description: 'Most intelligent' },
-      { id: 'anthropic/claude-3-sonnet', name: 'Claude 3 Sonnet', description: 'Balanced' },
-      { id: 'anthropic/claude-3-haiku', name: 'Claude 3 Haiku', description: 'Fast' },
-    ],
-    requiresApiKey: true,
-    apiKeyName: 'OPENROUTER_API_KEY',
-  },
-  {
-    id: 'google',
-    name: 'Google Gemini',
-    description: 'Gemini Pro models via OpenRouter',
-    icon: <Sparkles className="h-4 w-4" />,
-    models: [
-      { id: 'google/gemini-pro', name: 'Gemini Pro', description: 'Advanced reasoning' },
-      { id: 'google/gemini-pro-vision', name: 'Gemini Pro Vision', description: 'With vision' },
-    ],
-    requiresApiKey: true,
-    apiKeyName: 'OPENROUTER_API_KEY',
+    isConfigured: true,
   },
   {
     id: 'groq',
     name: 'Groq',
     description: 'Ultra-fast inference',
-    icon: <Zap className="h-4 w-4" />,
+    icon: <Zap className="h-4 w-4 text-orange-500" />,
     models: [
       { id: 'llama-3.3-70b-versatile', name: 'Llama 3.3 70B', description: 'Powerful & fast' },
       { id: 'llama-3.1-8b-instant', name: 'Llama 3.1 8B', description: 'Instant responses' },
@@ -78,55 +96,60 @@ export const AI_PROVIDERS: AIProvider[] = [
     ],
     requiresApiKey: true,
     apiKeyName: 'GROQ_API_KEY',
+    isConfigured: true,
   },
   {
     id: 'deepseek',
     name: 'DeepSeek',
     description: 'Specialized coding model',
-    icon: <Cpu className="h-4 w-4" />,
+    icon: <Cpu className="h-4 w-4 text-blue-500" />,
     models: [
       { id: 'deepseek-chat', name: 'DeepSeek Chat', description: 'General purpose' },
       { id: 'deepseek-coder', name: 'DeepSeek Coder', description: 'Code specialist' },
     ],
     requiresApiKey: true,
     apiKeyName: 'DEEPSEEK_API_KEY',
+    isConfigured: true,
   },
   {
     id: 'aiml',
     name: 'AIML API',
     description: 'Various AI models',
-    icon: <MessageSquare className="h-4 w-4" />,
+    icon: <MessageSquare className="h-4 w-4 text-pink-500" />,
     models: [
       { id: 'gpt-4o', name: 'GPT-4o', description: 'Multimodal' },
       { id: 'claude-3-5-sonnet', name: 'Claude 3.5 Sonnet', description: 'Latest Claude' },
     ],
     requiresApiKey: true,
     apiKeyName: 'AIML_API_KEY',
+    isConfigured: true,
   },
   {
-    id: 'openrouter',
-    name: 'OpenRouter',
-    description: 'Access 100+ models',
-    icon: <Globe className="h-4 w-4" />,
+    id: 'anthropic',
+    name: 'Anthropic Claude',
+    description: 'Claude models via OpenRouter',
+    icon: <Brain className="h-4 w-4 text-amber-500" />,
     models: [
-      { id: 'meta-llama/llama-3.1-405b-instruct', name: 'Llama 3.1 405B', description: 'Largest open model' },
-      { id: 'mistralai/mistral-large', name: 'Mistral Large', description: 'Powerful Mistral' },
-      { id: 'cohere/command-r-plus', name: 'Command R+', description: 'Great for RAG' },
+      { id: 'anthropic/claude-3-opus', name: 'Claude 3 Opus', description: 'Most intelligent' },
+      { id: 'anthropic/claude-3-sonnet', name: 'Claude 3 Sonnet', description: 'Balanced' },
+      { id: 'anthropic/claude-3-haiku', name: 'Claude 3 Haiku', description: 'Fast' },
     ],
     requiresApiKey: true,
     apiKeyName: 'OPENROUTER_API_KEY',
+    isConfigured: true,
   },
   {
-    id: 'lovable',
-    name: 'Lovable AI',
-    description: 'Built-in AI (No API key needed)',
-    icon: <Star className="h-4 w-4 text-yellow-500" />,
+    id: 'google',
+    name: 'Google Gemini',
+    description: 'Gemini Pro via OpenRouter',
+    icon: <Sparkles className="h-4 w-4 text-blue-400" />,
     models: [
-      { id: 'google/gemini-2.5-flash', name: 'Gemini 2.5 Flash', description: 'Fast & capable' },
-      { id: 'google/gemini-2.5-pro', name: 'Gemini 2.5 Pro', description: 'Most capable' },
-      { id: 'openai/gpt-5-mini', name: 'GPT-5 Mini', description: 'Balanced performance' },
+      { id: 'google/gemini-pro', name: 'Gemini Pro', description: 'Advanced reasoning' },
+      { id: 'google/gemini-pro-vision', name: 'Gemini Pro Vision', description: 'With vision' },
     ],
-    requiresApiKey: false,
+    requiresApiKey: true,
+    apiKeyName: 'OPENROUTER_API_KEY',
+    isConfigured: true,
   },
 ];
 
@@ -167,6 +190,9 @@ export function AIProviderSelector({
               <div className="flex items-center gap-2">
                 {provider.icon}
                 <span>{provider.name}</span>
+                {provider.isConfigured && (
+                  <CheckCircle2 className="h-3 w-3 text-green-500" />
+                )}
               </div>
             </SelectValue>
           </SelectTrigger>
@@ -175,12 +201,16 @@ export function AIProviderSelector({
               <SelectItem key={p.id} value={p.id}>
                 <div className="flex items-center gap-2">
                   {p.icon}
-                  <div>
+                  <div className="flex items-center gap-2">
                     <span className="font-medium">{p.name}</span>
-                    {!compact && (
-                      <span className="text-xs text-muted-foreground ml-2">
-                        {p.requiresApiKey ? '(API Key required)' : '(Free)'}
-                      </span>
+                    {p.isConfigured ? (
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 bg-green-500/10 text-green-500 border-green-500/30">
+                        Ready
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 text-muted-foreground">
+                        API Key required
+                      </Badge>
                     )}
                   </div>
                 </div>
