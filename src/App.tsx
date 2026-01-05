@@ -247,6 +247,19 @@ import VirtualLabs from "./pages/VirtualLabs";
 import ARFlashcards from "./pages/ARFlashcards";
 import MindMapBuilder from "./pages/MindMapBuilder";
 
+// Phase 3: Smart Document Features
+import SmartPDFChat from "./pages/SmartPDFChat";
+import AIMeetingMinutes from "./pages/AIMeetingMinutes";
+import AutoStudyPlanner from "./pages/AutoStudyPlanner";
+import BrowserExtensionSync from "./pages/BrowserExtensionSync";
+
+// Phase 4 & 5: Advanced Features
+import AIWritingAssistant from "./pages/AIWritingAssistant";
+import CollaborativeWhiteboard from "./pages/CollaborativeWhiteboard";
+import IntegrationHub from "./pages/IntegrationHub";
+import SpacedRepetition from "./pages/SpacedRepetition";
+import QuickNotes from "./pages/QuickNotes";
+
 // Support Pages
 import Contact from "./pages/support/Contact";
 import HelpCentre from "./pages/support/HelpCentre";
@@ -522,6 +535,19 @@ const App = () => (
                           <Route path="/virtual-labs" element={<VirtualLabs />} />
                           <Route path="/ar-flashcards" element={<ARFlashcards />} />
                           <Route path="/mind-maps" element={<MindMapBuilder />} />
+                          
+                          {/* Phase 3: Smart Document Features */}
+                          <Route path="/smart-pdf-chat" element={<SmartPDFChat />} />
+                          <Route path="/ai-meeting-minutes" element={<AIMeetingMinutes />} />
+                          <Route path="/auto-study-planner" element={<AutoStudyPlanner />} />
+                          <Route path="/browser-extension-sync" element={<BrowserExtensionSync />} />
+                          
+                          {/* Phase 4 & 5: Advanced Features */}
+                          <Route path="/ai-writing-assistant" element={<AIWritingAssistant />} />
+                          <Route path="/collaborative-whiteboard" element={<CollaborativeWhiteboard />} />
+                          <Route path="/integration-hub" element={<IntegrationHub />} />
+                          <Route path="/spaced-repetition" element={<SpacedRepetition />} />
+                          <Route path="/quick-notes" element={<QuickNotes />} />
                           
                           <Route path="/ferqx" element={<FerqX />} />
                           <Route path="/integrations" element={<Integrations />} />

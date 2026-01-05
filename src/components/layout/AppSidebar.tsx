@@ -76,6 +76,9 @@ import {
   FileSearch,
   CalendarClock,
   Chrome,
+  Pen,
+  StickyNote,
+  Combine,
 } from "lucide-react";
 import {
   Sidebar,
@@ -140,6 +143,7 @@ const aiCornerNavigation = [
   { title: "AI Image Generator", url: "/lovable-image-gen", icon: Image },
   { title: "Smart PDF Chat", url: "/smart-pdf-chat", icon: FileSearch },
   { title: "AI Meeting Minutes", url: "/ai-meeting-minutes", icon: Mic },
+  { title: "AI Writing Assistant", url: "/ai-writing-assistant", icon: Pen },
 ];
 
 // AI Development
@@ -163,8 +167,11 @@ const studyNavigation = [
   { title: "AR Flashcards", url: "/ar-flashcards", icon: Eye },
   { title: "Exams", url: "/exams", icon: GraduationCap },
   { title: "Whiteboard", url: "/whiteboard", icon: PenTool },
+  { title: "Collaborative Whiteboard", url: "/collaborative-whiteboard", icon: Combine },
   { title: "Mind Map Builder", url: "/mind-maps", icon: Map },
   { title: "Auto Study Planner", url: "/auto-study-planner", icon: CalendarClock },
+  { title: "Spaced Repetition", url: "/spaced-repetition", icon: Brain },
+  { title: "Quick Notes", url: "/quick-notes", icon: StickyNote },
 ];
 
 // Learning & Courses
@@ -225,7 +232,8 @@ const xstageNavigation = [
 
 // Integrations
 const integrationsNavigation = [
-  { title: "Integrations Hub", url: "/integrations", icon: Plug },
+  { title: "Integration Hub", url: "/integration-hub", icon: Plug },
+  { title: "Integrations", url: "/integrations", icon: Plug },
   { title: "FerqX Radio", url: "/integrations?tab=radio", icon: Radio },
   { title: "Browser Extension", url: "/browser-extension-sync", icon: Chrome },
 ];
