@@ -15,9 +15,23 @@ export interface AIProvider {
 
 export const AI_PROVIDERS: AIProvider[] = [
   {
+    id: 'openai-direct',
+    name: 'OpenAI (Direct)',
+    description: 'GPT-5, GPT-4.1 via official API',
+    icon: <Bot className="h-4 w-4 text-green-500" />,
+    models: [
+      { id: 'gpt-5-2025-08-07', name: 'GPT-5', description: 'Flagship model' },
+      { id: 'gpt-5-mini-2025-08-07', name: 'GPT-5 Mini', description: 'Fast & efficient' },
+      { id: 'gpt-4.1-2025-04-14', name: 'GPT-4.1', description: 'Reliable results' },
+      { id: 'gpt-4o-mini', name: 'GPT-4o Mini', description: 'Vision capable' },
+    ],
+    requiresApiKey: true,
+    apiKeyName: 'OPENAI_API_KEY',
+  },
+  {
     id: 'openai',
-    name: 'OpenAI',
-    description: 'GPT-4, GPT-3.5 models via OpenRouter',
+    name: 'OpenAI (OpenRouter)',
+    description: 'GPT-4, GPT-3.5 via OpenRouter',
     icon: <Bot className="h-4 w-4" />,
     models: [
       { id: 'openai/gpt-4-turbo', name: 'GPT-4 Turbo', description: 'Most capable' },

@@ -57,7 +57,29 @@ Only return the JSON array, no other text.`;
     let body: any;
 
     // Route to appropriate API based on provider
-    if (provider === 'lovable') {
+    if (provider === 'openai-direct') {
+      apiUrl = 'https://api.openai.com/v1/chat/completions';
+      const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+      if (!OPENAI_API_KEY) {
+        throw new Error('OPENAI_API_KEY is not configured. Please add it in settings.');
+      }
+      headers = {
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
+      };
+      
+      // Check if model is GPT-5 or newer (requires different parameters)
+      const isNewModel = model?.includes('gpt-5') || model?.includes('gpt-4.1') || model?.includes('o3') || model?.includes('o4');
+      
+      body = {
+        model: model || 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ],
+        ...(isNewModel ? { max_completion_tokens: 4096 } : { max_tokens: 4096, temperature: 0.7 }),
+      };
+    } else if (provider === 'lovable') {
       apiUrl = 'https://ai.gateway.lovable.dev/v1/chat/completions';
       const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
       if (!LOVABLE_API_KEY) {
