@@ -200,16 +200,16 @@ export default function AutoStudyPlanner() {
     }
 
     try {
-      const { error } = await supabase.from("ai_generations").insert({
+      const { error } = await supabase.from("ai_generations").insert([{
         user_id: user.id,
         tool_type: "study_planner",
         prompt: subjects.map(s => s.name).join(", "),
-        result_data: {
+        result_data: JSON.parse(JSON.stringify({
           name: currentPlanName,
           subjects,
           schedule,
-        },
-      });
+        })),
+      }]);
 
       if (error) throw error;
 
