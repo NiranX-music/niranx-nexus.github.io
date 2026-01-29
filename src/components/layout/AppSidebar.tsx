@@ -85,6 +85,7 @@ import {
   Workflow,
   Cpu,
   Rocket,
+  Puzzle,
 } from "lucide-react";
 import {
   Sidebar,
@@ -303,6 +304,7 @@ const navigationConfig = {
     items: [
       { title: "Integration Hub", url: "/integration-hub", icon: Plug },
       { title: "Browser Extension", url: "/browser-extension-sync", icon: Chrome },
+      { title: "Extension Download", url: "/extension-download", icon: Puzzle },
       { title: "Password Manager", url: "/password-manager", icon: Lock },
       { title: "AI Website Generator", url: "/ai-website-generator", icon: Sparkles },
       { title: "Web Search", url: "/web-search", icon: Search },

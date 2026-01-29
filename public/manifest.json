@@ -1,0 +1,52 @@
+{
+  "manifest_version": 3,
+  "name": "NiranX StudyVerse",
+  "short_name": "NiranX",
+  "version": "1.0.0",
+  "description": "Your Ultimate Study Companion - AI-powered learning, focus tools, and productivity features. Transform your new tab into a study dashboard.",
+  "author": "NiranX Team",
+  "homepage_url": "https://niranx-nexus.lovable.app",
+  "icons": {
+    "16": "pwa-192x192.png",
+    "32": "pwa-192x192.png",
+    "48": "pwa-192x192.png",
+    "128": "pwa-512x512.png"
+  },
+  "chrome_url_overrides": {
+    "newtab": "index.html"
+  },
+  "permissions": [
+    "storage",
+    "alarms",
+    "notifications"
+  ],
+  "optional_permissions": [
+    "tabs",
+    "bookmarks",
+    "history"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["*.png", "*.jpg", "*.svg", "*.woff2", "*.mp3"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "action": {
+    "default_icon": {
+      "16": "pwa-192x192.png",
+      "32": "pwa-192x192.png",
+      "48": "pwa-192x192.png",
+      "128": "pwa-512x512.png"
+    },
+    "default_title": "NiranX StudyVerse"
+  },
+  "offline_enabled": true,
+  "minimum_chrome_version": "88"
+}

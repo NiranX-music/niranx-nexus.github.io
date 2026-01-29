@@ -275,6 +275,7 @@ import GradeCalculator from "./pages/GradeCalculator";
 import ReadingTrainer from "./pages/ReadingTrainer";
 import ExamSimulator from "./pages/ExamSimulator";
 import ConceptExplainer from "./pages/ConceptExplainer";
+import ExtensionDownload from "./pages/ExtensionDownload";
 
 // Support Pages
 import Contact from "./pages/support/Contact";
@@ -462,6 +463,7 @@ const App = () => (
                           <Route path="/manage-drives" element={<ManageDrives />} />
                           <Route path="backblaze-storage" element={<BackblazeStorage />} />
                           <Route path="/pwa-download" element={<PWADownload />} />
+                          <Route path="/extension-download" element={<ExtensionDownload />} />
                           <Route path="/twa-setup" element={<TWASetup />} />
                           <Route path="/security/2fa" element={<TwoFactorAuth />} />
                           <Route path="/security/sessions" element={<SessionManager />} />
