@@ -9,6 +9,8 @@ const navLinks = [
   { name: 'Home', href: '/' },
   { name: 'Nexus', href: '/nexus' },
   { name: 'Songs', href: '/songs' },
+  { name: 'Privacy', href: '/privacy' },
+  { name: 'Terms', href: '/terms' },
 ];
 
 export function NiranXNavigation() {
