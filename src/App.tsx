@@ -209,6 +209,7 @@ import AdminArtistAccounts from "./pages/admin/AdminArtistAccounts";
 import FerqX from "./pages/FerqX";
 import Integrations from "./pages/Integrations";
 import BytezAI from "./pages/BytezAI";
+import XNexusAI from "./pages/XNexusAI";
 
 // Test Platform
 import TestHub from "./pages/tests/TestHub";
@@ -586,6 +587,7 @@ const App = () => (
                           <Route path="/ferqx" element={<FerqX />} />
                           <Route path="/integrations" element={<Integrations />} />
                           <Route path="/bytez-ai" element={<BytezAI />} />
+                          <Route path="/xnexus-ai" element={<XNexusAI />} />
                           
                           <Route path="/mailbox" element={<Mailbox />} />
                           <Route path="/xmail" element={<Mailbox />} />
