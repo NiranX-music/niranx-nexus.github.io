@@ -142,6 +142,7 @@ const navigationConfig = {
     icon: Brain,
     color: "from-purple-500 to-pink-500",
     items: [
+      { title: "XNexus AI", url: "/xnexus-ai", icon: Rocket },
       { title: "AI Corner", url: "/ai-corner", icon: Sparkles },
       { title: "AI Chat", url: "/ai-chat", icon: Brain },
       { title: "AI Solver", url: "/ai-solver", icon: Zap },
