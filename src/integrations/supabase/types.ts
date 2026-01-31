@@ -107,6 +107,78 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_api_keys_registry: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_name: string
+          id: string
+          is_configured: boolean | null
+          key_name: string
+          last_updated: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_name: string
+          id?: string
+          is_configured?: boolean | null
+          key_name: string
+          last_updated?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_name?: string
+          id?: string
+          is_configured?: boolean | null
+          key_name?: string
+          last_updated?: string | null
+        }
+        Relationships: []
+      }
+      admin_custom_pages: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          css_content: string | null
+          html_content: string
+          id: string
+          is_published: boolean | null
+          js_content: string | null
+          meta_description: string | null
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          css_content?: string | null
+          html_content: string
+          id?: string
+          is_published?: boolean | null
+          js_content?: string | null
+          meta_description?: string | null
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          css_content?: string | null
+          html_content?: string
+          id?: string
+          is_published?: boolean | null
+          js_content?: string | null
+          meta_description?: string | null
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       admin_editable_content: {
         Row: {
           content_key: string

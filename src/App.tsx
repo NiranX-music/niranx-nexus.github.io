@@ -210,6 +210,7 @@ import FerqX from "./pages/FerqX";
 import Integrations from "./pages/Integrations";
 import BytezAI from "./pages/BytezAI";
 import XNexusAI from "./pages/XNexusAI";
+import CustomPage from "./pages/CustomPage";
 
 // Test Platform
 import TestHub from "./pages/tests/TestHub";
@@ -341,6 +342,7 @@ const App = () => (
                         <Route path="/" element={<Landing />} />
                         <Route path="/nexus" element={<Nexus />} />
                         <Route path="/songs" element={<Songs />} />
+                        <Route path="/p/:slug" element={<CustomPage />} />
                         <Route path="/auth" element={<Auth />} />
                         <Route path="/reset-password" element={<ResetPassword />} />
                         <Route path="/magic-link" element={<MagicLink />} />
