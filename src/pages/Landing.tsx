@@ -1,10 +1,13 @@
 import { NiranXNavigation } from '@/components/niranx/NiranXNavigation';
 import { HeroSection } from '@/components/niranx/HeroSection';
+import { AboutSection } from '@/components/niranx/AboutSection';
+import { ShortcutsSection } from '@/components/niranx/ShortcutsSection';
 import { MusicSection } from '@/components/niranx/MusicSection';
 import { ProjectsSection } from '@/components/niranx/ProjectsSection';
 import { TechStackSection } from '@/components/niranx/TechStackSection';
+import { TestimonialsSection } from '@/components/niranx/TestimonialsSection';
 import { ContactSection } from '@/components/niranx/ContactSection';
-import { NiranXFooter } from '@/components/niranx/NiranXFooter';
+import { EnhancedFooter } from '@/components/niranx/EnhancedFooter';
 import { NewsletterPopup } from '@/components/niranx/NewsletterPopup';
 
 const Landing = () => {
@@ -13,12 +16,15 @@ const Landing = () => {
       <NiranXNavigation />
       <main>
         <HeroSection />
+        <AboutSection />
+        <ShortcutsSection />
         <MusicSection />
         <ProjectsSection />
         <TechStackSection />
+        <TestimonialsSection />
         <ContactSection />
       </main>
-      <NiranXFooter />
+      <EnhancedFooter />
       <NewsletterPopup />
     </div>
   );
