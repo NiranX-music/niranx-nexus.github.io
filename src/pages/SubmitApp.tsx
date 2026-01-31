@@ -25,6 +25,11 @@ export default function SubmitApp() {
     htmlContent: "",
     cssContent: "",
     jsContent: "",
+    reactContent: "",
+    pythonContent: "",
+    cppContent: "",
+    javaContent: "",
+    typescriptContent: "",
   });
 
   const handleInputChange = (field: string, value: string) => {
@@ -184,10 +189,15 @@ export default function SubmitApp() {
           <div className="space-y-2">
             <Label>Code</Label>
             <Tabs defaultValue="html" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="html">HTML *</TabsTrigger>
-                <TabsTrigger value="css">CSS</TabsTrigger>
-                <TabsTrigger value="js">JavaScript</TabsTrigger>
+              <TabsList className="flex flex-wrap gap-1 h-auto p-1">
+                <TabsTrigger value="html" className="text-xs">HTML *</TabsTrigger>
+                <TabsTrigger value="css" className="text-xs">CSS</TabsTrigger>
+                <TabsTrigger value="js" className="text-xs">JavaScript</TabsTrigger>
+                <TabsTrigger value="react" className="text-xs">React/JSX</TabsTrigger>
+                <TabsTrigger value="typescript" className="text-xs">TypeScript</TabsTrigger>
+                <TabsTrigger value="python" className="text-xs">Python</TabsTrigger>
+                <TabsTrigger value="cpp" className="text-xs">C++</TabsTrigger>
+                <TabsTrigger value="java" className="text-xs">Java</TabsTrigger>
               </TabsList>
               <TabsContent value="html">
                 <Textarea
@@ -212,6 +222,51 @@ export default function SubmitApp() {
                   placeholder="// Your JavaScript code here"
                   value={formData.jsContent}
                   onChange={(e) => handleInputChange("jsContent", e.target.value)}
+                  rows={15}
+                  className="font-mono text-sm"
+                />
+              </TabsContent>
+              <TabsContent value="react">
+                <Textarea
+                  placeholder={`import React from 'react';\n\nfunction MyComponent() {\n  return (\n    <div className="app">\n      <h1>Hello World</h1>\n    </div>\n  );\n}\n\nexport default MyComponent;`}
+                  value={formData.reactContent}
+                  onChange={(e) => handleInputChange("reactContent", e.target.value)}
+                  rows={15}
+                  className="font-mono text-sm"
+                />
+              </TabsContent>
+              <TabsContent value="typescript">
+                <Textarea
+                  placeholder={`interface Props {\n  name: string;\n  age: number;\n}\n\nconst greet = (props: Props): string => {\n  return \`Hello \${props.name}!\`;\n};`}
+                  value={formData.typescriptContent}
+                  onChange={(e) => handleInputChange("typescriptContent", e.target.value)}
+                  rows={15}
+                  className="font-mono text-sm"
+                />
+              </TabsContent>
+              <TabsContent value="python">
+                <Textarea
+                  placeholder={`# Python code\ndef main():\n    print("Hello, World!")\n\nif __name__ == "__main__":\n    main()`}
+                  value={formData.pythonContent}
+                  onChange={(e) => handleInputChange("pythonContent", e.target.value)}
+                  rows={15}
+                  className="font-mono text-sm"
+                />
+              </TabsContent>
+              <TabsContent value="cpp">
+                <Textarea
+                  placeholder={`#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello, World!" << endl;\n    return 0;\n}`}
+                  value={formData.cppContent}
+                  onChange={(e) => handleInputChange("cppContent", e.target.value)}
+                  rows={15}
+                  className="font-mono text-sm"
+                />
+              </TabsContent>
+              <TabsContent value="java">
+                <Textarea
+                  placeholder={`public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}`}
+                  value={formData.javaContent}
+                  onChange={(e) => handleInputChange("javaContent", e.target.value)}
                   rows={15}
                   className="font-mono text-sm"
                 />
