@@ -153,7 +153,7 @@ export default function GeneratedWebsite() {
     }
 
     toast.success("Website deleted successfully");
-    navigate("/niranx/ai-website-generator");
+    navigate("/ai-website-generator");
   };
 
   const copyToClipboard = (code: string, type: string) => {
@@ -276,7 +276,7 @@ export default function GeneratedWebsite() {
         <div className="text-center space-y-4">
           <h2 className="text-2xl font-bold">Website not found</h2>
           <p className="text-muted-foreground">The website you're looking for doesn't exist.</p>
-          <Button onClick={() => navigate("/niranx/ai-website-generator")}>
+          <Button onClick={() => navigate("/ai-website-generator")}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Generator
           </Button>
@@ -307,7 +307,7 @@ export default function GeneratedWebsite() {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => navigate("/niranx/ai-website-generator")}
+                onClick={() => navigate("/ai-website-generator")}
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>

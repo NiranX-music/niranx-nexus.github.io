@@ -83,25 +83,25 @@ export function AppLayout({ children }: AppLayoutProps) {
     {
       key: "1",
       metaKey: true,
-      callback: () => navigate("/niranx/dashboard"),
+      callback: () => navigate("/dashboard"),
       description: "Go to Dashboard",
     },
     {
       key: "2",
       metaKey: true,
-      callback: () => navigate("/niranx/tasks"),
+      callback: () => navigate("/tasks"),
       description: "Go to Tasks",
     },
     {
       key: "3",
       metaKey: true,
-      callback: () => navigate("/niranx/focus-engine"),
+      callback: () => navigate("/focus-engine"),
       description: "Go to Focus Engine",
     },
     {
       key: "4",
       metaKey: true,
-      callback: () => navigate("/niranx/profile"),
+      callback: () => navigate("/profile"),
       description: "Go to Profile",
     },
     {

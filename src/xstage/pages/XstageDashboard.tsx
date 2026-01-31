@@ -175,7 +175,7 @@ export const XstageDashboard = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate('/niranx/xstage/app/calendar')}
+              onClick={() => navigate('/xstage/app/calendar')}
               className="text-cyan-400 hover:text-cyan-300"
             >
               View all
@@ -195,7 +195,7 @@ export const XstageDashboard = () => {
                 <p className="text-sm text-muted-foreground mb-3">No upcoming events</p>
                 <Button
                   size="sm"
-                  onClick={() => navigate('/niranx/xstage/app/calendar')}
+                  onClick={() => navigate('/xstage/app/calendar')}
                   className="bg-gradient-to-r from-cyan-500 to-fuchsia-500"
                 >
                   <Plus className="mr-1 h-4 w-4" />
@@ -210,7 +210,7 @@ export const XstageDashboard = () => {
                     <div
                       key={event.id}
                       className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
-                      onClick={() => navigate('/niranx/xstage/app/calendar')}
+                      onClick={() => navigate('/xstage/app/calendar')}
                     >
                       <div className={`p-2 rounded-lg ${config.bg}`}>
                         <Clock className={`h-4 w-4 ${config.color}`} />
@@ -243,7 +243,7 @@ export const XstageDashboard = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate('/niranx/xstage/app/files')}
+              onClick={() => navigate('/xstage/app/files')}
               className="text-cyan-400 hover:text-cyan-300"
             >
               View all
@@ -263,7 +263,7 @@ export const XstageDashboard = () => {
                 <p className="text-sm text-muted-foreground mb-3">No files uploaded yet</p>
                 <Button
                   size="sm"
-                  onClick={() => navigate('/niranx/xstage/app/files')}
+                  onClick={() => navigate('/xstage/app/files')}
                   className="bg-gradient-to-r from-cyan-500 to-fuchsia-500"
                 >
                   <Plus className="mr-1 h-4 w-4" />
@@ -276,7 +276,7 @@ export const XstageDashboard = () => {
                   <div
                     key={file.id}
                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
-                    onClick={() => navigate('/niranx/xstage/app/files')}
+                    onClick={() => navigate('/xstage/app/files')}
                   >
                     <div className="p-2 rounded-lg bg-muted">
                       <FileText className="h-4 w-4 text-muted-foreground" />
@@ -305,7 +305,7 @@ export const XstageDashboard = () => {
             <Button
               variant="outline"
               className="h-auto py-4 flex-col gap-2"
-              onClick={() => navigate('/niranx/xstage/app/calendar')}
+              onClick={() => navigate('/xstage/app/calendar')}
             >
               <Calendar className="h-5 w-5 text-cyan-400" />
               <span className="text-xs">Schedule Event</span>
@@ -313,7 +313,7 @@ export const XstageDashboard = () => {
             <Button
               variant="outline"
               className="h-auto py-4 flex-col gap-2"
-              onClick={() => navigate('/niranx/xstage/app/chat')}
+              onClick={() => navigate('/xstage/app/chat')}
             >
               <MessageSquare className="h-5 w-5 text-fuchsia-400" />
               <span className="text-xs">Start Chat</span>
@@ -321,7 +321,7 @@ export const XstageDashboard = () => {
             <Button
               variant="outline"
               className="h-auto py-4 flex-col gap-2"
-              onClick={() => navigate('/niranx/xstage/app/files')}
+              onClick={() => navigate('/xstage/app/files')}
             >
               <FolderOpen className="h-5 w-5 text-purple-400" />
               <span className="text-xs">Upload Files</span>
@@ -329,7 +329,7 @@ export const XstageDashboard = () => {
             <Button
               variant="outline"
               className="h-auto py-4 flex-col gap-2"
-              onClick={() => navigate('/niranx/xstage/app/team')}
+              onClick={() => navigate('/xstage/app/team')}
             >
               <Users className="h-5 w-5 text-amber-400" />
               <span className="text-xs">Invite Member</span>

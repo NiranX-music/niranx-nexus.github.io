@@ -69,7 +69,7 @@ export default function FlashcardDeck() {
         setDeck(data);
       } catch (error) {
         console.error('Error fetching deck:', error);
-        navigate('/niranx/flashcards');
+        navigate('/flashcards');
       } finally {
         setDeckLoading(false);
       }
@@ -131,7 +131,7 @@ export default function FlashcardDeck() {
         <Button
           variant="ghost"
           className="mb-4"
-          onClick={() => navigate('/niranx/flashcards')}
+          onClick={() => navigate('/flashcards')}
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Decks
@@ -153,13 +153,13 @@ export default function FlashcardDeck() {
           <div className="flex gap-2">
             <Button
               variant="outline"
-              onClick={() => navigate(`/niranx/flashcards/create?deckId=${deckId}`)}
+              onClick={() => navigate(`/flashcards/create?deckId=${deckId}`)}
             >
               <Sparkles className="h-4 w-4 mr-2" />
               AI Add Cards
             </Button>
             {cards.length > 0 && (
-              <Button onClick={() => navigate(`/niranx/flashcards/${deckId}/study`)}>
+              <Button onClick={() => navigate(`/flashcards/study/${deckId}`)}>
                 <Play className="h-4 w-4 mr-2" />
                 Study {dueCards.length > 0 ? `(${dueCards.length} due)` : ''}
               </Button>
@@ -230,7 +230,7 @@ export default function FlashcardDeck() {
             <div className="flex justify-center gap-2">
               <Button
                 variant="outline"
-                onClick={() => navigate(`/niranx/flashcards/create?deckId=${deckId}`)}
+                onClick={() => navigate(`/flashcards/create?deckId=${deckId}`)}
               >
                 <Sparkles className="h-4 w-4 mr-2" />
                 AI Generate

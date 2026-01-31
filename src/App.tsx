@@ -211,6 +211,8 @@ import Integrations from "./pages/Integrations";
 import BytezAI from "./pages/BytezAI";
 import XNexusAI from "./pages/XNexusAI";
 import CustomPage from "./pages/CustomPage";
+import UserAppLibrary from "./pages/UserAppLibrary";
+import SubmitApp from "./pages/SubmitApp";
 
 // Test Platform
 import TestHub from "./pages/tests/TestHub";
@@ -590,6 +592,8 @@ const App = () => (
                           <Route path="/integrations" element={<Integrations />} />
                           <Route path="/bytez-ai" element={<BytezAI />} />
                           <Route path="/xnexus-ai" element={<XNexusAI />} />
+                          <Route path="/app-library" element={<UserAppLibrary />} />
+                          <Route path="/submit-app" element={<SubmitApp />} />
                           
                           <Route path="/mailbox" element={<Mailbox />} />
                           <Route path="/xmail" element={<Mailbox />} />

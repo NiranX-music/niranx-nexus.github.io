@@ -113,7 +113,7 @@ export default function AIChatHistory() {
         <Card>
           <CardContent className="py-12 text-center">
             <p className="text-muted-foreground">Please log in to view your chat history</p>
-            <Button onClick={() => navigate("/niranx/auth")} className="mt-4">
+            <Button onClick={() => navigate("/auth")} className="mt-4">
               Login
             </Button>
           </CardContent>
@@ -135,7 +135,7 @@ export default function AIChatHistory() {
               <p className="text-muted-foreground">View and manage your past conversations</p>
             </div>
           </div>
-          <Button onClick={() => navigate("/niranx/ai-chat")}>
+          <Button onClick={() => navigate("/ai-chat")}>
             <Plus className="h-4 w-4 mr-2" />
             New Chat
           </Button>
@@ -187,7 +187,7 @@ export default function AIChatHistory() {
             <p className="text-sm text-muted-foreground mb-4">
               Start a new chat with the AI assistant to begin
             </p>
-            <Button onClick={() => navigate("/niranx/ai-chat")}>
+            <Button onClick={() => navigate("/ai-chat")}>
               <Plus className="h-4 w-4 mr-2" />
               Start New Chat
             </Button>

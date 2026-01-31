@@ -170,7 +170,7 @@ export default function AlbumDetail() {
       if (error) throw error;
 
       toast.success("Album deleted successfully");
-      navigate("/niranx/music/library");
+      navigate("/music/library");
     } catch (error: any) {
       console.error("Error deleting album:", error);
       toast.error("Failed to delete album");
@@ -203,7 +203,7 @@ export default function AlbumDetail() {
           <p className="text-muted-foreground mb-4">
             This album doesn't exist or has been removed.
           </p>
-          <Button onClick={() => navigate("/niranx/music/library")}>Browse Library</Button>
+          <Button onClick={() => navigate("/music/library")}>Browse Library</Button>
         </Card>
       </div>
     );

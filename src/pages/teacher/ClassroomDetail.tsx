@@ -22,7 +22,7 @@ export default function ClassroomDetail() {
   const [copied, setCopied] = useState(false);
 
   const inviteLink = classroom?.class_code
-    ? `${window.location.origin}/niranx/join-classroom?code=${classroom.class_code}`
+    ? `${window.location.origin}/classrooms?code=${classroom.class_code}`
     : "";
 
   const copyInviteLink = () => {
@@ -51,7 +51,7 @@ export default function ClassroomDetail() {
       <div className="container mx-auto p-6">
         <Card className="p-12 text-center">
           <h2 className="text-2xl font-bold mb-2">Classroom not found</h2>
-          <Button onClick={() => navigate("/niranx/teacher/dashboard")}>
+          <Button onClick={() => navigate("/teacher/dashboard")}>
             Go back to dashboard
           </Button>
         </Card>
@@ -62,7 +62,7 @@ export default function ClassroomDetail() {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate("/niranx/teacher/dashboard")}>
+        <Button variant="ghost" size="icon" onClick={() => navigate("/teacher/dashboard")}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div>

@@ -249,7 +249,7 @@ export default function UploadTrack() {
       }
 
       toast.success("Track uploaded successfully to Xvibe! Awaiting moderation.");
-      navigate("/niranx/music/library");
+      navigate("/music/library");
     } catch (error: any) {
       console.error("Error uploading track:", error);
       toast.error(error.message || "Failed to upload track");

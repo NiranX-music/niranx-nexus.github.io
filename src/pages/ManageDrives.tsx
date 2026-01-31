@@ -184,7 +184,7 @@ export default function ManageDrives() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/niranx/my-cloud")}>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/my-cloud")}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to My Cloud
           </Button>
@@ -192,7 +192,7 @@ export default function ManageDrives() {
             Manage Drives
           </h1>
         </div>
-        <Button onClick={() => navigate("/niranx/my-cloud")}>
+        <Button onClick={() => navigate("/my-cloud")}>
           <Plus className="w-4 h-4 mr-2" />
           Create New Drive
         </Button>
@@ -276,7 +276,7 @@ export default function ManageDrives() {
                   <HardDrive className="w-16 h-16 text-muted-foreground mb-4" />
                   <p className="text-lg font-medium">No drives found</p>
                   <p className="text-sm text-muted-foreground mb-4">Create your first drive to get started</p>
-                  <Button onClick={() => navigate("/niranx/my-cloud")}>
+                  <Button onClick={() => navigate("/my-cloud")}>
                     <Plus className="w-4 h-4 mr-2" />
                     Create Drive
                   </Button>

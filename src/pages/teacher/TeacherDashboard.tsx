@@ -23,7 +23,7 @@ export default function TeacherDashboard() {
           <p className="text-muted-foreground">Manage your classrooms and student progress</p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={() => navigate("/niranx/teacher/analytics")}>
+          <Button onClick={() => navigate("/teacher/analytics")}>
             <TrendingUp className="w-4 h-4 mr-2" />
             Analytics
           </Button>

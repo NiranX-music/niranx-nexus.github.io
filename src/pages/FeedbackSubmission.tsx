@@ -72,7 +72,7 @@ const FeedbackSubmission = () => {
       });
       setRating(0);
       
-      navigate("/niranx/dashboard");
+      navigate("/dashboard");
     } catch (error: any) {
       console.error("Error submitting feedback:", error);
       toast({
