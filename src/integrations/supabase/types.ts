@@ -5585,6 +5585,45 @@ export type Database = {
           },
         ]
       }
+      niranx_footer_links: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          display_order: number
+          icon: string | null
+          id: string
+          is_active: boolean
+          title: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          title: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          title?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       niranx_mailboxes: {
         Row: {
           avatar_url: string | null
@@ -5920,6 +5959,48 @@ export type Database = {
           is_visible?: boolean | null
           technologies?: Json | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      niranx_testimonials: {
+        Row: {
+          author_avatar: string | null
+          author_name: string
+          author_title: string | null
+          content: string
+          created_at: string
+          created_by: string | null
+          display_order: number
+          id: string
+          is_active: boolean
+          rating: number | null
+          updated_at: string
+        }
+        Insert: {
+          author_avatar?: string | null
+          author_name: string
+          author_title?: string | null
+          content: string
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          rating?: number | null
+          updated_at?: string
+        }
+        Update: {
+          author_avatar?: string | null
+          author_name?: string
+          author_title?: string | null
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          rating?: number | null
+          updated_at?: string
         }
         Relationships: []
       }

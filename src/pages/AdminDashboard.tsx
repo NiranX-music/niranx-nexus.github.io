@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Users, FileText, MessageSquare, Activity, TrendingUp, Clock, Award, BarChart3, Sparkles, UserPlus, Music, Pencil, RotateCcw, AlertTriangle, Eye, Mail, Calendar, Globe, Link2, Newspaper, Layers } from "lucide-react";
+import { Users, FileText, MessageSquare, Activity, TrendingUp, Clock, Award, BarChart3, Sparkles, UserPlus, Music, Pencil, RotateCcw, AlertTriangle, Eye, Mail, Calendar, Globe, Link2, Newspaper, Layers, Quote, LinkIcon } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { CreateUserForm } from "@/components/admin/CreateUserForm";
@@ -22,6 +22,8 @@ import { NiranXNexusManager } from "@/components/admin/NiranXNexusManager";
 import { NiranXSongsManager } from "@/components/admin/NiranXSongsManager";
 import { NiranXContactManager } from "@/components/admin/NiranXContactManager";
 import { NiranXNewsletterManager } from "@/components/admin/NiranXNewsletterManager";
+import { FooterLinksManager } from "@/components/admin/FooterLinksManager";
+import { TestimonialsManager } from "@/components/admin/TestimonialsManager";
 
 interface Stats {
   totalUsers: number;
@@ -516,6 +518,12 @@ export default function AdminDashboard() {
           </TabsTrigger>
           <TabsTrigger value="niranx-newsletter" className="gap-1">
             <Newspaper className="h-3 w-3" /> Newsletter
+          </TabsTrigger>
+          <TabsTrigger value="footer-links" className="gap-1">
+            <LinkIcon className="h-3 w-3" /> Footer
+          </TabsTrigger>
+          <TabsTrigger value="testimonials" className="gap-1">
+            <Quote className="h-3 w-3" /> Testimonials
           </TabsTrigger>
           <TabsTrigger value="danger" className="text-destructive">Danger Zone</TabsTrigger>
         </TabsList>
@@ -1408,6 +1416,14 @@ export default function AdminDashboard() {
               <NiranXNewsletterManager />
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="footer-links">
+          <FooterLinksManager />
+        </TabsContent>
+
+        <TabsContent value="testimonials">
+          <TestimonialsManager />
         </TabsContent>
       </Tabs>
     </div>
