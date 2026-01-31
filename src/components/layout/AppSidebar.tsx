@@ -124,6 +124,8 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useCustomSidebarGroups } from "@/hooks/useCustomSidebarGroups";
+import { CustomSidebarGroups } from "@/components/sidebar/CustomSidebarGroups";
 
 // Navigation Configuration - Organized by category
 const navigationConfig = {
@@ -418,6 +420,7 @@ export function AppSidebar() {
   const { quickLinks, addQuickLink, removeQuickLink } = useQuickLinks();
   const { classrooms } = useClassroom();
   const { xp, level } = useXP();
+  const { groups: customGroups, getGroupPages, loading: customGroupsLoading } = useCustomSidebarGroups();
   
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
@@ -876,6 +879,18 @@ export function AppSidebar() {
           >
             {Object.entries(navigationConfig).map(([key, config]) => 
               renderNavGroup(key, config)
+            )}
+
+            {/* Custom Sidebar Groups from Database */}
+            {!customGroupsLoading && customGroups.length > 0 && (
+              <CustomSidebarGroups
+                groups={customGroups}
+                getGroupPages={getGroupPages}
+                isCollapsed={isCollapsed}
+                expandedSections={expandedSections}
+                toggleSection={toggleSection}
+                currentPath={currentPath}
+              />
             )}
 
             {/* Admin Section */}
