@@ -157,3 +157,6 @@ verify_jwt = true
 [functions.auto-study-planner]
 verify_jwt = true
 
+[functions.google-search]
+verify_jwt = true
+
