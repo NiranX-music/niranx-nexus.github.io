@@ -61,7 +61,7 @@ export const XstageLanding = () => {
 
   const handleGetStarted = () => {
     if (user) {
-      navigate('/niranx/xstage/app');
+      navigate('/xstage/app');
     } else {
       navigate('/auth');
     }

@@ -78,7 +78,7 @@ export default function ArtistStudio() {
     } catch (error: any) {
       console.error("Error fetching artist:", error);
       toast.error("Artist not found");
-      navigate("/niranx/music/artists");
+      navigate("/music/artists");
     } finally {
       setIsLoading(false);
     }
@@ -259,7 +259,7 @@ export default function ArtistStudio() {
         <TabsContent value="tracks" className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold">Your Tracks</h2>
-            <Button onClick={() => navigate(`/niranx/music/upload?artistId=${artistId}`)}>
+            <Button onClick={() => navigate(`/music/upload?artistId=${artistId}`)}>
               <Upload className="h-4 w-4 mr-2" />
               Upload New Track
             </Button>
@@ -272,7 +272,7 @@ export default function ArtistStudio() {
               <p className="text-muted-foreground mb-4">
                 Start uploading your music to build your catalogue
               </p>
-              <Button onClick={() => navigate(`/niranx/music/upload?artistId=${artistId}`)}>
+              <Button onClick={() => navigate(`/music/upload?artistId=${artistId}`)}>
                 <Upload className="h-4 w-4 mr-2" />
                 Upload Your First Track
               </Button>
@@ -283,7 +283,7 @@ export default function ArtistStudio() {
                 <Card
                   key={track.id}
                   className="p-4 hover:bg-accent/50 transition-colors cursor-pointer"
-                  onClick={() => navigate(`/niranx/music/track/${track.id}`)}
+                  onClick={() => navigate(`/music/track/${track.id}`)}
                 >
                   <div className="flex items-center justify-between">
                     <div>
@@ -312,7 +312,7 @@ export default function ArtistStudio() {
               <Button
                 variant="outline"
                 className="h-32 flex flex-col gap-2"
-                onClick={() => navigate(`/niranx/music/upload?artistId=${artistId}`)}
+                onClick={() => navigate(`/music/upload?artistId=${artistId}`)}
               >
                 <Music className="h-8 w-8" />
                 <span>Upload Single Track</span>
@@ -320,7 +320,7 @@ export default function ArtistStudio() {
               <Button
                 variant="outline"
                 className="h-32 flex flex-col gap-2"
-                onClick={() => navigate(`/niranx/music/album/create?artistId=${artistId}`)}
+                onClick={() => navigate(`/music/album/create?artistId=${artistId}`)}
               >
                 <Disc className="h-8 w-8" />
                 <span>Upload Album</span>
@@ -343,7 +343,7 @@ export default function ArtistStudio() {
               <Separator />
               <Button
                 variant="outline"
-                onClick={() => navigate(`/niranx/music/artist/${artistId}/edit`)}
+                onClick={() => navigate(`/music/artist/${artistId}/edit`)}
               >
                 <Settings className="h-4 w-4 mr-2" />
                 Edit Profile

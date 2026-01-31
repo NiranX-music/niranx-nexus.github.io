@@ -210,11 +210,11 @@ export function NotificationCenter() {
   const getNotificationLink = (notification: Notification) => {
     switch (notification.type) {
       case 'resource_access':
-        return `/niranx/exam-hub`;
+        return `/exams`;
       case 'feedback_response':
-        return `/niranx/feedback`;
+        return `/feedback`;
       case 'exam_reminder':
-        return `/niranx/exam-hub`;
+        return `/exams`;
       default:
         return null;
     }
@@ -382,7 +382,7 @@ export function NotificationCenter() {
         </ScrollArea>
 
         <div className="p-3 border-t">
-          <Link to="/niranx/notification-settings" onClick={() => setOpen(false)}>
+          <Link to="/notification-settings" onClick={() => setOpen(false)}>
             <Button variant="ghost" size="sm" className="w-full justify-start">
               Notification Settings
             </Button>

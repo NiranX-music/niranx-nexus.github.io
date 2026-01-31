@@ -110,7 +110,7 @@ export const XstageSettings = () => {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/niranx/xstage');
+    navigate('/xstage');
   };
 
   return (

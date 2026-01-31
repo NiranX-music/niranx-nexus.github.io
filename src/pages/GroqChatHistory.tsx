@@ -63,11 +63,11 @@ export default function GroqChatHistory() {
   };
 
   const openConversation = (id: string) => {
-    navigate(`/niranx/groq-chat?conversation=${id}`);
+    navigate(`/groq-chat?conversation=${id}`);
   };
 
   const startNewChat = () => {
-    navigate("/niranx/groq-chat");
+    navigate("/groq-chat");
   };
 
   if (loading) {

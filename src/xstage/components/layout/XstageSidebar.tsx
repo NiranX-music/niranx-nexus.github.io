@@ -61,13 +61,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { title: 'Dashboard', href: '/niranx/xstage/app', icon: LayoutDashboard },
-  { title: 'Calendar', href: '/niranx/xstage/app/calendar', icon: Calendar },
-  { title: 'Chat', href: '/niranx/xstage/app/chat', icon: MessageSquare },
-  { title: 'Files', href: '/niranx/xstage/app/files', icon: FolderOpen },
-  { title: 'Songs', href: '/niranx/xstage/app/songs', icon: Music },
-  { title: 'SoundLab X', href: '/niranx/xstage/app/soundlab', icon: Disc3 },
-  { title: 'Team', href: '/niranx/xstage/app/team', icon: Users },
+  { title: 'Dashboard', href: '/xstage/app', icon: LayoutDashboard },
+  { title: 'Calendar', href: '/xstage/app/calendar', icon: Calendar },
+  { title: 'Chat', href: '/xstage/app/chat', icon: MessageSquare },
+  { title: 'Files', href: '/xstage/app/files', icon: FolderOpen },
+  { title: 'Songs', href: '/xstage/app/songs', icon: Music },
+  { title: 'SoundLab X', href: '/xstage/app/soundlab', icon: Disc3 },
+  { title: 'Team', href: '/xstage/app/team', icon: Users },
 ];
 
 export const XstageSidebar = () => {
@@ -109,7 +109,7 @@ export const XstageSidebar = () => {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/niranx/xstage');
+    navigate('/xstage');
   };
 
   const isOwner = currentMember?.role === 'owner';
@@ -213,7 +213,7 @@ export const XstageSidebar = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => navigate('/niranx/xstage/app/project-settings')}>
+                  <DropdownMenuItem onClick={() => navigate('/xstage/app/project-settings')}>
                     <Sliders className="mr-2 h-4 w-4" />
                     Project Settings
                   </DropdownMenuItem>
@@ -240,7 +240,7 @@ export const XstageSidebar = () => {
               <NavLink
                 key={item.href}
                 to={item.href}
-                end={item.href === '/niranx/xstage/app'}
+                end={item.href === '/xstage/app'}
                 onClick={() => setIsOpen(false)}
                 className={({ isActive }) =>
                   cn(
@@ -260,7 +260,7 @@ export const XstageSidebar = () => {
           {/* User Section */}
           <div className="border-t border-border p-3 space-y-2">
             <NavLink
-              to="/niranx/xstage/app/settings"
+              to="/xstage/app/settings"
               onClick={() => setIsOpen(false)}
               className={({ isActive }) =>
                 cn(

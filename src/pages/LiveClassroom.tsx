@@ -89,21 +89,21 @@ const LiveClassroom = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <Button 
                     variant="outline" 
-                    onClick={() => navigate("/niranx/teacher/dashboard")}
+                    onClick={() => navigate("/teacher/dashboard")}
                     className="w-full"
                   >
                     Teacher Dashboard
                   </Button>
                   <Button 
                     variant="outline" 
-                    onClick={() => navigate("/niranx/classrooms")}
+                    onClick={() => navigate("/classrooms")}
                     className="w-full"
                   >
                     Join Classroom
                   </Button>
                   <Button 
                     variant="outline" 
-                    onClick={() => navigate("/niranx/scheduler")}
+                    onClick={() => navigate("/scheduler")}
                     className="w-full"
                   >
                     View Schedule

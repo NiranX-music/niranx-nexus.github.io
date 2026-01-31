@@ -260,7 +260,7 @@ export default function CreateAlbum() {
       }
 
       toast.success("Album created successfully! It will be visible after approval.");
-      navigate("/niranx/music/library");
+      navigate("/music/library");
     } catch (error: any) {
       console.error("Error creating album:", error);
       toast.error(error.message || "Failed to create album");
@@ -273,7 +273,7 @@ export default function CreateAlbum() {
     <div className="container mx-auto p-6 max-w-3xl">
       <Button
         variant="ghost"
-        onClick={() => navigate("/niranx/music/library")}
+        onClick={() => navigate("/music/library")}
         className="mb-4"
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
