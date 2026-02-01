@@ -147,6 +147,8 @@ export type Database = {
           is_published: boolean | null
           js_content: string | null
           meta_description: string | null
+          show_in_sidebar: boolean | null
+          sidebar_group_id: string | null
           slug: string
           title: string
           updated_at: string
@@ -160,6 +162,8 @@ export type Database = {
           is_published?: boolean | null
           js_content?: string | null
           meta_description?: string | null
+          show_in_sidebar?: boolean | null
+          sidebar_group_id?: string | null
           slug: string
           title: string
           updated_at?: string
@@ -173,11 +177,21 @@ export type Database = {
           is_published?: boolean | null
           js_content?: string | null
           meta_description?: string | null
+          show_in_sidebar?: boolean | null
+          sidebar_group_id?: string | null
           slug?: string
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "admin_custom_pages_sidebar_group_id_fkey"
+            columns: ["sidebar_group_id"]
+            isOneToOne: false
+            referencedRelation: "sidebar_groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       admin_editable_content: {
         Row: {

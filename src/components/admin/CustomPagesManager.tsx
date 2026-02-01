@@ -26,6 +26,8 @@ interface CustomPage {
   js_content: string | null;
   meta_description: string | null;
   is_published: boolean;
+  show_in_sidebar: boolean;
+  sidebar_group_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -55,6 +57,7 @@ export function CustomPagesManager() {
     js_content: '',
     meta_description: '',
     is_published: false,
+    show_in_sidebar: false,
     sidebar_group_id: '',
   });
 
@@ -114,6 +117,7 @@ export function CustomPagesManager() {
       js_content: '',
       meta_description: '',
       is_published: false,
+      show_in_sidebar: false,
       sidebar_group_id: '',
     });
     setIsDialogOpen(true);
@@ -121,13 +125,6 @@ export function CustomPagesManager() {
 
   const openEditDialog = async (page: CustomPage) => {
     setEditingPage(page);
-    
-    // Check if page is linked to a sidebar group
-    const { data: sidebarPage } = await supabase
-      .from('sidebar_pages')
-      .select('group_id')
-      .eq('url', `/p/${page.slug}`)
-      .maybeSingle();
     
     setFormData({
       title: page.title,
@@ -137,7 +134,8 @@ export function CustomPagesManager() {
       js_content: page.js_content || '',
       meta_description: page.meta_description || '',
       is_published: page.is_published,
-      sidebar_group_id: sidebarPage?.group_id || '',
+      show_in_sidebar: page.show_in_sidebar || false,
+      sidebar_group_id: page.sidebar_group_id || '',
     });
     setIsDialogOpen(true);
   };
@@ -163,10 +161,21 @@ export function CustomPagesManager() {
       return;
     }
 
+    // Validate sidebar group if sidebar visibility is enabled
+    if (formData.show_in_sidebar && !formData.sidebar_group_id) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please select a sidebar group when sidebar visibility is enabled',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
       const user = (await supabase.auth.getUser()).data.user;
       const pageUrl = `/p/${formData.slug}`;
+      const sidebarGroupId = formData.show_in_sidebar ? formData.sidebar_group_id : null;
 
       if (editingPage) {
         const { error } = await supabase
@@ -179,13 +188,15 @@ export function CustomPagesManager() {
             js_content: formData.js_content || null,
             meta_description: formData.meta_description || null,
             is_published: formData.is_published,
+            show_in_sidebar: formData.show_in_sidebar,
+            sidebar_group_id: sidebarGroupId || null,
           })
           .eq('id', editingPage.id);
 
         if (error) throw error;
         
         // Update sidebar page linkage
-        await updateSidebarLink(pageUrl, formData.title, formData.sidebar_group_id);
+        await updateSidebarLink(pageUrl, formData.title, sidebarGroupId, formData.show_in_sidebar);
         
         toast({ title: 'Page updated successfully' });
       } else {
@@ -199,14 +210,16 @@ export function CustomPagesManager() {
             js_content: formData.js_content || null,
             meta_description: formData.meta_description || null,
             is_published: formData.is_published,
+            show_in_sidebar: formData.show_in_sidebar,
+            sidebar_group_id: sidebarGroupId || null,
             created_by: user?.id,
           });
 
         if (error) throw error;
         
-        // Add to sidebar if group selected
-        if (formData.sidebar_group_id) {
-          await addToSidebar(pageUrl, formData.title, formData.sidebar_group_id);
+        // Add to sidebar if visibility enabled and group selected
+        if (formData.show_in_sidebar && sidebarGroupId) {
+          await addToSidebar(pageUrl, formData.title, sidebarGroupId);
         }
         
         toast({ title: 'Page created successfully' });
@@ -251,7 +264,7 @@ export function CustomPagesManager() {
     }
   };
 
-  const updateSidebarLink = async (url: string, title: string, groupId: string) => {
+  const updateSidebarLink = async (url: string, title: string, groupId: string | null, showInSidebar: boolean) => {
     try {
       // Check if page already exists in sidebar
       const { data: existing } = await supabase
@@ -261,20 +274,20 @@ export function CustomPagesManager() {
         .maybeSingle();
       
       if (existing) {
-        if (groupId) {
+        if (showInSidebar && groupId) {
           // Update existing link
           await supabase
             .from('sidebar_pages')
             .update({ group_id: groupId, title: title })
             .eq('id', existing.id);
         } else {
-          // Remove from sidebar if no group selected
+          // Remove from sidebar if visibility disabled or no group selected
           await supabase
             .from('sidebar_pages')
             .delete()
             .eq('id', existing.id);
         }
-      } else if (groupId) {
+      } else if (showInSidebar && groupId) {
         // Add new link
         await addToSidebar(url, title, groupId);
       }
@@ -379,6 +392,7 @@ export function CustomPagesManager() {
                   <TableHead>Title</TableHead>
                   <TableHead>URL Slug</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Sidebar</TableHead>
                   <TableHead>Created</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
@@ -386,14 +400,14 @@ export function CustomPagesManager() {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8">
+                    <TableCell colSpan={6} className="text-center py-8">
                       <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2" />
                       Loading pages...
                     </TableCell>
                   </TableRow>
                 ) : pages.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                       No custom pages yet. Click "Create Page" to get started.
                     </TableCell>
                   </TableRow>
@@ -414,6 +428,19 @@ export function CustomPagesManager() {
                           <Badge variant="secondary" className="gap-1">
                             <XCircle className="h-3 w-3" />
                             Draft
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {page.show_in_sidebar ? (
+                          <Badge variant="outline" className="gap-1 text-green-600 border-green-600">
+                            <CheckCircle className="h-3 w-3" />
+                            Visible
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="gap-1 text-muted-foreground">
+                            <XCircle className="h-3 w-3" />
+                            Hidden
                           </Badge>
                         )}
                       </TableCell>
@@ -514,29 +541,37 @@ export function CustomPagesManager() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="sidebar_group">Add to Sidebar Group</Label>
-                <Select
-                  value={formData.sidebar_group_id}
-                  onValueChange={(value) => setFormData({ ...formData, sidebar_group_id: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a group (optional)" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">None (Don't add to sidebar)</SelectItem>
-                    {sidebarGroups.map((group) => (
-                      <SelectItem key={group.id} value={group.id}>
-                        <div className="flex items-center gap-2">
-                          <Folder className="h-4 w-4" />
-                          {group.name}
-                          {!group.is_enabled && (
-                            <Badge variant="outline" className="text-xs">Disabled</Badge>
-                          )}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex items-center gap-2 mb-2">
+                  <Switch
+                    id="show_in_sidebar"
+                    checked={formData.show_in_sidebar}
+                    onCheckedChange={(checked) => setFormData({ ...formData, show_in_sidebar: checked })}
+                  />
+                  <Label htmlFor="show_in_sidebar">Show in Sidebar</Label>
+                </div>
+                {formData.show_in_sidebar && (
+                  <Select
+                    value={formData.sidebar_group_id}
+                    onValueChange={(value) => setFormData({ ...formData, sidebar_group_id: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a sidebar group" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {sidebarGroups.map((group) => (
+                        <SelectItem key={group.id} value={group.id}>
+                          <div className="flex items-center gap-2">
+                            <Folder className="h-4 w-4" />
+                            {group.name}
+                            {!group.is_enabled && (
+                              <Badge variant="outline" className="text-xs">Disabled</Badge>
+                            )}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
             </div>
 
