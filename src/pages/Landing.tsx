@@ -1,13 +1,12 @@
 import { NiranXNavigation } from '@/components/niranx/NiranXNavigation';
-import { HeroSection } from '@/components/niranx/HeroSection';
+import { Hero3D } from '@/components/landing/Hero3D';
+import { FeaturesGrid3D } from '@/components/landing/FeaturesGrid3D';
+import { StatsSection } from '@/components/landing/StatsSection';
 import { AboutSection } from '@/components/niranx/AboutSection';
-import { ShortcutsSection } from '@/components/niranx/ShortcutsSection';
 import { MusicSection } from '@/components/niranx/MusicSection';
-import { ProjectsSection } from '@/components/niranx/ProjectsSection';
-import { TechStackSection } from '@/components/niranx/TechStackSection';
 import { TestimonialsSection } from '@/components/niranx/TestimonialsSection';
-import { ContactSection } from '@/components/niranx/ContactSection';
-import { EnhancedFooter } from '@/components/niranx/EnhancedFooter';
+import { CTASection } from '@/components/landing/CTASection';
+import { Footer3D } from '@/components/landing/Footer3D';
 import { NewsletterPopup } from '@/components/niranx/NewsletterPopup';
 
 const Landing = () => {
@@ -15,16 +14,15 @@ const Landing = () => {
     <div className="min-h-screen bg-background overflow-x-hidden">
       <NiranXNavigation />
       <main>
-        <HeroSection />
+        <Hero3D />
+        <StatsSection />
+        <FeaturesGrid3D />
         <AboutSection />
-        <ShortcutsSection />
         <MusicSection />
-        <ProjectsSection />
-        <TechStackSection />
         <TestimonialsSection />
-        <ContactSection />
+        <CTASection />
       </main>
-      <EnhancedFooter />
+      <Footer3D />
       <NewsletterPopup />
     </div>
   );
