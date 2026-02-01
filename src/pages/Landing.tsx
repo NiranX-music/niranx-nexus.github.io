@@ -11,9 +11,9 @@ import { NewsletterPopup } from '@/components/niranx/NewsletterPopup';
 
 const Landing = () => {
   return (
-    <div className="min-h-screen bg-background overflow-x-hidden overflow-y-auto">
+    <div className="bg-background">
       <NiranXNavigation />
-      <main className="relative">
+      <main>
         <Hero3D />
         <StatsSection />
         <FeaturesGrid3D />

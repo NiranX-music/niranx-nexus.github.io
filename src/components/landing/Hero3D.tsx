@@ -10,7 +10,7 @@ export function Hero3D() {
   const { user } = useAuth();
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative h-screen flex items-center justify-center">
       {/* 3D Background */}
       <Scene3D />
       
