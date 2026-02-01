@@ -1,7 +1,8 @@
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import * as LucideIcons from "lucide-react";
-import { ChevronDown, ExternalLink, Star, Folder, FileText } from "lucide-react";
+import { ChevronDown, ExternalLink, Star, Folder, FileText, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   SidebarGroup,
@@ -13,8 +14,10 @@ import {
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { CustomSidebarGroup, CustomSidebarPage } from "@/hooks/useCustomSidebarGroups";
+import { SidebarGroupEditor } from "./SidebarGroupEditor";
 
 interface CustomSidebarGroupsProps {
   groups: CustomSidebarGroup[];
@@ -23,6 +26,7 @@ interface CustomSidebarGroupsProps {
   expandedSections: Record<string, boolean>;
   toggleSection: (section: string) => void;
   currentPath: string;
+  onReload?: () => void;
 }
 
 const groupVariants = {
@@ -74,7 +78,10 @@ export function CustomSidebarGroups({
   expandedSections,
   toggleSection,
   currentPath,
+  onReload,
 }: CustomSidebarGroupsProps) {
+  const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
+  const [editingGroupName, setEditingGroupName] = useState<string>('');
   const isActive = (url: string) => {
     return currentPath === url || currentPath.startsWith(url + "/");
   };
@@ -193,6 +200,21 @@ export function CustomSidebarGroups({
     return <div key={page.id}>{content}</div>;
   };
 
+  const openGroupEditor = (e: React.MouseEvent, group: CustomSidebarGroup) => {
+    e.stopPropagation();
+    setEditingGroupId(group.id);
+    setEditingGroupName(group.name);
+  };
+
+  const handleEditorClose = () => {
+    setEditingGroupId(null);
+    setEditingGroupName('');
+  };
+
+  const handleEditorUpdate = () => {
+    onReload?.();
+  };
+
   const renderCustomGroup = (group: CustomSidebarGroup) => {
     const GroupIcon = getIcon(group.icon);
     const isExpanded = expandedSections[`custom_${group.id}`];
@@ -238,7 +260,15 @@ export function CustomSidebarGroups({
                   )}
                 </div>
                 {!isCollapsed && (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-6 w-6 opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity"
+                      onClick={(e) => openGroupEditor(e, group)}
+                    >
+                      <Pencil className="h-3 w-3" />
+                    </Button>
                     <Badge
                       variant="secondary"
                       className="text-[10px] px-1.5 py-0 bg-teal-500/10 text-teal-600 dark:text-teal-400"
@@ -288,8 +318,19 @@ export function CustomSidebarGroups({
   if (groups.length === 0) return null;
 
   return (
-    <div className="space-y-0.5">
-      {groups.map((group) => renderCustomGroup(group))}
-    </div>
+    <>
+      <div className="space-y-0.5">
+        {groups.map((group) => renderCustomGroup(group))}
+      </div>
+      
+      {/* Group Editor Dialog */}
+      <SidebarGroupEditor
+        groupId={editingGroupId || ''}
+        groupName={editingGroupName}
+        open={!!editingGroupId}
+        onOpenChange={(open) => !open && handleEditorClose()}
+        onUpdate={handleEditorUpdate}
+      />
+    </>
   );
 }

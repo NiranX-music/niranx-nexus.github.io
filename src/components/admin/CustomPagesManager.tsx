@@ -7,12 +7,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Globe, Plus, Pencil, Trash2, Eye, Copy, 
-  ExternalLink, Code, FileText, CheckCircle, XCircle, Loader2 
+  ExternalLink, Code, FileText, CheckCircle, XCircle, Loader2, Folder 
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
@@ -29,8 +30,16 @@ interface CustomPage {
   updated_at: string;
 }
 
+interface SidebarGroup {
+  id: string;
+  name: string;
+  icon: string | null;
+  is_enabled: boolean;
+}
+
 export function CustomPagesManager() {
   const [pages, setPages] = useState<CustomPage[]>([]);
+  const [sidebarGroups, setSidebarGroups] = useState<SidebarGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -46,6 +55,7 @@ export function CustomPagesManager() {
     js_content: '',
     meta_description: '',
     is_published: false,
+    sidebar_group_id: '',
   });
 
   useEffect(() => {
@@ -55,13 +65,22 @@ export function CustomPagesManager() {
   const loadPages = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('admin_custom_pages')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const [pagesRes, groupsRes] = await Promise.all([
+        supabase
+          .from('admin_custom_pages')
+          .select('*')
+          .order('created_at', { ascending: false }),
+        supabase
+          .from('sidebar_groups')
+          .select('id, name, icon, is_enabled')
+          .order('order_index')
+      ]);
 
-      if (error) throw error;
-      setPages(data || []);
+      if (pagesRes.error) throw pagesRes.error;
+      if (groupsRes.error) throw groupsRes.error;
+      
+      setPages(pagesRes.data || []);
+      setSidebarGroups(groupsRes.data || []);
     } catch (error: any) {
       console.error('Error loading pages:', error);
       toast({
@@ -95,12 +114,21 @@ export function CustomPagesManager() {
       js_content: '',
       meta_description: '',
       is_published: false,
+      sidebar_group_id: '',
     });
     setIsDialogOpen(true);
   };
 
-  const openEditDialog = (page: CustomPage) => {
+  const openEditDialog = async (page: CustomPage) => {
     setEditingPage(page);
+    
+    // Check if page is linked to a sidebar group
+    const { data: sidebarPage } = await supabase
+      .from('sidebar_pages')
+      .select('group_id')
+      .eq('url', `/p/${page.slug}`)
+      .maybeSingle();
+    
     setFormData({
       title: page.title,
       slug: page.slug,
@@ -109,6 +137,7 @@ export function CustomPagesManager() {
       js_content: page.js_content || '',
       meta_description: page.meta_description || '',
       is_published: page.is_published,
+      sidebar_group_id: sidebarPage?.group_id || '',
     });
     setIsDialogOpen(true);
   };
@@ -137,6 +166,7 @@ export function CustomPagesManager() {
     setIsSaving(true);
     try {
       const user = (await supabase.auth.getUser()).data.user;
+      const pageUrl = `/p/${formData.slug}`;
 
       if (editingPage) {
         const { error } = await supabase
@@ -153,6 +183,10 @@ export function CustomPagesManager() {
           .eq('id', editingPage.id);
 
         if (error) throw error;
+        
+        // Update sidebar page linkage
+        await updateSidebarLink(pageUrl, formData.title, formData.sidebar_group_id);
+        
         toast({ title: 'Page updated successfully' });
       } else {
         const { error } = await supabase
@@ -169,6 +203,12 @@ export function CustomPagesManager() {
           });
 
         if (error) throw error;
+        
+        // Add to sidebar if group selected
+        if (formData.sidebar_group_id) {
+          await addToSidebar(pageUrl, formData.title, formData.sidebar_group_id);
+        }
+        
         toast({ title: 'Page created successfully' });
       }
 
@@ -183,6 +223,63 @@ export function CustomPagesManager() {
       });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const addToSidebar = async (url: string, title: string, groupId: string) => {
+    try {
+      // Get max order index for the group
+      const { data: existingPages } = await supabase
+        .from('sidebar_pages')
+        .select('order_index')
+        .eq('group_id', groupId)
+        .order('order_index', { ascending: false })
+        .limit(1);
+      
+      const maxOrder = existingPages?.[0]?.order_index ?? -1;
+      
+      await supabase.from('sidebar_pages').insert({
+        group_id: groupId,
+        title: title,
+        url: url,
+        icon: 'Globe',
+        order_index: maxOrder + 1,
+        is_enabled: true
+      });
+    } catch (error) {
+      console.error('Error adding to sidebar:', error);
+    }
+  };
+
+  const updateSidebarLink = async (url: string, title: string, groupId: string) => {
+    try {
+      // Check if page already exists in sidebar
+      const { data: existing } = await supabase
+        .from('sidebar_pages')
+        .select('id, group_id')
+        .eq('url', url)
+        .maybeSingle();
+      
+      if (existing) {
+        if (groupId) {
+          // Update existing link
+          await supabase
+            .from('sidebar_pages')
+            .update({ group_id: groupId, title: title })
+            .eq('id', existing.id);
+        } else {
+          // Remove from sidebar if no group selected
+          await supabase
+            .from('sidebar_pages')
+            .delete()
+            .eq('id', existing.id);
+        }
+      } else if (groupId) {
+        // Add new link
+        await addToSidebar(url, title, groupId);
+      }
+    } catch (error) {
+      console.error('Error updating sidebar link:', error);
     }
   };
 
@@ -406,14 +503,41 @@ export function CustomPagesManager() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="meta_description">Meta Description</Label>
-              <Input
-                id="meta_description"
-                value={formData.meta_description}
-                onChange={(e) => setFormData({ ...formData, meta_description: e.target.value })}
-                placeholder="Brief description for search engines..."
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="meta_description">Meta Description</Label>
+                <Input
+                  id="meta_description"
+                  value={formData.meta_description}
+                  onChange={(e) => setFormData({ ...formData, meta_description: e.target.value })}
+                  placeholder="Brief description for search engines..."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="sidebar_group">Add to Sidebar Group</Label>
+                <Select
+                  value={formData.sidebar_group_id}
+                  onValueChange={(value) => setFormData({ ...formData, sidebar_group_id: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a group (optional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">None (Don't add to sidebar)</SelectItem>
+                    {sidebarGroups.map((group) => (
+                      <SelectItem key={group.id} value={group.id}>
+                        <div className="flex items-center gap-2">
+                          <Folder className="h-4 w-4" />
+                          {group.name}
+                          {!group.is_enabled && (
+                            <Badge variant="outline" className="text-xs">Disabled</Badge>
+                          )}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <Tabs defaultValue="html" className="w-full">
