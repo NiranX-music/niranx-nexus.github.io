@@ -1,14 +1,13 @@
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, MeshDistortMaterial, Sphere, Box, Torus, Icosahedron, Stars } from '@react-three/drei';
+import { Stars } from '@react-three/drei';
 import * as THREE from 'three';
 
-function FloatingShape({ position, color, scale = 1, speed = 1, type = 'sphere' }: {
+function FloatingShape({ position, color, scale = 1, speed = 1 }: {
   position: [number, number, number];
   color: string;
   scale?: number;
   speed?: number;
-  type?: 'sphere' | 'box' | 'torus' | 'icosahedron';
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
 
@@ -16,34 +15,21 @@ function FloatingShape({ position, color, scale = 1, speed = 1, type = 'sphere' 
     if (meshRef.current) {
       meshRef.current.rotation.x = state.clock.elapsedTime * 0.2 * speed;
       meshRef.current.rotation.y = state.clock.elapsedTime * 0.3 * speed;
+      meshRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * speed) * 0.5;
     }
   });
 
-  const getShape = () => {
-    switch (type) {
-      case 'sphere':
-        return <Sphere ref={meshRef} args={[1, 32, 32]} scale={scale} position={position}>
-          <MeshDistortMaterial color={color} distort={0.4} speed={2} roughness={0.2} metalness={0.8} transparent opacity={0.7} />
-        </Sphere>;
-      case 'box':
-        return <Box ref={meshRef} args={[1, 1, 1]} scale={scale} position={position}>
-          <MeshDistortMaterial color={color} distort={0.4} speed={2} roughness={0.2} metalness={0.8} transparent opacity={0.7} />
-        </Box>;
-      case 'torus':
-        return <Torus ref={meshRef} args={[1, 0.4, 16, 32]} scale={scale} position={position}>
-          <MeshDistortMaterial color={color} distort={0.4} speed={2} roughness={0.2} metalness={0.8} transparent opacity={0.7} />
-        </Torus>;
-      case 'icosahedron':
-        return <Icosahedron ref={meshRef} args={[1, 0]} scale={scale} position={position}>
-          <MeshDistortMaterial color={color} distort={0.4} speed={2} roughness={0.2} metalness={0.8} transparent opacity={0.7} />
-        </Icosahedron>;
-    }
-  };
-
   return (
-    <Float speed={speed} rotationIntensity={0.5} floatIntensity={2}>
-      {getShape()}
-    </Float>
+    <mesh ref={meshRef} position={position} scale={scale}>
+      <icosahedronGeometry args={[1, 1]} />
+      <meshStandardMaterial 
+        color={color} 
+        roughness={0.2} 
+        metalness={0.8} 
+        transparent 
+        opacity={0.7} 
+      />
+    </mesh>
   );
 }
 
@@ -118,22 +104,43 @@ function CentralOrb() {
 
   return (
     <group>
-      <Sphere ref={orbRef} args={[1.5, 64, 64]} position={[0, 0, -2]}>
-        <MeshDistortMaterial
+      <mesh ref={orbRef} position={[0, 0, -2]}>
+        <sphereGeometry args={[1.5, 64, 64]} />
+        <meshStandardMaterial
           color="#8b5cf6"
-          attach="material"
-          distort={0.3}
-          speed={3}
           roughness={0.1}
           metalness={0.9}
           emissive="#4c1d95"
           emissiveIntensity={0.4}
         />
-      </Sphere>
+      </mesh>
       <AnimatedRing radius={2.5} color="#a855f7" speed={0.5} />
       <AnimatedRing radius={3} color="#06b6d4" speed={0.3} />
       <AnimatedRing radius={3.5} color="#ec4899" speed={0.4} />
     </group>
+  );
+}
+
+function SceneContent() {
+  return (
+    <>
+      <ambientLight intensity={0.3} />
+      <pointLight position={[10, 10, 10]} intensity={1} color="#a855f7" />
+      <pointLight position={[-10, -10, -10]} intensity={0.5} color="#06b6d4" />
+      <spotLight position={[0, 10, 0]} intensity={0.8} color="#ec4899" angle={0.3} />
+      
+      <Stars radius={100} depth={50} count={2000} factor={4} saturation={0} fade speed={1} />
+      
+      <CentralOrb />
+      
+      <FloatingShape position={[-5, 2, -3]} color="#06b6d4" scale={0.6} speed={1.2} />
+      <FloatingShape position={[5, -2, -4]} color="#ec4899" scale={0.5} speed={0.8} />
+      <FloatingShape position={[-4, -3, -2]} color="#f59e0b" scale={0.4} speed={1.5} />
+      <FloatingShape position={[4, 3, -5]} color="#10b981" scale={0.7} speed={0.6} />
+      <FloatingShape position={[0, 4, -6]} color="#8b5cf6" scale={0.5} speed={1} />
+      
+      <ParticleField />
+    </>
   );
 }
 
@@ -144,23 +151,13 @@ export function Scene3D() {
         camera={{ position: [0, 0, 8], fov: 60 }}
         style={{ background: 'transparent', pointerEvents: 'none' }}
         gl={{ antialias: true, alpha: true }}
+        onCreated={({ gl }) => {
+          gl.setClearColor(0x000000, 0);
+        }}
       >
-        <ambientLight intensity={0.3} />
-        <pointLight position={[10, 10, 10]} intensity={1} color="#a855f7" />
-        <pointLight position={[-10, -10, -10]} intensity={0.5} color="#06b6d4" />
-        <spotLight position={[0, 10, 0]} intensity={0.8} color="#ec4899" angle={0.3} />
-        
-        <Stars radius={100} depth={50} count={2000} factor={4} saturation={0} fade speed={1} />
-        
-        <CentralOrb />
-        
-        <FloatingShape position={[-5, 2, -3]} color="#06b6d4" scale={0.6} speed={1.2} type="icosahedron" />
-        <FloatingShape position={[5, -2, -4]} color="#ec4899" scale={0.5} speed={0.8} type="box" />
-        <FloatingShape position={[-4, -3, -2]} color="#f59e0b" scale={0.4} speed={1.5} type="torus" />
-        <FloatingShape position={[4, 3, -5]} color="#10b981" scale={0.7} speed={0.6} type="sphere" />
-        <FloatingShape position={[0, 4, -6]} color="#8b5cf6" scale={0.5} speed={1} type="icosahedron" />
-        
-        <ParticleField />
+        <Suspense fallback={null}>
+          <SceneContent />
+        </Suspense>
       </Canvas>
     </div>
   );
