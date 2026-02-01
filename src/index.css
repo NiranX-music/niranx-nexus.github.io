@@ -9,7 +9,9 @@ html, body, #root {
 
 body {
   margin: 0;
-  overflow: hidden;
+  /* Allow pages that are not wrapped in AppLayout (e.g. landing + support pages) to scroll */
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* Gen-Z StudyVerse Design System - All colors MUST be HSL */
