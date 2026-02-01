@@ -420,7 +420,7 @@ export function AppSidebar() {
   const { quickLinks, addQuickLink, removeQuickLink } = useQuickLinks();
   const { classrooms } = useClassroom();
   const { xp, level } = useXP();
-  const { groups: customGroups, getGroupPages, loading: customGroupsLoading } = useCustomSidebarGroups();
+  const { groups: customGroups, getGroupPages, loading: customGroupsLoading, reload: reloadCustomGroups } = useCustomSidebarGroups();
   
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
@@ -890,6 +890,7 @@ export function AppSidebar() {
                 expandedSections={expandedSections}
                 toggleSection={toggleSection}
                 currentPath={currentPath}
+                onReload={reloadCustomGroups}
               />
             )}
 
