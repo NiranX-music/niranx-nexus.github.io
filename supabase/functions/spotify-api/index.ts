@@ -84,6 +84,42 @@ serve(async (req) => {
         result = await searchResponse.json();
         break;
 
+      case 'getRecentlyPlayed':
+        const recentResponse = await fetch(
+          'https://api.spotify.com/v1/me/player/recently-played?limit=20',
+          { headers: { Authorization: `Bearer ${accessToken}` } }
+        );
+        result = await recentResponse.json();
+        break;
+
+      case 'getCurrentlyPlaying':
+        const currentResponse = await fetch(
+          'https://api.spotify.com/v1/me/player/currently-playing',
+          { headers: { Authorization: `Bearer ${accessToken}` } }
+        );
+        if (currentResponse.status === 204) {
+          result = { item: null };
+        } else {
+          result = await currentResponse.json();
+        }
+        break;
+
+      case 'getTopTracks':
+        const topTracksResponse = await fetch(
+          `https://api.spotify.com/v1/me/top/tracks?limit=${params.limit || 20}&time_range=${params.time_range || 'medium_term'}`,
+          { headers: { Authorization: `Bearer ${accessToken}` } }
+        );
+        result = await topTracksResponse.json();
+        break;
+
+      case 'getTopArtists':
+        const topArtistsResponse = await fetch(
+          `https://api.spotify.com/v1/me/top/artists?limit=${params.limit || 20}&time_range=${params.time_range || 'medium_term'}`,
+          { headers: { Authorization: `Bearer ${accessToken}` } }
+        );
+        result = await topArtistsResponse.json();
+        break;
+
       case 'getPlaylists':
         const { data: playlists } = await supabaseClient
           .from('spotify_playlists')
