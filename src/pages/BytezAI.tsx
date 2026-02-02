@@ -66,22 +66,38 @@ const AI_MODELS: AIModel[] = [
   { id: 'meta-llama/Llama-3.2-1B-Instruct', name: 'Llama 3.2 1B', description: 'Ultra fast responses', category: 'Chat' },
   { id: 'microsoft/Phi-3.5-mini-instruct', name: 'Phi 3.5 Mini', description: 'Efficient reasoning', category: 'Chat' },
   { id: 'Qwen/Qwen2.5-3B-Instruct', name: 'Qwen 2.5 3B', description: 'Balanced performance', category: 'Chat' },
+  { id: 'mistralai/Mistral-7B-Instruct-v0.3', name: 'Mistral 7B', description: 'High quality responses', category: 'Chat' },
+  { id: 'google/gemma-2-2b-it', name: 'Gemma 2 2B', description: 'Google Gemma model', category: 'Chat' },
+  { id: 'HuggingFaceH4/zephyr-7b-beta', name: 'Zephyr 7B', description: 'Fine-tuned for chat', category: 'Chat' },
   
   // Code Models (Free Plan)
+  { id: 'codellama/CodeLlama-7b-Instruct-hf', name: 'CodeLlama 7B', description: 'Code generation & assistance', category: 'Code' },
   { id: 'meta-llama/Llama-3.2-3B-Instruct', name: 'Llama 3.2 3B Code', description: 'Code assistance', category: 'Code' },
   { id: 'microsoft/Phi-3.5-mini-instruct', name: 'Phi 3.5 Code', description: 'Programming help', category: 'Code' },
+  { id: 'bigcode/starcoder2-3b', name: 'StarCoder2 3B', description: 'Code completion', category: 'Code' },
+  { id: 'deepseek-ai/deepseek-coder-1.3b-instruct', name: 'DeepSeek Coder 1.3B', description: 'Fast code model', category: 'Code' },
   
   // Fast Models
   { id: 'meta-llama/Llama-3.2-1B-Instruct', name: 'Llama 1B (Fastest)', description: 'Lightning fast', category: 'Fast' },
   { id: 'microsoft/Phi-3.5-mini-instruct', name: 'Phi Mini (Fast)', description: 'Quick responses', category: 'Fast' },
   { id: 'Qwen/Qwen2.5-3B-Instruct', name: 'Qwen 3B', description: 'Speed & quality', category: 'Fast' },
+  { id: 'TinyLlama/TinyLlama-1.1B-Chat-v1.0', name: 'TinyLlama 1.1B', description: 'Tiny but capable', category: 'Fast' },
   
   // Creative Models
   { id: 'meta-llama/Llama-3.2-3B-Instruct', name: 'Llama 3.2 Creative', description: 'Creative writing', category: 'Creative' },
   { id: 'Qwen/Qwen2.5-3B-Instruct', name: 'Qwen 2.5 Creative', description: 'Story generation', category: 'Creative' },
+  { id: 'Open-Orca/Mistral-7B-OpenOrca', name: 'Mistral OpenOrca', description: 'Enhanced creative', category: 'Creative' },
+  
+  // Vision Models
+  { id: 'llava-hf/llava-1.5-7b-hf', name: 'LLaVA 1.5 7B', description: 'Vision understanding', category: 'Vision' },
+  { id: 'Salesforce/blip2-opt-2.7b', name: 'BLIP-2 2.7B', description: 'Image to text', category: 'Vision' },
+  
+  // Multilingual Models
+  { id: 'bigscience/bloom-1b7', name: 'BLOOM 1.7B', description: 'Multilingual support', category: 'Multilingual' },
+  { id: 'facebook/mbart-large-50', name: 'mBART Large', description: 'Translation model', category: 'Multilingual' },
 ];
 
-const MODEL_CATEGORIES = ['All', 'Chat', 'Code', 'Fast', 'Creative'];
+const MODEL_CATEGORIES = ['All', 'Chat', 'Code', 'Fast', 'Creative', 'Vision', 'Multilingual'];
 
 const BytezAI = () => {
   const { user } = useAuth();

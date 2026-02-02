@@ -165,6 +165,7 @@ import StudyPathGenerator from "./pages/StudyPathGenerator";
 import NoteSummarizer from "./pages/NoteSummarizer";
 import YouTubeLibrary from "./pages/YouTubeLibrary";
 import AICorner from "./pages/AICorner";
+import Xvibing from "./pages/Xvibing";
 import AISongGenerator from "./pages/AISongGenerator";
 import AIPresentationGenerator from "./pages/AIPresentationGenerator";
 import AIImageGenerator from "./pages/AIImageGenerator";
@@ -591,6 +592,7 @@ const App = () => (
                           <Route path="/ferqx" element={<FerqX />} />
                           <Route path="/integrations" element={<Integrations />} />
                           <Route path="/bytez-ai" element={<BytezAI />} />
+                          <Route path="/xvibing" element={<Xvibing />} />
                           <Route path="/xnexus-ai" element={<XNexusAI />} />
                           <Route path="/app-library" element={<UserAppLibrary />} />
                           <Route path="/submit-app" element={<SubmitApp />} />

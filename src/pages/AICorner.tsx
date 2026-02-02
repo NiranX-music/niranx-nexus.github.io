@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { 
@@ -19,10 +20,20 @@ import {
   Cloud,
   Network,
   Grid3x3,
-  List
+  List,
+  Code
 } from "lucide-react";
 
 const aiTools = [
+  {
+    id: "xvibing",
+    title: "Xvibing",
+    description: "BlackBox AI-powered coding assistant for all programming tasks",
+    icon: Code,
+    route: "/niranx/xvibing",
+    color: "text-green-500",
+    badge: "NEW"
+  },
   {
     id: "ai-chat",
     title: "AI Chat Assistant",
@@ -220,7 +231,12 @@ export default function AICorner() {
                   <div className={`p-3 rounded-lg bg-background ${tool.color}`}>
                     <Icon className="h-6 w-6" />
                   </div>
-                  <Sparkles className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                  <div className="flex items-center gap-2">
+                    {(tool as any).badge && (
+                      <Badge className="bg-green-500 text-white">{(tool as any).badge}</Badge>
+                    )}
+                    <Sparkles className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                  </div>
                 </div>
                 <CardTitle className="mt-4">{tool.title}</CardTitle>
                 <CardDescription>{tool.description}</CardDescription>
