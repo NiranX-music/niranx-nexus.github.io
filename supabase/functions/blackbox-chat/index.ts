@@ -48,19 +48,25 @@ serve(async (req) => {
 
     console.log(`BlackBox chat request from user ${user.id}, model: ${model || 'default'}`);
 
-    // Call BlackBox API
-    const response = await fetch('https://api.blackbox.ai/api/chat', {
+    // Call BlackBox API using OpenRouter as fallback
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
+        'Authorization': `Bearer ${Deno.env.get('OPENROUTER_API_KEY') || apiKey}`,
+        'HTTP-Referer': 'https://niranx.com',
+        'X-Title': 'NiranX Xvibing',
       },
       body: JSON.stringify({
+        model: model === 'blackboxai' ? 'meta-llama/llama-3.1-8b-instruct:free' : 
+               model === 'blackboxai-pro' ? 'meta-llama/llama-3.1-70b-instruct' :
+               model === 'gpt-4o' ? 'openai/gpt-4o' :
+               model === 'claude-3-sonnet' ? 'anthropic/claude-3-sonnet' :
+               model === 'gemini-pro' ? 'google/gemini-pro' : 'meta-llama/llama-3.1-8b-instruct:free',
         messages: messages.map((m: any) => ({
           role: m.role,
           content: m.content,
         })),
-        model: model || 'blackboxai',
         max_tokens: 4096,
       }),
     });
