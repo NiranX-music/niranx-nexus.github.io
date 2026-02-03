@@ -635,15 +635,20 @@ export function AppSidebar() {
                   )}
                 </div>
                 {!isCollapsed && (
-                  <motion.div
-                    animate={{ rotate: isExpanded ? 180 : 0 }}
-                    transition={{ duration: 0.3, type: "spring", stiffness: 200 }}
-                  >
-                    <ChevronDown className={cn(
-                      "h-4 w-4 transition-colors",
-                      isExpanded ? "text-foreground" : "text-muted-foreground"
-                    )} />
-                  </motion.div>
+                  <div className="flex items-center gap-1">
+                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                      {config.items.length}
+                    </Badge>
+                    <motion.div
+                      animate={{ rotate: isExpanded ? 180 : 0 }}
+                      transition={{ duration: 0.3, type: "spring", stiffness: 200 }}
+                    >
+                      <ChevronDown className={cn(
+                        "h-4 w-4 transition-colors",
+                        isExpanded ? "text-foreground" : "text-muted-foreground"
+                      )} />
+                    </motion.div>
+                  </div>
                 )}
               </SidebarGroupLabel>
             </motion.div>

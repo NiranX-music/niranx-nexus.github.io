@@ -215,7 +215,15 @@ import CustomPage from "./pages/CustomPage";
 import UserAppLibrary from "./pages/UserAppLibrary";
 import SubmitApp from "./pages/SubmitApp";
 
-// Test Platform
+// Support Pages
+import AboutUs from "./pages/support/AboutUs";
+import Careers from "./pages/support/Careers";
+import Press from "./pages/support/Press";
+import Documentation from "./pages/support/Documentation";
+import APIReference from "./pages/support/APIReference";
+import CookiePolicy from "./pages/support/CookiePolicy";
+import GDPR from "./pages/support/GDPR";
+
 import TestHub from "./pages/tests/TestHub";
 import TestBuilder from "./pages/tests/TestBuilder";
 import AITestGenerator from "./pages/tests/AITestGenerator";
@@ -601,6 +609,15 @@ const App = () => (
                           <Route path="/xmail" element={<Mailbox />} />
                           <Route path="/xmail/profile/:slug" element={<XmailProfile />} />
                           <Route path="/xmail/view/:slug" element={<XmailView />} />
+                          
+                          {/* Support Pages */}
+                          <Route path="/about" element={<AboutUs />} />
+                          <Route path="/careers" element={<Careers />} />
+                          <Route path="/press" element={<Press />} />
+                          <Route path="/docs" element={<Documentation />} />
+                          <Route path="/api" element={<APIReference />} />
+                          <Route path="/cookies" element={<CookiePolicy />} />
+                          <Route path="/gdpr" element={<GDPR />} />
                           
                           {/* XFlow Social Platform */}
                           <Route path="/xflow" element={<XFlowLogin />} />
