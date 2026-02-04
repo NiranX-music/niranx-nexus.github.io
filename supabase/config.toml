@@ -158,8 +158,7 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.google-search]
-verify_jwt = true
+verify_jwt = false
 
 [functions.blackbox-chat]
 verify_jwt = true
-

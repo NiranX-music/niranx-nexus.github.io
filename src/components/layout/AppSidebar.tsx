@@ -77,6 +77,7 @@ import {
   CalendarClock,
   Chrome,
   Pen,
+  Pencil,
   StickyNote,
   Combine,
   Menu,
@@ -87,6 +88,7 @@ import {
   Cpu,
   Rocket,
   Puzzle,
+  Edit3,
 } from "lucide-react";
 import {
   Sidebar,
@@ -595,10 +597,18 @@ export function AppSidebar() {
 
   const renderNavGroup = (
     key: string,
-    config: { title: string; icon: any; color: string; items: any[] }
+    config: { title: string; icon: any; color: string; items: any[] },
+    showEditButton = true
   ) => {
     const GroupIcon = config.icon;
     const isExpanded = expandedSections[key];
+    
+    const handleEditGroup = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      e.preventDefault();
+      // Navigate to sitemap or settings to edit the groups
+      window.location.href = '/sitemap';
+    };
     
     return (
       <SidebarGroup key={key} className="py-0.5">
@@ -612,7 +622,7 @@ export function AppSidebar() {
               whileTap={{ scale: 0.99 }}
             >
               <SidebarGroupLabel className={cn(
-                "flex items-center justify-between cursor-pointer rounded-xl px-3 py-2.5 mx-1 transition-all duration-300",
+                "flex items-center justify-between cursor-pointer rounded-xl px-3 py-2.5 mx-1 transition-all duration-300 group/header",
                 "hover:bg-muted/60",
                 isExpanded && "bg-muted/40"
               )}>
@@ -635,7 +645,17 @@ export function AppSidebar() {
                   )}
                 </div>
                 {!isCollapsed && (
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5">
+                    {showEditButton && (
+                      <motion.button
+                        onClick={handleEditGroup}
+                        whileHover={{ scale: 1.15, rotate: 10 }}
+                        whileTap={{ scale: 0.9 }}
+                        className="opacity-0 group-hover/header:opacity-100 p-1 rounded-md hover:bg-primary/20 transition-all duration-200"
+                      >
+                        <Pencil className="h-3 w-3 text-muted-foreground hover:text-primary" />
+                      </motion.button>
+                    )}
                     <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
                       {config.items.length}
                     </Badge>
