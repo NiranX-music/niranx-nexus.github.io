@@ -128,6 +128,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useCustomSidebarGroups } from "@/hooks/useCustomSidebarGroups";
 import { CustomSidebarGroups } from "@/components/sidebar/CustomSidebarGroups";
+import { SidebarShortcutEditor } from "@/components/sidebar/SidebarShortcutEditor";
 
 // Navigation Configuration - Organized by category
 const navigationConfig = {
@@ -430,6 +431,7 @@ export function AppSidebar() {
     favorites: true,
     main: true,
   });
+  const [editingGroup, setEditingGroup] = useState<{key: string; title: string; items: any[]; color: string} | null>(null);
 
   // Combine all navigation items for search
   const allNavItems = useMemo(() => {
@@ -606,8 +608,13 @@ export function AppSidebar() {
     const handleEditGroup = (e: React.MouseEvent) => {
       e.stopPropagation();
       e.preventDefault();
-      // Navigate to sitemap or settings to edit the groups
-      window.location.href = '/sitemap';
+      // Open the shortcut editor dialog
+      setEditingGroup({
+        key,
+        title: config.title,
+        items: config.items,
+        color: config.color,
+      });
     };
     
     return (
@@ -1071,6 +1078,17 @@ export function AppSidebar() {
           </NavLink>
         </motion.div>
       </SidebarFooter>
+      
+      {/* Shortcut Editor Dialog */}
+      <SidebarShortcutEditor
+        open={!!editingGroup}
+        onOpenChange={(open) => !open && setEditingGroup(null)}
+        groupKey={editingGroup?.key || ''}
+        groupTitle={editingGroup?.title || ''}
+        items={editingGroup?.items || []}
+        groupColor={editingGroup?.color || 'from-gray-500 to-gray-600'}
+        onSave={() => setEditingGroup(null)}
+      />
     </Sidebar>
   );
 }

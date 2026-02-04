@@ -432,33 +432,72 @@ const Mailbox = () => {
         emailData.sent_at = new Date().toISOString();
       }
 
-      const { error: sentError } = await supabase.from("niranx_emails").insert(emailData);
+      // Insert sent email record
+      const { data: sentEmailRecord, error: sentError } = await supabase
+        .from("niranx_emails")
+        .insert(emailData)
+        .select()
+        .single();
       if (sentError) throw sentError;
+
+      // Separate internal and external addresses
+      const internalAddresses = toAddresses.filter(addr => addr.toLowerCase().endsWith("@niranx.com"));
+      const externalAddresses = toAddresses.filter(addr => !addr.toLowerCase().endsWith("@niranx.com"));
 
       // Deliver to @niranx.com recipients if not scheduled
       if (!composeData.scheduledAt) {
-        for (const toAddress of toAddresses) {
-          if (toAddress.endsWith("@niranx.com")) {
-            const { data: recipientMailbox } = await supabase
-              .from("niranx_mailboxes")
-              .select("id")
-              .eq("email_address", toAddress)
-              .single();
+        for (const toAddress of internalAddresses) {
+          const { data: recipientMailbox } = await supabase
+            .from("niranx_mailboxes")
+            .select("id")
+            .eq("email_address", toAddress)
+            .single();
 
-            if (recipientMailbox) {
-              await supabase.from("niranx_emails").insert({
-                mailbox_id: recipientMailbox.id,
-                from_address: activeMailbox.email_address,
-                to_addresses: [toAddress],
-                subject: composeData.subject || "(No Subject)",
-                body: bodyWithSignature,
-                folder: "inbox",
-                sent_at: new Date().toISOString(),
-                priority: composeData.priority,
-                is_encrypted: composeData.isEncrypted,
-                is_read_receipt_requested: composeData.requestReadReceipt,
+          if (recipientMailbox) {
+            await supabase.from("niranx_emails").insert({
+              mailbox_id: recipientMailbox.id,
+              from_address: activeMailbox.email_address,
+              to_addresses: [toAddress],
+              subject: composeData.subject || "(No Subject)",
+              body: bodyWithSignature,
+              folder: "inbox",
+              sent_at: new Date().toISOString(),
+              priority: composeData.priority,
+              is_encrypted: composeData.isEncrypted,
+              is_read_receipt_requested: composeData.requestReadReceipt,
+            });
+          }
+        }
+
+        // Send to external recipients via edge function
+        if (externalAddresses.length > 0) {
+          try {
+            const { data: externalResult, error: externalError } = await supabase.functions.invoke(
+              "send-external-email",
+              {
+                body: {
+                  from_address: activeMailbox.email_address,
+                  to_addresses: externalAddresses,
+                  cc_addresses: [],
+                  subject: composeData.subject || "(No Subject)",
+                  body: bodyWithSignature,
+                  priority: composeData.priority,
+                  email_id: sentEmailRecord?.id,
+                },
+              }
+            );
+
+            if (externalError) {
+              console.error("External email error:", externalError);
+              toast({
+                title: "Note: External delivery pending",
+                description: "Email saved but external delivery may be delayed.",
               });
+            } else if (externalResult?.success) {
+              console.log("External email sent:", externalResult);
             }
+          } catch (extErr) {
+            console.error("External email exception:", extErr);
           }
         }
       }
@@ -467,7 +506,7 @@ const Mailbox = () => {
         title: composeData.scheduledAt ? "Email scheduled!" : "Email sent!",
         description: composeData.scheduledAt 
           ? `Email will be sent at ${format(new Date(composeData.scheduledAt), "PPpp")}`
-          : `Email sent to ${toAddresses.join(", ")}`,
+          : `Email sent to ${toAddresses.join(", ")}${externalAddresses.length > 0 ? " (including external)" : ""}`,
       });
 
       setComposeOpen(false);
