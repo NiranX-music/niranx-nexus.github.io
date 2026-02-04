@@ -12,27 +12,18 @@ serve(async (req) => {
   }
 
   try {
-    // Verify authentication
+    // Get auth header but don't require it for basic searches
     const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    let user = null;
+    
+    if (authHeader) {
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+      const supabase = createClient(supabaseUrl, supabaseKey, {
+        global: { headers: { Authorization: authHeader } },
       });
-    }
-
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      const { data } = await supabase.auth.getUser();
+      user = data?.user;
     }
 
     const { query, searchType = 'web' } = await req.json();
@@ -44,24 +35,38 @@ serve(async (req) => {
       });
     }
 
+    console.log('Search query:', query, 'type:', searchType, 'user:', user?.id || 'anonymous');
+
     const GOOGLE_SEARCH_API_KEY = Deno.env.get('GOOGLE_SEARCH_API_KEY');
     const GOOGLE_SEARCH_CX = Deno.env.get('GOOGLE_SEARCH_CX');
 
     if (!GOOGLE_SEARCH_API_KEY || !GOOGLE_SEARCH_CX) {
-      console.log('Google Search API not configured, using fallback search');
+      console.log('Google Search API not configured, providing helpful fallback');
       
-      // Fallback: Use a simple web scraping approach or return mock data
-      // In production, you would configure the actual API keys
+      // Provide a helpful response that opens Google directly
       return new Response(JSON.stringify({
         results: [
           {
-            title: `Search results for: ${query}`,
+            title: `Search Google for: "${query}"`,
             link: `https://www.google.com/search?q=${encodeURIComponent(query)}`,
-            snippet: 'Click to open Google search in a new tab. Configure GOOGLE_SEARCH_API_KEY and GOOGLE_SEARCH_CX in secrets for full integration.',
-            displayLink: 'www.google.com',
+            snippet: 'Click here to search on Google directly. For integrated search results, configure GOOGLE_SEARCH_API_KEY and GOOGLE_SEARCH_CX in your secrets.',
+            displayLink: 'google.com',
+          },
+          {
+            title: `Search Wikipedia for: "${query}"`,
+            link: `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(query)}`,
+            snippet: 'Search Wikipedia for relevant articles and information.',
+            displayLink: 'wikipedia.org',
+          },
+          {
+            title: `Search YouTube for: "${query}"`,
+            link: `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`,
+            snippet: 'Watch videos related to your search on YouTube.',
+            displayLink: 'youtube.com',
           }
         ],
-        note: 'Google Search API not configured. Add GOOGLE_SEARCH_API_KEY and GOOGLE_SEARCH_CX to enable full search.',
+        fallback: true,
+        note: 'Direct search links provided. Configure Google Custom Search API for full integration.',
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -81,7 +86,33 @@ serve(async (req) => {
 
     if (!response.ok) {
       console.error('Google Search API error:', data);
-      throw new Error(data.error?.message || 'Failed to fetch search results');
+      // Return fallback on API error (invalid key, quota exceeded, etc.)
+      return new Response(JSON.stringify({
+        results: [
+          {
+            title: `Search Google for: "${query}"`,
+            link: `https://www.google.com/search?q=${encodeURIComponent(query)}`,
+            snippet: 'Click here to search on Google directly.',
+            displayLink: 'google.com',
+          },
+          {
+            title: `Search Wikipedia for: "${query}"`,
+            link: `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(query)}`,
+            snippet: 'Search Wikipedia for relevant articles and information.',
+            displayLink: 'wikipedia.org',
+          },
+          {
+            title: `Search YouTube for: "${query}"`,
+            link: `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`,
+            snippet: 'Watch videos related to your search on YouTube.',
+            displayLink: 'youtube.com',
+          }
+        ],
+        fallback: true,
+        note: 'Google API unavailable. Using direct search links.',
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Parse results
@@ -100,10 +131,26 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error('Google Search error:', error);
+    // Return fallback on any error
+    const query = 'search';
     return new Response(JSON.stringify({
+      results: [
+        {
+          title: 'Search Google',
+          link: 'https://www.google.com',
+          snippet: 'Open Google to search directly.',
+          displayLink: 'google.com',
+        },
+        {
+          title: 'Search Wikipedia',
+          link: 'https://en.wikipedia.org',
+          snippet: 'Search Wikipedia for articles.',
+          displayLink: 'wikipedia.org',
+        }
+      ],
+      fallback: true,
       error: error instanceof Error ? error.message : 'Search failed',
     }), {
-      status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }

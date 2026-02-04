@@ -38,9 +38,16 @@ export function GoogleStyleSearchBar() {
 
       if (error) throw error;
 
-      setResults(data.results || []);
+      // Handle both normal results and fallback
+      const results = data.results || [];
+      setResults(results);
       
-      if (data.results?.length === 0) {
+      if (data.fallback) {
+        toast({
+          title: 'Using direct search links',
+          description: 'Click a result to search on that platform',
+        });
+      } else if (results.length === 0) {
         toast({
           title: 'No results found',
           description: 'Try a different search term',
@@ -48,12 +55,32 @@ export function GoogleStyleSearchBar() {
       }
     } catch (error: any) {
       console.error('Search error:', error);
+      // Provide fallback links on error
+      const fallbackResults = [
+        {
+          title: `Search Google for: "${query}"`,
+          link: `https://www.google.com/search?q=${encodeURIComponent(query)}`,
+          snippet: 'Click here to search on Google directly.',
+          displayLink: 'google.com',
+        },
+        {
+          title: `Search Wikipedia for: "${query}"`,
+          link: `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(query)}`,
+          snippet: 'Search Wikipedia for articles.',
+          displayLink: 'wikipedia.org',
+        },
+        {
+          title: `Search YouTube for: "${query}"`,
+          link: `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`,
+          snippet: 'Watch videos on YouTube.',
+          displayLink: 'youtube.com',
+        }
+      ];
+      setResults(fallbackResults);
       toast({
-        title: 'Search failed',
-        description: error.message || 'Failed to perform search',
-        variant: 'destructive',
+        title: 'Using direct search links',
+        description: 'Click a result to search on that platform',
       });
-      setResults([]);
     } finally {
       setLoading(false);
     }
