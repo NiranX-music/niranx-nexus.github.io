@@ -59,43 +59,61 @@ export default function DebateHub() {
 
   const loadDebates = async () => {
     setLoading(true);
-    let query = supabase
-      .from('debate_topics')
-      .select(`
-        *,
-        profiles:user_id (username, avatar_url),
-        debate_categories (name, color)
-      `);
+    try {
+      let query = supabase
+        .from('debate_topics')
+        .select(`
+          *,
+          debate_categories (name, color)
+        `);
 
-    if (selectedCategory) {
-      query = query.eq('category_id', selectedCategory);
-    }
+      if (selectedCategory) {
+        query = query.eq('category_id', selectedCategory);
+      }
 
-    if (searchQuery) {
-      query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
-    }
+      if (searchQuery) {
+        query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+      }
 
-    switch (sortBy) {
-      case 'hot':
-        query = query.order('hotness_score', { ascending: false });
-        break;
-      case 'new':
-        query = query.order('created_at', { ascending: false });
-        break;
-      case 'top':
-        query = query.order('upvotes', { ascending: false });
-        break;
-      case 'controversial':
-        query = query.order('controversy_score', { ascending: false });
-        break;
-    }
+      switch (sortBy) {
+        case 'hot':
+          query = query.order('hotness_score', { ascending: false, nullsFirst: false });
+          break;
+        case 'new':
+          query = query.order('created_at', { ascending: false });
+          break;
+        case 'top':
+          query = query.order('upvotes', { ascending: false });
+          break;
+        case 'controversial':
+          query = query.order('controversy_score', { ascending: false, nullsFirst: false });
+          break;
+      }
 
-    const { data, error } = await query.limit(50);
+      const { data, error } = await query.limit(50);
 
-    if (error) {
+      if (error) {
+        console.error('Debate loading error:', error);
+        toast({ title: "Error loading debates", description: error.message, variant: "destructive" });
+        setDebates([]);
+      } else {
+        // Fetch profile data separately to avoid join issues
+        const debatesWithProfiles = await Promise.all(
+          (data || []).map(async (debate) => {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('username, avatar_url')
+              .eq('user_id', debate.user_id)
+              .maybeSingle();
+            return { ...debate, profiles: profile };
+          })
+        );
+        setDebates(debatesWithProfiles);
+      }
+    } catch (err: any) {
+      console.error('Unexpected error:', err);
       toast({ title: "Error loading debates", variant: "destructive" });
-    } else {
-      setDebates(data || []);
+      setDebates([]);
     }
     setLoading(false);
   };
