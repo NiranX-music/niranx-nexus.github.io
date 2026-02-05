@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Plus, Mic, Camera, Sparkles, Loader2, X, ExternalLink, Globe, Image } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -17,6 +18,7 @@ interface SearchResult {
 }
 
 export function GoogleStyleSearchBar() {
+  const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -26,6 +28,13 @@ export function GoogleStyleSearchBar() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSearch = async () => {
+    if (!query.trim()) return;
+
+    // Navigate to the full search results page
+    navigate(`/search-results?q=${encodeURIComponent(query)}&type=${searchType}${aiMode ? '&ai=true' : ''}`);
+  };
+
+  const handleQuickSearch = async () => {
     if (!query.trim()) return;
 
     setLoading(true);

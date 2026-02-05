@@ -131,9 +131,12 @@ serve(async (req: Request): Promise<Response> => {
       `Sending email from ${from_address} to ${externalAddresses.join(", ")}`
     );
 
-    // Prepare email options
+    // Prepare email options - Use onboarding@resend.dev for testing if domain not verified
+    // Once you verify your domain in Resend, change this to your verified domain
+    const fromEmail = Deno.env.get("RESEND_FROM_EMAIL") || "NiranX Mail <onboarding@resend.dev>";
+    
     const emailOptions: any = {
-      from: `NiranX Mail <noreply@niranx.com>`, // Use verified domain
+      from: fromEmail,
       to: externalAddresses,
       subject: subject || "(No Subject)",
       text: body || "",
