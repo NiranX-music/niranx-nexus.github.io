@@ -13,10 +13,11 @@ import {
   ArrowLeft, ArrowRight, Save, Eye, Plus, Trash2, GripVertical,
   FileText, Clock, Target, BookOpen, Shield, Settings,
   Type, Hash, AlignLeft, List, Image, Code, Music, Shapes,
-  Check, X, HelpCircle, Sparkles
+  Check, X, HelpCircle, Sparkles, Loader2
 } from 'lucide-react';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
 import { toast } from '@/hooks/use-toast';
+import { useTests, useTestDetails } from '@/hooks/useTests';
 
 interface Question {
   id: string;
@@ -45,6 +46,8 @@ const DIFFICULTY_LEVELS = ['easy', 'medium', 'hard'];
 
 export default function TestBuilder() {
   const navigate = useNavigate();
+  const { createTest } = useTests();
+  const [isSaving, setIsSaving] = useState(false);
   const [step, setStep] = useState(1);
   const [testData, setTestData] = useState({
     title: '',
@@ -97,7 +100,7 @@ export default function TestBuilder() {
     setQuestions(questions.filter(q => q.id !== id));
   };
 
-  const handleSaveTest = () => {
+  const handleSaveTest = async (publish = true) => {
     if (!testData.title) {
       toast({ title: 'Please enter a test title', variant: 'destructive' });
       return;
@@ -106,8 +109,58 @@ export default function TestBuilder() {
       toast({ title: 'Please add at least one question', variant: 'destructive' });
       return;
     }
-    toast({ title: 'Test saved successfully!' });
-    navigate('/niranx/tests');
+
+    setIsSaving(true);
+    try {
+      // Create the test
+      const createdTest = await createTest({
+        title: testData.title,
+        subject: testData.subject,
+        description: `Grade: ${testData.class}, Syllabus: ${testData.syllabusTag}`,
+        duration_minutes: testData.duration,
+        total_marks: questions.reduce((acc, q) => acc + q.marks, 0),
+        difficulty: testData.difficulty,
+        status: publish ? 'published' : 'draft',
+        shuffle_questions: testData.shuffleQuestions,
+        show_result_immediately: testData.showResultsImmediately,
+        published_at: publish ? new Date().toISOString() : null,
+      });
+
+      if (!createdTest) {
+        throw new Error('Failed to create test');
+      }
+
+      // Add questions to the test using supabase directly
+      const { supabase } = await import('@/integrations/supabase/client');
+      
+      const questionsToInsert = questions.map((q, index) => ({
+        test_id: createdTest.id,
+        question_text: q.question,
+        question_type: q.type,
+        options: q.options,
+        correct_answer: typeof q.correctAnswer === 'string' ? q.correctAnswer : String(q.correctAnswer),
+        marks: q.marks,
+        order_index: index + 1,
+        explanation: q.explanation,
+      }));
+
+      const { error: questionsError } = await supabase
+        .from('test_questions')
+        .insert(questionsToInsert);
+
+      if (questionsError) {
+        console.error('Error adding questions:', questionsError);
+        toast({ title: 'Test created but questions failed to save', variant: 'destructive' });
+      }
+
+      toast({ title: publish ? 'Test published successfully!' : 'Test saved as draft!' });
+      navigate(`/niranx/tests/${createdTest.id}`);
+    } catch (error: any) {
+      console.error('Error saving test:', error);
+      toast({ title: 'Error saving test', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const renderStepContent = () => {
@@ -557,12 +610,12 @@ export default function TestBuilder() {
             </Card>
 
             <div className="flex gap-4">
-              <Button variant="outline" className="flex-1 gap-2">
-                <Eye className="h-4 w-4" />
-                Preview Test
+              <Button variant="outline" className="flex-1 gap-2" onClick={() => handleSaveTest(false)} disabled={isSaving}>
+                {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                Save as Draft
               </Button>
-              <Button className="flex-1 gap-2" onClick={handleSaveTest}>
-                <Save className="h-4 w-4" />
+              <Button className="flex-1 gap-2" onClick={() => handleSaveTest(true)} disabled={isSaving}>
+                {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                 Save & Publish
               </Button>
             </div>

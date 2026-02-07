@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { 
   FileText, Plus, Sparkles, Upload, ClipboardList, Radio, 
   CheckCircle2, BarChart3, Search, Clock, Users, Trophy,
-  Target, TrendingUp, LayoutGrid, List, GraduationCap, Play
+  Target, TrendingUp, LayoutGrid, List, GraduationCap, Play, FileEdit
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -61,6 +61,13 @@ export default function TestHub() {
   );
 
   const filteredTeacherTests = myTests.filter(test => 
+    test.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (test.subject?.toLowerCase() || '').includes(searchQuery.toLowerCase())
+  );
+
+  // Get draft tests
+  const draftTests = myTests.filter(t => t.status === 'draft');
+  const filteredDraftTests = draftTests.filter(test =>
     test.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (test.subject?.toLowerCase() || '').includes(searchQuery.toLowerCase())
   );
@@ -204,6 +211,15 @@ export default function TestHub() {
                 <TabsTrigger value="my-tests" className="gap-2 data-[state=active]:bg-background">
                   <ClipboardList className="h-4 w-4" />
                   <span className="hidden sm:inline">My Tests</span>
+                </TabsTrigger>
+                <TabsTrigger value="drafts" className="gap-2 data-[state=active]:bg-background">
+                  <FileEdit className="h-4 w-4" />
+                  <span className="hidden sm:inline">Drafts</span>
+                  {draftTests.length > 0 && (
+                    <Badge variant="secondary" className="h-5 min-w-5 p-0 flex items-center justify-center text-xs">
+                      {draftTests.length}
+                    </Badge>
+                  )}
                 </TabsTrigger>
                 <TabsTrigger value="teacher-analytics" className="gap-2 data-[state=active]:bg-background">
                   <BarChart3 className="h-4 w-4" />
@@ -444,7 +460,67 @@ export default function TestHub() {
           </TabsContent>
         )}
 
-        {/* Analytics Tab - Teacher Only */}
+        {/* Drafts Tab - Teacher Only */}
+        {isTeacher && (
+          <TabsContent value="drafts" className="space-y-6">
+            {filteredDraftTests.length === 0 ? (
+              <Card className="p-8 text-center">
+                <FileEdit className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold">No draft tests</h3>
+                <p className="text-muted-foreground mb-4">Create a test and save it as draft to see it here.</p>
+                <Button onClick={() => navigate('/niranx/tests/create')}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Test
+                </Button>
+              </Card>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {filteredDraftTests.map((test, index) => (
+                  <motion.div
+                    key={test.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <Card className="group hover:shadow-lg transition-all cursor-pointer border-dashed" onClick={() => navigate(`/niranx/tests/${test.id}`)}>
+                      <CardHeader className="pb-2">
+                        <div className="flex items-start justify-between">
+                          <div className="space-y-1">
+                            <CardTitle className="text-lg line-clamp-1">{test.title}</CardTitle>
+                            <CardDescription>{test.subject || 'General'}</CardDescription>
+                          </div>
+                          <Badge className="bg-muted text-muted-foreground">
+                            Draft
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <Clock className="h-4 w-4" />
+                            <span>{test.duration_minutes} mins</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <Target className="h-4 w-4" />
+                            <span>{test.total_marks} Marks</span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center justify-between pt-2 border-t text-sm text-muted-foreground">
+                          <span>Created {new Date(test.created_at).toLocaleDateString()}</span>
+                          <Button size="sm" variant="outline" className="gap-1">
+                            <FileEdit className="h-3 w-3" />
+                            Edit
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        )}
         {isTeacher && (
           <TabsContent value="teacher-analytics" className="space-y-6">
             <Card>

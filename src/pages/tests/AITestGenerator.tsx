@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from '@/hooks/use-toast';
+import { useTests } from '@/hooks/useTests';
+import { supabase } from '@/integrations/supabase/client';
 
 const SUBJECTS = [
   'Mathematics', 'Physics', 'Chemistry', 'Biology', 
@@ -55,7 +57,9 @@ interface GeneratedQuestion {
 
 export default function AITestGenerator() {
   const navigate = useNavigate();
+  const { createTest } = useTests();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [generatedQuestions, setGeneratedQuestions] = useState<GeneratedQuestion[]>([]);
   const [editingQuestion, setEditingQuestion] = useState<string | null>(null);
   
@@ -107,9 +111,61 @@ export default function AITestGenerator() {
     toast({ title: `Generated ${config.numQuestions} questions!` });
   };
 
-  const handleSaveTest = () => {
-    toast({ title: 'Test saved successfully!' });
-    navigate('/niranx/tests');
+  const handleSaveTest = async (publish = true) => {
+    if (generatedQuestions.length === 0) {
+      toast({ title: 'No questions to save', variant: 'destructive' });
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      // Create the test
+      const createdTest = await createTest({
+        title: `${config.topic} - ${config.subject} Test`,
+        subject: config.subject,
+        description: `Board: ${config.board}, Exam Type: ${config.examType}, Grade: ${config.grade}`,
+        duration_minutes: config.duration,
+        total_marks: generatedQuestions.reduce((acc, q) => acc + q.marks, 0),
+        difficulty: Object.entries(config.difficultyDistribution).sort((a, b) => b[1] - a[1])[0][0],
+        status: publish ? 'published' : 'draft',
+        shuffle_questions: false,
+        show_result_immediately: true,
+        published_at: publish ? new Date().toISOString() : null,
+      });
+
+      if (!createdTest) {
+        throw new Error('Failed to create test');
+      }
+
+      // Add questions to the test
+      const questionsToInsert = generatedQuestions.map((q, index) => ({
+        test_id: createdTest.id,
+        question_text: q.question,
+        question_type: q.type,
+        options: q.options,
+        correct_answer: q.answer,
+        marks: q.marks,
+        order_index: index + 1,
+        explanation: q.explanation,
+      }));
+
+      const { error: questionsError } = await supabase
+        .from('test_questions')
+        .insert(questionsToInsert);
+
+      if (questionsError) {
+        console.error('Error adding questions:', questionsError);
+        toast({ title: 'Test created but questions failed to save', variant: 'destructive' });
+      }
+
+      toast({ title: publish ? 'Test published successfully!' : 'Test saved as draft!' });
+      navigate(`/niranx/tests/${createdTest.id}`);
+    } catch (error: any) {
+      console.error('Error saving test:', error);
+      toast({ title: 'Error saving test', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const updateDifficulty = (level: 'easy' | 'medium' | 'hard', value: number) => {
@@ -315,13 +371,17 @@ export default function AITestGenerator() {
                 </CardTitle>
                 {generatedQuestions.length > 0 && (
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={handleGenerate}>
+                    <Button variant="outline" size="sm" onClick={handleGenerate} disabled={isGenerating}>
                       <RefreshCw className="h-4 w-4 mr-1" />
                       Regenerate
                     </Button>
-                    <Button size="sm" onClick={handleSaveTest}>
-                      <Save className="h-4 w-4 mr-1" />
-                      Save Test
+                    <Button variant="outline" size="sm" onClick={() => handleSaveTest(false)} disabled={isSaving}>
+                      {isSaving ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Save className="h-4 w-4 mr-1" />}
+                      Save Draft
+                    </Button>
+                    <Button size="sm" onClick={() => handleSaveTest(true)} disabled={isSaving}>
+                      {isSaving ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Save className="h-4 w-4 mr-1" />}
+                      Publish
                     </Button>
                   </div>
                 )}
