@@ -7,11 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { VoteButtons } from "@/components/debates/VoteButtons";
 import { CommentTree } from "@/components/debates/CommentTree";
-import { ArrowLeft, Bookmark, Bell, Share2, Eye } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ArrowLeft, Bookmark, Bell, Share2, Eye, MessageSquare, ThumbsUp, ThumbsDown, Minus } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { cn } from "@/lib/utils";
 
 export default function DebateDetail() {
   const { id } = useParams();
@@ -19,18 +22,21 @@ export default function DebateDetail() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [debate, setDebate] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
+  const [category, setCategory] = useState<any>(null);
   const [comments, setComments] = useState<any[]>([]);
+  const [forComments, setForComments] = useState<any[]>([]);
+  const [againstComments, setAgainstComments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [newComment, setNewComment] = useState("");
   const [newCommentStance, setNewCommentStance] = useState<'for' | 'against' | 'neutral'>('neutral');
   const [userStance, setUserStance] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState("best");
+  const [activeTab, setActiveTab] = useState("all");
 
   useEffect(() => {
     if (id) {
       loadDebate();
-      loadComments();
-      loadUserStance();
       incrementViewCount();
 
       // Subscribe to realtime updates
@@ -48,33 +54,77 @@ export default function DebateDetail() {
         supabase.removeChannel(channel);
       };
     }
-  }, [id, sortBy]);
+  }, [id]);
+
+  useEffect(() => {
+    if (debate) {
+      loadComments();
+      loadUserStance();
+    }
+  }, [debate, sortBy]);
 
   const incrementViewCount = async () => {
     if (id) {
-      await supabase
-        .from('debate_topics')
-        .update({ view_count: (debate?.view_count || 0) + 1 })
-        .eq('id', id);
+      try {
+        const { data } = await supabase
+          .from('debate_topics')
+          .select('view_count')
+          .eq('id', id)
+          .single();
+        
+        if (data) {
+          await supabase
+            .from('debate_topics')
+            .update({ view_count: (data.view_count || 0) + 1 })
+            .eq('id', id);
+        }
+      } catch (err) {
+        console.error('Error incrementing view count:', err);
+      }
     }
   };
 
   const loadDebate = async () => {
-    const { data, error } = await supabase
-      .from('debate_topics')
-      .select(`
-        *,
-        profiles:user_id (username, avatar_url),
-        debate_categories (name, color, icon)
-      `)
-      .eq('id', id)
-      .single();
+    try {
+      // Fetch debate topic without joins to avoid foreign key issues
+      const { data: debateData, error: debateError } = await supabase
+        .from('debate_topics')
+        .select('*')
+        .eq('id', id)
+        .single();
 
-    if (error) {
+      if (debateError) {
+        console.error('Error loading debate:', debateError);
+        toast({ title: "Error loading debate", description: debateError.message, variant: "destructive" });
+        navigate('/debates');
+        return;
+      }
+
+      setDebate(debateData);
+
+      // Fetch profile separately
+      if (debateData.user_id) {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('username, avatar_url')
+          .eq('user_id', debateData.user_id)
+          .maybeSingle();
+        setProfile(profileData);
+      }
+
+      // Fetch category separately
+      if (debateData.category_id) {
+        const { data: categoryData } = await supabase
+          .from('debate_categories')
+          .select('name, color, icon')
+          .eq('id', debateData.category_id)
+          .maybeSingle();
+        setCategory(categoryData);
+      }
+    } catch (err: any) {
+      console.error('Unexpected error loading debate:', err);
       toast({ title: "Error loading debate", variant: "destructive" });
       navigate('/debates');
-    } else {
-      setDebate(data);
     }
     setLoading(false);
   };
@@ -82,10 +132,7 @@ export default function DebateDetail() {
   const loadComments = async () => {
     let query = supabase
       .from('debate_comments')
-      .select(`
-        *,
-        profiles:user_id (username, avatar_url)
-      `)
+      .select('*')
       .eq('debate_id', id)
       .is('parent_comment_id', null);
 
@@ -101,8 +148,28 @@ export default function DebateDetail() {
         break;
     }
 
-    const { data } = await query;
-    if (data) setComments(data);
+    const { data, error } = await query;
+    
+    if (error) {
+      console.error('Error loading comments:', error);
+      return;
+    }
+
+    // Fetch profiles for all comments
+    const commentsWithProfiles = await Promise.all(
+      (data || []).map(async (comment) => {
+        const { data: commentProfile } = await supabase
+          .from('profiles')
+          .select('username, avatar_url')
+          .eq('user_id', comment.user_id)
+          .maybeSingle();
+        return { ...comment, profiles: commentProfile };
+      })
+    );
+
+    setComments(commentsWithProfiles);
+    setForComments(commentsWithProfiles.filter(c => c.stance === 'for'));
+    setAgainstComments(commentsWithProfiles.filter(c => c.stance === 'against'));
   };
 
   const loadUserStance = async () => {
@@ -166,8 +233,24 @@ export default function DebateDetail() {
     }
   };
 
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      toast({ title: "Link copied to clipboard!" });
+    } catch {
+      toast({ title: "Failed to copy link", variant: "destructive" });
+    }
+  };
+
   if (loading) {
-    return <div className="container mx-auto p-6">Loading...</div>;
+    return (
+      <div className="container mx-auto p-6 flex items-center justify-center min-h-[50vh]">
+        <div className="text-center space-y-4">
+          <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto" />
+          <p className="text-muted-foreground">Loading debate...</p>
+        </div>
+      </div>
+    );
   }
 
   if (!debate) return null;
@@ -177,7 +260,7 @@ export default function DebateDetail() {
   const againstPercent = stanceTotal > 0 ? (debate.stance_against_count / stanceTotal * 100) : 0;
 
   return (
-    <div className="container mx-auto p-6 max-w-5xl space-y-6">
+    <div className="container mx-auto p-4 md:p-6 max-w-6xl space-y-6">
       {/* Back Button */}
       <Button variant="ghost" onClick={() => navigate('/debates')} className="gap-2">
         <ArrowLeft className="w-4 h-4" />
@@ -190,24 +273,34 @@ export default function DebateDetail() {
           <VoteButtons
             targetId={debate.id}
             targetType="topic"
-            upvotes={debate.upvotes}
-            downvotes={debate.downvotes}
+            upvotes={debate.upvotes || 0}
+            downvotes={debate.downvotes || 0}
           />
           <div className="flex-1 space-y-4">
             <div>
-              <h1 className="text-3xl font-bold mb-2">{debate.title}</h1>
+              <h1 className="text-2xl md:text-3xl font-bold mb-2">{debate.title}</h1>
               <div className="flex flex-wrap gap-2 items-center text-sm text-muted-foreground">
-                <span>by {debate.profiles?.username || 'Anonymous'}</span>
+                <div className="flex items-center gap-2">
+                  <Avatar className="w-6 h-6">
+                    <AvatarImage src={profile?.avatar_url} />
+                    <AvatarFallback>{profile?.username?.[0]?.toUpperCase() || 'A'}</AvatarFallback>
+                  </Avatar>
+                  <span>{profile?.username || 'Anonymous'}</span>
+                </div>
                 <span>•</span>
                 <span>{formatDistanceToNow(new Date(debate.created_at), { addSuffix: true })}</span>
-                {debate.debate_categories && (
-                  <Badge style={{ backgroundColor: debate.debate_categories.color }}>
-                    {debate.debate_categories.name}
+                {category && (
+                  <Badge style={{ backgroundColor: category.color }}>
+                    {category.name}
                   </Badge>
                 )}
                 <div className="flex items-center gap-1">
                   <Eye className="w-4 h-4" />
-                  {debate.view_count}
+                  {debate.view_count || 0}
+                </div>
+                <div className="flex items-center gap-1">
+                  <MessageSquare className="w-4 h-4" />
+                  {debate.comment_count || 0}
                 </div>
               </div>
             </div>
@@ -222,7 +315,7 @@ export default function DebateDetail() {
               </div>
             )}
 
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button variant="outline" size="sm">
                 <Bookmark className="w-4 h-4 mr-2" />
                 Bookmark
@@ -231,7 +324,7 @@ export default function DebateDetail() {
                 <Bell className="w-4 h-4 mr-2" />
                 Subscribe
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={handleShare}>
                 <Share2 className="w-4 h-4 mr-2" />
                 Share
               </Button>
@@ -243,41 +336,53 @@ export default function DebateDetail() {
       {/* Stance Selector */}
       <Card className="p-6">
         <h3 className="font-semibold mb-4">What's your stance?</h3>
-        <div className="flex gap-2 mb-4">
+        <div className="flex flex-col sm:flex-row gap-2 mb-4">
           <Button
             variant={userStance === 'for' ? 'default' : 'outline'}
             onClick={() => handleSetStance('for')}
-            className="flex-1"
+            className={cn(
+              "flex-1 gap-2",
+              userStance === 'for' && "bg-green-600 hover:bg-green-700"
+            )}
           >
-            👍 For
+            <ThumbsUp className="w-4 h-4" />
+            For
           </Button>
           <Button
             variant={userStance === 'against' ? 'default' : 'outline'}
             onClick={() => handleSetStance('against')}
-            className="flex-1"
+            className={cn(
+              "flex-1 gap-2",
+              userStance === 'against' && "bg-red-600 hover:bg-red-700"
+            )}
           >
-            👎 Against
+            <ThumbsDown className="w-4 h-4" />
+            Against
           </Button>
           <Button
             variant={userStance === 'neutral' ? 'default' : 'outline'}
             onClick={() => handleSetStance('neutral')}
-            className="flex-1"
+            className={cn(
+              "flex-1 gap-2",
+              userStance === 'neutral' && "bg-gray-600 hover:bg-gray-700"
+            )}
           >
-            😐 Neutral
+            <Minus className="w-4 h-4" />
+            Neutral
           </Button>
         </div>
 
         {stanceTotal > 0 && (
           <div className="space-y-2">
-            <div className="flex gap-2 h-3 rounded-full overflow-hidden">
-              <div className="bg-green-500" style={{ width: `${forPercent}%` }} />
-              <div className="bg-red-500" style={{ width: `${againstPercent}%` }} />
-              <div className="bg-gray-400" style={{ width: `${100 - forPercent - againstPercent}%` }} />
+            <div className="flex gap-1 h-4 rounded-full overflow-hidden">
+              <div className="bg-green-500 transition-all" style={{ width: `${forPercent}%` }} />
+              <div className="bg-red-500 transition-all" style={{ width: `${againstPercent}%` }} />
+              <div className="bg-gray-400 transition-all" style={{ width: `${100 - forPercent - againstPercent}%` }} />
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-green-600">{debate.stance_for_count} For ({forPercent.toFixed(0)}%)</span>
-              <span className="text-red-600">{debate.stance_against_count} Against ({againstPercent.toFixed(0)}%)</span>
-              <span>{debate.stance_neutral_count} Neutral</span>
+              <span className="text-green-600 font-medium">{debate.stance_for_count || 0} For ({forPercent.toFixed(0)}%)</span>
+              <span className="text-red-600 font-medium">{debate.stance_against_count || 0} Against ({againstPercent.toFixed(0)}%)</span>
+              <span className="text-muted-foreground">{debate.stance_neutral_count || 0} Neutral</span>
             </div>
           </div>
         )}
@@ -288,31 +393,49 @@ export default function DebateDetail() {
         <h3 className="font-semibold mb-4">Add your argument</h3>
         <div className="space-y-4">
           <Textarea
-            placeholder="Share your thoughts..."
+            placeholder="Share your thoughts and arguments..."
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             rows={4}
+            className="resize-none"
           />
-          <div className="flex justify-between items-center">
-            <Select value={newCommentStance} onValueChange={(v: any) => setNewCommentStance(v)}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="for">👍 For</SelectItem>
-                <SelectItem value="against">👎 Against</SelectItem>
-                <SelectItem value="neutral">😐 Neutral</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button onClick={handleSubmitComment}>Post Comment</Button>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Your stance:</span>
+              <Select value={newCommentStance} onValueChange={(v: any) => setNewCommentStance(v)}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="for">
+                    <span className="flex items-center gap-2">
+                      <ThumbsUp className="w-4 h-4 text-green-500" /> For
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="against">
+                    <span className="flex items-center gap-2">
+                      <ThumbsDown className="w-4 h-4 text-red-500" /> Against
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="neutral">
+                    <span className="flex items-center gap-2">
+                      <Minus className="w-4 h-4 text-gray-500" /> Neutral
+                    </span>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Button onClick={handleSubmitComment} disabled={!newComment.trim()}>
+              Post Argument
+            </Button>
           </div>
         </div>
       </Card>
 
-      {/* Comments */}
+      {/* Comments Section with Tabs */}
       <Card className="p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="font-semibold">{debate.comment_count || 0} Comments</h3>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <h3 className="font-semibold text-lg">{debate.comment_count || 0} Arguments</h3>
           <Select value={sortBy} onValueChange={setSortBy}>
             <SelectTrigger className="w-[150px]">
               <SelectValue />
@@ -325,11 +448,76 @@ export default function DebateDetail() {
           </Select>
         </div>
 
-        <div className="space-y-4">
-          {comments.map(comment => (
-            <CommentTree key={comment.id} comment={comment} debateId={id!} />
-          ))}
-        </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
+            <TabsTrigger value="all" className="gap-2">
+              <MessageSquare className="w-4 h-4" />
+              All ({comments.length})
+            </TabsTrigger>
+            <TabsTrigger value="for" className="gap-2">
+              <ThumbsUp className="w-4 h-4 text-green-500" />
+              For ({forComments.length})
+            </TabsTrigger>
+            <TabsTrigger value="against" className="gap-2">
+              <ThumbsDown className="w-4 h-4 text-red-500" />
+              Against ({againstComments.length})
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="all" className="space-y-4">
+            {comments.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">
+                No arguments yet. Be the first to share your thoughts!
+              </p>
+            ) : (
+              comments.map(comment => (
+                <CommentTree key={comment.id} comment={comment} debateId={id!} />
+              ))
+            )}
+          </TabsContent>
+
+          <TabsContent value="for" className="space-y-4">
+            <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4 mb-4">
+              <h4 className="font-semibold text-green-600 flex items-center gap-2">
+                <ThumbsUp className="w-5 h-5" />
+                Arguments For
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                These arguments support the debate topic
+              </p>
+            </div>
+            {forComments.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">
+                No supporting arguments yet.
+              </p>
+            ) : (
+              forComments.map(comment => (
+                <CommentTree key={comment.id} comment={comment} debateId={id!} />
+              ))
+            )}
+          </TabsContent>
+
+          <TabsContent value="against" className="space-y-4">
+            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-4">
+              <h4 className="font-semibold text-red-600 flex items-center gap-2">
+                <ThumbsDown className="w-5 h-5" />
+                Arguments Against (Counterviews)
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                These arguments oppose the debate topic
+              </p>
+            </div>
+            {againstComments.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">
+                No opposing arguments yet.
+              </p>
+            ) : (
+              againstComments.map(comment => (
+                <CommentTree key={comment.id} comment={comment} debateId={id!} />
+              ))
+            )}
+          </TabsContent>
+        </Tabs>
       </Card>
     </div>
   );

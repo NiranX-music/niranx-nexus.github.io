@@ -8,7 +8,7 @@ import { VoteButtons } from "./VoteButtons";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { ChevronDown, ChevronUp, MessageSquare } from "lucide-react";
+import { ChevronDown, ChevronUp, MessageSquare, ThumbsUp, ThumbsDown, Minus } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -26,6 +26,7 @@ export function CommentTree({ comment, debateId, depth = 0 }: CommentTreeProps) 
   const [replyText, setReplyText] = useState("");
   const [replies, setReplies] = useState<any[]>([]);
   const [loadingReplies, setLoadingReplies] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (!collapsed && depth < 5) {
@@ -35,16 +36,34 @@ export function CommentTree({ comment, debateId, depth = 0 }: CommentTreeProps) 
 
   const loadReplies = async () => {
     setLoadingReplies(true);
-    const { data } = await supabase
-      .from('debate_comments')
-      .select(`
-        *,
-        profiles:user_id (username, avatar_url)
-      `)
-      .eq('parent_comment_id', comment.id)
-      .order('upvotes', { ascending: false });
-    
-    if (data) setReplies(data);
+    try {
+      const { data, error } = await supabase
+        .from('debate_comments')
+        .select('*')
+        .eq('parent_comment_id', comment.id)
+        .order('upvotes', { ascending: false });
+      
+      if (error) {
+        console.error('Error loading replies:', error);
+        return;
+      }
+
+      // Fetch profiles for replies
+      const repliesWithProfiles = await Promise.all(
+        (data || []).map(async (reply) => {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('username, avatar_url')
+            .eq('user_id', reply.user_id)
+            .maybeSingle();
+          return { ...reply, profiles: profile };
+        })
+      );
+
+      setReplies(repliesWithProfiles);
+    } catch (err) {
+      console.error('Error loading replies:', err);
+    }
     setLoadingReplies(false);
   };
 
@@ -56,6 +75,7 @@ export function CommentTree({ comment, debateId, depth = 0 }: CommentTreeProps) 
 
     if (!replyText.trim()) return;
 
+    setSubmitting(true);
     const { error } = await supabase
       .from('debate_comments')
       .insert({
@@ -75,46 +95,42 @@ export function CommentTree({ comment, debateId, depth = 0 }: CommentTreeProps) 
       toast({ title: "Reply posted!" });
       loadReplies();
     }
+    setSubmitting(false);
   };
 
-  const stanceBadgeColor = {
-    for: 'bg-green-500',
-    against: 'bg-red-500',
-    neutral: 'bg-gray-400'
+  const stanceConfig = {
+    for: { icon: ThumbsUp, color: 'text-green-500', bg: 'bg-green-500/10', border: 'border-green-500/20', label: 'For' },
+    against: { icon: ThumbsDown, color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/20', label: 'Against' },
+    neutral: { icon: Minus, color: 'text-gray-500', bg: 'bg-gray-500/10', border: 'border-gray-500/20', label: 'Neutral' }
   };
 
-  const stanceIcon = {
-    for: '👍',
-    against: '👎',
-    neutral: '😐'
-  };
+  const stance = stanceConfig[comment.stance as keyof typeof stanceConfig] || stanceConfig.neutral;
+  const StanceIcon = stance.icon;
 
   return (
-    <div className={cn("space-y-2", depth > 0 && "ml-8 border-l-2 border-border pl-4")}>
-      <Card className="p-4">
+    <div className={cn("space-y-2", depth > 0 && "ml-4 md:ml-8 border-l-2 border-border pl-4")}>
+      <Card className={cn("p-4", stance.bg, stance.border)}>
         <div className="flex gap-3">
           <VoteButtons
             targetId={comment.id}
             targetType="comment"
-            upvotes={comment.upvotes}
-            downvotes={comment.downvotes}
+            upvotes={comment.upvotes || 0}
+            downvotes={comment.downvotes || 0}
           />
 
-          <div className="flex-1 space-y-2">
+          <div className="flex-1 space-y-2 min-w-0">
             {/* Author Info */}
-            <div className="flex items-center gap-2 text-sm">
+            <div className="flex flex-wrap items-center gap-2 text-sm">
               <Avatar className="w-6 h-6">
                 <AvatarImage src={comment.profiles?.avatar_url} />
-                <AvatarFallback>{comment.profiles?.username?.[0]?.toUpperCase()}</AvatarFallback>
+                <AvatarFallback>{comment.profiles?.username?.[0]?.toUpperCase() || 'A'}</AvatarFallback>
               </Avatar>
               <span className="font-semibold">{comment.profiles?.username || 'Anonymous'}</span>
-              <Badge 
-                variant="outline" 
-                className={cn("text-xs", stanceBadgeColor[comment.stance as keyof typeof stanceBadgeColor])}
-              >
-                {stanceIcon[comment.stance as keyof typeof stanceIcon]} {comment.stance}
+              <Badge variant="outline" className={cn("text-xs gap-1", stance.color)}>
+                <StanceIcon className="w-3 h-3" />
+                {stance.label}
               </Badge>
-              <span className="text-muted-foreground">
+              <span className="text-muted-foreground text-xs">
                 {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
               </span>
               {comment.is_edited && (
@@ -125,7 +141,7 @@ export function CommentTree({ comment, debateId, depth = 0 }: CommentTreeProps) 
             {/* Comment Content */}
             {!collapsed && (
               <>
-                <p className="text-sm whitespace-pre-wrap">{comment.content}</p>
+                <p className="text-sm whitespace-pre-wrap break-words">{comment.content}</p>
 
                 {comment.ai_argument_score && (
                   <Badge variant="outline" className="text-xs">
@@ -134,22 +150,36 @@ export function CommentTree({ comment, debateId, depth = 0 }: CommentTreeProps) 
                 )}
 
                 {/* Actions */}
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowReply(!showReply)}
+                    className="h-8 text-xs"
                   >
-                    <MessageSquare className="w-4 h-4 mr-1" />
+                    <MessageSquare className="w-3 h-3 mr-1" />
                     Reply
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setCollapsed(!collapsed)}
-                  >
-                    {collapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-                  </Button>
+                  {replies.length > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setCollapsed(!collapsed)}
+                      className="h-8 text-xs"
+                    >
+                      {collapsed ? (
+                        <>
+                          <ChevronDown className="w-3 h-3 mr-1" />
+                          Show {replies.length} replies
+                        </>
+                      ) : (
+                        <>
+                          <ChevronUp className="w-3 h-3 mr-1" />
+                          Hide replies
+                        </>
+                      )}
+                    </Button>
+                  )}
                 </div>
 
                 {/* Reply Input */}
@@ -160,13 +190,14 @@ export function CommentTree({ comment, debateId, depth = 0 }: CommentTreeProps) 
                       value={replyText}
                       onChange={(e) => setReplyText(e.target.value)}
                       rows={3}
+                      className="resize-none"
                     />
                     <div className="flex gap-2 justify-end">
                       <Button variant="outline" size="sm" onClick={() => setShowReply(false)}>
                         Cancel
                       </Button>
-                      <Button size="sm" onClick={handleReply}>
-                        Post Reply
+                      <Button size="sm" onClick={handleReply} disabled={submitting || !replyText.trim()}>
+                        {submitting ? "Posting..." : "Post Reply"}
                       </Button>
                     </div>
                   </div>
@@ -174,8 +205,8 @@ export function CommentTree({ comment, debateId, depth = 0 }: CommentTreeProps) 
               </>
             )}
 
-            {collapsed && (
-              <Button variant="ghost" size="sm" onClick={() => setCollapsed(false)}>
+            {collapsed && replies.length > 0 && (
+              <Button variant="ghost" size="sm" onClick={() => setCollapsed(false)} className="text-xs">
                 [+] Show {replies.length} replies
               </Button>
             )}
@@ -190,6 +221,10 @@ export function CommentTree({ comment, debateId, depth = 0 }: CommentTreeProps) 
             <CommentTree key={reply.id} comment={reply} debateId={debateId} depth={depth + 1} />
           ))}
         </div>
+      )}
+
+      {loadingReplies && depth < 5 && (
+        <div className="text-xs text-muted-foreground pl-4">Loading replies...</div>
       )}
     </div>
   );
