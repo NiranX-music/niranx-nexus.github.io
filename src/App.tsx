@@ -215,6 +215,8 @@ import XNexusAI from "./pages/XNexusAI";
 import CustomPage from "./pages/CustomPage";
 import UserAppLibrary from "./pages/UserAppLibrary";
 import SubmitApp from "./pages/SubmitApp";
+import NiranxRedirect from "./components/NiranxRedirect";
+import FloatingAIChat from "./components/FloatingAIChat";
 
 // Support Pages
 import AboutUs from "./pages/support/AboutUs";
@@ -801,8 +803,13 @@ const App = () => (
                     <Route path="/shared/resource/:token" element={<SharedResource />} />
                     <Route path="/w/:slug" element={<PublishedWebsite />} />
                     <Route path="/published/:slug" element={<PublishedContent />} />
+                    
+                    {/* Dual routing: /niranx/* redirects to /* */}
+                    <Route path="/niranx/*" element={<NiranxRedirect />} />
+                    
                     <Route path="*" element={<Landing />} />
                     </Routes>
+                    <FloatingAIChat />
                   </AdminEditProvider>
                   </AuthProvider>
                   <UniversalMusicPlayer />

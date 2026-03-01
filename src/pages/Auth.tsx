@@ -336,7 +336,7 @@ const Auth = () => {
             <div className="w-12 h-12 rounded-xl overflow-hidden bg-black shadow-lg shadow-primary/20">
               <img src={niranxLogo} alt="NiranX Logo" className="w-full h-full object-cover" />
             </div>
-            <h1 className="text-4xl font-bold gradient-text neon-glow">NiranX StudyVerse</h1>
+            <h1 className="text-4xl font-bold gradient-text neon-glow">NiranX Universe</h1>
             <Sparkles className="w-8 h-8 text-accent animate-float" />
           </div>
           <CardTitle className="text-2xl">Welcome</CardTitle>

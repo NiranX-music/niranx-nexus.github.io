@@ -382,9 +382,9 @@ const MusicPlayer = () => {
   // Update document title with current track
   useEffect(() => {
     if (tracks[currentTrackIndex]) {
-      document.title = `${tracks[currentTrackIndex].name} - StudyVerse`;
+      document.title = `${tracks[currentTrackIndex].name} - NiranX Universe`;
     } else {
-      document.title = 'StudyVerse';
+      document.title = 'NiranX Universe';
     }
   }, [currentTrackIndex, tracks]);
 
