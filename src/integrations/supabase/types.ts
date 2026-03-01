@@ -139,14 +139,19 @@ export type Database = {
       }
       admin_custom_pages: {
         Row: {
+          category_id: string | null
           created_at: string
           created_by: string | null
           css_content: string | null
           html_content: string
           id: string
+          is_personal: boolean | null
           is_published: boolean | null
           js_content: string | null
           meta_description: string | null
+          moderation_status: string | null
+          rejection_reason: string | null
+          show_author: boolean | null
           show_in_sidebar: boolean | null
           sidebar_group_id: string | null
           slug: string
@@ -154,14 +159,19 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          category_id?: string | null
           created_at?: string
           created_by?: string | null
           css_content?: string | null
           html_content: string
           id?: string
+          is_personal?: boolean | null
           is_published?: boolean | null
           js_content?: string | null
           meta_description?: string | null
+          moderation_status?: string | null
+          rejection_reason?: string | null
+          show_author?: boolean | null
           show_in_sidebar?: boolean | null
           sidebar_group_id?: string | null
           slug: string
@@ -169,14 +179,19 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          category_id?: string | null
           created_at?: string
           created_by?: string | null
           css_content?: string | null
           html_content?: string
           id?: string
+          is_personal?: boolean | null
           is_published?: boolean | null
           js_content?: string | null
           meta_description?: string | null
+          moderation_status?: string | null
+          rejection_reason?: string | null
+          show_author?: boolean | null
           show_in_sidebar?: boolean | null
           sidebar_group_id?: string | null
           slug?: string
@@ -184,6 +199,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "admin_custom_pages_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "app_categories"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "admin_custom_pages_sidebar_group_id_fkey"
             columns: ["sidebar_group_id"]
@@ -701,6 +723,33 @@ export type Database = {
           total_study_hours?: number | null
           user_id?: string
           weekly_hours?: number[] | null
+        }
+        Relationships: []
+      }
+      app_categories: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
         }
         Relationships: []
       }
@@ -6518,6 +6567,59 @@ export type Database = {
         }
         Relationships: []
       }
+      personal_apps: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          css_content: string | null
+          description: string | null
+          html_content: string
+          id: string
+          is_public: boolean | null
+          js_content: string | null
+          slug: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          css_content?: string | null
+          description?: string | null
+          html_content?: string
+          id?: string
+          is_public?: boolean | null
+          js_content?: string | null
+          slug: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          css_content?: string | null
+          description?: string | null
+          html_content?: string
+          id?: string
+          is_public?: boolean | null
+          js_content?: string | null
+          slug?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "personal_apps_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "app_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       picture_likes: {
         Row: {
           created_at: string | null
@@ -9370,6 +9472,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_sidebar_additions: {
+        Row: {
+          created_at: string
+          group_id: string | null
+          icon: string | null
+          id: string
+          title: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          group_id?: string | null
+          icon?: string | null
+          id?: string
+          title: string
+          url: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: string | null
+          icon?: string | null
+          id?: string
+          title?: string
+          url?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_sidebar_additions_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "sidebar_groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_sidebar_preferences: {
         Row: {
