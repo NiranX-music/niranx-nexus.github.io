@@ -748,7 +748,7 @@ export function AppSidebar() {
                   NiranX
                 </span>
                 <span className="text-[10px] text-muted-foreground font-medium tracking-wide uppercase">
-                  StudyVerse Pro
+                  Universe
                 </span>
               </motion.div>
             )}

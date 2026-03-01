@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ExternalLink, Music, Play, Pause, Volume2, VolumeX, ChevronDown, X, Home, Sparkles } from 'lucide-react';
+import { ExternalLink, Music, Play, Pause, Volume2, VolumeX, ChevronDown, X, Home, Sparkles, Code } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import * as Icons from 'lucide-react';
@@ -290,6 +290,16 @@ export default function Nexus() {
                   >
                     <Music className="w-4 h-4 mr-2" />
                     Explore Music
+                  </Button>
+                </Link>
+                <Link to="/app-library">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-purple-500/50 text-purple-400 hover:bg-purple-500/20 hover:border-purple-400"
+                  >
+                    <Code className="w-4 h-4 mr-2" />
+                    User Apps
                   </Button>
                 </Link>
                 <Link to="/">
