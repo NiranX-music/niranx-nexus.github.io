@@ -217,6 +217,9 @@ import UserAppLibrary from "./pages/UserAppLibrary";
 import SubmitApp from "./pages/SubmitApp";
 import NiranxRedirect from "./components/NiranxRedirect";
 import FloatingAIChat from "./components/FloatingAIChat";
+import WelcomeSetup from "./pages/WelcomeSetup";
+import PublicProfile from "./pages/PublicProfile";
+import PersonalAppLibrary from "./pages/PersonalAppLibrary";
 
 // Support Pages
 import AboutUs from "./pages/support/AboutUs";
@@ -358,6 +361,8 @@ const App = () => (
                         <Route path="/songs" element={<Songs />} />
                         <Route path="/p/:slug" element={<CustomPage />} />
                         <Route path="/auth" element={<Auth />} />
+                        <Route path="/welcome-setup" element={<WelcomeSetup />} />
+                        <Route path="/user/:username" element={<PublicProfile />} />
                         <Route path="/reset-password" element={<ResetPassword />} />
                         <Route path="/magic-link" element={<MagicLink />} />
                         <Route path="/confirm-signup" element={<ConfirmSignup />} />
@@ -607,6 +612,7 @@ const App = () => (
                           <Route path="/xvibing" element={<Xvibing />} />
                           <Route path="/xnexus-ai" element={<XNexusAI />} />
                           <Route path="/app-library" element={<UserAppLibrary />} />
+                          <Route path="/personal-apps" element={<PersonalAppLibrary />} />
                           <Route path="/submit-app" element={<SubmitApp />} />
                           
                           <Route path="/mailbox" element={<Mailbox />} />

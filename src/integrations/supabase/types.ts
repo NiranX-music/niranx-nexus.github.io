@@ -6878,7 +6878,9 @@ export type Database = {
           last_login_reward: string | null
           level: number | null
           location: string | null
+          onboarding_completed: boolean | null
           phone_number: string | null
+          referral_source: string | null
           scheduler_columns: Json | null
           social_links: Json | null
           updated_at: string | null
@@ -6904,7 +6906,9 @@ export type Database = {
           last_login_reward?: string | null
           level?: number | null
           location?: string | null
+          onboarding_completed?: boolean | null
           phone_number?: string | null
+          referral_source?: string | null
           scheduler_columns?: Json | null
           social_links?: Json | null
           updated_at?: string | null
@@ -6930,7 +6934,9 @@ export type Database = {
           last_login_reward?: string | null
           level?: number | null
           location?: string | null
+          onboarding_completed?: boolean | null
           phone_number?: string | null
+          referral_source?: string | null
           scheduler_columns?: Json | null
           social_links?: Json | null
           updated_at?: string | null
