@@ -220,6 +220,7 @@ import FloatingAIChat from "./components/FloatingAIChat";
 import WelcomeSetup from "./pages/WelcomeSetup";
 import PublicProfile from "./pages/PublicProfile";
 import PersonalAppLibrary from "./pages/PersonalAppLibrary";
+import XstellarDashboard from "./pages/xstellar/XstellarDashboard";
 
 // Support Pages
 import AboutUs from "./pages/support/AboutUs";
@@ -743,6 +744,11 @@ const App = () => (
                           <Route path="/admin/artist-accounts" element={
                             <AdminRoute>
                               <AdminArtistAccounts />
+                            </AdminRoute>
+                          } />
+                          <Route path="/xstellar" element={
+                            <AdminRoute>
+                              <XstellarDashboard />
                             </AdminRoute>
                           } />
                           <Route path="local-server-saves" element={
