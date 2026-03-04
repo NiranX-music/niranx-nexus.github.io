@@ -5,7 +5,7 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard, Database, Terminal, HardDrive, Zap, Sparkles,
-  Key, ScrollText, FileCode, Globe
+  Key, ScrollText, FileCode, Globe, Code, Rocket
 } from "lucide-react";
 import { XstellarOverview } from "./XstellarOverview";
 import { XstellarDatabase } from "./XstellarDatabase";
@@ -16,6 +16,8 @@ import { XstellarAI } from "./XstellarAI";
 import { XstellarSecrets } from "./XstellarSecrets";
 import { XstellarLogs } from "./XstellarLogs";
 import { XstellarPageCreator } from "./XstellarPageCreator";
+import { XstellarAICoder } from "./XstellarAICoder";
+import { XstellarPublish } from "./XstellarPublish";
 
 export default function XstellarDashboard() {
   const { user, loading: authLoading } = useAuth();
@@ -41,9 +43,11 @@ export default function XstellarDashboard() {
     { id: "storage", label: "Storage", icon: HardDrive },
     { id: "edge-functions", label: "Edge Functions", icon: Zap },
     { id: "ai", label: "AI", icon: Sparkles },
+    { id: "ai-coder", label: "AI Coder", icon: Code },
     { id: "secrets", label: "Secrets", icon: Key },
     { id: "logs", label: "Logs", icon: ScrollText },
     { id: "page-creator", label: "Page Creator", icon: FileCode },
+    { id: "publish", label: "Publish", icon: Rocket },
   ];
 
   return (
@@ -76,9 +80,11 @@ export default function XstellarDashboard() {
         <TabsContent value="storage"><XstellarStorage /></TabsContent>
         <TabsContent value="edge-functions"><XstellarEdgeFunctions /></TabsContent>
         <TabsContent value="ai"><XstellarAI /></TabsContent>
+        <TabsContent value="ai-coder"><XstellarAICoder /></TabsContent>
         <TabsContent value="secrets"><XstellarSecrets /></TabsContent>
         <TabsContent value="logs"><XstellarLogs /></TabsContent>
         <TabsContent value="page-creator"><XstellarPageCreator /></TabsContent>
+        <TabsContent value="publish"><XstellarPublish /></TabsContent>
       </Tabs>
     </div>
   );

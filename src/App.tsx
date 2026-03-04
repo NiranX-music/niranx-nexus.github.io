@@ -221,6 +221,7 @@ import WelcomeSetup from "./pages/WelcomeSetup";
 import PublicProfile from "./pages/PublicProfile";
 import PersonalAppLibrary from "./pages/PersonalAppLibrary";
 import XstellarDashboard from "./pages/xstellar/XstellarDashboard";
+import PublishedPage from "./pages/PublishedPage";
 
 // Support Pages
 import AboutUs from "./pages/support/AboutUs";
@@ -746,7 +747,7 @@ const App = () => (
                               <AdminArtistAccounts />
                             </AdminRoute>
                           } />
-                          <Route path="/xstellar" element={
+                          <Route path="/stellar" element={
                             <AdminRoute>
                               <XstellarDashboard />
                             </AdminRoute>
@@ -764,6 +765,8 @@ const App = () => (
                           <Route path="share-target" element={<ShareTarget />} />
                           <Route path="file-handler" element={<FileHandler />} />
                           <Route path="protocol-handler" element={<ProtocolHandler />} />
+                          <Route path="/x/:slug" element={<PublishedPage />} />
+                          <Route path="/xstellar" element={<Navigate to="/stellar" replace />} />
                           <Route path="*" element={<NotFound />} />
                           </Routes>
                           <VoiceCommand />
