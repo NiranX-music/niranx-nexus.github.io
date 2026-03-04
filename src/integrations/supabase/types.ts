@@ -11119,6 +11119,121 @@ export type Database = {
           },
         ]
       }
+      xstellar_project_files: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          file_type: string | null
+          filename: string
+          id: string
+          project_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          file_type?: string | null
+          filename: string
+          id?: string
+          project_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          file_type?: string | null
+          filename?: string
+          id?: string
+          project_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xstellar_project_files_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "xstellar_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xstellar_project_migrations: {
+        Row: {
+          created_at: string | null
+          executed: boolean | null
+          executed_at: string | null
+          id: string
+          project_id: string
+          sql_code: string
+        }
+        Insert: {
+          created_at?: string | null
+          executed?: boolean | null
+          executed_at?: string | null
+          id?: string
+          project_id: string
+          sql_code: string
+        }
+        Update: {
+          created_at?: string | null
+          executed?: boolean | null
+          executed_at?: string | null
+          id?: string
+          project_id?: string
+          sql_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xstellar_project_migrations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "xstellar_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xstellar_projects: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_published: boolean | null
+          name: string
+          owner_id: string
+          project_type: string | null
+          published_url: string | null
+          settings: Json | null
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_published?: boolean | null
+          name: string
+          owner_id: string
+          project_type?: string | null
+          published_url?: string | null
+          settings?: Json | null
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_published?: boolean | null
+          name?: string
+          owner_id?: string
+          project_type?: string | null
+          published_url?: string | null
+          settings?: Json | null
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       xvibe_admin_actions: {
         Row: {
           action_type: string

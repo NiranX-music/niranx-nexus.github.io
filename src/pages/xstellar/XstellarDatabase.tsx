@@ -71,7 +71,7 @@ export function XstellarDatabase() {
   const columns = tableData.length > 0 ? Object.keys(tableData[0]) : [];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 min-w-0">
       {/* Table List */}
       <Card className="lg:col-span-1">
         <CardHeader className="pb-3">
@@ -137,8 +137,8 @@ export function XstellarDatabase() {
             </div>
           ) : selectedTable && tableData.length > 0 ? (
             <ScrollArea className="h-[60vh]">
-              <div className="overflow-x-auto">
-                <Table>
+              <div className="overflow-x-auto min-w-0">
+                <Table className="min-w-[600px]">
                   <TableHeader>
                     <TableRow>
                       {columns.map((col) => (
