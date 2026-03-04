@@ -150,8 +150,8 @@ export function XstellarSQLEditor() {
               </div>
             ) : latestResult.data && latestResult.data.length > 0 ? (
               <ScrollArea className="h-[40vh]">
-                <div className="overflow-x-auto">
-                  <Table>
+                <div className="overflow-x-auto min-w-0">
+                  <Table className="min-w-[600px]">
                     <TableHeader>
                       <TableRow>
                         {columns.map((col) => (

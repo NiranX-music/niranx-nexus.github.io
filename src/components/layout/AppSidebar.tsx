@@ -347,6 +347,7 @@ const navigationConfig = {
 
 const adminNavigation = [
   { title: "Admin Dashboard", url: "/admin", icon: UserCog },
+  { title: "Xstellar", url: "/stellar", icon: Globe },
   { title: "User Controls", url: "/admin/user-controls", icon: Settings },
   { title: "Space Limits", url: "/admin/space-limits", icon: Layers },
   { title: "Artist Accounts", url: "/admin/artist-accounts", icon: Music },
