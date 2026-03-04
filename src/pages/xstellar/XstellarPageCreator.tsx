@@ -171,7 +171,7 @@ export function XstellarPageCreator() {
                         <EyeOff className="h-3 w-3 text-muted-foreground shrink-0" />
                       )}
                     </div>
-                    <span className="text-xs text-muted-foreground">/p/{page.slug}</span>
+                    <span className="text-xs text-muted-foreground">/x/{page.slug}</span>
                   </button>
                 ))
               )}
@@ -192,7 +192,7 @@ export function XstellarPageCreator() {
                 {selectedPage && (
                   <>
                     <Button variant="ghost" size="sm" asChild>
-                      <a href={`/p/${selectedPage.slug}`} target="_blank">
+                      <a href={`/x/${selectedPage.slug}`} target="_blank">
                         <ExternalLink className="h-3.5 w-3.5" />
                       </a>
                     </Button>

@@ -143,7 +143,7 @@ export const allPages: PageInfo[] = [
   { name: "What's New Manager", route: "/niranx/admin/whats-new", description: "Manage announcements", category: "Admin", accessLevel: "Admin", icon: "Sparkles" },
   { name: "Custom Notifications", route: "/niranx/admin/custom-notifications", description: "Send custom notifications", category: "Admin", accessLevel: "Admin", icon: "Bell" },
   { name: "Role Management", route: "/niranx/admin/roles", description: "Manage user roles", category: "Admin", accessLevel: "Admin", icon: "ShieldCheck" },
-  { name: "Xstellar", route: "/niranx/xstellar", description: "Developer & Infrastructure Platform", category: "Admin", accessLevel: "Admin", icon: "Globe" },
+  { name: "Xstellar", route: "/stellar", description: "Developer & Infrastructure Platform", category: "Admin", accessLevel: "Admin", icon: "Globe" },
 
   // Settings & System
   { name: "Explore Spaces", route: "/niranx/explore-spaces", description: "Browse public spaces", category: "System", accessLevel: "Authenticated", icon: "Layers" },
