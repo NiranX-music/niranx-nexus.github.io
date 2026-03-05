@@ -587,39 +587,49 @@ body {
     @apply absolute top-0 left-0 right-0 flex items-center justify-center h-16 bg-primary/10;
   }
 
-  /* Mobile-optimized inputs */
-  @media (max-width: 768px) {
-    input, textarea, select {
-      font-size: 16px; /* Prevents zoom on iOS */
-    }
+}
 
-    .sidebar-mobile-hidden {
-      @apply hidden;
-    }
-    
-    /* Ensure cards stack properly on mobile */
-    .card {
-      @apply mb-4;
-    }
-    
-    /* Mobile-optimized spacing */
-    .container {
-      @apply px-4;
-    }
-    
-    /* Mobile grid adjustments */
-    .grid {
-      @apply gap-3;
-    }
+/* Mobile-optimized inputs */
+@media (max-width: 768px) {
+  input, textarea, select {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  .sidebar-mobile-hidden {
+    display: none;
   }
   
-  /* Tablet optimization */
-  @media (min-width: 768px) and (max-width: 1024px) {
-    .tablet-optimize {
-      @apply px-6;
-    }
+  .card {
+    margin-bottom: 1rem;
   }
   
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .grid {
+    gap: 0.75rem;
+  }
+}
+
+/* Tablet optimization */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .tablet-optimize {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+/* Touch-friendly buttons on mobile */
+@media (max-width: 768px) {
+  button, a {
+    min-height: 44px; /* iOS minimum touch target */
+    min-width: 44px;
+  }
+}
+
+@layer components {
   /* Mobile utility classes */
   .mobile-responsive {
     @apply text-sm md:text-base lg:text-lg;
@@ -655,13 +665,5 @@ body {
   
   .mobile-show {
     @apply block md:hidden;
-  }
-  
-  /* Touch-friendly buttons on mobile */
-  @media (max-width: 768px) {
-    button, a {
-      min-height: 44px; /* iOS minimum touch target */
-      min-width: 44px;
-    }
   }
 }
