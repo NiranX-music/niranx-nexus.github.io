@@ -310,6 +310,7 @@ export const allPages: PageInfo[] = [
   { name: "SpaceX Dashboard", route: "/niranx/spacex", description: "Real-time SpaceX launch, rocket, capsule, starlink and launchpad data", category: "Tools", accessLevel: "Authenticated", icon: "Rocket" },
   { name: "XGames", route: "/xgames", description: "Play HTML5 games powered by GameDistribution", category: "Progress", accessLevel: "Authenticated", icon: "Gamepad2" },
   { name: "Sunrise & Sunset", route: "/sunrise-sunset", description: "Real-time sunrise, sunset, dawn, dusk and golden hour data", category: "Tools", accessLevel: "Authenticated", icon: "Sun" },
+  { name: "NASA NEO Explorer", route: "/nasa-neo", description: "Browse NASA near-earth asteroids with orbital data and close approaches", category: "Tools", accessLevel: "Authenticated", icon: "Rocket" },
 ];
 
 export const pageCategories = [
