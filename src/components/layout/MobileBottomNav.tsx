@@ -1,36 +1,42 @@
 import { NavLink } from "react-router-dom";
-import { Home, CheckSquare, Timer, User, Music, MessageCircle, BookOpen, Compass } from "lucide-react";
+import { Home, CheckSquare, Timer, User, Compass, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 const navigationItems = [
   { title: "Home", url: "/niranx/dashboard", icon: Home },
   { title: "Tasks", url: "/niranx/tasks", icon: CheckSquare },
   { title: "Focus", url: "/niranx/focus-engine", icon: Timer },
-  { title: "Chat", url: "/niranx/chat", icon: MessageCircle },
+  { title: "AI", url: "/niranx/ai-corner", icon: Zap },
   { title: "Profile", url: "/niranx/profile", icon: User },
 ];
 
 export function MobileBottomNav() {
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-sidebar/95 backdrop-blur-xl border-t border-sidebar-border">
-      <div className="flex items-center justify-around h-16 px-2">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-sidebar/95 backdrop-blur-xl border-t border-sidebar-border safe-area-bottom">
+      <div className="flex items-center justify-around h-16 px-1">
         {navigationItems.map((item) => (
           <NavLink
             key={item.title}
             to={item.url}
             className={({ isActive }) =>
               cn(
-                "flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg transition-all duration-200 min-w-[70px]",
+                "flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-xl transition-all duration-200 min-w-[56px] active:scale-95 touch-manipulation",
                 isActive
-                  ? "bg-primary text-primary-foreground"
-                  : "text-white/70 hover:text-white hover:bg-white/10"
+                  ? "bg-primary text-primary-foreground shadow-[0_0_12px_hsl(var(--primary)/0.4)]"
+                  : "text-muted-foreground hover:text-foreground"
               )
             }
           >
             {({ isActive }) => (
               <>
-                <item.icon className={cn("h-5 w-5", isActive && "scale-110")} />
-                <span className="text-xs font-medium">{item.title}</span>
+                <motion.div
+                  animate={isActive ? { scale: 1.15, y: -2 } : { scale: 1, y: 0 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                >
+                  <item.icon className="h-5 w-5" />
+                </motion.div>
+                <span className="text-[10px] font-medium leading-none">{item.title}</span>
               </>
             )}
           </NavLink>
