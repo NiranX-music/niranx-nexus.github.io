@@ -208,6 +208,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             </div>
             <EnhancedFooter />
           </main>
+          <FloatingCountdown />
 
           <NowPlaying />
           <MiniPlayer />
