@@ -350,6 +350,8 @@ const navigationConfig = {
     items: [
       { title: "Integration Hub", url: "/integration-hub", icon: Plug },
       { title: "API Console", url: "/api-console", icon: Code },
+      { title: "REST API Docs", url: "/rest-api-docs", icon: BookOpen },
+      { title: "Scryfall MTG", url: "/scryfall-search", icon: Sparkles },
       { title: "Browser Extension", url: "/browser-extension-sync", icon: Chrome },
       { title: "Extension Download", url: "/extension-download", icon: Puzzle },
       { title: "Password Manager", url: "/password-manager", icon: Lock },

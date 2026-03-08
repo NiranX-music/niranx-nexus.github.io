@@ -348,6 +348,8 @@ const CollaborativeNotes = lazy(() => import("./pages/CollaborativeNotes"));
 const StudyBuddy = lazy(() => import("./pages/StudyBuddy"));
 const AdvancedAnalyticsDashboard = lazy(() => import("./pages/AdvancedAnalyticsDashboard"));
 const APIConsole = lazy(() => import("./pages/APIConsole"));
+const RestApiDocs = lazy(() => import("./pages/RestApiDocs"));
+const ScryfallSearch = lazy(() => import("./pages/ScryfallSearch"));
 
 const Contact = lazy(() => import("./pages/support/Contact"));
 const HelpCentre = lazy(() => import("./pages/support/HelpCentre"));
@@ -722,6 +724,8 @@ const App = () => (
                           <Route path="/study-buddy" element={<StudyBuddy />} />
                           <Route path="/advanced-analytics" element={<AdvancedAnalyticsDashboard />} />
                           <Route path="/api-console" element={<APIConsole />} />
+                          <Route path="/rest-api-docs" element={<RestApiDocs />} />
+                          <Route path="/scryfall-search" element={<ScryfallSearch />} />
                           <Route path="/xforge" element={<XForge />} />
                           <Route path="/xboard" element={<XBoard />} />
                           <Route path="/xvault" element={<XVault />} />
