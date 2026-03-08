@@ -2,12 +2,11 @@ import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Brain, Send, Image as ImageIcon, Loader2, Plus, Trash2 } from "lucide-react";
+import { Brain, Send, Image as ImageIcon, Loader2, Plus, Trash2, MessageSquare, Sparkles } from "lucide-react";
 import { useXPReward } from "@/hooks/useXPReward";
 
 interface Message {
@@ -23,6 +22,61 @@ interface Conversation {
   created_at: string;
 }
 
+// Simple markdown-like renderer
+function RenderContent({ content }: { content: string }) {
+  if (!content) return null;
+
+  const lines = content.split("\n");
+  const elements: React.ReactNode[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // Bold text: **text**
+    const renderInline = (text: string) => {
+      const parts = text.split(/(\*\*[^*]+\*\*)/g);
+      return parts.map((part, j) => {
+        if (part.startsWith("**") && part.endsWith("**")) {
+          return <strong key={j} className="font-semibold text-foreground">{part.slice(2, -2)}</strong>;
+        }
+        return <span key={j}>{part}</span>;
+      });
+    };
+
+    if (line.trim() === "") {
+      elements.push(<div key={i} className="h-3" />);
+    } else if (line.startsWith("### ")) {
+      elements.push(<h3 key={i} className="text-base font-bold mt-4 mb-1.5 text-foreground">{renderInline(line.slice(4))}</h3>);
+    } else if (line.startsWith("## ")) {
+      elements.push(<h2 key={i} className="text-lg font-bold mt-4 mb-2 text-foreground">{renderInline(line.slice(3))}</h2>);
+    } else if (line.startsWith("# ")) {
+      elements.push(<h1 key={i} className="text-xl font-bold mt-4 mb-2 text-foreground">{renderInline(line.slice(2))}</h1>);
+    } else if (/^\d+\.\s/.test(line.trim())) {
+      const text = line.replace(/^\s*\d+\.\s*/, "");
+      elements.push(
+        <div key={i} className="flex gap-2.5 py-0.5 pl-1">
+          <span className="text-primary font-mono text-sm mt-0.5 shrink-0 w-5 text-right">
+            {line.trim().match(/^(\d+)\./)?.[1]}.
+          </span>
+          <span className="leading-relaxed">{renderInline(text)}</span>
+        </div>
+      );
+    } else if (line.trim().startsWith("- ") || line.trim().startsWith("* ")) {
+      const text = line.replace(/^\s*[-*]\s*/, "");
+      elements.push(
+        <div key={i} className="flex gap-2.5 py-0.5 pl-1">
+          <span className="text-primary mt-2 shrink-0">•</span>
+          <span className="leading-relaxed">{renderInline(text)}</span>
+        </div>
+      );
+    } else {
+      elements.push(<p key={i} className="leading-relaxed">{renderInline(line)}</p>);
+    }
+  }
+
+  return <div className="space-y-0.5">{elements}</div>;
+}
+
 export default function AISolver() {
   const { user } = useAuth();
   const { awardXP } = useXPReward();
@@ -34,30 +88,21 @@ export default function AISolver() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingConversations, setIsLoadingConversations] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (user) {
-      loadConversations();
-    }
+    if (user) loadConversations();
   }, [user]);
 
   useEffect(() => {
-    if (currentConversationId) {
-      loadMessages(currentConversationId);
-    }
+    if (currentConversationId) loadMessages(currentConversationId);
   }, [currentConversationId]);
 
   useEffect(() => {
-    scrollToBottom();
+    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
-  const scrollToBottom = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  };
 
   const loadConversations = async () => {
     try {
@@ -70,13 +115,11 @@ export default function AISolver() {
 
       if (error) throw error;
       setConversations(data || []);
-      
       if (data && data.length > 0 && !currentConversationId) {
         setCurrentConversationId(data[0].id);
       }
     } catch (error) {
       console.error("Error loading conversations:", error);
-      toast.error("Failed to load conversations");
     } finally {
       setIsLoadingConversations(false);
     }
@@ -91,65 +134,49 @@ export default function AISolver() {
         .order("created_at", { ascending: true });
 
       if (error) throw error;
-      
-      const loadedMessages: Message[] = (data || []).map((msg) => ({
-        role: msg.role as "user" | "assistant",
-        content: msg.content,
-        image_url: msg.image_url || undefined,
-      }));
-      
-      setMessages(loadedMessages);
+      setMessages(
+        (data || []).map((msg) => ({
+          role: msg.role as "user" | "assistant",
+          content: msg.content,
+          image_url: msg.image_url || undefined,
+        }))
+      );
     } catch (error) {
       console.error("Error loading messages:", error);
-      toast.error("Failed to load messages");
     }
   };
 
   const createNewConversation = async () => {
     if (!user) return;
-
     try {
       const { data, error } = await supabase
         .from("ai_solver_conversations")
-        .insert({
-          user_id: user.id,
-          title: "New Problem",
-          subject: null,
-        })
+        .insert({ user_id: user.id, title: "New Problem", subject: null })
         .select()
         .single();
 
       if (error) throw error;
-      
       setConversations([data, ...conversations]);
       setCurrentConversationId(data.id);
       setMessages([]);
-      toast.success("New conversation created");
     } catch (error) {
       console.error("Error creating conversation:", error);
       toast.error("Failed to create conversation");
     }
   };
 
-  const deleteConversation = async (id: string) => {
+  const deleteConversation = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
     try {
-      const { error } = await supabase
-        .from("ai_solver_conversations")
-        .delete()
-        .eq("id", id);
-
+      const { error } = await supabase.from("ai_solver_conversations").delete().eq("id", id);
       if (error) throw error;
-      
-      setConversations(conversations.filter((c) => c.id !== id));
-      
+      const remaining = conversations.filter((c) => c.id !== id);
+      setConversations(remaining);
       if (currentConversationId === id) {
-        setCurrentConversationId(conversations[0]?.id || null);
+        setCurrentConversationId(remaining[0]?.id || null);
         setMessages([]);
       }
-      
-      toast.success("Conversation deleted");
     } catch (error) {
-      console.error("Error deleting conversation:", error);
       toast.error("Failed to delete conversation");
     }
   };
@@ -159,9 +186,7 @@ export default function AISolver() {
     if (file) {
       setSelectedImage(file);
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
+      reader.onloadend = () => setImagePreview(reader.result as string);
       reader.readAsDataURL(file);
     }
   };
@@ -169,18 +194,16 @@ export default function AISolver() {
   const handlePaste = (e: React.ClipboardEvent) => {
     const items = e.clipboardData?.items;
     if (!items) return;
-
     for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (item.type.indexOf('image') !== -1) {
+      if (items[i].type.indexOf("image") !== -1) {
         e.preventDefault();
-        const file = item.getAsFile();
+        const file = items[i].getAsFile();
         if (file) {
           setSelectedImage(file);
           const reader = new FileReader();
           reader.onloadend = () => {
             setImagePreview(reader.result as string);
-            toast.success("Image pasted! Ready to analyze.");
+            toast.success("Image pasted!");
           };
           reader.readAsDataURL(file);
         }
@@ -192,15 +215,12 @@ export default function AISolver() {
   const removeImage = () => {
     setSelectedImage(null);
     setImagePreview(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const sendMessage = async () => {
     if ((!input.trim() && !selectedImage) || !user || isLoading) return;
 
-    // Create new conversation if none exists
     if (!currentConversationId) {
       await createNewConversation();
       return;
@@ -210,30 +230,20 @@ export default function AISolver() {
       role: "user",
       content: input.trim() || "Analyze this image",
     };
-
-    // Handle image if present
-    if (selectedImage && imagePreview) {
-      userMessage.image_url = imagePreview;
-    }
+    if (selectedImage && imagePreview) userMessage.image_url = imagePreview;
 
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
 
     try {
-      // Save user message to database
-      const { error: userMsgError } = await supabase
-        .from("ai_solver_messages")
-        .insert({
-          conversation_id: currentConversationId,
-          role: "user",
-          content: userMessage.content,
-          image_url: userMessage.image_url,
-        });
+      await supabase.from("ai_solver_messages").insert({
+        conversation_id: currentConversationId,
+        role: "user",
+        content: userMessage.content,
+        image_url: userMessage.image_url,
+      });
 
-      if (userMsgError) throw userMsgError;
-
-      // Prepare messages for AI
       const messagesToSend = messages.map((msg) => {
         if (msg.image_url) {
           return {
@@ -247,7 +257,6 @@ export default function AISolver() {
         return { role: msg.role, content: msg.content };
       });
 
-      // Add current message
       if (userMessage.image_url) {
         messagesToSend.push({
           role: "user",
@@ -260,11 +269,9 @@ export default function AISolver() {
         messagesToSend.push({ role: "user", content: userMessage.content });
       }
 
-      // Call edge function with streaming
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error("No active session");
-      }
+      if (!session) throw new Error("No active session");
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-solver`,
         {
@@ -274,16 +281,15 @@ export default function AISolver() {
             apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
             Authorization: `Bearer ${session.access_token}`,
           },
-          body: JSON.stringify({ 
-            messages: messagesToSend, 
-            conversationId: currentConversationId 
+          body: JSON.stringify({
+            messages: messagesToSend,
+            conversationId: currentConversationId,
           }),
         }
       );
 
       if (!response.ok) throw new Error("Failed to get response from AI");
 
-      // Stream the response
       let assistantMessage = "";
       const reader = response.body?.getReader();
       if (!reader) throw new Error("No response body");
@@ -291,37 +297,36 @@ export default function AISolver() {
 
       setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
 
+      let buffer = "";
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
+        buffer += decoder.decode(value, { stream: true });
 
-        const chunk = decoder.decode(value);
-        const lines = chunk.split("\n");
+        let newlineIndex: number;
+        while ((newlineIndex = buffer.indexOf("\n")) !== -1) {
+          const line = buffer.slice(0, newlineIndex).trim();
+          buffer = buffer.slice(newlineIndex + 1);
 
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const data = line.slice(6);
-            if (data === "[DONE]") continue;
+          if (!line.startsWith("data: ")) continue;
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") continue;
 
-            try {
-              const parsed = JSON.parse(data);
-              const content = parsed.choices?.[0]?.delta?.content;
-              if (content) {
-                assistantMessage += content;
-                setMessages((prev) => {
-                  const newMessages = [...prev];
-                  newMessages[newMessages.length - 1].content = assistantMessage;
-                  return newMessages;
-                });
-              }
-            } catch (e) {
-              // Ignore parse errors
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content;
+            if (content) {
+              assistantMessage += content;
+              setMessages((prev) => {
+                const updated = [...prev];
+                updated[updated.length - 1] = { ...updated[updated.length - 1], content: assistantMessage };
+                return updated;
+              });
             }
-          }
+          } catch {}
         }
       }
 
-      // Save assistant message to database
       if (assistantMessage) {
         await supabase.from("ai_solver_messages").insert({
           conversation_id: currentConversationId,
@@ -329,7 +334,6 @@ export default function AISolver() {
           content: assistantMessage,
         });
 
-        // Update conversation title if it's the first message
         if (messages.length === 0) {
           const title = input.trim().slice(0, 50) + (input.length > 50 ? "..." : "");
           await supabase
@@ -339,7 +343,6 @@ export default function AISolver() {
           loadConversations();
         }
 
-        // Award XP
         await awardXP("USE_AI_CHAT");
       }
 
@@ -367,129 +370,155 @@ export default function AISolver() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] gap-4 p-4">
-      {/* Sidebar - Conversations */}
-      <div className="w-64 flex flex-col gap-2">
-        <Button onClick={createNewConversation} className="w-full">
-          <Plus className="h-4 w-4 mr-2" />
-          New Problem
-        </Button>
+    <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
+      {/* Sidebar */}
+      <div className={`${sidebarOpen ? "w-72" : "w-0"} transition-all duration-300 border-r border-border bg-card/50 flex flex-col overflow-hidden shrink-0`}>
+        <div className="p-3 border-b border-border">
+          <Button onClick={createNewConversation} className="w-full gap-2" size="sm">
+            <Plus className="h-4 w-4" />
+            New Problem
+          </Button>
+        </div>
         <ScrollArea className="flex-1">
-          <div className="space-y-2">
+          <div className="p-2 space-y-1">
             {isLoadingConversations ? (
-              <div className="flex justify-center p-4">
-                <Loader2 className="h-6 w-6 animate-spin" />
+              <div className="flex justify-center p-6">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
               </div>
             ) : conversations.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center p-4">
-                No conversations yet
-              </p>
+              <div className="text-center py-8 px-3">
+                <MessageSquare className="h-8 w-8 mx-auto mb-2 text-muted-foreground/30" />
+                <p className="text-xs text-muted-foreground">No conversations yet</p>
+              </div>
             ) : (
               conversations.map((conv) => (
-                <div
+                <button
                   key={conv.id}
-                  className={`p-3 rounded-lg cursor-pointer flex items-center justify-between group ${
+                  className={`w-full text-left px-3 py-2.5 rounded-lg flex items-center gap-2 group transition-colors text-sm ${
                     currentConversationId === conv.id
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-card hover:bg-accent"
+                      ? "bg-primary/15 text-primary border border-primary/20"
+                      : "hover:bg-muted/60 text-foreground/80"
                   }`}
                   onClick={() => setCurrentConversationId(conv.id)}
                 >
-                  <span className="text-sm truncate flex-1">{conv.title}</span>
+                  <MessageSquare className="h-3.5 w-3.5 shrink-0 opacity-50" />
+                  <span className="truncate flex-1">{conv.title}</span>
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="h-6 w-6 opacity-0 group-hover:opacity-100"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteConversation(conv.id);
-                    }}
+                    className="h-6 w-6 opacity-0 group-hover:opacity-100 shrink-0 hover:bg-destructive/10 hover:text-destructive"
+                    onClick={(e) => deleteConversation(conv.id, e)}
                   >
                     <Trash2 className="h-3 w-3" />
                   </Button>
-                </div>
+                </button>
               ))
             )}
           </div>
         </ScrollArea>
       </div>
 
-      {/* Main Chat Area */}
-      <Card className="flex-1 flex flex-col">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Brain className="h-6 w-6 text-primary" />
-            <div>
-              <CardTitle>GPAI AI Solver</CardTitle>
-              <CardDescription>
-                Upload images or type your problem - I can help with any subject!
-              </CardDescription>
-            </div>
+      {/* Main Chat */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Header */}
+        <div className="border-b border-border px-5 py-3 flex items-center gap-3 bg-card/30 shrink-0">
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="p-1.5 rounded-md hover:bg-muted transition-colors lg:hidden"
+          >
+            <MessageSquare className="h-4 w-4" />
+          </button>
+          <div className="p-2 rounded-lg bg-primary/10">
+            <Brain className="h-5 w-5 text-primary" />
           </div>
-        </CardHeader>
-        <CardContent className="flex-1 flex flex-col p-0">
-          <ScrollArea className="flex-1 px-6">
-            <div className="space-y-4 py-4">
-              {messages.length === 0 && (
-                <div className="text-center text-muted-foreground py-12">
-                  <Brain className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Start by typing a problem or uploading an image</p>
-                </div>
-              )}
-              {messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-                >
-                  <div
-                    className={`max-w-[80%] rounded-lg p-4 ${
-                      message.role === "user"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted"
-                    }`}
-                  >
-                    {message.image_url && (
-                      <img
-                        src={message.image_url}
-                        alt="Problem"
-                        className="rounded-lg mb-2 max-w-full"
-                      />
-                    )}
-                    <p className="whitespace-pre-wrap">{message.content}</p>
-                  </div>
-                </div>
-              ))}
-              {isLoading && (
-                <div className="flex justify-start">
-                  <div className="bg-muted rounded-lg p-4">
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  </div>
-                </div>
-              )}
-              <div ref={scrollRef} />
-            </div>
-          </ScrollArea>
+          <div className="min-w-0">
+            <h1 className="text-base font-semibold truncate">GPAI AI Solver</h1>
+            <p className="text-xs text-muted-foreground">Upload images or type your problem — I can help with any subject</p>
+          </div>
+        </div>
 
-          {/* Input Area */}
-          <div className="border-t p-4 space-y-2">
-            {imagePreview && (
-              <div className="relative inline-block">
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="h-20 rounded-lg border"
-                />
-                <Button
-                  size="icon"
-                  variant="destructive"
-                  className="absolute -top-2 -right-2 h-6 w-6"
-                  onClick={removeImage}
-                >
-                  <Trash2 className="h-3 w-3" />
-                </Button>
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="max-w-3xl mx-auto px-4 py-6 space-y-5">
+            {messages.length === 0 && (
+              <div className="text-center py-20">
+                <div className="inline-flex p-4 rounded-2xl bg-primary/5 mb-4">
+                  <Sparkles className="h-10 w-10 text-primary/40" />
+                </div>
+                <h2 className="text-lg font-medium mb-1">How can I help?</h2>
+                <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+                  Type a question, paste an image, or upload a photo of a problem to get started
+                </p>
+                <div className="flex flex-wrap gap-2 justify-center mt-6">
+                  {["Solve a math equation", "Explain a concept", "Help with homework"].map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => setInput(s)}
+                      className="px-3 py-1.5 text-xs rounded-full border border-border hover:bg-muted/60 hover:border-primary/30 transition-colors"
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
-            <div className="flex gap-2">
+
+            {messages.map((message, index) => (
+              <div key={index} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div
+                  className={`max-w-[85%] rounded-2xl ${
+                    message.role === "user"
+                      ? "bg-primary text-primary-foreground px-4 py-3"
+                      : "bg-muted/40 border border-border/50 px-5 py-4"
+                  }`}
+                >
+                  {message.image_url && (
+                    <img
+                      src={message.image_url}
+                      alt="Problem"
+                      className="rounded-xl mb-3 max-w-full max-h-64 object-contain"
+                    />
+                  )}
+                  {message.role === "assistant" ? (
+                    <div className="text-sm">
+                      <RenderContent content={message.content} />
+                    </div>
+                  ) : (
+                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  )}
+                </div>
+              </div>
+            ))}
+
+            {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
+              <div className="flex justify-start">
+                <div className="bg-muted/40 border border-border/50 rounded-2xl px-5 py-4">
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                    <span className="text-sm text-muted-foreground">Thinking...</span>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={scrollRef} />
+          </div>
+        </div>
+
+        {/* Input */}
+        <div className="border-t border-border bg-card/30 p-3 shrink-0">
+          <div className="max-w-3xl mx-auto">
+            {imagePreview && (
+              <div className="relative inline-block mb-2">
+                <img src={imagePreview} alt="Preview" className="h-16 rounded-lg border border-border" />
+                <button
+                  onClick={removeImage}
+                  className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center text-xs hover:bg-destructive/90"
+                >
+                  ×
+                </button>
+              </div>
+            )}
+            <div className="flex items-end gap-2">
               <input
                 ref={fileInputRef}
                 type="file"
@@ -500,6 +529,7 @@ export default function AISolver() {
               <Button
                 variant="outline"
                 size="icon"
+                className="h-10 w-10 shrink-0 rounded-xl"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isLoading}
               >
@@ -509,8 +539,9 @@ export default function AISolver() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onPaste={handlePaste}
-                placeholder="Type your problem here or paste an image (Ctrl+V)..."
-                className="flex-1 min-h-[60px]"
+                placeholder="Type your problem or paste an image (Ctrl+V)..."
+                className="flex-1 min-h-[44px] max-h-32 resize-none rounded-xl text-sm"
+                rows={1}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
@@ -519,13 +550,21 @@ export default function AISolver() {
                 }}
                 disabled={isLoading}
               />
-              <Button onClick={sendMessage} disabled={isLoading || (!input.trim() && !selectedImage)}>
+              <Button
+                onClick={sendMessage}
+                disabled={isLoading || (!input.trim() && !selectedImage)}
+                size="icon"
+                className="h-10 w-10 shrink-0 rounded-xl"
+              >
                 {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
               </Button>
             </div>
+            <p className="text-[10px] text-muted-foreground mt-1.5 text-center">
+              Press Enter to send, Shift+Enter for new line
+            </p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
