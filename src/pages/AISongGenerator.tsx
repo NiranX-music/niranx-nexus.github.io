@@ -200,13 +200,10 @@ export default function AISongGenerator() {
 
     setPublishing(true);
     try {
-      const slug = await supabase.rpc('generate_ai_generation_slug');
-      
       const { data, error } = await supabase
         .from("ai_generations")
         .update({
           is_published: true,
-          slug: slug.data,
           published_at: new Date().toISOString(),
           cover_image_url: coverImage
         })
@@ -219,11 +216,11 @@ export default function AISongGenerator() {
       setGeneratedSong({
         ...generatedSong,
         is_published: true,
-        slug: data.slug,
+        slug: data.id,
         cover_image_url: coverImage
       });
 
-      const publicUrl = `${window.location.origin}/published/${data.slug}`;
+      const publicUrl = `${window.location.origin}/published/songs/ai/${data.id}`;
       navigator.clipboard.writeText(publicUrl);
       toast.success("Published! Link copied to clipboard");
     } catch (error) {
