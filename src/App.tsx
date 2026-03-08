@@ -504,6 +504,64 @@ const App = () => (
                         <Route path="/" element={<Landing />} />
                         <Route path="/nexus" element={<Nexus />} />
                         <Route path="/nexus/:categorySlug" element={<AppLayout><NexusCategory /></AppLayout>} />
+                        
+                        {/* Nexus Showcase Pages */}
+                        <Route path="/nexus/ai-hub" element={<NexusAIHub />} />
+                        <Route path="/nexus/xvibe-music" element={<NexusXVibeMusic />} />
+                        <Route path="/nexus/learn-zone" element={<NexusLearnZone />} />
+                        <Route path="/nexus/projects" element={<NexusProjects />} />
+                        <Route path="/nexus/gaming" element={<NexusGaming />} />
+                        <Route path="/nexus/streaming" element={<NexusStreaming />} />
+                        <Route path="/nexus/community" element={<NexusCommunityPage />} />
+                        <Route path="/nexus/dev-tools" element={<NexusDevTools />} />
+                        <Route path="/nexus/creative" element={<NexusCreative />} />
+
+                        {/* Docs Platform */}
+                        <Route path="/docs" element={<DocsLayout />}>
+                          <Route index element={<DocsWelcome />} />
+                          <Route path="welcome" element={<DocsWelcome />} />
+                          <Route path="quick-start" element={<DocsQuickStart />} />
+                          <Route path="overview" element={<DocsOverview />} />
+                          <Route path="changelog" element={<DocsChangelog />} />
+                          <Route path="features/ai-hub" element={<DocsAIHub />} />
+                          <Route path="features/xgenesis-ai" element={<DocsXGenesisAI />} />
+                          <Route path="features/code-playground" element={<DocsCodePlayground />} />
+                          <Route path="features/custom-pages" element={<DocsCustomPagesDoc />} />
+                          <Route path="features/integrations" element={<DocsIntegrationsDoc />} />
+                          <Route path="features/focus-engine" element={<DocsFocusEngine />} />
+                          <Route path="features/flashcards" element={<DocsFlashcards />} />
+                          <Route path="features/virtual-labs" element={<DocsVirtualLabs />} />
+                          <Route path="features/study-groups" element={<DocsStudyGroupsDoc />} />
+                          <Route path="features/exam-hub" element={<DocsExamHub />} />
+                          <Route path="design/themes" element={<DocsThemes />} />
+                          <Route path="design/design-system" element={<DocsDesignSystem />} />
+                          <Route path="design/widgets" element={<DocsWidgets />} />
+                          <Route path="collaborate/study-rooms" element={<DocsStudyRooms />} />
+                          <Route path="collaborate/classrooms" element={<DocsClassrooms />} />
+                          <Route path="collaborate/community" element={<DocsCommunity />} />
+                          <Route path="collaborate/xflow" element={<DocsXFlow />} />
+                          <Route path="deploy/publishing" element={<DocsPublishing />} />
+                          <Route path="deploy/custom-domains" element={<DocsCustomDomains />} />
+                          <Route path="deploy/pwa" element={<DocsPWA />} />
+                          <Route path="optimize/analytics" element={<DocsAnalyticsPage />} />
+                          <Route path="optimize/focus-analytics" element={<DocsFocusAnalytics />} />
+                          <Route path="optimize/gamification" element={<DocsGamification />} />
+                          <Route path="security/overview" element={<DocsSecurityOverview />} />
+                          <Route path="security/2fa" element={<Docs2FA />} />
+                          <Route path="security/sessions" element={<DocsSessions />} />
+                          <Route path="security/audit-logs" element={<DocsAuditLogs />} />
+                          <Route path="security/privacy" element={<DocsPrivacy />} />
+                          <Route path="security/sso" element={<DocsSSO />} />
+                          <Route path="api/overview" element={<DocsAPIOverview />} />
+                          <Route path="api/ai-api" element={<DocsAIAPI />} />
+                          <Route path="api/rest-api" element={<DocsRestAPI />} />
+                          <Route path="api/webhooks" element={<DocsWebhooks />} />
+                          <Route path="api/rate-limits" element={<DocsRateLimits />} />
+                          <Route path="admin/dashboard" element={<DocsAdminDashboard />} />
+                          <Route path="admin/roles" element={<DocsRoles />} />
+                          <Route path="admin/moderation" element={<DocsModeration />} />
+                          <Route path="admin/pages" element={<DocsPageManagement />} />
+                        </Route>
                         <Route path="/songs" element={<Songs />} />
                         <Route path="/p/:slug" element={<CustomPage />} />
                         <Route path="/auth" element={<Auth />} />
