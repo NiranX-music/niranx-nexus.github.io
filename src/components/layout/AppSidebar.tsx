@@ -285,6 +285,7 @@ const navigationConfig = {
     icon: Users,
     color: "from-primary/90 to-accent/90",
     items: [
+      { title: "Social Chat", url: "/social-chat", icon: MessageCircle },
       { title: "Messages", url: "/messages", icon: MessageCircle },
       { title: "Community", url: "/community", icon: MessagesSquare },
       { title: "Community Forums", url: "/forums", icon: MessagesSquare },
