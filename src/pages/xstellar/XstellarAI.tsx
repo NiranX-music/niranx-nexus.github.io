@@ -13,6 +13,7 @@ const AI_MODELS = [
   { name: "ElevenLabs TTS", provider: "ElevenLabs", status: "configured", key: "ELEVENLABS_API_KEY" },
   { name: "Lovable AI", provider: "Lovable", status: "configured", key: "LOVABLE_API_KEY" },
   { name: "Google Gemini", provider: "Google", status: "available", key: "via Lovable AI" },
+  { name: "Hugging Face", provider: "HuggingFace", status: "configured", key: "HUGGINGFACE_API_KEY" },
 ];
 
 const AI_FEATURES = [
@@ -24,6 +25,7 @@ const AI_FEATURES = [
   { name: "PDF Summarizer", description: "AI-powered document summarization", route: "/niranx/pdf-summarizer" },
   { name: "Topic Map Generator", description: "Visual knowledge maps", route: "/niranx/ai-topic-map-generator" },
   { name: "AI Song Generator", description: "Music generation with Sonauto", route: "/niranx/ai-song-generator" },
+  { name: "Hugging Face Hub", description: "Chat, text/image gen, model explorer", route: "/niranx/huggingface-hub" },
 ];
 
 export function XstellarAI() {
