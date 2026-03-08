@@ -722,8 +722,8 @@ export function AppSidebar() {
     <Sidebar 
       collapsible="icon" 
       className={cn(
-        "border-r border-sidebar-border/30 backdrop-blur-xl",
-        "bg-gradient-to-b from-sidebar via-sidebar/98 to-sidebar/95"
+        "border-r border-sidebar-border/20 backdrop-blur-2xl sidebar-glow",
+        "bg-gradient-to-b from-sidebar via-sidebar/98 to-sidebar/92"
       )}
     >
       {/* Header */}
@@ -1059,7 +1059,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       {/* Footer */}
-      <SidebarFooter className="border-t border-sidebar-border/30 p-3">
+      <SidebarFooter className="border-t border-sidebar-border/20 p-3">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1068,25 +1068,25 @@ export function AppSidebar() {
           <NavLink 
             to="/profile" 
             className={cn(
-              "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300",
-              "hover:bg-muted/60 group"
+              "flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-300",
+              "hover:bg-primary/5 group neon-border"
             )}
           >
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Avatar className="h-9 w-9 ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
+              <Avatar className="h-9 w-9 ring-2 ring-primary/30 ring-offset-2 ring-offset-background">
                 <AvatarImage src="" />
-                <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-white text-sm font-medium">
+                <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground text-sm font-bold">
                   U
                 </AvatarFallback>
               </Avatar>
             </motion.div>
             {!isCollapsed && (
               <div className="flex flex-col min-w-0">
-                <span className="font-medium text-sm truncate">User Profile</span>
-                <span className="text-[10px] text-muted-foreground">Level {level}</span>
+                <span className="font-mono font-semibold text-xs tracking-wider truncate">USER_PROFILE</span>
+                <span className="text-[9px] text-muted-foreground font-mono tracking-wider">LVL_{level} // {xp}_XP</span>
               </div>
             )}
           </NavLink>
