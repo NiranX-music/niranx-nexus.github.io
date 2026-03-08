@@ -206,7 +206,9 @@ export function AppLayout({ children }: AppLayoutProps) {
 
           <main className="flex-1 overflow-y-auto overflow-x-hidden relative z-10">
             <div className="p-4 pb-20 md:pb-4 animate-fade-in backdrop-blur-sm">
-              {children}
+              <Suspense fallback={<PageSkeleton />}>
+                {children}
+              </Suspense>
             </div>
             <EnhancedFooter />
           </main>
