@@ -5144,6 +5144,59 @@ export type Database = {
         }
         Relationships: []
       }
+      nexus_link_submissions: {
+        Row: {
+          admin_notes: string | null
+          category_id: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          name: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          category_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          url: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          category_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          url?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nexus_link_submissions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "nexus_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       nexus_links: {
         Row: {
           category_id: string | null
@@ -9679,6 +9732,45 @@ export type Database = {
           status?: string | null
           target_value?: number
           title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_nexus_links: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          image_url: string | null
+          name: string
+          updated_at: string | null
+          url: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          updated_at?: string | null
+          url: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          updated_at?: string | null
+          url?: string
           user_id?: string
         }
         Relationships: []
