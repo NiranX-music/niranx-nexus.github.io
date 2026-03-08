@@ -6,6 +6,7 @@ import { AboutSection } from '@/components/niranx/AboutSection';
 import { MusicSection } from '@/components/niranx/MusicSection';
 import { TestimonialsSection } from '@/components/niranx/TestimonialsSection';
 import { CTASection } from '@/components/landing/CTASection';
+import { UpdatesPanel } from '@/components/landing/UpdatesPanel';
 import { Footer3D } from '@/components/landing/Footer3D';
 import { NewsletterPopup } from '@/components/niranx/NewsletterPopup';
 import { LiquidBackground } from '@/components/LiquidBackground';
@@ -22,6 +23,7 @@ const Landing = () => {
         <AboutSection />
         <MusicSection />
         <TestimonialsSection />
+        <UpdatesPanel />
         <CTASection />
       </main>
       <Footer3D />
