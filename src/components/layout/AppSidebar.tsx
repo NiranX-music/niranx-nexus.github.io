@@ -166,6 +166,8 @@ const navigationConfig = {
       { title: "Topic Map Generator", url: "/ai-topic-map-generator", icon: RouteIcon },
       { title: "AI Image Generator", url: "/lovable-image-gen", icon: Image },
       { title: "DeepSeek Coder", url: "/deepseek-chat", icon: Cpu },
+      { title: "AI Quiz Generator", url: "/ai-quiz-generator", icon: Brain },
+      { title: "AI Doc Summarizer", url: "/ai-doc-summarizer", icon: FileText },
     ],
   },
   study: {
