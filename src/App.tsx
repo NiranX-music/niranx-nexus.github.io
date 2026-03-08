@@ -250,6 +250,9 @@ const XLink = lazy(() => import("./pages/XLink"));
 const XPulse = lazy(() => import("./pages/XPulse"));
 const XSync = lazy(() => import("./pages/XSync"));
 const XRadar = lazy(() => import("./pages/XRadar"));
+const XDrop = lazy(() => import("./pages/XDrop"));
+const XMemo = lazy(() => import("./pages/XMemo"));
+const XFeed = lazy(() => import("./pages/XFeed"));
 
 const AboutUs = lazy(() => import("./pages/support/AboutUs"));
 const Careers = lazy(() => import("./pages/support/Careers"));
@@ -716,6 +719,9 @@ const App = () => (
                           <Route path="/xpulse" element={<XPulse />} />
                           <Route path="/xsync" element={<XSync />} />
                           <Route path="/xradar" element={<XRadar />} />
+                          <Route path="/xdrop" element={<XDrop />} />
+                          <Route path="/xmemo" element={<XMemo />} />
+                          <Route path="/xfeed" element={<XFeed />} />
                           
                           {/* Support Pages */}
                           <Route path="/about" element={<AboutUs />} />
