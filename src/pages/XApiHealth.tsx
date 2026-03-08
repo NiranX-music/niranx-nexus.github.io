@@ -9,5 +9,5 @@ const apis = [
 ];
 
 export default function XApiHealth() {
-  return <CategoryApiPage title="Health APIs" subtitle: "Disease tracking, FDA data, and health guidelines" icon={<Heart className="h-8 w-8 text-primary" />} apis={apis} />;
+  return <CategoryApiPage title="Health APIs" subtitle="Disease tracking, FDA data, and health guidelines" icon={<Heart className="h-8 w-8 text-primary" />} apis={apis} />;
 }
