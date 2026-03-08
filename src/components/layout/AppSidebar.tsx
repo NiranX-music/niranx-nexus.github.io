@@ -369,6 +369,10 @@ const navigationConfig = {
       { title: "Web Search", url: "/web-search", icon: Search },
       { title: "Xmail", url: "/xmail", icon: Mail },
       { title: "Video Player", url: "/video-player", icon: Video },
+      { title: "FerqX Radio", url: "/ferqx", icon: Radio },
+      { title: "Weather", url: "/weather", icon: Cloud },
+      { title: "Typing Test", url: "/typing-test", icon: Keyboard },
+      { title: "Code Playground", url: "/code-playground", icon: Code },
     ],
   },
   settings: {
