@@ -229,6 +229,7 @@ const FerqX = lazy(() => import("./pages/FerqX"));
 const Integrations = lazy(() => import("./pages/Integrations"));
 const BytezAI = lazy(() => import("./pages/BytezAI"));
 const XNexusAI = lazy(() => import("./pages/XNexusAI"));
+const HuggingFaceHub = lazy(() => import("./pages/HuggingFaceHub"));
 const CustomPage = lazy(() => import("./pages/CustomPage"));
 const UserAppLibrary = lazy(() => import("./pages/UserAppLibrary"));
 const SubmitApp = lazy(() => import("./pages/SubmitApp"));
@@ -617,6 +618,7 @@ const App = () => (
                           {/* Phase 2: AI Intelligence Layer */}
                           <Route path="/ai-quiz-generator" element={<AIQuizGenerator />} />
                           <Route path="/ai-doc-summarizer" element={<AIDocSummarizer />} />
+                          <Route path="/huggingface-hub" element={<HuggingFaceHub />} />
                           
                           {/* Phase 5: Education & Learning */}
                           <Route path="/study-timer-dashboard" element={<StudyTimerDashboard />} />

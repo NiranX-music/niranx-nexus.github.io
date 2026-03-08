@@ -96,6 +96,7 @@ import {
   Clipboard,
   GitBranch,
   Keyboard,
+  Box,
 } from "lucide-react";
 import {
   Sidebar,
@@ -175,6 +176,7 @@ const navigationConfig = {
       { title: "DeepSeek Coder", url: "/deepseek-chat", icon: Cpu },
       { title: "AI Quiz Generator", url: "/ai-quiz-generator", icon: Brain },
       { title: "AI Doc Summarizer", url: "/ai-doc-summarizer", icon: FileText },
+      { title: "Hugging Face Hub", url: "/huggingface-hub", icon: Box },
     ],
   },
   study: {
