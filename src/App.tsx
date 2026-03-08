@@ -847,6 +847,7 @@ const App = () => (
     </BeepSoundProvider>
   </ThemeProvider>
 </QueryClientProvider>
+</GlobalErrorBoundary>
 );
 
 export default App;
