@@ -419,7 +419,7 @@ const App = () => (
                       <Routes>
                         <Route path="/" element={<Landing />} />
                         <Route path="/nexus" element={<Nexus />} />
-                        <Route path="/nexus/:categorySlug" element={<NexusCategory />} />
+                        <Route path="/nexus/:categorySlug" element={<AppLayout><NexusCategory /></AppLayout>} />
                         <Route path="/songs" element={<Songs />} />
                         <Route path="/p/:slug" element={<CustomPage />} />
                         <Route path="/auth" element={<Auth />} />
