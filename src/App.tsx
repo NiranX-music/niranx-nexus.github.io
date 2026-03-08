@@ -240,6 +240,10 @@ const UserAppLibrary = lazy(() => import("./pages/UserAppLibrary"));
 const SubmitApp = lazy(() => import("./pages/SubmitApp"));
 const WelcomeSetup = lazy(() => import("./pages/WelcomeSetup"));
 const Trial = lazy(() => import("./pages/Trial"));
+const XOffice = lazy(() => import("./pages/XOffice"));
+const XDocs = lazy(() => import("./pages/XDocs"));
+const XSheets = lazy(() => import("./pages/XSheets"));
+const XSlides = lazy(() => import("./pages/XSlides"));
 const PublicProfile = lazy(() => import("./pages/PublicProfile"));
 const PersonalAppLibrary = lazy(() => import("./pages/PersonalAppLibrary"));
 const XstellarDashboard = lazy(() => import("./pages/xstellar/XstellarDashboard"));
@@ -912,6 +916,12 @@ const App = () => (
                           <Route path="/xapi-government" element={<XApiGovernment />} />
                           <Route path="/xapi-health" element={<XApiHealth />} />
                           <Route path="/your-classes" element={<YourClasses />} />
+                          
+                          {/* XOffice Suite */}
+                          <Route path="/xoffice" element={<XOffice />} />
+                          <Route path="/xdocs" element={<XDocs />} />
+                          <Route path="/xsheets" element={<XSheets />} />
+                          <Route path="/xslides" element={<XSlides />} />
 
                           {/* Support Pages */}
                           <Route path="/about" element={<AboutUs />} />

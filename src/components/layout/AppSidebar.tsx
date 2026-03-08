@@ -98,6 +98,9 @@ import {
   Keyboard,
   Box,
   Sun,
+  Briefcase,
+  Presentation,
+  Table,
 } from "lucide-react";
 import {
   Sidebar,
@@ -383,6 +386,17 @@ const navigationConfig = {
       { title: "Google Drive", url: "/google-drive", icon: HardDrive },
       { title: "Backblaze Storage", url: "/backblaze-storage", icon: Cloud },
       { title: "Recycle Bin", url: "/recycle-bin", icon: Trash2 },
+    ],
+  },
+  xoffice: {
+    title: "XOffice Suite",
+    icon: Briefcase,
+    color: "from-primary/80 to-accent/80",
+    items: [
+      { title: "XOffice Hub", url: "/xoffice", icon: Briefcase },
+      { title: "XDocs", url: "/xdocs", icon: FileText },
+      { title: "XSheets", url: "/xsheets", icon: Table },
+      { title: "XSlides", url: "/xslides", icon: Presentation },
     ],
   },
   xApps: {

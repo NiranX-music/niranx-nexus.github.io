@@ -10982,6 +10982,42 @@ export type Database = {
         }
         Relationships: []
       }
+      xdocs_documents: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          id: string
+          is_shared: boolean | null
+          share_token: string | null
+          template: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          is_shared?: boolean | null
+          share_token?: string | null
+          template?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          is_shared?: boolean | null
+          share_token?: string | null
+          template?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       xflow_comments: {
         Row: {
           content: string
@@ -11479,6 +11515,63 @@ export type Database = {
           created_at?: string | null
           id?: string
           reason?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      xsheets_spreadsheets: {
+        Row: {
+          created_at: string | null
+          data: Json | null
+          id: string
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          title?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      xslides_presentations: {
+        Row: {
+          created_at: string | null
+          id: string
+          slides: Json | null
+          theme: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          slides?: Json | null
+          theme?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          slides?: Json | null
+          theme?: string | null
+          title?: string
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
