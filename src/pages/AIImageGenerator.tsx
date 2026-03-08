@@ -140,7 +140,7 @@ export default function AIImageGenerator() {
           apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
           Authorization: `Bearer ${session?.session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ prompt, model }),
+        body: JSON.stringify({ prompt }),
       }
     );
     if (!response.ok) {
@@ -148,7 +148,7 @@ export default function AIImageGenerator() {
       throw new Error(err.error || `Failed (${response.status})`);
     }
     const data = await response.json();
-    return data.imageUrl || data.image_url;
+    return data.url || data.imageUrl || data.image_url;
   };
 
   const generateWithSubnp = async () => {
