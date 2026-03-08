@@ -1,11 +1,14 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, File, Image, FileText, Music, Video, X, Download, Copy, CheckCircle2, Link2 } from "lucide-react";
+import { Upload, File, Image, FileText, Music, Video, X, Download, CheckCircle2, Link2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { Shield } from "lucide-react";
 
 interface DroppedFile {
   id: string;
@@ -16,6 +19,8 @@ interface DroppedFile {
   uploadedAt: Date;
   status: "uploading" | "ready" | "error";
   progress: number;
+  publicUrl?: string;
+  storagePath?: string;
 }
 
 const getFileIcon = (type: string) => {
@@ -33,10 +38,41 @@ const formatSize = (bytes: number) => {
 };
 
 const XDrop = () => {
+  const { user } = useAuth();
   const [files, setFiles] = useState<DroppedFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
 
+  const uploadFile = useCallback(async (file: File, trackingId: string) => {
+    if (!user) return;
+    const storagePath = `${user.id}/${Date.now()}-${file.name}`;
+
+    try {
+      const { data, error } = await supabase.storage
+        .from("xdrop")
+        .upload(storagePath, file, { upsert: false });
+
+      if (error) throw error;
+
+      const { data: urlData } = supabase.storage.from("xdrop").getPublicUrl(storagePath);
+
+      setFiles(prev => prev.map(f =>
+        f.id === trackingId
+          ? { ...f, status: "ready" as const, progress: 100, publicUrl: urlData.publicUrl, storagePath }
+          : f
+      ));
+      toast.success(`${file.name} uploaded`);
+    } catch (err) {
+      console.error("Upload error:", err);
+      setFiles(prev => prev.map(f =>
+        f.id === trackingId ? { ...f, status: "error" as const, progress: 0 } : f
+      ));
+      toast.error(`Failed to upload ${file.name}`);
+    }
+  }, [user]);
+
   const processFiles = useCallback((fileList: FileList) => {
+    if (!user) { toast.error("Sign in to upload files"); return; }
+
     const newFiles: DroppedFile[] = Array.from(fileList).map(f => ({
       id: crypto.randomUUID(),
       name: f.name,
@@ -45,27 +81,16 @@ const XDrop = () => {
       preview: f.type.startsWith("image/") ? URL.createObjectURL(f) : undefined,
       uploadedAt: new Date(),
       status: "uploading" as const,
-      progress: 0,
+      progress: 30,
     }));
 
     setFiles(prev => [...newFiles, ...prev]);
 
-    // Simulate upload progress
-    newFiles.forEach(file => {
-      let progress = 0;
-      const interval = setInterval(() => {
-        progress += Math.random() * 30;
-        if (progress >= 100) {
-          progress = 100;
-          clearInterval(interval);
-          setFiles(prev => prev.map(f => f.id === file.id ? { ...f, status: "ready", progress: 100 } : f));
-          toast.success(`${file.name} ready`);
-        } else {
-          setFiles(prev => prev.map(f => f.id === file.id ? { ...f, progress } : f));
-        }
-      }, 300);
+    // Upload each file
+    Array.from(fileList).forEach((file, i) => {
+      uploadFile(file, newFiles[i].id);
     });
-  }, []);
+  }, [user, uploadFile]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -77,17 +102,40 @@ const XDrop = () => {
     if (e.target.files?.length) processFiles(e.target.files);
   };
 
-  const removeFile = (id: string) => {
-    setFiles(prev => prev.filter(f => f.id !== id));
+  const removeFile = async (file: DroppedFile) => {
+    if (file.storagePath) {
+      await supabase.storage.from("xdrop").remove([file.storagePath]);
+    }
+    setFiles(prev => prev.filter(f => f.id !== file.id));
   };
 
   const copyLink = (file: DroppedFile) => {
-    navigator.clipboard.writeText(`https://niranx.app/xdrop/${file.id}`);
-    toast.success("Link copied!");
+    if (file.publicUrl) {
+      navigator.clipboard.writeText(file.publicUrl);
+      toast.success("Link copied!");
+    }
+  };
+
+  const downloadFile = (file: DroppedFile) => {
+    if (file.publicUrl) {
+      window.open(file.publicUrl, "_blank");
+    }
   };
 
   const readyFiles = files.filter(f => f.status === "ready").length;
   const totalSize = files.reduce((a, f) => a + f.size, 0);
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Card><CardContent className="p-8 text-center">
+          <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+          <p className="text-lg font-medium">Sign in to use XDrop</p>
+          <p className="text-sm text-muted-foreground mt-1">Upload and share files with cloud storage.</p>
+        </CardContent></Card>
+      </div>
+    );
+  }
 
   return (
     <div className="container max-w-4xl mx-auto p-4 md:p-6 space-y-6">
@@ -95,10 +143,9 @@ const XDrop = () => {
         <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
           <Upload className="h-8 w-8 text-primary" /> XDrop
         </h1>
-        <p className="text-muted-foreground mt-1">Quick file sharing & drop zone</p>
+        <p className="text-muted-foreground mt-1">Quick file sharing & cloud drop zone</p>
       </motion.div>
 
-      {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
         {[
           { label: "Files", value: files.length },
@@ -114,7 +161,6 @@ const XDrop = () => {
         ))}
       </div>
 
-      {/* Drop Zone */}
       <motion.div
         onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
         onDragLeave={() => setIsDragging(false)}
@@ -129,15 +175,14 @@ const XDrop = () => {
         <input id="file-input" type="file" multiple className="hidden" onChange={handleFileInput} />
         <Upload className={`h-12 w-12 mx-auto mb-4 ${isDragging ? "text-primary" : "text-muted-foreground"}`} />
         <p className="text-lg font-medium">{isDragging ? "Drop files here!" : "Drag & drop files or click to browse"}</p>
-        <p className="text-sm text-muted-foreground mt-1">Any file type supported</p>
+        <p className="text-sm text-muted-foreground mt-1">Files upload to cloud storage instantly</p>
       </motion.div>
 
-      {/* File List */}
       <AnimatePresence>
         {files.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Dropped Files</CardTitle>
+              <CardTitle className="text-lg">Uploaded Files</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {files.map((file, i) => (
@@ -161,23 +206,28 @@ const XDrop = () => {
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <span>{formatSize(file.size)}</span>
                       {file.status === "ready" && (
-                        <Badge variant="outline" className="text-xs"><CheckCircle2 className="h-3 w-3 mr-1" />Ready</Badge>
+                        <Badge variant="outline" className="text-xs"><CheckCircle2 className="h-3 w-3 mr-1" />Uploaded</Badge>
+                      )}
+                      {file.status === "error" && (
+                        <Badge variant="destructive" className="text-xs">Error</Badge>
+                      )}
+                      {file.status === "uploading" && (
+                        <Badge variant="secondary" className="text-xs"><Loader2 className="h-3 w-3 mr-1 animate-spin" />Uploading</Badge>
                       )}
                     </div>
-                    {file.status === "uploading" && <Progress value={file.progress} className="h-1 mt-1" />}
                   </div>
                   <div className="flex items-center gap-1">
                     {file.status === "ready" && (
                       <>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => copyLink(file)}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => copyLink(file)} title="Copy link">
                           <Link2 className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => downloadFile(file)} title="Download">
                           <Download className="h-4 w-4" />
                         </Button>
                       </>
                     )}
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => removeFile(file.id)}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => removeFile(file)}>
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
