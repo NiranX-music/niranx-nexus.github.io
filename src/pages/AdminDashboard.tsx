@@ -27,6 +27,7 @@ import { TestimonialsManager } from "@/components/admin/TestimonialsManager";
 import { ApiKeysManager } from "@/components/admin/ApiKeysManager";
 import { CustomPagesManager } from "@/components/admin/CustomPagesManager";
 import { ExploreLinksManager } from "@/components/admin/ExploreLinksManager";
+import { AdminUserManager } from "@/components/admin/AdminUserManager";
 
 interface Stats {
   totalUsers: number;
@@ -537,6 +538,9 @@ export default function AdminDashboard() {
           <TabsTrigger value="danger" className="text-destructive">Danger Zone</TabsTrigger>
           <TabsTrigger value="explore-links" className="gap-1">
             <Compass className="h-3 w-3" /> Explore
+          </TabsTrigger>
+          <TabsTrigger value="user-management" className="gap-1">
+            <Users className="h-3 w-3" /> User Mgmt
           </TabsTrigger>
         </TabsList>
 
@@ -1448,6 +1452,10 @@ export default function AdminDashboard() {
 
         <TabsContent value="explore-links">
           <ExploreLinksManager />
+        </TabsContent>
+
+        <TabsContent value="user-management">
+          <AdminUserManager />
         </TabsContent>
       </Tabs>
     </div>
