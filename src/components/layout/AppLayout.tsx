@@ -137,7 +137,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         <LiquidBackground />
         <AppSidebar />
         <SidebarInset>
-          <header className="flex h-16 shrink-0 items-center gap-2 border-b backdrop-blur-xl bg-background/80 px-4 transition-all duration-300 hover:bg-background/90 animate-fade-in sticky top-0 z-30">
+          <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border/30 backdrop-blur-2xl bg-background/60 px-4 transition-all duration-300 animate-fade-in sticky top-0 z-30">
             <SidebarTrigger className="-ml-1 hover:scale-110 transition-transform duration-200" />
             <Separator orientation="vertical" className="mr-2 h-4" />
             <Breadcrumb>
@@ -204,8 +204,8 @@ export function AppLayout({ children }: AppLayoutProps) {
             </div>
           </header>
 
-          <main className="flex-1 overflow-y-auto overflow-x-hidden">
-            <div className="p-4 pb-20 md:pb-4 animate-fade-in">
+          <main className="flex-1 overflow-y-auto overflow-x-hidden relative z-10">
+            <div className="p-4 pb-20 md:pb-4 animate-fade-in backdrop-blur-sm">
               {children}
             </div>
             <EnhancedFooter />
