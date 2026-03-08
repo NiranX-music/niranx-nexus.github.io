@@ -3,11 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ExternalLink, Music, Play, Pause, Volume2, VolumeX, ChevronDown, X, Home, Sparkles, Code } from 'lucide-react';
+import { ExternalLink, Music, Play, Pause, Volume2, VolumeX, ChevronDown, X, Home, Sparkles, Code, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import * as Icons from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+import { PersonalLinksSection } from '@/components/nexus/PersonalLinksSection';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface Category {
   id: string;
@@ -36,9 +39,11 @@ interface NexusSettings {
 }
 
 export default function Nexus() {
+  const { user } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
   const [links, setLinks] = useState<NexusLink[]>([]);
   const [settings, setSettings] = useState<NexusSettings>({});
+  const [activeTab, setActiveTab] = useState('explore');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [categoryOpen, setCategoryOpen] = useState(true);
