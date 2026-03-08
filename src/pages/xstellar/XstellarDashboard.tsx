@@ -5,7 +5,8 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard, Database, Terminal, HardDrive, Zap, Sparkles,
-  Key, ScrollText, FileCode, Globe, Code, Rocket, FolderOpen, Shield
+  Key, ScrollText, FileCode, Globe, Code, Rocket, FolderOpen, Shield,
+  Blocks, GitBranch, BarChart3
 } from "lucide-react";
 import { XstellarOverview } from "./XstellarOverview";
 import { XstellarDatabase } from "./XstellarDatabase";
@@ -20,6 +21,10 @@ import { XstellarAICoder } from "./XstellarAICoder";
 import { XstellarPublish } from "./XstellarPublish";
 import { XstellarProjects } from "./XstellarProjects";
 import { XstellarRLS } from "./XstellarRLS";
+import { XstellarTemplates } from "./XstellarTemplates";
+import { XstellarComponentLibrary } from "./XstellarComponentLibrary";
+import { XstellarAnalytics } from "./XstellarAnalytics";
+import { toast } from "@/hooks/use-toast";
 
 export default function XstellarDashboard() {
   const { user, loading: authLoading } = useAuth();
@@ -38,9 +43,21 @@ export default function XstellarDashboard() {
     return <Navigate to="/niranx/dashboard" replace />;
   }
 
+  const handleUseTemplate = (template: any) => {
+    toast({ title: "Template loaded", description: `${template.name} applied. Switch to AI Coder or Projects to use it.` });
+    setActiveTab("ai-coder");
+  };
+
+  const handleInsertComponent = (html: string, css: string) => {
+    toast({ title: "Component copied", description: "Paste it into your project code." });
+  };
+
   const tabs = [
     { id: "overview", label: "Overview", icon: LayoutDashboard },
     { id: "projects", label: "Projects", icon: FolderOpen },
+    { id: "templates", label: "Templates", icon: Blocks },
+    { id: "components", label: "Components", icon: Code },
+    { id: "analytics", label: "Analytics", icon: BarChart3 },
     { id: "database", label: "Database", icon: Database },
     { id: "sql", label: "SQL Editor", icon: Terminal },
     { id: "storage", label: "Storage", icon: HardDrive },
@@ -82,6 +99,9 @@ export default function XstellarDashboard() {
 
         <TabsContent value="overview"><XstellarOverview /></TabsContent>
         <TabsContent value="projects"><XstellarProjects /></TabsContent>
+        <TabsContent value="templates"><XstellarTemplates onUseTemplate={handleUseTemplate} /></TabsContent>
+        <TabsContent value="components"><XstellarComponentLibrary onInsert={handleInsertComponent} /></TabsContent>
+        <TabsContent value="analytics"><XstellarAnalytics /></TabsContent>
         <TabsContent value="database"><XstellarDatabase /></TabsContent>
         <TabsContent value="sql"><XstellarSQLEditor /></TabsContent>
         <TabsContent value="storage"><XstellarStorage /></TabsContent>
