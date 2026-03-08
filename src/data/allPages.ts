@@ -362,6 +362,7 @@ export const pageCategories = [
   "AI Corner", 
   "Study",
   "Progress",
+  "XOffice",
   "XVibe",
   "Media",
   "Files",
