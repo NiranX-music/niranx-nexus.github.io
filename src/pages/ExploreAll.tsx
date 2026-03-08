@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search, ExternalLink, Globe, Compass, ArrowLeft, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Helmet } from "react-helmet";
+import { useEffect as useDocTitle } from "react";
 
 interface ExploreLink {
   id: string;
