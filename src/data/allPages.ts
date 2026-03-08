@@ -355,6 +355,12 @@ export const allPages: PageInfo[] = [
   { name: "Nexus - Community", route: "/nexus/community", description: "Community showcase", category: "Nexus", accessLevel: "Public", icon: "MessageSquare" },
   { name: "Nexus - Dev Tools", route: "/nexus/dev-tools", description: "Dev Tools showcase", category: "Nexus", accessLevel: "Public", icon: "Code" },
   { name: "Nexus - Creative", route: "/nexus/creative", description: "Creative tools showcase", category: "Nexus", accessLevel: "Public", icon: "Palette" },
+
+  // XOffice Suite
+  { name: "XOffice Hub", route: "/niranx/xoffice", description: "Office suite — docs, sheets, slides", category: "XOffice", accessLevel: "Authenticated", icon: "Briefcase" },
+  { name: "XDocs", route: "/niranx/xdocs", description: "Smart document editor with AI", category: "XOffice", accessLevel: "Authenticated", icon: "FileText" },
+  { name: "XSheets", route: "/niranx/xsheets", description: "Spreadsheet tool with formulas & charts", category: "XOffice", accessLevel: "Authenticated", icon: "Table" },
+  { name: "XSlides", route: "/niranx/xslides", description: "Presentation builder with fullscreen mode", category: "XOffice", accessLevel: "Authenticated", icon: "Presentation" },
 ];
 
 export const pageCategories = [
