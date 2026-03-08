@@ -262,6 +262,7 @@ const XMap = lazy(() => import("./pages/XMap"));
 const XBot = lazy(() => import("./pages/XBot"));
 const XGames = lazy(() => import("./pages/XGames"));
 const SunriseSunsetPage = lazy(() => import("./pages/SunriseSunsetPage"));
+const NasaNeoExplorer = lazy(() => import("./pages/NasaNeoExplorer"));
 
 const AboutUs = lazy(() => import("./pages/support/AboutUs"));
 const Careers = lazy(() => import("./pages/support/Careers"));
@@ -745,6 +746,7 @@ const App = () => (
                           <Route path="/xbot" element={<XBot />} />
                           <Route path="/xgames" element={<XGames />} />
                           <Route path="/sunrise-sunset" element={<SunriseSunsetPage />} />
+                          <Route path="/nasa-neo" element={<NasaNeoExplorer />} />
                           
                           {/* Support Pages */}
                           <Route path="/about" element={<AboutUs />} />
