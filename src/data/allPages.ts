@@ -201,6 +201,9 @@ export const allPages: PageInfo[] = [
   { name: "XPulse", route: "/xpulse", description: "Live activity feed showing real-time platform events", category: "Social", accessLevel: "Authenticated", icon: "Activity" },
   { name: "XSync", route: "/xsync", description: "Cross-device sync status and data management", category: "Tools", accessLevel: "Authenticated", icon: "Cloud" },
   { name: "XRadar", route: "/xradar", description: "Personal analytics dashboard with AI insights", category: "Tools", accessLevel: "Authenticated", icon: "Activity" },
+  { name: "XDrop", route: "/xdrop", description: "Quick file sharing & drop zone", category: "Tools", accessLevel: "Authenticated", icon: "Upload" },
+  { name: "XMemo", route: "/xmemo", description: "Spaced repetition memory system with SM-2 algorithm", category: "Tools", accessLevel: "Authenticated", icon: "Brain" },
+  { name: "XFeed", route: "/xfeed", description: "Curated news and RSS feed reader", category: "Tools", accessLevel: "Authenticated", icon: "Rss" },
 ];
 
 export const pageCategories = [
