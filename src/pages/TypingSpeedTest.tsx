@@ -6,6 +6,8 @@ import { Progress } from '@/components/ui/progress';
 import { motion } from 'framer-motion';
 import { Keyboard, RotateCcw, Zap, Timer, Target, Trophy, Gauge } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const paragraphs = [
   "The quick brown fox jumps over the lazy dog near the river bank.",
@@ -21,6 +23,7 @@ const paragraphs = [
 ];
 
 const TypingSpeedTest = () => {
+  const { user } = useAuth();
   const [text, setText] = useState('');
   const [typed, setTyped] = useState('');
   const [isRunning, setIsRunning] = useState(false);
@@ -28,10 +31,7 @@ const TypingSpeedTest = () => {
   const [startTime, setStartTime] = useState<number | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const [duration, setDuration] = useState(60);
-  const [bestWPM, setBestWPM] = useState(() => {
-    const saved = localStorage.getItem('typing-best-wpm');
-    return saved ? parseInt(saved) : 0;
-  });
+  const [bestWPM, setBestWPM] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const initTest = useCallback(() => {
