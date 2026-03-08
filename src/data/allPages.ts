@@ -228,6 +228,7 @@ export const pageCategories = [
   "System",
   "Security",
   "Archive",
+  "Nexus",
   "More"
 ];
 
