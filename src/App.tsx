@@ -197,6 +197,8 @@ import TemplateManager from "./pages/admin/TemplateManager";
 import ActivityLog from "./pages/security/ActivityLog";
 import ExploreSpaces from "./pages/ExploreSpaces";
 import PasswordManager from "./pages/PasswordManager";
+import AIQuizGenerator from "./pages/AIQuizGenerator";
+import AIDocSummarizer from "./pages/AIDocSummarizer";
 import SpaceLimitsManager from "./pages/admin/SpaceLimitsManager";
 import XFlowLogin from "./pages/xflow/XFlowLogin";
 import XFlowFeed from "./pages/xflow/XFlowFeed";
@@ -558,6 +560,10 @@ const App = () => (
                           <Route path="/groq-chat" element={<GroqChat />} />
                           <Route path="/groq-chat-history" element={<GroqChatHistory />} />
                           <Route path="/password-manager" element={<PasswordManager />} />
+                          
+                          {/* Phase 2: AI Intelligence Layer */}
+                          <Route path="/ai-quiz-generator" element={<AIQuizGenerator />} />
+                          <Route path="/ai-doc-summarizer" element={<AIDocSummarizer />} />
                           
                           {/* Flashcard System */}
                           <Route path="/flashcards" element={<Flashcards />} />
