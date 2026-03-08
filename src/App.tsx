@@ -618,6 +618,7 @@ const App = () => (
                           {/* Phase 2: AI Intelligence Layer */}
                           <Route path="/ai-quiz-generator" element={<AIQuizGenerator />} />
                           <Route path="/ai-doc-summarizer" element={<AIDocSummarizer />} />
+                          <Route path="/huggingface-hub" element={<HuggingFaceHub />} />
                           
                           {/* Phase 5: Education & Learning */}
                           <Route path="/study-timer-dashboard" element={<StudyTimerDashboard />} />
