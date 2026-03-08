@@ -344,6 +344,7 @@ import { XstageSongs, XstageSoundLab, XstageSettings } from "./xstage/pages/Xsta
 const queryClient = new QueryClient();
 
 const App = () => (
+  <GlobalErrorBoundary>
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <BeepSoundProvider>
@@ -356,6 +357,9 @@ const App = () => (
                   <Toaster />
                   <Sonner />
                   <BrowserRouter>
+                    <PageLoadProgress />
+                    <OfflineBanner />
+                    <BackToTop />
                     <MusicPlayerProvider>
                     <AuthProvider>
                       <AdminEditProvider>
