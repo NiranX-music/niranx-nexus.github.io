@@ -237,6 +237,7 @@ const CustomPage = lazy(() => import("./pages/CustomPage"));
 const UserAppLibrary = lazy(() => import("./pages/UserAppLibrary"));
 const SubmitApp = lazy(() => import("./pages/SubmitApp"));
 const WelcomeSetup = lazy(() => import("./pages/WelcomeSetup"));
+const Trial = lazy(() => import("./pages/Trial"));
 const PublicProfile = lazy(() => import("./pages/PublicProfile"));
 const PersonalAppLibrary = lazy(() => import("./pages/PersonalAppLibrary"));
 const XstellarDashboard = lazy(() => import("./pages/xstellar/XstellarDashboard"));
@@ -572,6 +573,7 @@ const App = () => (
                         <Route path="/p/:slug" element={<CustomPage />} />
                         <Route path="/auth" element={<Auth />} />
                         <Route path="/welcome-setup" element={<WelcomeSetup />} />
+                        <Route path="/trial" element={<Trial />} />
                         <Route path="/user/:username" element={<PublicProfile />} />
                         <Route path="/reset-password" element={<ResetPassword />} />
                         <Route path="/magic-link" element={<MagicLink />} />

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { OnboardingBanner } from '@/components/OnboardingBanner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useXP } from '@/contexts/XPContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -183,6 +184,7 @@ export default function AdvancedDashboard() {
 
   return (
     <div className="container mx-auto py-8 space-y-6">
+      <OnboardingBanner />
       <div className="flex items-center gap-3 mb-6">
         <BarChart3 className="w-8 h-8 text-primary" />
         <div>
