@@ -406,6 +406,7 @@ const App = () => (
                       <AdminEditProvider>
                       <NotificationListener />
                       <GlobalRealtimeSync />
+                      <Suspense fallback={<PageSkeleton />}>
                       <Routes>
                         <Route path="/" element={<Landing />} />
                         <Route path="/nexus" element={<Nexus />} />
