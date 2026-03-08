@@ -240,6 +240,8 @@ import CornellNotes from "./pages/CornellNotes";
 import StudySessionPlanner from "./pages/StudySessionPlanner";
 import TypingSpeedTest from "./pages/TypingSpeedTest";
 import XForge from "./pages/XForge";
+import XBoard from "./pages/XBoard";
+import XVault from "./pages/XVault";
 
 import AboutUs from "./pages/support/AboutUs";
 import Careers from "./pages/support/Careers";
@@ -692,6 +694,8 @@ const App = () => (
                           <Route path="/advanced-analytics" element={<AdvancedAnalyticsDashboard />} />
                           <Route path="/api-console" element={<APIConsole />} />
                           <Route path="/xforge" element={<XForge />} />
+                          <Route path="/xboard" element={<XBoard />} />
+                          <Route path="/xvault" element={<XVault />} />
                           
                           {/* Support Pages */}
                           <Route path="/about" element={<AboutUs />} />

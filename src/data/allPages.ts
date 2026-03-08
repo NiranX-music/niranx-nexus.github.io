@@ -195,6 +195,8 @@ export const allPages: PageInfo[] = [
   { name: "Website Guide", route: "/niranx/guide", description: "Complete page directory", category: "More", accessLevel: "Moderator", icon: "BookOpen" },
   { name: "Sitemap", route: "/niranx/sitemap", description: "Site map overview", category: "More", accessLevel: "Authenticated", icon: "Map" },
   { name: "XForge", route: "/xforge", description: "Visual micro-app & widget builder with AI assist, templates, and drag canvas", category: "Tools", accessLevel: "Authenticated", icon: "Hammer" },
+  { name: "XBoard", route: "/xboard", description: "Kanban board for task and project management with drag-and-drop cards", category: "Tools", accessLevel: "Authenticated", icon: "LayoutGrid" },
+  { name: "XVault", route: "/xvault", description: "PIN-protected encrypted notes and private journal", category: "Tools", accessLevel: "Authenticated", icon: "Lock" },
 ];
 
 export const pageCategories = [
