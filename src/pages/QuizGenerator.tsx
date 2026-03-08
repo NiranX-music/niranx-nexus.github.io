@@ -66,11 +66,14 @@ Make questions educational and the explanations helpful for learning.`;
       if (provider === 'openrouter') functionName = 'openrouter-chat';
       else if (provider === 'perplexity') functionName = 'perplexity-chat';
       else if (provider === 'groq') functionName = 'groq-chat';
+      else if (provider === 'deepseek') functionName = 'deepseek-chat';
+      else if (provider === 'aiml') functionName = 'aiml-chat';
 
       const { data, error } = await supabase.functions.invoke(functionName, {
         body: {
           messages: [{ role: 'user', content: prompt }],
           model: model,
+          stream: false,
         },
       });
 
