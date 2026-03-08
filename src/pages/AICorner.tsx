@@ -52,6 +52,10 @@ const aiTools: AITool[] = [
     icon: Bot, route: "/niranx/openrouter-chat", color: "text-emerald-500", category: ["chat"],
   },
   {
+    id: "puter-chat", title: "Puter AI Chat", description: "500+ free AI models — GPT-5, Claude, Gemini, Grok, DeepSeek & more",
+    icon: Sparkles, route: "/niranx/puter-chat", color: "text-cyan-500", badge: "NEW", category: ["chat"],
+  },
+  {
     id: "ai-solver", title: "GPAI AI Solver", description: "Solve homework across all subjects — text or image input",
     icon: Brain, route: "/niranx/ai-solver", color: "text-green-500", category: ["chat", "study"],
   },
@@ -124,6 +128,10 @@ const aiTools: AITool[] = [
   {
     id: "ai-library", title: "AI Library", description: "Access all your AI-generated content in one place",
     icon: Archive, route: "/niranx/ai-library", color: "text-slate-500", category: ["utility"],
+  },
+  {
+    id: "unified-history", title: "Unified AI History", description: "View all AI chat conversations across every provider in one place",
+    icon: Archive, route: "/niranx/unified-ai-history", color: "text-indigo-500", category: ["utility"],
   },
 ];
 
