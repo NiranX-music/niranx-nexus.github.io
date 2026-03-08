@@ -425,11 +425,11 @@ export default function AISongGenerator() {
                   <CardDescription>{generatedSong.prompt}</CardDescription>
                 </div>
               </div>
-              {generatedSong.is_published && generatedSong.slug && (
+              {generatedSong.is_published && (
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => window.open(`/published/${generatedSong.slug}`, '_blank')}
+                  onClick={() => window.open(`/published/songs/ai/${generatedSong.id}`, '_blank')}
                 >
                   <ExternalLink className="h-4 w-4 mr-2" />
                   View Public
