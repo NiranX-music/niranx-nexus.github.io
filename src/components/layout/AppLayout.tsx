@@ -18,7 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import { useCloudSync } from "@/hooks/useCloudSync";
-import { Keyboard, Sparkles, Bell } from "lucide-react";
+import { Keyboard, Sparkles, Bell, Map } from "lucide-react";
 import { RenameTabDialog } from "@/components/RenameTabDialog";
 import {
   Breadcrumb,
@@ -178,6 +178,15 @@ export function AppLayout({ children }: AppLayoutProps) {
                 <Bell className="h-5 w-5" />
               </Button>
               <NewLaunchesPopover />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate("/niranx/sitemap")}
+                className="hover:bg-accent"
+                title="Sitemap"
+              >
+                <Map className="h-4 w-4" />
+              </Button>
               <Button
                 variant="ghost"
                 size="icon"
