@@ -767,7 +767,21 @@ const App = () => (
                           <Route path="/genrenator" element={<Genrenator />} />
                           <Route path="/xboard-games" element={<XBoardGames />} />
                           <Route path="/xapi-explorer" element={<XAPIExplorer />} />
-                          
+                          <Route path="/xapi-space-science" element={<XApiSpaceScience />} />
+                          <Route path="/xapi-animals" element={<XApiAnimals />} />
+                          <Route path="/xapi-fun-random" element={<XApiFunRandom />} />
+                          <Route path="/xapi-food-drink" element={<XApiFoodDrink />} />
+                          <Route path="/xapi-finance" element={<XApiFinance />} />
+                          <Route path="/xapi-weather-geo" element={<XApiWeatherGeo />} />
+                          <Route path="/xapi-music-media" element={<XApiMusicMedia />} />
+                          <Route path="/xapi-games" element={<XApiGames />} />
+                          <Route path="/xapi-art-culture" element={<XApiArtCulture />} />
+                          <Route path="/xapi-books-education" element={<XApiBooksEducation />} />
+                          <Route path="/xapi-tech-dev" element={<XApiTechDev />} />
+                          <Route path="/xapi-sports" element={<XApiSports />} />
+                          <Route path="/xapi-government" element={<XApiGovernment />} />
+                          <Route path="/xapi-health" element={<XApiHealth />} />
+
                           {/* Support Pages */}
                           <Route path="/about" element={<AboutUs />} />
                           <Route path="/careers" element={<Careers />} />
