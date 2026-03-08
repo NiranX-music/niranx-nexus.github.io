@@ -266,7 +266,20 @@ const NasaNeoExplorer = lazy(() => import("./pages/NasaNeoExplorer"));
 const Genrenator = lazy(() => import("./pages/Genrenator"));
 const XBoardGames = lazy(() => import("./pages/XBoardGames"));
 const XAPIExplorer = lazy(() => import("./pages/XAPIExplorer"));
-// API Explorer hub
+const XApiSpaceScience = lazy(() => import("./pages/XApiSpaceScience"));
+const XApiAnimals = lazy(() => import("./pages/XApiAnimals"));
+const XApiFunRandom = lazy(() => import("./pages/XApiFunRandom"));
+const XApiFoodDrink = lazy(() => import("./pages/XApiFoodDrink"));
+const XApiFinance = lazy(() => import("./pages/XApiFinance"));
+const XApiWeatherGeo = lazy(() => import("./pages/XApiWeatherGeo"));
+const XApiMusicMedia = lazy(() => import("./pages/XApiMusicMedia"));
+const XApiGames = lazy(() => import("./pages/XApiGames"));
+const XApiArtCulture = lazy(() => import("./pages/XApiArtCulture"));
+const XApiBooksEducation = lazy(() => import("./pages/XApiBooksEducation"));
+const XApiTechDev = lazy(() => import("./pages/XApiTechDev"));
+const XApiSports = lazy(() => import("./pages/XApiSports"));
+const XApiGovernment = lazy(() => import("./pages/XApiGovernment"));
+const XApiHealth = lazy(() => import("./pages/XApiHealth"));
 
 const AboutUs = lazy(() => import("./pages/support/AboutUs"));
 const Careers = lazy(() => import("./pages/support/Careers"));
@@ -754,7 +767,21 @@ const App = () => (
                           <Route path="/genrenator" element={<Genrenator />} />
                           <Route path="/xboard-games" element={<XBoardGames />} />
                           <Route path="/xapi-explorer" element={<XAPIExplorer />} />
-                          
+                          <Route path="/xapi-space-science" element={<XApiSpaceScience />} />
+                          <Route path="/xapi-animals" element={<XApiAnimals />} />
+                          <Route path="/xapi-fun-random" element={<XApiFunRandom />} />
+                          <Route path="/xapi-food-drink" element={<XApiFoodDrink />} />
+                          <Route path="/xapi-finance" element={<XApiFinance />} />
+                          <Route path="/xapi-weather-geo" element={<XApiWeatherGeo />} />
+                          <Route path="/xapi-music-media" element={<XApiMusicMedia />} />
+                          <Route path="/xapi-games" element={<XApiGames />} />
+                          <Route path="/xapi-art-culture" element={<XApiArtCulture />} />
+                          <Route path="/xapi-books-education" element={<XApiBooksEducation />} />
+                          <Route path="/xapi-tech-dev" element={<XApiTechDev />} />
+                          <Route path="/xapi-sports" element={<XApiSports />} />
+                          <Route path="/xapi-government" element={<XApiGovernment />} />
+                          <Route path="/xapi-health" element={<XApiHealth />} />
+
                           {/* Support Pages */}
                           <Route path="/about" element={<AboutUs />} />
                           <Route path="/careers" element={<Careers />} />

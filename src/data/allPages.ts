@@ -313,7 +313,21 @@ export const allPages: PageInfo[] = [
   { name: "NASA NEO Explorer", route: "/nasa-neo", description: "Browse NASA near-earth asteroids with orbital data and close approaches", category: "Tools", accessLevel: "Authenticated", icon: "Rocket" },
   { name: "Genrenator", route: "/genrenator", description: "Random music genre and story generator powered by Binary Jazz API", category: "Tools", accessLevel: "Authenticated", icon: "Music" },
   { name: "XBoard Games", route: "/xboard-games", description: "Explore board games with hot rankings, search and details via BoardGameGeek API", category: "Tools", accessLevel: "Authenticated", icon: "Gamepad2" },
-  { name: "XAPI Explorer", route: "/xapi-explorer", description: "Unified hub to browse and live-test 100+ free public APIs across 15 categories", category: "Tools", accessLevel: "Authenticated", icon: "Layers" },
+  { name: "XAPI Explorer", route: "/xapi-explorer", description: "Unified hub to browse and test 100+ free public APIs", category: "Tools", accessLevel: "Authenticated", icon: "Layers" },
+  { name: "XAPI: Space & Science", route: "/xapi-space-science", description: "NASA, SpaceX, ISS, earthquakes and more", category: "Tools", accessLevel: "Authenticated", icon: "Rocket" },
+  { name: "XAPI: Animals", route: "/xapi-animals", description: "Random dogs, cats, foxes, and bear images", category: "Tools", accessLevel: "Authenticated", icon: "Globe" },
+  { name: "XAPI: Fun & Random", route: "/xapi-fun-random", description: "Jokes, trivia, advice, and random facts", category: "Tools", accessLevel: "Authenticated", icon: "Sparkles" },
+  { name: "XAPI: Food & Drink", route: "/xapi-food-drink", description: "Meals, cocktails, breweries, and food data", category: "Tools", accessLevel: "Authenticated", icon: "Globe" },
+  { name: "XAPI: Finance", route: "/xapi-finance", description: "Crypto prices, exchange rates, name predictions", category: "Tools", accessLevel: "Authenticated", icon: "TrendingUp" },
+  { name: "XAPI: Weather & Geo", route: "/xapi-weather-geo", description: "Weather, geolocation, countries, timezones", category: "Tools", accessLevel: "Authenticated", icon: "Cloud" },
+  { name: "XAPI: Music & Media", route: "/xapi-music-media", description: "iTunes, MusicBrainz, Deezer, radio stations", category: "Tools", accessLevel: "Authenticated", icon: "Music" },
+  { name: "XAPI: Games", route: "/xapi-games", description: "Pokémon, D&D, trivia, chess, game deals", category: "Tools", accessLevel: "Authenticated", icon: "Gamepad2" },
+  { name: "XAPI: Art & Culture", route: "/xapi-art-culture", description: "Museum collections, colors, placeholder images", category: "Tools", accessLevel: "Authenticated", icon: "Palette" },
+  { name: "XAPI: Books & Education", route: "/xapi-books-education", description: "Books, dictionaries, Wikipedia, quotes", category: "Tools", accessLevel: "Authenticated", icon: "BookOpen" },
+  { name: "XAPI: Tech & Dev", route: "/xapi-tech-dev", description: "GitHub, JSONPlaceholder, Hacker News, dev tools", category: "Tools", accessLevel: "Authenticated", icon: "Code" },
+  { name: "XAPI: Sports", route: "/xapi-sports", description: "Football, F1, NBA, NHL, cricket data", category: "Tools", accessLevel: "Authenticated", icon: "Trophy" },
+  { name: "XAPI: Government", route: "/xapi-government", description: "Census, FBI wanted, federal documents", category: "Tools", accessLevel: "Authenticated", icon: "Landmark" },
+  { name: "XAPI: Health", route: "/xapi-health", description: "Disease tracking, FDA, WHO health data", category: "Tools", accessLevel: "Authenticated", icon: "Heart" },
 ];
 
 export const pageCategories = [
