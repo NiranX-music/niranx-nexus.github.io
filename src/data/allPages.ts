@@ -194,6 +194,7 @@ export const allPages: PageInfo[] = [
   { name: "Docs Hub", route: "/docs", description: "Complete platform documentation, page guide, restrictions & limitations", category: "More", accessLevel: "Public", icon: "BookOpen" },
   { name: "Website Guide", route: "/niranx/guide", description: "Complete page directory", category: "More", accessLevel: "Moderator", icon: "BookOpen" },
   { name: "Sitemap", route: "/niranx/sitemap", description: "Site map overview", category: "More", accessLevel: "Authenticated", icon: "Map" },
+  { name: "XForge", route: "/xforge", description: "Visual micro-app & widget builder with AI assist, templates, and drag canvas", category: "Tools", accessLevel: "Authenticated", icon: "Hammer" },
 ];
 
 export const pageCategories = [
