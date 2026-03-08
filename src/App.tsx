@@ -199,6 +199,8 @@ import ExploreSpaces from "./pages/ExploreSpaces";
 import PasswordManager from "./pages/PasswordManager";
 import AIQuizGenerator from "./pages/AIQuizGenerator";
 import AIDocSummarizer from "./pages/AIDocSummarizer";
+import ActivityFeed from "./pages/ActivityFeed";
+import CommunityForums from "./pages/CommunityForums";
 import SpaceLimitsManager from "./pages/admin/SpaceLimitsManager";
 import XFlowLogin from "./pages/xflow/XFlowLogin";
 import XFlowFeed from "./pages/xflow/XFlowFeed";
