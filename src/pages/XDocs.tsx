@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import DocumentToolbar from '@/components/xdocs/DocumentToolbar';
 import DocumentList from '@/components/xdocs/DocumentList';
 import TemplateSelector from '@/components/xdocs/TemplateSelector';
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable-panels';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 
 interface XDoc {
   id: string;
