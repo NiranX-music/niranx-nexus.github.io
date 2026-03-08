@@ -97,6 +97,7 @@ import {
   GitBranch,
   Keyboard,
   Box,
+  Sun,
 } from "lucide-react";
 import {
   Sidebar,
