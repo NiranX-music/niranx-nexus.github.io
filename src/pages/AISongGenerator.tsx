@@ -200,13 +200,10 @@ export default function AISongGenerator() {
 
     setPublishing(true);
     try {
-      const slug = await supabase.rpc('generate_ai_generation_slug');
-      
       const { data, error } = await supabase
         .from("ai_generations")
         .update({
           is_published: true,
-          slug: slug.data,
           published_at: new Date().toISOString(),
           cover_image_url: coverImage
         })
@@ -219,11 +216,11 @@ export default function AISongGenerator() {
       setGeneratedSong({
         ...generatedSong,
         is_published: true,
-        slug: data.slug,
+        slug: data.id,
         cover_image_url: coverImage
       });
 
-      const publicUrl = `${window.location.origin}/published/${data.slug}`;
+      const publicUrl = `${window.location.origin}/published/songs/ai/${data.id}`;
       navigator.clipboard.writeText(publicUrl);
       toast.success("Published! Link copied to clipboard");
     } catch (error) {
@@ -428,11 +425,11 @@ export default function AISongGenerator() {
                   <CardDescription>{generatedSong.prompt}</CardDescription>
                 </div>
               </div>
-              {generatedSong.is_published && generatedSong.slug && (
+              {generatedSong.is_published && (
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => window.open(`/published/${generatedSong.slug}`, '_blank')}
+                  onClick={() => window.open(`/published/songs/ai/${generatedSong.id}`, '_blank')}
                 >
                   <ExternalLink className="h-4 w-4 mr-2" />
                   View Public

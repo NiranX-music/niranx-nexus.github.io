@@ -195,6 +195,7 @@ const GroqChatHistory = lazy(() => import("./pages/GroqChatHistory"));
 const DeepSeekChat = lazy(() => import("./pages/DeepSeekChat"));
 const LovableImageGen = lazy(() => import("./pages/LovableImageGen"));
 const PublishedContent = lazy(() => import("./pages/PublishedContent"));
+const PublishedSong = lazy(() => import("./pages/PublishedSong"));
 const ListedSongs = lazy(() => import("./pages/ListedSongs"));
 const Mailbox = lazy(() => import("./pages/Mailbox"));
 const XmailProfile = lazy(() => import("./pages/XmailProfile"));
@@ -928,6 +929,7 @@ const App = () => (
                     
                     <Route path="/shared/resource/:token" element={<SharedResource />} />
                     <Route path="/w/:slug" element={<PublishedWebsite />} />
+                    <Route path="/published/songs/ai/:songId" element={<PublishedSong />} />
                     <Route path="/published/:slug" element={<PublishedContent />} />
                     
                     {/* Dual routing: /niranx/* redirects to /* */}
