@@ -15,6 +15,8 @@ import { Button } from "@/components/ui/button";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useNavigate } from "react-router-dom";
+import { usePageTitle } from "@/hooks/usePageTitle";
+import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import { Keyboard, Sparkles, Bell } from "lucide-react";
 import { RenameTabDialog } from "@/components/RenameTabDialog";
 import {
