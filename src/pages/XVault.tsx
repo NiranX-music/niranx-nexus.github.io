@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Lock, Unlock, Plus, Trash2, Search, Shield, Eye, EyeOff,
-  FileText, Star, Clock, Hash, AlertTriangle
+  FileText, Star, Clock, Hash, AlertTriangle, Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,6 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface VaultNote {
   id: string;
@@ -22,10 +24,8 @@ interface VaultNote {
   updatedAt: string;
 }
 
-const VAULT_STORAGE_KEY = "xvault_notes";
 const VAULT_PIN_KEY = "xvault_pin_hash";
 
-// Simple hash for PIN (NOT crypto-grade, but suitable for client-side lock)
 const hashPin = (pin: string): string => {
   let hash = 0;
   for (let i = 0; i < pin.length; i++) {
@@ -37,6 +37,7 @@ const hashPin = (pin: string): string => {
 };
 
 export default function XVault() {
+  const { user } = useAuth();
   const [isLocked, setIsLocked] = useState(true);
   const [hasPin, setHasPin] = useState(false);
   const [pinInput, setPinInput] = useState("");
@@ -48,6 +49,7 @@ export default function XVault() {
   const [showContent, setShowContent] = useState(true);
   const [pinError, setPinError] = useState("");
   const [autoLockTimer, setAutoLockTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const storedHash = localStorage.getItem(VAULT_PIN_KEY);
@@ -55,17 +57,33 @@ export default function XVault() {
     if (!storedHash) setIsSettingPin(true);
   }, []);
 
-  const loadNotes = useCallback(() => {
+  const loadNotes = useCallback(async () => {
+    if (!user) return;
+    setLoading(true);
     try {
-      const raw = localStorage.getItem(VAULT_STORAGE_KEY);
-      if (raw) setNotes(JSON.parse(raw));
-    } catch { setNotes([]); }
-  }, []);
+      const { data } = await supabase
+        .from("xvault_notes")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("updated_at", { ascending: false });
 
-  const saveNotes = useCallback((updated: VaultNote[]) => {
-    setNotes(updated);
-    localStorage.setItem(VAULT_STORAGE_KEY, JSON.stringify(updated));
-  }, []);
+      if (data) {
+        setNotes(data.map(n => ({
+          id: n.id,
+          title: n.title,
+          content: n.content,
+          tags: n.tags || [],
+          isFavorite: n.is_favorite,
+          createdAt: n.created_at,
+          updatedAt: n.updated_at,
+        })));
+      }
+    } catch (err) {
+      console.error("Error loading vault notes:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
 
   const resetAutoLock = useCallback(() => {
     if (autoLockTimer) clearTimeout(autoLockTimer);
@@ -106,31 +124,47 @@ export default function XVault() {
     }
   };
 
-  const createNote = () => {
-    const note: VaultNote = {
-      id: `note-${Date.now()}`,
+  const createNote = async () => {
+    if (!user) return;
+    const { data, error } = await supabase.from("xvault_notes").insert({
+      user_id: user.id,
       title: "Untitled Note",
       content: "",
       tags: [],
-      isFavorite: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      is_favorite: false,
+    }).select().single();
+
+    if (error || !data) { toast({ title: "Error creating note", variant: "destructive" }); return; }
+
+    const note: VaultNote = {
+      id: data.id, title: data.title, content: data.content,
+      tags: data.tags || [], isFavorite: data.is_favorite,
+      createdAt: data.created_at, updatedAt: data.updated_at,
     };
-    const updated = [note, ...notes];
-    saveNotes(updated);
+    setNotes(prev => [note, ...prev]);
     setActiveNote(note);
     resetAutoLock();
   };
 
-  const updateNote = (note: VaultNote) => {
-    const updated = notes.map(n => n.id === note.id ? { ...note, updatedAt: new Date().toISOString() } : n);
-    saveNotes(updated);
-    setActiveNote({ ...note, updatedAt: new Date().toISOString() });
+  const updateNote = async (note: VaultNote) => {
+    const updatedAt = new Date().toISOString();
+    await supabase.from("xvault_notes").update({
+      title: note.title,
+      content: note.content,
+      tags: note.tags,
+      is_favorite: note.isFavorite,
+      updated_at: updatedAt,
+    }).eq("id", note.id);
+
+    const updated = { ...note, updatedAt };
+    setNotes(prev => prev.map(n => n.id === note.id ? updated : n));
+    setActiveNote(updated);
     resetAutoLock();
   };
 
-  const deleteNote = (id: string) => {
-    saveNotes(notes.filter(n => n.id !== id));
+  const deleteNote = async (id: string) => {
+    await supabase.from("xvault_notes").delete().eq("id", id);
+    setNotes(prev => prev.filter(n => n.id !== id));
     if (activeNote?.id === id) setActiveNote(null);
     toast({ title: "Note deleted" });
   };
@@ -144,7 +178,18 @@ export default function XVault() {
   const favorites = filteredNotes.filter(n => n.isFavorite);
   const regular = filteredNotes.filter(n => !n.isFavorite);
 
-  // LOCKED / PIN SETUP SCREEN
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Card><CardContent className="p-8 text-center">
+          <Shield className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+          <p className="text-lg font-medium">Sign in to use XVault</p>
+          <p className="text-sm text-muted-foreground mt-1">Your encrypted notes sync across devices.</p>
+        </CardContent></Card>
+      </div>
+    );
+  }
+
   if (isLocked || isSettingPin) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
@@ -196,7 +241,7 @@ export default function XVault() {
                   {isSettingPin ? <><Shield className="h-4 w-4 mr-2" /> Set PIN</> : <><Unlock className="h-4 w-4 mr-2" /> Unlock</>}
                 </Button>
               </div>
-              <p className="text-[10px] text-muted-foreground">Notes are stored locally with PIN protection. Auto-locks after 5 min of inactivity.</p>
+              <p className="text-[10px] text-muted-foreground">Notes are stored in the cloud with PIN protection. Auto-locks after 5 min.</p>
             </CardContent>
           </Card>
         </motion.div>
@@ -204,17 +249,15 @@ export default function XVault() {
     );
   }
 
-  // UNLOCKED VIEW
   return (
     <div className="space-y-4" onClick={resetAutoLock}>
-      {/* Header */}
       <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-4 flex-wrap">
         <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-[0_0_20px_hsl(var(--primary)/0.35)]">
           <Shield className="h-5 w-5 text-primary-foreground" />
         </div>
         <div>
           <h1 className="text-2xl font-bold tracking-tight">XVault</h1>
-          <p className="text-xs text-muted-foreground">{notes.length} encrypted notes · PIN protected</p>
+          <p className="text-xs text-muted-foreground">{notes.length} notes · Cloud synced · PIN protected</p>
         </div>
         <div className="ml-auto flex gap-2">
           <Button size="sm" variant="outline" onClick={() => setShowContent(!showContent)}>
@@ -228,84 +271,88 @@ export default function XVault() {
         </div>
       </motion.div>
 
-      <div className="flex gap-4 h-[calc(100vh-220px)]">
-        {/* Sidebar */}
-        <div className="w-72 flex-shrink-0 space-y-3 overflow-y-auto">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-muted-foreground" />
-            <Input placeholder="Search notes..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-8 h-8 text-xs" />
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        </div>
+      ) : (
+        <div className="flex gap-4 h-[calc(100vh-220px)]">
+          <div className="w-72 flex-shrink-0 space-y-3 overflow-y-auto">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input placeholder="Search notes..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-8 h-8 text-xs" />
+            </div>
+
+            {favorites.length > 0 && (
+              <div>
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1"><Star className="h-3 w-3" /> Favorites</p>
+                {favorites.map(note => (
+                  <NoteListItem key={note.id} note={note} isActive={activeNote?.id === note.id} showContent={showContent} onClick={() => setActiveNote(note)} onDelete={() => deleteNote(note.id)} />
+                ))}
+              </div>
+            )}
+
+            <div>
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1"><FileText className="h-3 w-3" /> All Notes</p>
+              {regular.length === 0 && notes.length === 0 ? (
+                <Card className="border-dashed"><CardContent className="p-4 text-center text-xs text-muted-foreground">No notes yet. Create your first one!</CardContent></Card>
+              ) : (
+                regular.map(note => (
+                  <NoteListItem key={note.id} note={note} isActive={activeNote?.id === note.id} showContent={showContent} onClick={() => setActiveNote(note)} onDelete={() => deleteNote(note.id)} />
+                ))
+              )}
+            </div>
           </div>
 
-          {favorites.length > 0 && (
-            <div>
-              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1"><Star className="h-3 w-3" /> Favorites</p>
-              {favorites.map(note => (
-                <NoteListItem key={note.id} note={note} isActive={activeNote?.id === note.id} showContent={showContent} onClick={() => setActiveNote(note)} onDelete={() => deleteNote(note.id)} />
-              ))}
-            </div>
-          )}
-
-          <div>
-            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1"><FileText className="h-3 w-3" /> All Notes</p>
-            {regular.length === 0 && notes.length === 0 ? (
-              <Card className="border-dashed"><CardContent className="p-4 text-center text-xs text-muted-foreground">No notes yet. Create your first one!</CardContent></Card>
+          <div className="flex-1 rounded-xl border bg-card/50 backdrop-blur-sm overflow-hidden">
+            {activeNote ? (
+              <div className="h-full flex flex-col">
+                <div className="flex items-center gap-2 p-3 border-b border-border/50">
+                  <Input
+                    value={activeNote.title}
+                    onChange={e => updateNote({ ...activeNote, title: e.target.value })}
+                    className="border-none bg-transparent text-lg font-bold h-8 focus-visible:ring-0 px-0"
+                    placeholder="Note title..."
+                  />
+                  <Button
+                    variant="ghost" size="icon" className="h-7 w-7"
+                    onClick={() => updateNote({ ...activeNote, isFavorite: !activeNote.isFavorite })}
+                  >
+                    <Star className={`h-4 w-4 ${activeNote.isFavorite ? "fill-primary text-primary" : "text-muted-foreground"}`} />
+                  </Button>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-1.5 border-b border-border/30">
+                  <Hash className="h-3 w-3 text-muted-foreground" />
+                  <Input
+                    value={activeNote.tags.join(", ")}
+                    onChange={e => updateNote({ ...activeNote, tags: e.target.value.split(",").map(s => s.trim()).filter(Boolean) })}
+                    placeholder="Tags (comma separated)"
+                    className="border-none bg-transparent text-xs h-6 focus-visible:ring-0 px-0"
+                  />
+                  <span className="text-[9px] text-muted-foreground flex items-center gap-1 flex-shrink-0">
+                    <Clock className="h-2.5 w-2.5" />
+                    {new Date(activeNote.updatedAt).toLocaleString()}
+                  </span>
+                </div>
+                <Textarea
+                  value={showContent ? activeNote.content : "••••••••••••••••••"}
+                  onChange={e => showContent && updateNote({ ...activeNote, content: e.target.value })}
+                  readOnly={!showContent}
+                  placeholder="Start writing your private note..."
+                  className="flex-1 border-none rounded-none resize-none focus-visible:ring-0 text-sm leading-relaxed p-4"
+                />
+              </div>
             ) : (
-              regular.map(note => (
-                <NoteListItem key={note.id} note={note} isActive={activeNote?.id === note.id} showContent={showContent} onClick={() => setActiveNote(note)} onDelete={() => deleteNote(note.id)} />
-              ))
+              <div className="h-full flex items-center justify-center">
+                <div className="text-center">
+                  <Shield className="h-12 w-12 text-muted-foreground/20 mx-auto mb-3" />
+                  <p className="text-sm text-muted-foreground">Select a note or create a new one</p>
+                </div>
+              </div>
             )}
           </div>
         </div>
-
-        {/* Editor */}
-        <div className="flex-1 rounded-xl border bg-card/50 backdrop-blur-sm overflow-hidden">
-          {activeNote ? (
-            <div className="h-full flex flex-col">
-              <div className="flex items-center gap-2 p-3 border-b border-border/50">
-                <Input
-                  value={activeNote.title}
-                  onChange={e => updateNote({ ...activeNote, title: e.target.value })}
-                  className="border-none bg-transparent text-lg font-bold h-8 focus-visible:ring-0 px-0"
-                  placeholder="Note title..."
-                />
-                <Button
-                  variant="ghost" size="icon" className="h-7 w-7"
-                  onClick={() => updateNote({ ...activeNote, isFavorite: !activeNote.isFavorite })}
-                >
-                  <Star className={`h-4 w-4 ${activeNote.isFavorite ? "fill-primary text-primary" : "text-muted-foreground"}`} />
-                </Button>
-              </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 border-b border-border/30">
-                <Hash className="h-3 w-3 text-muted-foreground" />
-                <Input
-                  value={activeNote.tags.join(", ")}
-                  onChange={e => updateNote({ ...activeNote, tags: e.target.value.split(",").map(s => s.trim()).filter(Boolean) })}
-                  placeholder="Tags (comma separated)"
-                  className="border-none bg-transparent text-xs h-6 focus-visible:ring-0 px-0"
-                />
-                <span className="text-[9px] text-muted-foreground flex items-center gap-1 flex-shrink-0">
-                  <Clock className="h-2.5 w-2.5" />
-                  {new Date(activeNote.updatedAt).toLocaleString()}
-                </span>
-              </div>
-              <Textarea
-                value={showContent ? activeNote.content : "••••••••••••••••••"}
-                onChange={e => showContent && updateNote({ ...activeNote, content: e.target.value })}
-                readOnly={!showContent}
-                placeholder="Start writing your private note..."
-                className="flex-1 border-none rounded-none resize-none focus-visible:ring-0 text-sm leading-relaxed p-4"
-              />
-            </div>
-          ) : (
-            <div className="h-full flex items-center justify-center">
-              <div className="text-center">
-                <Shield className="h-12 w-12 text-muted-foreground/20 mx-auto mb-3" />
-                <p className="text-sm text-muted-foreground">Select a note or create a new one</p>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+      )}
     </div>
   );
 }
