@@ -312,6 +312,7 @@ export const allPages: PageInfo[] = [
   { name: "Sunrise & Sunset", route: "/sunrise-sunset", description: "Real-time sunrise, sunset, dawn, dusk and golden hour data", category: "Tools", accessLevel: "Authenticated", icon: "Sun" },
   { name: "NASA NEO Explorer", route: "/nasa-neo", description: "Browse NASA near-earth asteroids with orbital data and close approaches", category: "Tools", accessLevel: "Authenticated", icon: "Rocket" },
   { name: "Genrenator", route: "/genrenator", description: "Random music genre and story generator powered by Binary Jazz API", category: "Tools", accessLevel: "Authenticated", icon: "Music" },
+  { name: "XBoard Games", route: "/xboard-games", description: "Explore board games with hot rankings, search and details via BoardGameGeek API", category: "Tools", accessLevel: "Authenticated", icon: "Gamepad2" },
 ];
 
 export const pageCategories = [
