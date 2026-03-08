@@ -92,6 +92,7 @@ const docsSections: DocSection[] = [
       { title: "Analytics Dashboard", path: "/docs/optimize/analytics" },
       { title: "Focus Analytics", path: "/docs/optimize/focus-analytics" },
       { title: "Leaderboard & Gamification", path: "/docs/optimize/gamification" },
+      { title: "Streaks & Badges", path: "/docs/optimize/streaks" },
     ],
   },
   {
