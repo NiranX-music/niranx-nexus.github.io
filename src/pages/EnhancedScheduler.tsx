@@ -918,6 +918,21 @@ const EnhancedScheduler = () => {
                   />
                   <Label htmlFor="isRecurring">Recurring Task</Label>
                 </div>
+                {formData.isRecurring && (
+                  <div className="space-y-2">
+                    <Label>Recurrence</Label>
+                    <Select value={(formData as any).recurrenceType || 'weekly'} onValueChange={v => setFormData(prev => ({ ...prev, recurrenceType: v } as any))}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="daily">Daily</SelectItem>
+                        <SelectItem value="weekly">Weekly</SelectItem>
+                        <SelectItem value="biweekly">Bi-Weekly</SelectItem>
+                        <SelectItem value="monthly">Monthly</SelectItem>
+                        <SelectItem value="yearly">Yearly</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
 
