@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search, ExternalLink, Globe, Compass, ArrowLeft, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useEffect as useDocTitle } from "react";
+
 
 interface ExploreLink {
   id: string;
@@ -55,12 +55,7 @@ export default function ExploreAll() {
 
   return (
     <>
-      <Helmet>
-        <title>Explore All from NiranX | Discover NiranX Ecosystem</title>
-        <meta name="description" content="Discover all products, tools, and platforms from NiranX. Explore the complete NiranX ecosystem." />
-      </Helmet>
-
-      <div className="min-h-screen bg-background">
+    
         {/* Hero */}
         <div className="relative overflow-hidden border-b border-border/50">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-accent/10" />
