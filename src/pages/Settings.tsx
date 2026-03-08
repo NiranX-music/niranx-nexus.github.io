@@ -43,7 +43,7 @@ const Settings = () => {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
   const { isVisible, setIsVisible } = useNowPlaying();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const navigate = useNavigate();
   const { isAdmin } = useAdminCheck();
   const { beepEnabled, setBeepEnabled, selectedSound, setSelectedSound, previewSound, availableSounds } = useBeepSound();
