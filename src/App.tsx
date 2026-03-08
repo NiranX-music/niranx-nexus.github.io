@@ -230,6 +230,9 @@ import PublicProfile from "./pages/PublicProfile";
 import PersonalAppLibrary from "./pages/PersonalAppLibrary";
 import XstellarDashboard from "./pages/xstellar/XstellarDashboard";
 import PublishedPage from "./pages/PublishedPage";
+import StudyTimerDashboard from "./pages/StudyTimerDashboard";
+import KnowledgeBaseWiki from "./pages/KnowledgeBaseWiki";
+import StudyPlannerCalendar from "./pages/StudyPlannerCalendar";
 
 // Support Pages
 import AboutUs from "./pages/support/AboutUs";
@@ -566,6 +569,11 @@ const App = () => (
                           {/* Phase 2: AI Intelligence Layer */}
                           <Route path="/ai-quiz-generator" element={<AIQuizGenerator />} />
                           <Route path="/ai-doc-summarizer" element={<AIDocSummarizer />} />
+                          
+                          {/* Phase 5: Education & Learning */}
+                          <Route path="/study-timer-dashboard" element={<StudyTimerDashboard />} />
+                          <Route path="/knowledge-base" element={<KnowledgeBaseWiki />} />
+                          <Route path="/study-planner-calendar" element={<StudyPlannerCalendar />} />
                           
                           {/* Phase 4: Social & Communication */}
                           <Route path="/activity-feed" element={<ActivityFeed />} />

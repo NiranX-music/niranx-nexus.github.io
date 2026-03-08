@@ -191,6 +191,9 @@ const navigationConfig = {
       { title: "Whiteboard", url: "/whiteboard", icon: PenTool },
       { title: "Collaborative Whiteboard", url: "/collaborative-whiteboard", icon: Combine },
       { title: "Mind Maps", url: "/mind-maps", icon: Map },
+      { title: "Timer Dashboard", url: "/study-timer-dashboard", icon: Timer },
+      { title: "Knowledge Base", url: "/knowledge-base", icon: BookOpen },
+      { title: "Weekly Planner", url: "/study-planner-calendar", icon: Calendar },
     ],
   },
   learning: {
