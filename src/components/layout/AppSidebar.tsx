@@ -195,6 +195,7 @@ const navigationConfig = {
       { title: "Quick Notes", url: "/quick-notes", icon: StickyNote },
       { title: "Habit Tracker", url: "/habit-tracker", icon: Repeat },
       { title: "Scheduler", url: "/scheduler", icon: Calendar },
+      { title: "Your Classes", url: "/your-classes", icon: GraduationCap },
       { title: "Auto Study Planner", url: "/auto-study-planner", icon: CalendarClock },
       { title: "Exams", url: "/exams", icon: GraduationCap },
       { title: "Exam Simulator", url: "/exam-simulator", icon: GraduationCap },

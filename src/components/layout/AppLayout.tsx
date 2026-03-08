@@ -6,6 +6,7 @@ import { MobileBottomNav } from "./MobileBottomNav";
 
 import AISolverWidget from "@/components/widgets/AISolverWidget";
 import { EnhancedFooter } from "@/components/niranx/EnhancedFooter";
+import { FloatingCountdown } from "@/components/FloatingCountdown";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { CommandPalette } from "@/components/CommandPalette";
 import { UniversalSearch } from "@/components/UniversalSearch";
