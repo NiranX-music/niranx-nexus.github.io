@@ -204,6 +204,9 @@ export const allPages: PageInfo[] = [
   { name: "XDrop", route: "/xdrop", description: "Quick file sharing & drop zone", category: "Tools", accessLevel: "Authenticated", icon: "Upload" },
   { name: "XMemo", route: "/xmemo", description: "Spaced repetition memory system with SM-2 algorithm", category: "Tools", accessLevel: "Authenticated", icon: "Brain" },
   { name: "XFeed", route: "/xfeed", description: "Curated news and RSS feed reader", category: "Tools", accessLevel: "Authenticated", icon: "Rss" },
+  { name: "XClip", route: "/xclip", description: "Clipboard manager with history, pins, and snippets", category: "Tools", accessLevel: "Authenticated", icon: "Clipboard" },
+  { name: "XMap", route: "/xmap", description: "Visual mind mapping with drag-and-drop nodes", category: "Tools", accessLevel: "Authenticated", icon: "GitBranch" },
+  { name: "XBot", route: "/xbot", description: "Create and chat with custom AI agents", category: "Tools", accessLevel: "Authenticated", icon: "Bot" },
 ];
 
 export const pageCategories = [

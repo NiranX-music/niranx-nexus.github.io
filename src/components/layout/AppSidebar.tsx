@@ -93,6 +93,8 @@ import {
   Bot,
   Hammer,
   Activity,
+  Clipboard,
+  GitBranch,
 } from "lucide-react";
 import {
   Sidebar,
@@ -353,6 +355,9 @@ const navigationConfig = {
       { title: "XDrop", url: "/xdrop", icon: Upload },
       { title: "XMemo", url: "/xmemo", icon: Brain },
       { title: "XFeed", url: "/xfeed", icon: Layers },
+      { title: "XClip", url: "/xclip", icon: Clipboard },
+      { title: "XMap", url: "/xmap", icon: GitBranch },
+      { title: "XBot", url: "/xbot", icon: Bot },
       { title: "Web Search", url: "/web-search", icon: Search },
       { title: "Xmail", url: "/xmail", icon: Mail },
       { title: "Video Player", url: "/video-player", icon: Video },
