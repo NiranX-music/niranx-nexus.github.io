@@ -133,9 +133,9 @@ import { SidebarShortcutEditor } from "@/components/sidebar/SidebarShortcutEdito
 // Navigation Configuration - Organized by category
 const navigationConfig = {
   main: {
-    title: "Main",
+    title: "Command",
     icon: Compass,
-    color: "from-blue-500 to-cyan-500",
+    color: "from-primary to-primary-glow",
     items: [
       { title: "Dashboard", url: "/dashboard", icon: Home },
       { title: "What's New", url: "/whats-new", icon: Bell },
@@ -144,9 +144,9 @@ const navigationConfig = {
     ],
   },
   ai: {
-    title: "AI Hub",
+    title: "AI Core",
     icon: Brain,
-    color: "from-purple-500 to-pink-500",
+    color: "from-accent to-accent-glow",
     items: [
       { title: "XNexus AI", url: "/xnexus-ai", icon: Rocket },
       { title: "Xvibing", url: "/xvibing", icon: Code },
@@ -171,9 +171,9 @@ const navigationConfig = {
     ],
   },
   study: {
-    title: "Study & Focus",
+    title: "Focus Lab",
     icon: Target,
-    color: "from-green-500 to-emerald-500",
+    color: "from-success to-success/80",
     items: [
       { title: "Tasks", url: "/tasks", icon: CheckSquare },
       { title: "Focus Engine", url: "/focus-engine", icon: Timer },
@@ -197,9 +197,9 @@ const navigationConfig = {
     ],
   },
   learning: {
-    title: "Learning",
+    title: "Learn Hub",
     icon: GraduationCap,
-    color: "from-orange-500 to-amber-500",
+    color: "from-warning to-warning/80",
     items: [
       { title: "Course Generator", url: "/course-generator", icon: FileStack },
       { title: "Learning Style Quiz", url: "/learning-style", icon: Brain },
@@ -220,9 +220,9 @@ const navigationConfig = {
     ],
   },
   progress: {
-    title: "Progress",
+    title: "Metrics",
     icon: TrendingUp,
-    color: "from-rose-500 to-red-500",
+    color: "from-destructive to-destructive/80",
     items: [
       { title: "Advanced Dashboard", url: "/advanced-dashboard", icon: BarChart3 },
       { title: "Study Analytics", url: "/study-analytics", icon: BarChart3 },
@@ -238,9 +238,9 @@ const navigationConfig = {
     ],
   },
   tests: {
-    title: "Tests",
+    title: "Test Lab",
     icon: FileText,
-    color: "from-indigo-500 to-violet-500",
+    color: "from-primary/80 to-accent/80",
     items: [
       { title: "Test Hub", url: "/tests", icon: GraduationCap },
       { title: "All Tests", url: "/tests?tab=all-tests", icon: FileText },
@@ -249,9 +249,9 @@ const navigationConfig = {
     ],
   },
   xvibe: {
-    title: "XVibe Music",
+    title: "XVibe",
     icon: Music,
-    color: "from-fuchsia-500 to-purple-500",
+    color: "from-accent to-primary",
     items: [
       { title: "XVibe Home", url: "/xvibe", icon: Music },
       { title: "Browse Music", url: "/xvibe/home", icon: Headphones },
@@ -264,7 +264,7 @@ const navigationConfig = {
   xstage: {
     title: "Xstage",
     icon: FileMusic,
-    color: "from-cyan-500 to-teal-500",
+    color: "from-primary to-success",
     items: [
       { title: "Xstage Home", url: "/xstage", icon: Music },
       { title: "Dashboard", url: "/xstage/app", icon: Home },
@@ -275,9 +275,9 @@ const navigationConfig = {
     ],
   },
   social: {
-    title: "Social",
+    title: "Network",
     icon: Users,
-    color: "from-sky-500 to-blue-500",
+    color: "from-primary/90 to-accent/90",
     items: [
       { title: "Messages", url: "/messages", icon: MessageCircle },
       { title: "Community", url: "/community", icon: MessagesSquare },
@@ -290,9 +290,9 @@ const navigationConfig = {
     ],
   },
   debate: {
-    title: "Debates",
+    title: "Debate Arena",
     icon: MessageCircle,
-    color: "from-amber-500 to-yellow-500",
+    color: "from-warning to-warning/80",
     items: [
       { title: "Debate Hub", url: "/debates", icon: MessageCircle },
       { title: "My Debates", url: "/debates/mine", icon: User },
@@ -301,9 +301,9 @@ const navigationConfig = {
     ],
   },
   files: {
-    title: "Files & Cloud",
+    title: "Data Vault",
     icon: Cloud,
-    color: "from-slate-500 to-gray-500",
+    color: "from-muted-foreground to-muted-foreground/80",
     items: [
       { title: "File Hub", url: "/file-hub", icon: FolderOpen },
       { title: "My Cloud", url: "/my-cloud", icon: Cloud },
@@ -313,9 +313,9 @@ const navigationConfig = {
     ],
   },
   tools: {
-    title: "Tools",
+    title: "Toolkit",
     icon: Workflow,
-    color: "from-zinc-500 to-neutral-500",
+    color: "from-primary/70 to-muted-foreground",
     items: [
       { title: "Integration Hub", url: "/integration-hub", icon: Plug },
       { title: "Browser Extension", url: "/browser-extension-sync", icon: Chrome },
@@ -330,9 +330,9 @@ const navigationConfig = {
     ],
   },
   settings: {
-    title: "Settings",
+    title: "Config",
     icon: Settings,
-    color: "from-gray-500 to-stone-500",
+    color: "from-muted-foreground/80 to-muted-foreground/60",
     items: [
       { title: "Theme Customization", url: "/theme-customization", icon: Palette },
       { title: "Accessibility", url: "/accessibility-settings", icon: Eye },
@@ -345,7 +345,7 @@ const navigationConfig = {
   archive: {
     title: "Archive",
     icon: Archive,
-    color: "from-stone-500 to-neutral-600",
+    color: "from-muted-foreground/60 to-muted-foreground/40",
     items: [
       { title: "Old Pages", url: "/old-pages", icon: Archive },
     ],
