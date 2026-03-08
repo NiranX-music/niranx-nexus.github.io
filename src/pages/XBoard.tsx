@@ -1,19 +1,21 @@
-import { useState, useCallback } from "react";
-import { motion, AnimatePresence, Reorder } from "framer-motion";
+import { useState, useCallback, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus, Trash2, GripVertical, MoreHorizontal, Edit3,
   CheckCircle2, Clock, AlertCircle, Sparkles, LayoutGrid,
-  Calendar, Tag, User
+  Calendar, Tag, User, Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface KanbanCard {
   id: string;
@@ -24,6 +26,8 @@ interface KanbanCard {
   assignee?: string;
   dueDate?: string;
   createdAt: string;
+  columnId: string;
+  position: number;
 }
 
 interface KanbanColumn {
@@ -40,29 +44,19 @@ const PRIORITY_CONFIG = {
   urgent: { label: "Urgent", color: "bg-destructive/20 text-destructive", icon: AlertCircle },
 };
 
-const DEFAULT_COLUMNS: KanbanColumn[] = [
-  { id: "backlog", title: "Backlog", color: "border-muted-foreground/30", cards: [] },
-  {
-    id: "todo", title: "To Do", color: "border-primary/40", cards: [
-      { id: "c1", title: "Research study techniques", description: "Look into active recall and spaced repetition methods", priority: "medium", tags: ["research"], createdAt: new Date().toISOString() },
-      { id: "c2", title: "Create flashcard deck", description: "Biology chapter 5 key terms", priority: "high", tags: ["biology", "flashcards"], dueDate: new Date(Date.now() + 86400000 * 2).toISOString().split("T")[0], createdAt: new Date().toISOString() },
-    ]
-  },
-  {
-    id: "progress", title: "In Progress", color: "border-accent/40", cards: [
-      { id: "c3", title: "Math problem set", description: "Complete exercises 1-20 from chapter 4", priority: "high", tags: ["math"], createdAt: new Date().toISOString() },
-    ]
-  },
-  { id: "review", title: "Review", color: "border-warning/40", cards: [] },
-  {
-    id: "done", title: "Done", color: "border-green-500/40", cards: [
-      { id: "c4", title: "Read chapter 3", description: "History textbook", priority: "low", tags: ["history"], createdAt: new Date().toISOString() },
-    ]
-  },
+const DEFAULT_COLUMNS_META = [
+  { id: "backlog", title: "Backlog", color: "border-muted-foreground/30" },
+  { id: "todo", title: "To Do", color: "border-primary/40" },
+  { id: "progress", title: "In Progress", color: "border-accent/40" },
+  { id: "review", title: "Review", color: "border-warning/40" },
+  { id: "done", title: "Done", color: "border-green-500/40" },
 ];
 
 export default function XBoard() {
-  const [columns, setColumns] = useState<KanbanColumn[]>(DEFAULT_COLUMNS);
+  const { user } = useAuth();
+  const [columns, setColumns] = useState<KanbanColumn[]>([]);
+  const [boardId, setBoardId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const [draggedCard, setDraggedCard] = useState<{ card: KanbanCard; fromCol: string } | null>(null);
   const [editingCard, setEditingCard] = useState<KanbanCard | null>(null);
   const [editingColId, setEditingColId] = useState<string | null>(null);
@@ -72,30 +66,114 @@ export default function XBoard() {
   const [showNewCol, setShowNewCol] = useState(false);
   const [filterTag, setFilterTag] = useState<string | null>(null);
 
+  // Load board from database
+  useEffect(() => {
+    if (!user) { setLoading(false); return; }
+    const loadBoard = async () => {
+      try {
+        // Get or create board
+        let { data: boards } = await supabase
+          .from("xboard_boards")
+          .select("*")
+          .eq("user_id", user.id)
+          .limit(1);
+
+        let board = boards?.[0];
+        if (!board) {
+          const { data: newBoard } = await supabase
+            .from("xboard_boards")
+            .insert({ user_id: user.id, title: "My Board", columns: DEFAULT_COLUMNS_META })
+            .select()
+            .single();
+          board = newBoard;
+        }
+
+        if (!board) { setLoading(false); return; }
+        setBoardId(board.id);
+
+        const columnsMeta = (board.columns as any[]) || DEFAULT_COLUMNS_META;
+
+        // Load cards
+        const { data: cards } = await supabase
+          .from("xboard_cards")
+          .select("*")
+          .eq("board_id", board.id)
+          .order("position", { ascending: true });
+
+        const columnsWithCards: KanbanColumn[] = columnsMeta.map((col: any) => ({
+          id: col.id,
+          title: col.title,
+          color: col.color,
+          cards: (cards || [])
+            .filter((c: any) => c.column_id === col.id)
+            .map((c: any) => ({
+              id: c.id,
+              title: c.title,
+              description: c.description || "",
+              priority: c.priority as KanbanCard["priority"],
+              tags: c.tags || [],
+              dueDate: c.due_date,
+              createdAt: c.created_at,
+              columnId: c.column_id,
+              position: c.position,
+            })),
+        }));
+
+        setColumns(columnsWithCards);
+      } catch (err) {
+        console.error("Error loading board:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadBoard();
+  }, [user]);
+
+  // Save columns metadata to board
+  const saveColumnsMeta = useCallback(async (cols: KanbanColumn[]) => {
+    if (!boardId) return;
+    const meta = cols.map(c => ({ id: c.id, title: c.title, color: c.color }));
+    await supabase.from("xboard_boards").update({ columns: meta }).eq("id", boardId);
+  }, [boardId]);
+
   const allTags = Array.from(new Set(columns.flatMap(c => c.cards.flatMap(card => card.tags))));
   const totalCards = columns.reduce((s, c) => s + c.cards.length, 0);
 
-  const addCard = (colId: string) => {
-    if (!newCardTitle.trim()) return;
-    const card: KanbanCard = {
-      id: `card-${Date.now()}`,
+  const addCard = async (colId: string) => {
+    if (!newCardTitle.trim() || !boardId || !user) return;
+    const position = columns.find(c => c.id === colId)?.cards.length || 0;
+
+    const { data, error } = await supabase.from("xboard_cards").insert({
+      board_id: boardId,
+      user_id: user.id,
       title: newCardTitle.trim(),
       description: "",
+      column_id: colId,
       priority: "medium",
       tags: [],
-      createdAt: new Date().toISOString(),
+      position,
+    }).select().single();
+
+    if (error) { toast({ title: "Error adding card", variant: "destructive" }); return; }
+
+    const card: KanbanCard = {
+      id: data.id, title: data.title, description: data.description || "",
+      priority: data.priority as KanbanCard["priority"], tags: data.tags || [],
+      dueDate: data.due_date, createdAt: data.created_at, columnId: data.column_id, position: data.position,
     };
+
     setColumns(prev => prev.map(c => c.id === colId ? { ...c, cards: [...c.cards, card] } : c));
     setNewCardTitle("");
     setAddingToCol(null);
     toast({ title: "Card added" });
   };
 
-  const deleteCard = (colId: string, cardId: string) => {
+  const deleteCard = async (colId: string, cardId: string) => {
+    await supabase.from("xboard_cards").delete().eq("id", cardId);
     setColumns(prev => prev.map(c => c.id === colId ? { ...c, cards: c.cards.filter(card => card.id !== cardId) } : c));
   };
 
-  const moveCard = (cardId: string, fromColId: string, toColId: string) => {
+  const moveCard = async (cardId: string, fromColId: string, toColId: string) => {
     if (fromColId === toColId) return;
     let movedCard: KanbanCard | null = null;
     setColumns(prev => {
@@ -109,25 +187,66 @@ export default function XBoard() {
       if (!movedCard) return prev;
       return updated.map(c => c.id === toColId ? { ...c, cards: [...c.cards, movedCard!] } : c);
     });
+    await supabase.from("xboard_cards").update({ column_id: toColId }).eq("id", cardId);
   };
 
-  const updateCard = (colId: string, updated: KanbanCard) => {
+  const updateCard = async (colId: string, updated: KanbanCard) => {
+    await supabase.from("xboard_cards").update({
+      title: updated.title,
+      description: updated.description,
+      priority: updated.priority,
+      tags: updated.tags,
+      due_date: updated.dueDate || null,
+    }).eq("id", updated.id);
+
     setColumns(prev => prev.map(c => c.id === colId ? { ...c, cards: c.cards.map(card => card.id === updated.id ? updated : card) } : c));
     setEditingCard(null);
     setEditingColId(null);
   };
 
-  const addColumn = () => {
+  const addColumn = async () => {
     if (!newColTitle.trim()) return;
-    setColumns(prev => [...prev, { id: `col-${Date.now()}`, title: newColTitle.trim(), color: "border-primary/30", cards: [] }]);
+    const newCol: KanbanColumn = { id: `col-${Date.now()}`, title: newColTitle.trim(), color: "border-primary/30", cards: [] };
+    const updated = [...columns, newCol];
+    setColumns(updated);
     setNewColTitle("");
     setShowNewCol(false);
+    await saveColumnsMeta(updated);
   };
 
-  const deleteColumn = (colId: string) => {
-    setColumns(prev => prev.filter(c => c.id !== colId));
+  const deleteColumn = async (colId: string) => {
+    // Delete all cards in the column
+    const col = columns.find(c => c.id === colId);
+    if (col) {
+      for (const card of col.cards) {
+        await supabase.from("xboard_cards").delete().eq("id", card.id);
+      }
+    }
+    const updated = columns.filter(c => c.id !== colId);
+    setColumns(updated);
+    await saveColumnsMeta(updated);
     toast({ title: "Column removed" });
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Card><CardContent className="p-8 text-center">
+          <LayoutGrid className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+          <p className="text-lg font-medium">Sign in to use XBoard</p>
+          <p className="text-sm text-muted-foreground mt-1">Your boards sync across devices when signed in.</p>
+        </CardContent></Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -138,7 +257,7 @@ export default function XBoard() {
         </div>
         <div>
           <h1 className="text-2xl font-bold tracking-tight">XBoard</h1>
-          <p className="text-xs text-muted-foreground">{totalCards} cards · {columns.length} columns</p>
+          <p className="text-xs text-muted-foreground">{totalCards} cards · {columns.length} columns · Cloud synced</p>
         </div>
         <div className="ml-auto flex gap-2 flex-wrap">
           {filterTag && (
@@ -214,7 +333,6 @@ export default function XBoard() {
               }
             }}
           >
-            {/* Column Header */}
             <div className="flex items-center justify-between p-3 border-b border-border/50">
               <div className="flex items-center gap-2">
                 <h3 className="font-semibold text-sm">{col.title}</h3>
@@ -231,7 +349,6 @@ export default function XBoard() {
               </DropdownMenu>
             </div>
 
-            {/* Cards */}
             <div className="flex-1 p-2 space-y-2 overflow-y-auto max-h-[calc(100vh-300px)]">
               <AnimatePresence>
                 {col.cards
@@ -279,7 +396,6 @@ export default function XBoard() {
                   })}
               </AnimatePresence>
 
-              {/* Quick Add */}
               {addingToCol === col.id ? (
                 <div className="space-y-1.5">
                   <Input autoFocus placeholder="Card title..." value={newCardTitle} onChange={e => setNewCardTitle(e.target.value)} onKeyDown={e => { if (e.key === "Enter") addCard(col.id); if (e.key === "Escape") setAddingToCol(null); }} className="text-xs h-8" />
@@ -297,7 +413,6 @@ export default function XBoard() {
           </motion.div>
         ))}
 
-        {/* Add Column Placeholder */}
         <div className="flex-shrink-0 w-72 rounded-xl border-2 border-dashed border-muted-foreground/20 flex items-center justify-center cursor-pointer hover:border-primary/30 transition-colors min-h-[200px]" onClick={() => setShowNewCol(true)}>
           <div className="text-center">
             <Plus className="h-6 w-6 text-muted-foreground/40 mx-auto mb-1" />
