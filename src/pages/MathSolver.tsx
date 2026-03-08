@@ -52,11 +52,16 @@ Be detailed in each step. Show all work. If it's a word problem, identify the va
 
       let functionName = 'ai-chat';
       if (provider === 'openrouter') functionName = 'openrouter-chat';
+      else if (provider === 'groq') functionName = 'groq-chat';
+      else if (provider === 'deepseek') functionName = 'deepseek-chat';
+      else if (provider === 'aiml') functionName = 'aiml-chat';
+      else if (provider === 'perplexity') functionName = 'perplexity-chat';
 
       const { data, error } = await supabase.functions.invoke(functionName, {
         body: {
           messages: [{ role: 'user', content: prompt }],
           model: model,
+          stream: false,
         },
       });
 
