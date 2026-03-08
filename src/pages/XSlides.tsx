@@ -3,6 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Presentation, Plus, Trash2, Loader2 } from 'lucide-react';
+import ExportMenu from '@/components/xoffice/ExportMenu';
+import { exportSlidesAsPDF, exportSlidesAsPPTX } from '@/utils/exportUtils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -207,6 +209,10 @@ export default function XSlides() {
             <div className="flex-1 flex flex-col">
               <div className="flex items-center gap-2 px-3 py-1.5 border-b border-border">
                 <Input value={title} onChange={(e) => setTitle(e.target.value)} className="border-none font-semibold bg-transparent focus-visible:ring-0 px-0 flex-1" />
+                <ExportMenu options={[
+                  { label: 'PDF', icon: '📄', onClick: () => exportSlidesAsPDF(slides, title) },
+                  { label: 'PPTX (PowerPoint)', icon: '📽️', onClick: () => exportSlidesAsPPTX(slides, title) },
+                ]} />
               </div>
               <SlideToolbar onAddText={addText} onAddImage={addImage} onAddShape={addShape} onChangeBackground={changeBg} onPresent={() => setPresenting(true)} />
               <div ref={containerRef} className="flex-1 flex items-center justify-center bg-muted/30 overflow-hidden">

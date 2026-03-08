@@ -3,6 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Table, Plus, Trash2, Download, Upload, BarChart3, Loader2 } from 'lucide-react';
+import ExportMenu from '@/components/xoffice/ExportMenu';
+import { exportSheetAsCSV, exportSheetAsXLSX } from '@/utils/exportUtils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -162,7 +164,10 @@ export default function XSheets() {
           <div className="flex-1 flex flex-col">
             <div className="flex items-center gap-2 px-3 py-1.5 border-b border-border">
               <Input value={title} onChange={(e) => setTitle(e.target.value)} className="border-none font-semibold bg-transparent focus-visible:ring-0 px-0 flex-1" />
-              <Button variant="ghost" size="sm" onClick={exportCSV}><Download className="h-4 w-4" /></Button>
+              <ExportMenu options={[
+                { label: 'CSV', icon: '📊', onClick: () => exportSheetAsCSV(sheetData, title) },
+                { label: 'XLSX (Excel)', icon: '📗', onClick: () => exportSheetAsXLSX(sheetData, title) },
+              ]} />
               <label className="cursor-pointer"><Upload className="h-4 w-4 text-muted-foreground hover:text-foreground" /><input type="file" accept=".csv" onChange={importCSV} className="hidden" /></label>
               <Button variant="ghost" size="sm" onClick={() => setShowChart(true)}><BarChart3 className="h-4 w-4" /></Button>
             </div>
