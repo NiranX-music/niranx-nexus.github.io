@@ -308,6 +308,7 @@ export const allPages: PageInfo[] = [
   { name: "REST API Docs", route: "/niranx/rest-api-docs", description: "Complete REST API documentation with endpoints and examples", category: "Tools", accessLevel: "Authenticated", icon: "BookOpen" },
   { name: "Scryfall MTG Search", route: "/niranx/scryfall-search", description: "Search Magic: The Gathering cards via Scryfall API", category: "Tools", accessLevel: "Authenticated", icon: "Sparkles" },
   { name: "SpaceX Dashboard", route: "/niranx/spacex", description: "Real-time SpaceX launch, rocket, capsule, starlink and launchpad data", category: "Tools", accessLevel: "Authenticated", icon: "Rocket" },
+  { name: "XGames", route: "/xgames", description: "Play HTML5 games powered by GameDistribution", category: "Progress", accessLevel: "Authenticated", icon: "Gamepad2" },
 ];
 
 export const pageCategories = [
