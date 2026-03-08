@@ -416,6 +416,42 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_credits: {
+        Row: {
+          bonus_credits: number
+          created_at: string | null
+          credits_remaining: number
+          credits_used_today: number
+          id: string
+          last_claim_date: string | null
+          last_reset_date: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          bonus_credits?: number
+          created_at?: string | null
+          credits_remaining?: number
+          credits_used_today?: number
+          id?: string
+          last_claim_date?: string | null
+          last_reset_date?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          bonus_credits?: number
+          created_at?: string | null
+          credits_remaining?: number
+          credits_used_today?: number
+          id?: string
+          last_claim_date?: string | null
+          last_reset_date?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_generations: {
         Row: {
           cover_image_url: string | null
@@ -7581,6 +7617,65 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_codes: {
+        Row: {
+          code: string
+          created_at: string | null
+          id: string
+          user_id: string
+          uses: number
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          id?: string
+          user_id: string
+          uses?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          id?: string
+          user_id?: string
+          uses?: number
+        }
+        Relationships: []
+      }
+      referral_uses: {
+        Row: {
+          bonus_credits: number
+          created_at: string | null
+          id: string
+          referral_code_id: string
+          referred_user_id: string
+          referrer_user_id: string
+        }
+        Insert: {
+          bonus_credits?: number
+          created_at?: string | null
+          id?: string
+          referral_code_id: string
+          referred_user_id: string
+          referrer_user_id: string
+        }
+        Update: {
+          bonus_credits?: number
+          created_at?: string | null
+          id?: string
+          referral_code_id?: string
+          referred_user_id?: string
+          referrer_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_uses_referral_code_id_fkey"
+            columns: ["referral_code_id"]
+            isOneToOne: false
+            referencedRelation: "referral_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reward_tiers: {
         Row: {
           bonus_items: Json | null
@@ -13925,6 +14020,7 @@ export type Database = {
       generate_class_code: { Args: never; Returns: string }
       generate_email_slug: { Args: never; Returns: string }
       generate_mailbox_slug: { Args: never; Returns: string }
+      generate_referral_code: { Args: never; Returns: string }
       generate_share_token: { Args: never; Returns: string }
       generate_theme_share_token: { Args: never; Returns: string }
       get_admin_feedback_stats: {
