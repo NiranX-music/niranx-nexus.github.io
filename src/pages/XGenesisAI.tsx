@@ -230,8 +230,8 @@ export default function ScitelyAI() {
             <Sparkles className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-xl font-bold">Scitely AI</h1>
-            <p className="text-xs text-muted-foreground">50+ Free AI Models — Unlimited Access</p>
+            <h1 className="text-xl font-bold">XGenesis AI</h1>
+            <p className="text-xs text-muted-foreground">50+ Free AI Models — Unlimited Access (Powered by Scitely)</p>
           </div>
         </div>
 
