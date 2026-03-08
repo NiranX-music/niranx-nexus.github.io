@@ -207,6 +207,8 @@ const ActivityLog = lazy(() => import("./pages/security/ActivityLog"));
 const ExploreSpaces = lazy(() => import("./pages/ExploreSpaces"));
 const ExploreAll = lazy(() => import("./pages/ExploreAll"));
 const PasswordManager = lazy(() => import("./pages/PasswordManager"));
+const PuterChat = lazy(() => import("./pages/PuterChat"));
+const UnifiedAIHistory = lazy(() => import("./pages/UnifiedAIHistory"));
 const AIQuizGenerator = lazy(() => import("./pages/AIQuizGenerator"));
 const AIDocSummarizer = lazy(() => import("./pages/AIDocSummarizer"));
 const ActivityFeed = lazy(() => import("./pages/ActivityFeed"));
@@ -761,6 +763,8 @@ const App = () => (
                           <Route path="/weather" element={<Weather />} />
                           <Route path="/groq-chat" element={<GroqChat />} />
                           <Route path="/groq-chat-history" element={<GroqChatHistory />} />
+                          <Route path="/puter-chat" element={<PuterChat />} />
+                          <Route path="/unified-ai-history" element={<UnifiedAIHistory />} />
                           <Route path="/password-manager" element={<PasswordManager />} />
                           
                           {/* Phase 2: AI Intelligence Layer */}

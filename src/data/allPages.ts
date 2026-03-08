@@ -28,6 +28,8 @@ export const allPages: PageInfo[] = [
   { name: "AI Solver", route: "/niranx/ai-solver", description: "AI homework solver with image support", category: "AI Corner", accessLevel: "Authenticated", icon: "Brain" },
   { name: "Groq Chat", route: "/niranx/groq-chat", description: "Fast AI chat with Groq models", category: "AI Corner", accessLevel: "Authenticated", icon: "Zap" },
   { name: "Groq Chat History", route: "/niranx/groq-chat-history", description: "Groq conversation history", category: "AI Corner", accessLevel: "Authenticated", icon: "ScrollText" },
+  { name: "Puter AI Chat", route: "/niranx/puter-chat", description: "500+ free AI models — GPT-5, Claude, Gemini & more", category: "AI Corner", accessLevel: "Authenticated", icon: "Sparkles" },
+  { name: "Unified AI History", route: "/niranx/unified-ai-history", description: "All AI chat history across providers", category: "AI Corner", accessLevel: "Authenticated", icon: "History" },
   { name: "XGenesis AI", route: "/niranx/xgenesis-ai", description: "50+ free AI models — chat, image, video, audio", category: "AI Corner", accessLevel: "Authenticated", icon: "Sparkles" },
   { name: "PDF Summarizer", route: "/niranx/pdf-summarizer", description: "AI-powered PDF summarization", category: "AI Corner", accessLevel: "Authenticated", icon: "FileText" },
   { name: "AI Library", route: "/niranx/ai-library", description: "Saved AI generations", category: "AI Corner", accessLevel: "Authenticated", icon: "Archive" },
