@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Camera, ArrowRight, ArrowLeft, Sparkles, User, Shield, Check } from "lucide-react";
+import { Camera, ArrowRight, ArrowLeft, Sparkles, User, Shield, Check, Mail, MessageCircle, Calendar, HardDrive, SkipForward } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const REFERRAL_OPTIONS = [
@@ -24,7 +24,7 @@ const REFERRAL_OPTIONS = [
   "Other",
 ];
 
-const STEPS = ["Profile", "Username", "Photo", "Source", "Terms"];
+const STEPS = ["Profile", "Username", "Photo", "Source", "Terms", "Xmail", "XFlow", "XOrbit", "Drive"];
 
 export default function WelcomeSetup() {
   const { user } = useAuth();
@@ -42,6 +42,29 @@ export default function WelcomeSetup() {
     agreedPrivacy: false,
   });
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [setupStatus, setSetupStatus] = useState({
+    xmail: false,
+    xflow: false,
+    xorbit: false,
+    drive: false,
+  });
+
+  // Redirect if already completed onboarding
+  useEffect(() => {
+    const checkOnboarding = async () => {
+      if (user) {
+        const { data } = await supabase
+          .from("profiles")
+          .select("onboarding_completed")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (data?.onboarding_completed) {
+          navigate("/niranx/dashboard");
+        }
+      }
+    };
+    checkOnboarding();
+  }, [user, navigate]);
 
   const checkUsername = async (username: string) => {
     if (username.length < 3) { setUsernameAvailable(null); return; }
@@ -93,9 +116,13 @@ export default function WelcomeSetup() {
       case 2: return true;
       case 3: return !!formData.referralSource;
       case 4: return formData.agreedTerms && formData.agreedPrivacy;
+      // Steps 5-8 are optional, always can proceed
+      case 5: case 6: case 7: case 8: return true;
       default: return false;
     }
   };
+
+  const isOptionalStep = step >= 5;
 
   const renderStep = () => {
     switch (step) {
@@ -165,7 +192,7 @@ export default function WelcomeSetup() {
                   </AvatarFallback>
                 </Avatar>
                 <div className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                  <Camera className="w-8 h-8 text-white" />
+                  <Camera className="w-8 h-8 text-foreground" />
                 </div>
               </div>
               <input
@@ -237,6 +264,118 @@ export default function WelcomeSetup() {
             </div>
           </div>
         );
+
+      // --- Optional Connection Steps ---
+      case 5:
+        return (
+          <div className="space-y-4">
+            <div className="text-center mb-6">
+              <Mail className="w-12 h-12 mx-auto text-primary mb-2" />
+              <h3 className="text-xl font-bold">Set Up Xmail</h3>
+              <p className="text-muted-foreground text-sm">Create your @niranx.com email address</p>
+            </div>
+            {setupStatus.xmail ? (
+              <div className="text-center p-4 rounded-xl bg-green-500/10 border border-green-500/20">
+                <Check className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                <p className="text-sm font-medium text-green-600">Xmail created successfully!</p>
+              </div>
+            ) : (
+              <div className="text-center space-y-3">
+                <p className="text-sm text-muted-foreground">You can create your Xmail account now or do it later from the Mailbox page.</p>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    navigate("/niranx/mailbox");
+                  }}
+                  className="gap-2"
+                >
+                  <Mail className="w-4 h-4" /> Create Xmail Account
+                </Button>
+              </div>
+            )}
+          </div>
+        );
+      case 6:
+        return (
+          <div className="space-y-4">
+            <div className="text-center mb-6">
+              <MessageCircle className="w-12 h-12 mx-auto text-primary mb-2" />
+              <h3 className="text-xl font-bold">Set Up XFlow</h3>
+              <p className="text-muted-foreground text-sm">Create your XFlow social profile</p>
+            </div>
+            {setupStatus.xflow ? (
+              <div className="text-center p-4 rounded-xl bg-green-500/10 border border-green-500/20">
+                <Check className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                <p className="text-sm font-medium text-green-600">XFlow profile created!</p>
+              </div>
+            ) : (
+              <div className="text-center space-y-3">
+                <p className="text-sm text-muted-foreground">Create your XFlow social profile to connect with others.</p>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate("/niranx/xflow")}
+                  className="gap-2"
+                >
+                  <MessageCircle className="w-4 h-4" /> Set Up XFlow Profile
+                </Button>
+              </div>
+            )}
+          </div>
+        );
+      case 7:
+        return (
+          <div className="space-y-4">
+            <div className="text-center mb-6">
+              <Calendar className="w-12 h-12 mx-auto text-primary mb-2" />
+              <h3 className="text-xl font-bold">XOrbit Calendar</h3>
+              <p className="text-muted-foreground text-sm">Connect your calendar for scheduling</p>
+            </div>
+            {setupStatus.xorbit ? (
+              <div className="text-center p-4 rounded-xl bg-green-500/10 border border-green-500/20">
+                <Check className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                <p className="text-sm font-medium text-green-600">XOrbit Calendar connected!</p>
+              </div>
+            ) : (
+              <div className="text-center space-y-3">
+                <p className="text-sm text-muted-foreground">Set up XOrbit to manage your schedule and classes.</p>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate("/niranx/xorbit")}
+                  className="gap-2"
+                >
+                  <Calendar className="w-4 h-4" /> Open XOrbit
+                </Button>
+              </div>
+            )}
+          </div>
+        );
+      case 8:
+        return (
+          <div className="space-y-4">
+            <div className="text-center mb-6">
+              <HardDrive className="w-12 h-12 mx-auto text-primary mb-2" />
+              <h3 className="text-xl font-bold">Google Drive</h3>
+              <p className="text-muted-foreground text-sm">Connect Google Drive for file access</p>
+            </div>
+            {setupStatus.drive ? (
+              <div className="text-center p-4 rounded-xl bg-green-500/10 border border-green-500/20">
+                <Check className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                <p className="text-sm font-medium text-green-600">Google Drive connected!</p>
+              </div>
+            ) : (
+              <div className="text-center space-y-3">
+                <p className="text-sm text-muted-foreground">Link your Google Drive to access files directly from NiranX.</p>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate("/niranx/google-drive")}
+                  className="gap-2"
+                >
+                  <HardDrive className="w-4 h-4" /> Connect Google Drive
+                </Button>
+              </div>
+            )}
+          </div>
+        );
     }
   };
 
@@ -248,15 +387,21 @@ export default function WelcomeSetup() {
             <Sparkles className="w-8 h-8 text-primary" />
           </div>
           <CardTitle className="text-2xl">Welcome to NiranX Universe</CardTitle>
-          <CardDescription>Let's set up your profile — Step {step + 1} of {STEPS.length}</CardDescription>
+          <CardDescription>
+            {isOptionalStep
+              ? `Optional Setup — Step ${step + 1} of ${STEPS.length}`
+              : `Let's set up your profile — Step ${step + 1} of ${STEPS.length}`
+            }
+          </CardDescription>
           {/* Progress dots */}
-          <div className="flex justify-center gap-2 pt-3">
-            {STEPS.map((_, i) => (
+          <div className="flex justify-center gap-1.5 pt-3 flex-wrap">
+            {STEPS.map((label, i) => (
               <div
                 key={i}
-                className={`w-2.5 h-2.5 rounded-full transition-all ${
-                  i === step ? "bg-primary scale-125" : i < step ? "bg-primary/50" : "bg-muted"
+                className={`w-2 h-2 rounded-full transition-all ${
+                  i === step ? "bg-primary scale-125" : i < step ? "bg-primary/50" : i >= 5 ? "bg-muted/50" : "bg-muted"
                 }`}
+                title={label}
               />
             ))}
           </div>
@@ -286,7 +431,7 @@ export default function WelcomeSetup() {
                 disabled={!canProceed()}
                 className="flex-1 gap-2"
               >
-                Next <ArrowRight className="w-4 h-4" />
+                {isOptionalStep ? "Next" : "Next"} <ArrowRight className="w-4 h-4" />
               </Button>
             ) : (
               <Button
@@ -299,9 +444,34 @@ export default function WelcomeSetup() {
             )}
           </div>
 
-          {step === 2 && (
-            <Button variant="ghost" size="sm" className="w-full text-muted-foreground" onClick={() => setStep(3)}>
-              Skip for now
+          {/* Skip button for optional steps and photo step */}
+          {(step === 2 || isOptionalStep) && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full text-muted-foreground gap-2"
+              onClick={() => {
+                if (step === STEPS.length - 1) {
+                  handleComplete();
+                } else {
+                  setStep(s => s + 1);
+                }
+              }}
+            >
+              <SkipForward className="w-3.5 h-3.5" />
+              {step === STEPS.length - 1 ? "Skip & Finish" : "Skip for now"}
+            </Button>
+          )}
+
+          {/* Skip all optional steps shortcut */}
+          {step === 5 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full text-muted-foreground"
+              onClick={handleComplete}
+            >
+              Skip all optional steps & finish
             </Button>
           )}
         </CardContent>
