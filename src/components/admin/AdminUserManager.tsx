@@ -90,9 +90,9 @@ export function AdminUserManager() {
   const updateRole = async (userId: string, role: string, action: "add" | "remove") => {
     try {
       if (action === "add") {
-        await supabase.from("user_roles").insert({ user_id: userId, role });
+        await supabase.from("user_roles").insert({ user_id: userId, role: role as any });
       } else {
-        await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", role);
+        await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", role as any);
       }
       toast({ title: "Role updated", description: `Role ${action === "add" ? "added" : "removed"} successfully` });
       loadUsers();
