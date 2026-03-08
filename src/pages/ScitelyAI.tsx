@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, Send, Image as ImageIcon, MessageCircle, Sparkles, Upload, X, Eye, Download, Copy, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Helmet } from "react-helmet";
+
 
 const TEXT_MODELS_COMMUNITY = [
   { id: "deepseek-v3.2", name: "DeepSeek V3.2", ctx: "128K", desc: "Latest with enhanced reasoning" },
@@ -223,15 +223,10 @@ export default function ScitelyAI() {
 
   return (
     <>
-      <Helmet>
-        <title>Scitely AI — Free Unlimited AI Models | NiranX</title>
-        <meta name="description" content="Access 50+ frontier AI models for free with Scitely. Chat, generate images, and more with DeepSeek, Qwen, Kimi, and more." />
-      </Helmet>
-
       <div className="space-y-4">
         {/* Header */}
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center">
+          <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
             <Sparkles className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
