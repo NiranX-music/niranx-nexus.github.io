@@ -207,6 +207,10 @@ export const allPages: PageInfo[] = [
   { name: "XClip", route: "/xclip", description: "Clipboard manager with history, pins, and snippets", category: "Tools", accessLevel: "Authenticated", icon: "Clipboard" },
   { name: "XMap", route: "/xmap", description: "Visual mind mapping with drag-and-drop nodes", category: "Tools", accessLevel: "Authenticated", icon: "GitBranch" },
   { name: "XBot", route: "/xbot", description: "Create and chat with custom AI agents", category: "Tools", accessLevel: "Authenticated", icon: "Bot" },
+
+  // Nexus Portal
+  { name: "Nexus Portal", route: "/nexus", description: "Gateway to all NiranX portals and curated links", category: "Nexus", accessLevel: "Public", icon: "Globe" },
+  { name: "Nexus Category", route: "/nexus/:categorySlug", description: "Individual Nexus category with curated links and guides", category: "Nexus", accessLevel: "Public", icon: "Folder" },
 ];
 
 export const pageCategories = [
