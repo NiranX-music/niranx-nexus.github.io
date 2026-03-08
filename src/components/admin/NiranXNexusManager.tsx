@@ -289,6 +289,48 @@ export function NiranXNexusManager() {
           </Table>
         </>
       )}
+
+      {activeTab === 'submissions' && (
+        <>
+          <h3 className="text-lg font-semibold">User Submissions</h3>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>URL</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {submissions.map(sub => (
+                <TableRow key={sub.id}>
+                  <TableCell className="font-medium">{sub.name}</TableCell>
+                  <TableCell><a href={sub.url} target="_blank" rel="noopener" className="text-primary underline truncate max-w-[200px] block">{sub.url}</a></TableCell>
+                  <TableCell>{categories.find(c => c.id === sub.category_id)?.name || '—'}</TableCell>
+                  <TableCell>
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${sub.status === 'pending' ? 'bg-yellow-500/20 text-yellow-500' : sub.status === 'approved' ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}`}>
+                      {sub.status}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    {sub.status === 'pending' && (
+                      <div className="flex gap-1">
+                        <Button size="sm" variant="outline" className="text-green-500" onClick={() => approveSubmission(sub)}>Approve</Button>
+                        <Button size="sm" variant="outline" className="text-red-500" onClick={() => rejectSubmission(sub.id)}>Reject</Button>
+                      </div>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+              {submissions.length === 0 && (
+                <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-8">No submissions yet</TableCell></TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </>
+      )}
     </div>
   );
 }
