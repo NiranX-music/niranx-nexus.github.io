@@ -195,6 +195,7 @@ const GroqChatHistory = lazy(() => import("./pages/GroqChatHistory"));
 const DeepSeekChat = lazy(() => import("./pages/DeepSeekChat"));
 const LovableImageGen = lazy(() => import("./pages/LovableImageGen"));
 const PublishedContent = lazy(() => import("./pages/PublishedContent"));
+const PublishedSong = lazy(() => import("./pages/PublishedSong"));
 const ListedSongs = lazy(() => import("./pages/ListedSongs"));
 const Mailbox = lazy(() => import("./pages/Mailbox"));
 const XmailProfile = lazy(() => import("./pages/XmailProfile"));
