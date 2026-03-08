@@ -278,6 +278,8 @@ const navigationConfig = {
     items: [
       { title: "Messages", url: "/messages", icon: MessageCircle },
       { title: "Community", url: "/community", icon: MessagesSquare },
+      { title: "Community Forums", url: "/forums", icon: MessagesSquare },
+      { title: "Activity Feed", url: "/activity-feed", icon: TrendingUp },
       { title: "Study Guilds", url: "/guilds", icon: Shield },
       { title: "Blogs", url: "/blogs", icon: BookOpen },
       { title: "XFlow Home", url: "/xflow", icon: Users },
