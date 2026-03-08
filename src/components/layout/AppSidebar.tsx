@@ -98,6 +98,9 @@ import {
   Keyboard,
   Box,
   Sun,
+  Briefcase,
+  Presentation,
+  Table,
 } from "lucide-react";
 import {
   Sidebar,
