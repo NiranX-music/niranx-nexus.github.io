@@ -52,12 +52,14 @@ export function NiranXNexusManager() {
   });
 
   const fetchData = async () => {
-    const [catsRes, linksRes] = await Promise.all([
+    const [catsRes, linksRes, subsRes] = await Promise.all([
       supabase.from('nexus_categories').select('*').order('display_order'),
       supabase.from('nexus_links').select('*').order('display_order'),
+      supabase.from('nexus_link_submissions').select('*').order('created_at', { ascending: false }),
     ]);
     if (catsRes.data) setCategories(catsRes.data);
     if (linksRes.data) setLinks(linksRes.data);
+    if (subsRes.data) setSubmissions(subsRes.data);
     setIsLoading(false);
   };
 
