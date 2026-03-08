@@ -266,7 +266,20 @@ const NasaNeoExplorer = lazy(() => import("./pages/NasaNeoExplorer"));
 const Genrenator = lazy(() => import("./pages/Genrenator"));
 const XBoardGames = lazy(() => import("./pages/XBoardGames"));
 const XAPIExplorer = lazy(() => import("./pages/XAPIExplorer"));
-// API Explorer hub
+const XApiSpaceScience = lazy(() => import("./pages/XApiSpaceScience"));
+const XApiAnimals = lazy(() => import("./pages/XApiAnimals"));
+const XApiFunRandom = lazy(() => import("./pages/XApiFunRandom"));
+const XApiFoodDrink = lazy(() => import("./pages/XApiFoodDrink"));
+const XApiFinance = lazy(() => import("./pages/XApiFinance"));
+const XApiWeatherGeo = lazy(() => import("./pages/XApiWeatherGeo"));
+const XApiMusicMedia = lazy(() => import("./pages/XApiMusicMedia"));
+const XApiGames = lazy(() => import("./pages/XApiGames"));
+const XApiArtCulture = lazy(() => import("./pages/XApiArtCulture"));
+const XApiBooksEducation = lazy(() => import("./pages/XApiBooksEducation"));
+const XApiTechDev = lazy(() => import("./pages/XApiTechDev"));
+const XApiSports = lazy(() => import("./pages/XApiSports"));
+const XApiGovernment = lazy(() => import("./pages/XApiGovernment"));
+const XApiHealth = lazy(() => import("./pages/XApiHealth"));
 
 const AboutUs = lazy(() => import("./pages/support/AboutUs"));
 const Careers = lazy(() => import("./pages/support/Careers"));
