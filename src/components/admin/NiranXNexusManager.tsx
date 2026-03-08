@@ -117,6 +117,28 @@ export function NiranXNexusManager() {
     fetchData();
   };
 
+  const approveSubmission = async (sub: any) => {
+    // Add to nexus_links
+    await supabase.from('nexus_links').insert({
+      category_id: sub.category_id,
+      name: sub.name,
+      url: sub.url,
+      description: sub.description,
+      image_url: sub.image_url,
+      display_order: 999,
+      is_visible: true,
+    });
+    await supabase.from('nexus_link_submissions').update({ status: 'approved', reviewed_at: new Date().toISOString() }).eq('id', sub.id);
+    toast.success('Approved and added to Nexus!');
+    fetchData();
+  };
+
+  const rejectSubmission = async (id: string) => {
+    await supabase.from('nexus_link_submissions').update({ status: 'rejected', reviewed_at: new Date().toISOString() }).eq('id', id);
+    toast.success('Submission rejected');
+    fetchData();
+  };
+
   if (isLoading) return <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin" /></div>;
 
   return (
