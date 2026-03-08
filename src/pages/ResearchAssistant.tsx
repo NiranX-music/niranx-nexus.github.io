@@ -90,19 +90,27 @@ Be practical and specific.`;
           break;
       }
 
-      // Prefer Perplexity for research as it has web search
-      let functionName = 'perplexity-chat';
-      let requestModel = 'sonar-pro';
+      let functionName = 'ai-chat';
+      let requestModel = model;
       
-      if (provider !== 'perplexity') {
-        functionName = provider === 'openrouter' ? 'openrouter-chat' : 'ai-chat';
-        requestModel = model;
+      if (provider === 'perplexity') {
+        functionName = 'perplexity-chat';
+        requestModel = model || 'sonar-pro';
+      } else if (provider === 'openrouter') {
+        functionName = 'openrouter-chat';
+      } else if (provider === 'groq') {
+        functionName = 'groq-chat';
+      } else if (provider === 'deepseek') {
+        functionName = 'deepseek-chat';
+      } else if (provider === 'aiml') {
+        functionName = 'aiml-chat';
       }
 
       const { data, error } = await supabase.functions.invoke(functionName, {
         body: {
           messages: [{ role: 'user', content: prompt }],
           model: requestModel,
+          stream: false,
         },
       });
 
