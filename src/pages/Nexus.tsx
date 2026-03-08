@@ -321,86 +321,80 @@ export default function Nexus() {
             </div>
           </header>
 
-          {/* Portal Cards Grid */}
+          {/* Tabs: Explore vs My Links */}
           <div className="flex-1 p-6 overflow-auto">
-            <motion.div
-              key={selectedCategory}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
-            >
-              {filteredLinks.map((link, i) => (
-                <motion.a
-                  key={link.id}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.08, type: 'spring', damping: 20 }}
-                  whileHover={{ y: -8, scale: 1.02 }}
-                  className="group relative rounded-xl overflow-hidden bg-[#12121a] border border-cyan-900/20 hover:border-cyan-500/50 transition-all duration-300 shadow-lg hover:shadow-cyan-500/20"
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+              <TabsList className="bg-[#12121a] border border-cyan-900/30">
+                <TabsTrigger value="explore" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 text-gray-400">
+                  <Sparkles className="w-4 h-4 mr-2" /> Explore
+                </TabsTrigger>
+                {user && (
+                  <TabsTrigger value="my-links" className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 text-gray-400">
+                    <User className="w-4 h-4 mr-2" /> My Links
+                  </TabsTrigger>
+                )}
+              </TabsList>
+            </Tabs>
+
+            {activeTab === 'explore' ? (
+              <>
+                <motion.div
+                  key={selectedCategory}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
                 >
-                  {/* Card Image */}
-                  <div className="relative aspect-[16/10] overflow-hidden">
-                    {link.image_url ? (
-                      <img
-                        src={link.image_url}
-                        alt={link.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                      />
-                    ) : (
-                      <div 
-                        className="w-full h-full bg-gradient-to-br from-cyan-500/20 to-purple-500/20 flex items-center justify-center"
-                        style={{ background: link.tile_color || undefined }}
-                      >
-                        <Icons.Link className="w-10 h-10 text-cyan-400/50" />
+                  {filteredLinks.map((link, i) => (
+                    <motion.a
+                      key={link.id}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.08, type: 'spring', damping: 20 }}
+                      whileHover={{ y: -8, scale: 1.02 }}
+                      className="group relative rounded-xl overflow-hidden bg-[#12121a] border border-cyan-900/20 hover:border-cyan-500/50 transition-all duration-300 shadow-lg hover:shadow-cyan-500/20"
+                    >
+                      <div className="relative aspect-[16/10] overflow-hidden">
+                        {link.image_url ? (
+                          <img src={link.image_url} alt={link.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-cyan-500/20 to-purple-500/20 flex items-center justify-center" style={{ background: link.tile_color || undefined }}>
+                            <Icons.Link className="w-10 h-10 text-cyan-400/50" />
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#12121a] via-transparent to-transparent" />
+                        <div className="absolute top-3 right-3 w-8 h-8 rounded-lg bg-black/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <ExternalLink className="w-4 h-4 text-cyan-400" />
+                        </div>
                       </div>
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#12121a] via-transparent to-transparent" />
-                    
-                    {/* External Link Icon */}
-                    <div className="absolute top-3 right-3 w-8 h-8 rounded-lg bg-black/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <ExternalLink className="w-4 h-4 text-cyan-400" />
+                      <div className="p-4">
+                        <h3 className="font-semibold text-white mb-1 group-hover:text-cyan-400 transition-colors">{link.name}</h3>
+                        {link.description && <p className="text-sm text-gray-400 line-clamp-2">{link.description}</p>}
+                        {link.special_comment && (
+                          <p className="text-xs mt-2 font-medium" style={{ color: link.comment_color || '#22d3ee' }}>{link.special_comment}</p>
+                        )}
+                      </div>
+                      <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                        <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/10 to-transparent" />
+                      </div>
+                    </motion.a>
+                  ))}
+                </motion.div>
+
+                {filteredLinks.length === 0 && (
+                  <div className="text-center py-20">
+                    <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-cyan-500/10 flex items-center justify-center">
+                      <Music className="w-10 h-10 text-cyan-400/50" />
                     </div>
+                    <h3 className="text-xl font-semibold text-white mb-2">No portals yet</h3>
+                    <p className="text-gray-400">Check back later for updates.</p>
                   </div>
-
-                  {/* Card Content */}
-                  <div className="p-4">
-                    <h3 className="font-semibold text-white mb-1 group-hover:text-cyan-400 transition-colors">
-                      {link.name}
-                    </h3>
-                    {link.description && (
-                      <p className="text-sm text-gray-400 line-clamp-2">
-                        {link.description}
-                      </p>
-                    )}
-                    {link.special_comment && (
-                      <p
-                        className="text-xs mt-2 font-medium"
-                        style={{ color: link.comment_color || '#22d3ee' }}
-                      >
-                        {link.special_comment}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Hover Glow Effect */}
-                  <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                    <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/10 to-transparent" />
-                  </div>
-                </motion.a>
-              ))}
-            </motion.div>
-
-            {filteredLinks.length === 0 && (
-              <div className="text-center py-20">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-cyan-500/10 flex items-center justify-center">
-                  <Music className="w-10 h-10 text-cyan-400/50" />
-                </div>
-                <h3 className="text-xl font-semibold text-white mb-2">No portals yet</h3>
-                <p className="text-gray-400">Check back later for updates.</p>
-              </div>
+                )}
+              </>
+            ) : (
+              <PersonalLinksSection nexusCategories={categories} />
             )}
           </div>
         </main>
