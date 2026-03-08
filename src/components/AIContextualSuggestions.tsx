@@ -21,7 +21,6 @@ export function AIContextualSuggestions({
   const generateSuggestions = async () => {
     setLoading(true);
     try {
-      const { supabase } = await import('@/integrations/supabase/client');
       const { data: { session } } = await supabase.auth.getSession();
       
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`, {
