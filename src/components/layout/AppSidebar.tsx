@@ -92,6 +92,7 @@ import {
   Handshake,
   Bot,
   Hammer,
+  Activity,
 } from "lucide-react";
 import {
   Sidebar,
