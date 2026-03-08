@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Users, FileText, MessageSquare, Activity, TrendingUp, Clock, Award, BarChart3, Sparkles, UserPlus, Music, Pencil, RotateCcw, AlertTriangle, Eye, Mail, Calendar, Globe, Link2, Newspaper, Layers, Quote, LinkIcon, Key, Code } from "lucide-react";
+import { Users, FileText, MessageSquare, Activity, TrendingUp, Clock, Award, BarChart3, Sparkles, UserPlus, Music, Pencil, RotateCcw, AlertTriangle, Eye, Mail, Calendar, Globe, Link2, Newspaper, Layers, Quote, LinkIcon, Key, Code, Compass } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { CreateUserForm } from "@/components/admin/CreateUserForm";
@@ -26,6 +26,7 @@ import { FooterLinksManager } from "@/components/admin/FooterLinksManager";
 import { TestimonialsManager } from "@/components/admin/TestimonialsManager";
 import { ApiKeysManager } from "@/components/admin/ApiKeysManager";
 import { CustomPagesManager } from "@/components/admin/CustomPagesManager";
+import { ExploreLinksManager } from "@/components/admin/ExploreLinksManager";
 
 interface Stats {
   totalUsers: number;
@@ -534,6 +535,9 @@ export default function AdminDashboard() {
             <Code className="h-3 w-3" /> Pages
           </TabsTrigger>
           <TabsTrigger value="danger" className="text-destructive">Danger Zone</TabsTrigger>
+          <TabsTrigger value="explore-links" className="gap-1">
+            <Compass className="h-3 w-3" /> Explore
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -1440,6 +1444,10 @@ export default function AdminDashboard() {
 
         <TabsContent value="custom-pages">
           <CustomPagesManager />
+        </TabsContent>
+
+        <TabsContent value="explore-links">
+          <ExploreLinksManager />
         </TabsContent>
       </Tabs>
     </div>
