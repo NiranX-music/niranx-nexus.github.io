@@ -21,6 +21,8 @@ interface GroupedLinks {
 }
 
 const categoryTitles: Record<string, string> = {
+  product: 'Product',
+  tools: 'Tools',
   legal: 'Legal',
   support: 'Support',
   company: 'Company',
@@ -28,7 +30,7 @@ const categoryTitles: Record<string, string> = {
   general: 'Links',
 };
 
-const categoryOrder = ['company', 'support', 'legal', 'social'];
+const categoryOrder = ['product', 'tools', 'company', 'support', 'legal', 'social'];
 
 export function EnhancedFooter() {
   const navigate = useNavigate();

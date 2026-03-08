@@ -328,6 +328,7 @@ export const allPages: PageInfo[] = [
   { name: "XAPI: Sports", route: "/xapi-sports", description: "Football, F1, NBA, NHL, cricket data", category: "Tools", accessLevel: "Authenticated", icon: "Trophy" },
   { name: "XAPI: Government", route: "/xapi-government", description: "Census, FBI wanted, federal documents", category: "Tools", accessLevel: "Authenticated", icon: "Landmark" },
   { name: "XAPI: Health", route: "/xapi-health", description: "Disease tracking, FDA, WHO health data", category: "Tools", accessLevel: "Authenticated", icon: "Heart" },
+  { name: "Your Classes", route: "/your-classes", description: "Live classes, study materials, and quick navigation shortcuts", category: "Study", accessLevel: "Authenticated", icon: "GraduationCap" },
 ];
 
 export const pageCategories = [

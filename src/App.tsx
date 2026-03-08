@@ -280,6 +280,7 @@ const XApiTechDev = lazy(() => import("./pages/XApiTechDev"));
 const XApiSports = lazy(() => import("./pages/XApiSports"));
 const XApiGovernment = lazy(() => import("./pages/XApiGovernment"));
 const XApiHealth = lazy(() => import("./pages/XApiHealth"));
+const YourClasses = lazy(() => import("./pages/YourClasses"));
 
 const AboutUs = lazy(() => import("./pages/support/AboutUs"));
 const Careers = lazy(() => import("./pages/support/Careers"));
@@ -781,6 +782,7 @@ const App = () => (
                           <Route path="/xapi-sports" element={<XApiSports />} />
                           <Route path="/xapi-government" element={<XApiGovernment />} />
                           <Route path="/xapi-health" element={<XApiHealth />} />
+                          <Route path="/your-classes" element={<YourClasses />} />
 
                           {/* Support Pages */}
                           <Route path="/about" element={<AboutUs />} />

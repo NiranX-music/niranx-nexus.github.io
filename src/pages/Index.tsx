@@ -27,6 +27,7 @@ import DailyChallenge from '@/components/DailyChallenge';
 import MusicPlayer from "@/components/widgets/MusicPlayer";
 import FileExplorer from "@/components/widgets/FileExplorer";
 import ClassScheduler from "@/components/widgets/ClassScheduler";
+import UpcomingScheduleWidget from "@/components/widgets/UpcomingScheduleWidget";
 import TaskManager from "@/components/widgets/TaskManager";
 import PomodoroTimer from "@/components/widgets/PomodoroTimer";
 import Analytics from "@/components/widgets/Analytics";
@@ -333,6 +334,13 @@ const Index = () => {
         {isLoggedIn && (
           <motion.div className="mb-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
             <StreakDisplay />
+          </motion.div>
+        )}
+
+        {/* Upcoming Schedule */}
+        {isLoggedIn && (
+          <motion.div className="mb-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.52 }}>
+            <UpcomingScheduleWidget />
           </motion.div>
         )}
 
