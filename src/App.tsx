@@ -320,6 +320,14 @@ import SocialChatDashboard from "./pages/SocialChatDashboard";
 import StudyDiary from "./pages/StudyDiary";
 import KnowledgeGraph from "./pages/KnowledgeGraph";
 
+// Phase 9-10: Peer & Collaboration Features
+import PeerStudyMatching from "./pages/PeerStudyMatching";
+import StudyAccountabilityPartners from "./pages/StudyAccountabilityPartners";
+import CollaborativeNotes from "./pages/CollaborativeNotes";
+import StudyBuddy from "./pages/StudyBuddy";
+import AdvancedAnalyticsDashboard from "./pages/AdvancedAnalyticsDashboard";
+import APIConsole from "./pages/APIConsole";
+
 import Contact from "./pages/support/Contact";
 import HelpCentre from "./pages/support/HelpCentre";
 import PrivacyPolicy from "./pages/support/PrivacyPolicy";

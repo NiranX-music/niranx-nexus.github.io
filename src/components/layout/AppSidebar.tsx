@@ -89,6 +89,8 @@ import {
   Rocket,
   Puzzle,
   Edit3,
+  Handshake,
+  Bot,
 } from "lucide-react";
 import {
   Sidebar,
