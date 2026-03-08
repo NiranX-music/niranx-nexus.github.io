@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,359 +20,369 @@ import { GlobalErrorBoundary } from "./components/GlobalErrorBoundary";
 import { PageLoadProgress } from "./components/PageLoadProgress";
 import { OfflineBanner } from "./components/OfflineBanner";
 import { BackToTop } from "./components/BackToTop";
+import { PageSkeleton } from "./components/PageSkeleton";
 import VoiceCommand from "./components/VoiceCommand";
-import Landing from "./pages/Landing";
-import Nexus from "./pages/Nexus";
-import Songs from "./pages/Songs";
-import Auth from "./pages/Auth";
-import Index from "./pages/Index";
-import Profile from "./pages/Profile";
-import Messages from "./pages/Messages";
-import ChatRoom from "./pages/ChatRoom";
-import TaskScheduler from "./pages/TaskScheduler";
-import Analytics from "./pages/Analytics";
-import ExamHub from "./pages/ExamHub";
-import TasksPage from "./pages/TasksPage";
-import PomodoroPage from "./pages/PomodoroPage";
-import SmartTimetable from "./pages/SmartTimetable";
-import Library from "./pages/Library";
-import MusicPage from "./pages/MusicPage";
-import GamesPage from "./pages/GamesPage";
-import Allen from "./pages/Allen";
-import PW from "./pages/PW";
-import Settings from "./pages/Settings";
-import NotFound from "./pages/NotFound";
-import WebsiteEmbed from "./pages/WebsiteEmbed";
-import EnhancedScheduler from "./pages/EnhancedScheduler";
-import InfiniteChainManager from "./pages/InfiniteChainManager";
-import FileHub from "./pages/FileHub";
-import MusicHub from "./pages/MusicHub";
-import MusicLibrary from "./pages/MusicLibrary";
-import UploadTrack from "./pages/UploadTrack";
-import TrackDetail from "./pages/TrackDetail";
-import EditTrack from "./pages/EditTrack";
-import CreateArtist from "./pages/CreateArtist";
-import EditArtist from "./pages/EditArtist";
-import ArtistPage from "./pages/ArtistPage";
-import ExploreArtists from "./pages/ExploreArtists";
-import ArtistStudio from "./pages/ArtistStudio";
-import CreateAlbum from "./pages/CreateAlbum";
-import AlbumDetail from "./pages/AlbumDetail";
-import PlaylistPage from "./pages/PlaylistPage";
-import PlaylistCreate from "./pages/PlaylistCreate";
-import MusicModeration from "./pages/admin/MusicModeration";
 import { MusicPlayerProvider } from "./contexts/MusicPlayerContext";
 import UniversalMusicPlayer from "./components/music/UniversalMusicPlayer";
-import Upload from "./pages/Upload";
-import VideoPlayer from "./pages/VideoPlayer";
-import StudyPlatforms from "./pages/StudyPlatforms";
-import WebsiteManager from "./pages/WebsiteManager";
-import Blogs from "./pages/Blogs";
-import BlogPost from "./pages/BlogPost";
-import GlobalSearch from "./pages/GlobalSearch";
-import SearchResults from "./pages/SearchResults";
-import AIChat from "./pages/AIChat";
-import AIChatHistory from "./pages/AIChatHistory";
-import AIScheduler from "./pages/AIScheduler";
-import Notifications from "./pages/Notifications";
-import WhatsNewPage from "./pages/WhatsNewPage";
-import NotificationsPage from "./pages/NotificationsPage";
-
-import VideoShare from "./pages/VideoShare";
-import VideoLibrary from "./pages/VideoLibrary";
-import PictureShare from "./pages/PictureShare";
-import StreamSphere from "./pages/StreamSphere";
-import WebSearch from "./pages/WebSearch";
-import Community from "./pages/Community";
-import BlogSettings from "./pages/settings/BlogSettings";
-import FocusEngine from "./pages/FocusEngine";
-import MyCloudDrives from "./pages/MyCloudDrives";
-import MyCloudFolder from "./pages/MyCloudFolder";
-import BackblazeStorage from "./pages/BackblazeStorage";
-import GoogleDrive from "./pages/GoogleDrive";
-import GoogleDriveCallback from "./pages/GoogleDriveCallback";
-import FluxAPIImageGen from "./pages/FluxAPIImageGen";
-import ResetPassword from "./pages/ResetPassword";
-import MagicLink from "./pages/MagicLink";
-import ConfirmSignup from "./pages/ConfirmSignup";
-import InviteUser from "./pages/InviteUser";
-import Reauthentication from "./pages/Reauthentication";
-
-import ManageDrives from "./pages/ManageDrives";
-import PWADownload from "./pages/PWADownload";
-import TWASetup from "./pages/TWASetup";
-import TwoFactorAuth from "./pages/security/TwoFactorAuth";
-import SessionManager from "./pages/security/SessionManager";
-import PrivacySettings from "./pages/security/PrivacySettings";
-import DataExport from "./pages/security/DataExport";
-import AuditLog from "./pages/security/AuditLog";
-import Whiteboard from "./pages/Whiteboard";
-import StudyGroups from "./pages/StudyGroups";
-import DailyChallenges from "./pages/DailyChallenges";
-import Goals from "./pages/Goals";
-import Leaderboard from "./pages/Leaderboard";
-import RewardStore from "./pages/RewardStore";
-import ListeningLibrary from "./pages/ListeningLibrary";
-import Sitemap from "./pages/Sitemap";
-import KioskMode from "./pages/KioskMode";
-import FeatureSuggestions from "./pages/FeatureSuggestions";
-import DistractionBlocker from "./pages/DistractionBlocker";
-import AdvancedDashboard from "./pages/AdvancedDashboard";
-import StudyStreakChallenges from "./pages/StudyStreakChallenges";
-import SharedResource from "./pages/SharedResource";
-import OldPageArchive from "./pages/OldPageArchive";
-import NotificationSettings from "./pages/NotificationSettings";
-import BecomeAdmin from "./pages/BecomeAdmin";
-import AdminDashboard from "./pages/AdminDashboard";
-import WhatsNewManager from "./pages/admin/WhatsNewManager";
-import CustomNotificationsManager from "./pages/admin/CustomNotificationsManager";
-import AdminRequestAnalytics from "./pages/AdminRequestAnalytics";
-import AdminMessageReports from "./pages/AdminMessageReports";
-import OAuthSettings from "./pages/OAuthSettings";
-import ClassScheduler from "./pages/ClassScheduler";
-import Labs from "./pages/Labs";
-import Chemistry from "./pages/labs/Chemistry";
-import Biology from "./pages/labs/Biology";
-import Physics from "./pages/labs/Physics";
-import Math from "./pages/labs/Math";
-import GuardianDashboard from "./pages/GuardianDashboard";
-import StudentGuardianSettings from "./pages/StudentGuardianSettings";
 import { AdminRoute } from "./components/AdminRoute";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ModeratorRoute } from "./components/ModeratorRoute";
-import { AccessibilitySettings } from "./pages/AccessibilitySettings";
-import LiveClassroom from "@/pages/LiveClassroom";
-import Guide from "./pages/Guide";
-import DailyRewards from "./pages/DailyRewards";
-import ThemeCustomization from "./pages/ThemeCustomization";
-import Guilds from "./pages/Guilds";
-import WidgetSettings from "./pages/WidgetSettings";
-import SmartNotifications from "./pages/SmartNotifications";
-import DebateHub from "./pages/debates/DebateHub";
-import DebateDetail from "./pages/debates/DebateDetail";
-import MyDebates from "./pages/debates/MyDebates";
-import DebateBookmarks from "./pages/debates/Bookmarks";
-import DebateCategories from "./pages/debates/Categories";
-import DebateLeaderboard from "./pages/debates/Leaderboard";
-import DebateTournaments from "./pages/debates/Tournaments";
-import LiveDebateRooms from "./pages/debates/LiveRooms";
-import TeacherDashboard from "./pages/teacher/TeacherDashboard";
-import ClassroomDetail from "./pages/teacher/ClassroomDetail";
-import JoinClassroom from "./pages/teacher/JoinClassroom";
-import RoleManagement from "./pages/admin/RoleManagement";
-import FeedbackSubmission from "./pages/FeedbackSubmission";
-import FeedbackList from "./pages/admin/FeedbackList";
-import ManageUserControls from "./pages/ManageUserControls";
-import LiveClassSession from "./pages/teacher/LiveClassSession";
-import AIWebsiteGenerator from "./pages/AIWebsiteGenerator";
-import GeneratedWebsite from "./pages/GeneratedWebsite";
-import PublishedWebsite from "./pages/PublishedWebsite";
-import StudyPathGenerator from "./pages/StudyPathGenerator";
-import NoteSummarizer from "./pages/NoteSummarizer";
-import YouTubeLibrary from "./pages/YouTubeLibrary";
-import AICorner from "./pages/AICorner";
-import Xvibing from "./pages/Xvibing";
-import AISongGenerator from "./pages/AISongGenerator";
-import AIPresentationGenerator from "./pages/AIPresentationGenerator";
-import AIImageGenerator from "./pages/AIImageGenerator";
-import AILibrary from "./pages/AILibrary";
-import OpenRouterChat from "./pages/OpenRouterChat";
-import Weather from "./pages/Weather";
-import PDFSummarizer from "./pages/PDFSummarizer";
-import PDFViewer from "./pages/PDFViewer";
-import AITopicMapGenerator from "./pages/AITopicMapGenerator";
-import AISolver from "./pages/AISolver";
-import GroqChat from "./pages/GroqChat";
-import GroqChatHistory from "./pages/GroqChatHistory";
-import DeepSeekChat from "./pages/DeepSeekChat";
-import LovableImageGen from "./pages/LovableImageGen";
 import { TeacherRoute } from "./components/TeacherRoute";
-import PublishedContent from "./pages/PublishedContent";
-import ListedSongs from "./pages/ListedSongs";
-import Mailbox from "./pages/Mailbox";
-import XmailProfile from "./pages/XmailProfile";
-import XmailView from "./pages/XmailView";
-import PersonaSetup from "./pages/PersonaSetup";
-import StudyTemplates from "./pages/StudyTemplates";
-import TemplateManager from "./pages/admin/TemplateManager";
-import ActivityLog from "./pages/security/ActivityLog";
-import ExploreSpaces from "./pages/ExploreSpaces";
-import PasswordManager from "./pages/PasswordManager";
-import AIQuizGenerator from "./pages/AIQuizGenerator";
-import AIDocSummarizer from "./pages/AIDocSummarizer";
-import ActivityFeed from "./pages/ActivityFeed";
-import CommunityForums from "./pages/CommunityForums";
-import SpaceLimitsManager from "./pages/admin/SpaceLimitsManager";
-import XFlowLogin from "./pages/xflow/XFlowLogin";
-import XFlowFeed from "./pages/xflow/XFlowFeed";
-import XFlowProfile from "./pages/xflow/XFlowProfile";
-import XFlowMessages from "./pages/xflow/XFlowMessages";
-import XFlowPostView from "./pages/xflow/XFlowPostView";
-import XFlowModeration from "./pages/admin/XFlowModeration";
-import XOrbit from "./pages/XOrbit";
-import XOrbitCallback from "./pages/XOrbitCallback";
-import ShareTarget from "./pages/ShareTarget";
-import FileHandler from "./pages/FileHandler";
-import ProtocolHandler from "./pages/ProtocolHandler";
-import LocalServerSaves from "./pages/LocalServerSaves";
-import RecycleBin from "./pages/RecycleBin";
-import AdminArtistAccounts from "./pages/admin/AdminArtistAccounts";
-import FerqX from "./pages/FerqX";
-import Integrations from "./pages/Integrations";
-import BytezAI from "./pages/BytezAI";
-import XNexusAI from "./pages/XNexusAI";
-import CustomPage from "./pages/CustomPage";
-import UserAppLibrary from "./pages/UserAppLibrary";
-import SubmitApp from "./pages/SubmitApp";
 import NiranxRedirect from "./components/NiranxRedirect";
 import FloatingAIChat from "./components/FloatingAIChat";
-import WelcomeSetup from "./pages/WelcomeSetup";
-import PublicProfile from "./pages/PublicProfile";
-import PersonalAppLibrary from "./pages/PersonalAppLibrary";
-import XstellarDashboard from "./pages/xstellar/XstellarDashboard";
-import PublishedPage from "./pages/PublishedPage";
-import StudyTimerDashboard from "./pages/StudyTimerDashboard";
-import KnowledgeBaseWiki from "./pages/KnowledgeBaseWiki";
-import StudyPlannerCalendar from "./pages/StudyPlannerCalendar";
-import PomodoroStatsDashboard from "./pages/PomodoroStatsDashboard";
-import FocusModeAmbient from "./pages/FocusModeAmbient";
-import QuickCheatsheets from "./pages/QuickCheatsheets";
-import CornellNotes from "./pages/CornellNotes";
-import StudySessionPlanner from "./pages/StudySessionPlanner";
-import TypingSpeedTest from "./pages/TypingSpeedTest";
-import XForge from "./pages/XForge";
-import XBoard from "./pages/XBoard";
-import XVault from "./pages/XVault";
-import XLink from "./pages/XLink";
-import XPulse from "./pages/XPulse";
 
-import AboutUs from "./pages/support/AboutUs";
-import Careers from "./pages/support/Careers";
-import Press from "./pages/support/Press";
-import Documentation from "./pages/support/Documentation";
-import DocsHub from "./pages/DocsHub";
-import APIReference from "./pages/support/APIReference";
-import CookiePolicy from "./pages/support/CookiePolicy";
-import GDPR from "./pages/support/GDPR";
+// Critical pages loaded eagerly (landing, auth, dashboard)
+import Landing from "./pages/Landing";
+import Auth from "./pages/Auth";
+import Index from "./pages/Index";
+import NotFound from "./pages/NotFound";
 
-import TestHub from "./pages/tests/TestHub";
-import TestBuilder from "./pages/tests/TestBuilder";
-import AITestGenerator from "./pages/tests/AITestGenerator";
-import TestAttempt from "./pages/tests/TestAttempt";
-import TestDetail from "./pages/tests/TestDetail";
-import UploadTest from "./pages/tests/UploadTest";
-import TestAnalytics from "./pages/tests/TestAnalytics";
+// All other pages lazy-loaded for performance
+const Nexus = lazy(() => import("./pages/Nexus"));
+const Songs = lazy(() => import("./pages/Songs"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Messages = lazy(() => import("./pages/Messages"));
+const ChatRoom = lazy(() => import("./pages/ChatRoom"));
+const TaskScheduler = lazy(() => import("./pages/TaskScheduler"));
+const Analytics = lazy(() => import("./pages/Analytics"));
+const ExamHub = lazy(() => import("./pages/ExamHub"));
+const TasksPage = lazy(() => import("./pages/TasksPage"));
+const PomodoroPage = lazy(() => import("./pages/PomodoroPage"));
+const SmartTimetable = lazy(() => import("./pages/SmartTimetable"));
+const Library = lazy(() => import("./pages/Library"));
+const MusicPage = lazy(() => import("./pages/MusicPage"));
+const GamesPage = lazy(() => import("./pages/GamesPage"));
+const Allen = lazy(() => import("./pages/Allen"));
+const PW = lazy(() => import("./pages/PW"));
+const Settings = lazy(() => import("./pages/Settings"));
+const WebsiteEmbed = lazy(() => import("./pages/WebsiteEmbed"));
+const EnhancedScheduler = lazy(() => import("./pages/EnhancedScheduler"));
+const InfiniteChainManager = lazy(() => import("./pages/InfiniteChainManager"));
+const FileHub = lazy(() => import("./pages/FileHub"));
+const MusicHub = lazy(() => import("./pages/MusicHub"));
+const MusicLibrary = lazy(() => import("./pages/MusicLibrary"));
+const UploadTrack = lazy(() => import("./pages/UploadTrack"));
+const TrackDetail = lazy(() => import("./pages/TrackDetail"));
+const EditTrack = lazy(() => import("./pages/EditTrack"));
+const CreateArtist = lazy(() => import("./pages/CreateArtist"));
+const EditArtist = lazy(() => import("./pages/EditArtist"));
+const ArtistPage = lazy(() => import("./pages/ArtistPage"));
+const ExploreArtists = lazy(() => import("./pages/ExploreArtists"));
+const ArtistStudio = lazy(() => import("./pages/ArtistStudio"));
+const CreateAlbum = lazy(() => import("./pages/CreateAlbum"));
+const AlbumDetail = lazy(() => import("./pages/AlbumDetail"));
+const PlaylistPage = lazy(() => import("./pages/PlaylistPage"));
+const PlaylistCreate = lazy(() => import("./pages/PlaylistCreate"));
+const MusicModeration = lazy(() => import("./pages/admin/MusicModeration"));
+const Upload = lazy(() => import("./pages/Upload"));
+const VideoPlayer = lazy(() => import("./pages/VideoPlayer"));
+const StudyPlatforms = lazy(() => import("./pages/StudyPlatforms"));
+const WebsiteManager = lazy(() => import("./pages/WebsiteManager"));
+const Blogs = lazy(() => import("./pages/Blogs"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
+const GlobalSearch = lazy(() => import("./pages/GlobalSearch"));
+const SearchResults = lazy(() => import("./pages/SearchResults"));
+const AIChat = lazy(() => import("./pages/AIChat"));
+const AIChatHistory = lazy(() => import("./pages/AIChatHistory"));
+const AIScheduler = lazy(() => import("./pages/AIScheduler"));
+const Notifications = lazy(() => import("./pages/Notifications"));
+const WhatsNewPage = lazy(() => import("./pages/WhatsNewPage"));
+const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
+const VideoShare = lazy(() => import("./pages/VideoShare"));
+const VideoLibrary = lazy(() => import("./pages/VideoLibrary"));
+const PictureShare = lazy(() => import("./pages/PictureShare"));
+const StreamSphere = lazy(() => import("./pages/StreamSphere"));
+const WebSearch = lazy(() => import("./pages/WebSearch"));
+const Community = lazy(() => import("./pages/Community"));
+const BlogSettings = lazy(() => import("./pages/settings/BlogSettings"));
+const FocusEngine = lazy(() => import("./pages/FocusEngine"));
+const MyCloudDrives = lazy(() => import("./pages/MyCloudDrives"));
+const MyCloudFolder = lazy(() => import("./pages/MyCloudFolder"));
+const BackblazeStorage = lazy(() => import("./pages/BackblazeStorage"));
+const GoogleDrive = lazy(() => import("./pages/GoogleDrive"));
+const GoogleDriveCallback = lazy(() => import("./pages/GoogleDriveCallback"));
+const FluxAPIImageGen = lazy(() => import("./pages/FluxAPIImageGen"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const MagicLink = lazy(() => import("./pages/MagicLink"));
+const ConfirmSignup = lazy(() => import("./pages/ConfirmSignup"));
+const InviteUser = lazy(() => import("./pages/InviteUser"));
+const Reauthentication = lazy(() => import("./pages/Reauthentication"));
+const ManageDrives = lazy(() => import("./pages/ManageDrives"));
+const PWADownload = lazy(() => import("./pages/PWADownload"));
+const TWASetup = lazy(() => import("./pages/TWASetup"));
+const TwoFactorAuth = lazy(() => import("./pages/security/TwoFactorAuth"));
+const SessionManager = lazy(() => import("./pages/security/SessionManager"));
+const PrivacySettings = lazy(() => import("./pages/security/PrivacySettings"));
+const DataExport = lazy(() => import("./pages/security/DataExport"));
+const AuditLog = lazy(() => import("./pages/security/AuditLog"));
+const Whiteboard = lazy(() => import("./pages/Whiteboard"));
+const StudyGroups = lazy(() => import("./pages/StudyGroups"));
+const DailyChallenges = lazy(() => import("./pages/DailyChallenges"));
+const Goals = lazy(() => import("./pages/Goals"));
+const Leaderboard = lazy(() => import("./pages/Leaderboard"));
+const RewardStore = lazy(() => import("./pages/RewardStore"));
+const ListeningLibrary = lazy(() => import("./pages/ListeningLibrary"));
+const Sitemap = lazy(() => import("./pages/Sitemap"));
+const KioskMode = lazy(() => import("./pages/KioskMode"));
+const FeatureSuggestions = lazy(() => import("./pages/FeatureSuggestions"));
+const DistractionBlocker = lazy(() => import("./pages/DistractionBlocker"));
+const AdvancedDashboard = lazy(() => import("./pages/AdvancedDashboard"));
+const StudyStreakChallenges = lazy(() => import("./pages/StudyStreakChallenges"));
+const SharedResource = lazy(() => import("./pages/SharedResource"));
+const OldPageArchive = lazy(() => import("./pages/OldPageArchive"));
+const NotificationSettings = lazy(() => import("./pages/NotificationSettings"));
+const BecomeAdmin = lazy(() => import("./pages/BecomeAdmin"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const WhatsNewManager = lazy(() => import("./pages/admin/WhatsNewManager"));
+const CustomNotificationsManager = lazy(() => import("./pages/admin/CustomNotificationsManager"));
+const AdminRequestAnalytics = lazy(() => import("./pages/AdminRequestAnalytics"));
+const AdminMessageReports = lazy(() => import("./pages/AdminMessageReports"));
+const OAuthSettings = lazy(() => import("./pages/OAuthSettings"));
+const ClassScheduler = lazy(() => import("./pages/ClassScheduler"));
+const Labs = lazy(() => import("./pages/Labs"));
+const Chemistry = lazy(() => import("./pages/labs/Chemistry"));
+const Biology = lazy(() => import("./pages/labs/Biology"));
+const Physics = lazy(() => import("./pages/labs/Physics"));
+const Math = lazy(() => import("./pages/labs/Math"));
+const GuardianDashboard = lazy(() => import("./pages/GuardianDashboard"));
+const StudentGuardianSettings = lazy(() => import("./pages/StudentGuardianSettings"));
+const AccessibilitySettings = lazy(() => import("./pages/AccessibilitySettings").then(m => ({ default: m.AccessibilitySettings })));
+const LiveClassroom = lazy(() => import("./pages/LiveClassroom"));
+const Guide = lazy(() => import("./pages/Guide"));
+const DailyRewards = lazy(() => import("./pages/DailyRewards"));
+const ThemeCustomization = lazy(() => import("./pages/ThemeCustomization"));
+const Guilds = lazy(() => import("./pages/Guilds"));
+const WidgetSettings = lazy(() => import("./pages/WidgetSettings"));
+const SmartNotifications = lazy(() => import("./pages/SmartNotifications"));
+const DebateHub = lazy(() => import("./pages/debates/DebateHub"));
+const DebateDetail = lazy(() => import("./pages/debates/DebateDetail"));
+const MyDebates = lazy(() => import("./pages/debates/MyDebates"));
+const DebateBookmarks = lazy(() => import("./pages/debates/Bookmarks"));
+const DebateCategories = lazy(() => import("./pages/debates/Categories"));
+const DebateLeaderboard = lazy(() => import("./pages/debates/Leaderboard"));
+const DebateTournaments = lazy(() => import("./pages/debates/Tournaments"));
+const LiveDebateRooms = lazy(() => import("./pages/debates/LiveRooms"));
+const TeacherDashboard = lazy(() => import("./pages/teacher/TeacherDashboard"));
+const ClassroomDetail = lazy(() => import("./pages/teacher/ClassroomDetail"));
+const JoinClassroom = lazy(() => import("./pages/teacher/JoinClassroom"));
+const RoleManagement = lazy(() => import("./pages/admin/RoleManagement"));
+const FeedbackSubmission = lazy(() => import("./pages/FeedbackSubmission"));
+const FeedbackList = lazy(() => import("./pages/admin/FeedbackList"));
+const ManageUserControls = lazy(() => import("./pages/ManageUserControls"));
+const LiveClassSession = lazy(() => import("./pages/teacher/LiveClassSession"));
+const AIWebsiteGenerator = lazy(() => import("./pages/AIWebsiteGenerator"));
+const GeneratedWebsite = lazy(() => import("./pages/GeneratedWebsite"));
+const PublishedWebsite = lazy(() => import("./pages/PublishedWebsite"));
+const StudyPathGenerator = lazy(() => import("./pages/StudyPathGenerator"));
+const NoteSummarizer = lazy(() => import("./pages/NoteSummarizer"));
+const YouTubeLibrary = lazy(() => import("./pages/YouTubeLibrary"));
+const AICorner = lazy(() => import("./pages/AICorner"));
+const Xvibing = lazy(() => import("./pages/Xvibing"));
+const AISongGenerator = lazy(() => import("./pages/AISongGenerator"));
+const AIPresentationGenerator = lazy(() => import("./pages/AIPresentationGenerator"));
+const AIImageGenerator = lazy(() => import("./pages/AIImageGenerator"));
+const AILibrary = lazy(() => import("./pages/AILibrary"));
+const OpenRouterChat = lazy(() => import("./pages/OpenRouterChat"));
+const Weather = lazy(() => import("./pages/Weather"));
+const PDFSummarizer = lazy(() => import("./pages/PDFSummarizer"));
+const PDFViewer = lazy(() => import("./pages/PDFViewer"));
+const AITopicMapGenerator = lazy(() => import("./pages/AITopicMapGenerator"));
+const AISolver = lazy(() => import("./pages/AISolver"));
+const GroqChat = lazy(() => import("./pages/GroqChat"));
+const GroqChatHistory = lazy(() => import("./pages/GroqChatHistory"));
+const DeepSeekChat = lazy(() => import("./pages/DeepSeekChat"));
+const LovableImageGen = lazy(() => import("./pages/LovableImageGen"));
+const PublishedContent = lazy(() => import("./pages/PublishedContent"));
+const ListedSongs = lazy(() => import("./pages/ListedSongs"));
+const Mailbox = lazy(() => import("./pages/Mailbox"));
+const XmailProfile = lazy(() => import("./pages/XmailProfile"));
+const XmailView = lazy(() => import("./pages/XmailView"));
+const PersonaSetup = lazy(() => import("./pages/PersonaSetup"));
+const StudyTemplates = lazy(() => import("./pages/StudyTemplates"));
+const TemplateManager = lazy(() => import("./pages/admin/TemplateManager"));
+const ActivityLog = lazy(() => import("./pages/security/ActivityLog"));
+const ExploreSpaces = lazy(() => import("./pages/ExploreSpaces"));
+const PasswordManager = lazy(() => import("./pages/PasswordManager"));
+const AIQuizGenerator = lazy(() => import("./pages/AIQuizGenerator"));
+const AIDocSummarizer = lazy(() => import("./pages/AIDocSummarizer"));
+const ActivityFeed = lazy(() => import("./pages/ActivityFeed"));
+const CommunityForums = lazy(() => import("./pages/CommunityForums"));
+const SpaceLimitsManager = lazy(() => import("./pages/admin/SpaceLimitsManager"));
+const XFlowLogin = lazy(() => import("./pages/xflow/XFlowLogin"));
+const XFlowFeed = lazy(() => import("./pages/xflow/XFlowFeed"));
+const XFlowProfile = lazy(() => import("./pages/xflow/XFlowProfile"));
+const XFlowMessages = lazy(() => import("./pages/xflow/XFlowMessages"));
+const XFlowPostView = lazy(() => import("./pages/xflow/XFlowPostView"));
+const XFlowModeration = lazy(() => import("./pages/admin/XFlowModeration"));
+const XOrbit = lazy(() => import("./pages/XOrbit"));
+const XOrbitCallback = lazy(() => import("./pages/XOrbitCallback"));
+const ShareTarget = lazy(() => import("./pages/ShareTarget"));
+const FileHandler = lazy(() => import("./pages/FileHandler"));
+const ProtocolHandler = lazy(() => import("./pages/ProtocolHandler"));
+const LocalServerSaves = lazy(() => import("./pages/LocalServerSaves"));
+const RecycleBin = lazy(() => import("./pages/RecycleBin"));
+const AdminArtistAccounts = lazy(() => import("./pages/admin/AdminArtistAccounts"));
+const FerqX = lazy(() => import("./pages/FerqX"));
+const Integrations = lazy(() => import("./pages/Integrations"));
+const BytezAI = lazy(() => import("./pages/BytezAI"));
+const XNexusAI = lazy(() => import("./pages/XNexusAI"));
+const CustomPage = lazy(() => import("./pages/CustomPage"));
+const UserAppLibrary = lazy(() => import("./pages/UserAppLibrary"));
+const SubmitApp = lazy(() => import("./pages/SubmitApp"));
+const WelcomeSetup = lazy(() => import("./pages/WelcomeSetup"));
+const PublicProfile = lazy(() => import("./pages/PublicProfile"));
+const PersonalAppLibrary = lazy(() => import("./pages/PersonalAppLibrary"));
+const XstellarDashboard = lazy(() => import("./pages/xstellar/XstellarDashboard"));
+const PublishedPage = lazy(() => import("./pages/PublishedPage"));
+const StudyTimerDashboard = lazy(() => import("./pages/StudyTimerDashboard"));
+const KnowledgeBaseWiki = lazy(() => import("./pages/KnowledgeBaseWiki"));
+const StudyPlannerCalendar = lazy(() => import("./pages/StudyPlannerCalendar"));
+const PomodoroStatsDashboard = lazy(() => import("./pages/PomodoroStatsDashboard"));
+const FocusModeAmbient = lazy(() => import("./pages/FocusModeAmbient"));
+const QuickCheatsheets = lazy(() => import("./pages/QuickCheatsheets"));
+const CornellNotes = lazy(() => import("./pages/CornellNotes"));
+const StudySessionPlanner = lazy(() => import("./pages/StudySessionPlanner"));
+const TypingSpeedTest = lazy(() => import("./pages/TypingSpeedTest"));
+const XForge = lazy(() => import("./pages/XForge"));
+const XBoard = lazy(() => import("./pages/XBoard"));
+const XVault = lazy(() => import("./pages/XVault"));
+const XLink = lazy(() => import("./pages/XLink"));
+const XPulse = lazy(() => import("./pages/XPulse"));
+
+const AboutUs = lazy(() => import("./pages/support/AboutUs"));
+const Careers = lazy(() => import("./pages/support/Careers"));
+const Press = lazy(() => import("./pages/support/Press"));
+const Documentation = lazy(() => import("./pages/support/Documentation"));
+const DocsHub = lazy(() => import("./pages/DocsHub"));
+const APIReference = lazy(() => import("./pages/support/APIReference"));
+const CookiePolicy = lazy(() => import("./pages/support/CookiePolicy"));
+const GDPR = lazy(() => import("./pages/support/GDPR"));
+
+const TestHub = lazy(() => import("./pages/tests/TestHub"));
+const TestBuilder = lazy(() => import("./pages/tests/TestBuilder"));
+const AITestGenerator = lazy(() => import("./pages/tests/AITestGenerator"));
+const TestAttempt = lazy(() => import("./pages/tests/TestAttempt"));
+const TestDetail = lazy(() => import("./pages/tests/TestDetail"));
+const UploadTest = lazy(() => import("./pages/tests/UploadTest"));
+const TestAnalytics = lazy(() => import("./pages/tests/TestAnalytics"));
 
 // Flashcard System
-import Flashcards from "./pages/Flashcards";
-import FlashcardDeck from "./pages/FlashcardDeck";
-import FlashcardStudy from "./pages/FlashcardStudy";
-import FlashcardCreate from "./pages/FlashcardCreate";
-import StudyAnalytics from "./pages/StudyAnalytics";
+const Flashcards = lazy(() => import("./pages/Flashcards"));
+const FlashcardDeck = lazy(() => import("./pages/FlashcardDeck"));
+const FlashcardStudy = lazy(() => import("./pages/FlashcardStudy"));
+const FlashcardCreate = lazy(() => import("./pages/FlashcardCreate"));
+const StudyAnalytics = lazy(() => import("./pages/StudyAnalytics"));
 
 // Phase 2 & 3 Features
-import HabitTracker from "./pages/HabitTracker";
-import SmartBookmarks from "./pages/SmartBookmarks";
-import CourseGenerator from "./pages/CourseGenerator";
-import CourseViewer from "./pages/CourseViewer";
-import StudyRooms from "./pages/StudyRooms";
-import StudyRoom from "./pages/StudyRoom";
-import DocumentScanner from "./pages/DocumentScanner";
-import FocusSounds from "./pages/FocusSounds";
-import EmailReports from "./pages/settings/EmailReports";
+const HabitTracker = lazy(() => import("./pages/HabitTracker"));
+const SmartBookmarks = lazy(() => import("./pages/SmartBookmarks"));
+const CourseGenerator = lazy(() => import("./pages/CourseGenerator"));
+const CourseViewer = lazy(() => import("./pages/CourseViewer"));
+const StudyRooms = lazy(() => import("./pages/StudyRooms"));
+const StudyRoom = lazy(() => import("./pages/StudyRoom"));
+const DocumentScanner = lazy(() => import("./pages/DocumentScanner"));
+const FocusSounds = lazy(() => import("./pages/FocusSounds"));
+const EmailReports = lazy(() => import("./pages/settings/EmailReports"));
 
 // Phase 1: AI Voice & Interactive Learning
-import AIVoiceTutor from "./pages/AIVoiceTutor";
-import LearningStyleAnalyzer from "./pages/LearningStyleAnalyzer";
-import EssayGrader from "./pages/EssayGrader";
+const AIVoiceTutor = lazy(() => import("./pages/AIVoiceTutor"));
+const LearningStyleAnalyzer = lazy(() => import("./pages/LearningStyleAnalyzer"));
+const EssayGrader = lazy(() => import("./pages/EssayGrader"));
 
 // Phase 2: Immersive & Interactive Learning
-import VirtualLabs from "./pages/VirtualLabs";
-import ARFlashcards from "./pages/ARFlashcards";
-import MindMapBuilder from "./pages/MindMapBuilder";
+const VirtualLabs = lazy(() => import("./pages/VirtualLabs"));
+const ARFlashcards = lazy(() => import("./pages/ARFlashcards"));
+const MindMapBuilder = lazy(() => import("./pages/MindMapBuilder"));
 
 // Phase 3: Smart Document Features
-import SmartPDFChat from "./pages/SmartPDFChat";
-import AIMeetingMinutes from "./pages/AIMeetingMinutes";
-import AutoStudyPlanner from "./pages/AutoStudyPlanner";
-import BrowserExtensionSync from "./pages/BrowserExtensionSync";
+const SmartPDFChat = lazy(() => import("./pages/SmartPDFChat"));
+const AIMeetingMinutes = lazy(() => import("./pages/AIMeetingMinutes"));
+const AutoStudyPlanner = lazy(() => import("./pages/AutoStudyPlanner"));
+const BrowserExtensionSync = lazy(() => import("./pages/BrowserExtensionSync"));
 
 // Phase 4 & 5: Advanced Features
-import AIWritingAssistant from "./pages/AIWritingAssistant";
-import CollaborativeWhiteboard from "./pages/CollaborativeWhiteboard";
-import IntegrationHub from "./pages/IntegrationHub";
-import SpacedRepetition from "./pages/SpacedRepetition";
-import QuickNotes from "./pages/QuickNotes";
+const AIWritingAssistant = lazy(() => import("./pages/AIWritingAssistant"));
+const CollaborativeWhiteboard = lazy(() => import("./pages/CollaborativeWhiteboard"));
+const IntegrationHub = lazy(() => import("./pages/IntegrationHub"));
+const SpacedRepetition = lazy(() => import("./pages/SpacedRepetition"));
+const QuickNotes = lazy(() => import("./pages/QuickNotes"));
 
-// Additional Phase 1-4 Features
-import QuizGenerator from "./pages/QuizGenerator";
-import CitationGenerator from "./pages/CitationGenerator";
-import ResearchAssistant from "./pages/ResearchAssistant";
-import CodePlayground from "./pages/CodePlayground";
-import VocabularyBuilder from "./pages/VocabularyBuilder";
-import ProgressJournal from "./pages/ProgressJournal";
-import StudyTimerAnalytics from "./pages/StudyTimerAnalytics";
-import MathSolver from "./pages/MathSolver";
-import LectureTranscriber from "./pages/LectureTranscriber";
-import FlashcardGenerator from "./pages/FlashcardGenerator";
-import GradeCalculator from "./pages/GradeCalculator";
-import ReadingTrainer from "./pages/ReadingTrainer";
-import ExamSimulator from "./pages/ExamSimulator";
-import ConceptExplainer from "./pages/ConceptExplainer";
-import ExtensionDownload from "./pages/ExtensionDownload";
+// Additional Features
+const QuizGenerator = lazy(() => import("./pages/QuizGenerator"));
+const CitationGenerator = lazy(() => import("./pages/CitationGenerator"));
+const ResearchAssistant = lazy(() => import("./pages/ResearchAssistant"));
+const CodePlayground = lazy(() => import("./pages/CodePlayground"));
+const VocabularyBuilder = lazy(() => import("./pages/VocabularyBuilder"));
+const ProgressJournal = lazy(() => import("./pages/ProgressJournal"));
+const StudyTimerAnalytics = lazy(() => import("./pages/StudyTimerAnalytics"));
+const MathSolver = lazy(() => import("./pages/MathSolver"));
+const LectureTranscriber = lazy(() => import("./pages/LectureTranscriber"));
+const FlashcardGenerator = lazy(() => import("./pages/FlashcardGenerator"));
+const GradeCalculator = lazy(() => import("./pages/GradeCalculator"));
+const ReadingTrainer = lazy(() => import("./pages/ReadingTrainer"));
+const ExamSimulator = lazy(() => import("./pages/ExamSimulator"));
+const ConceptExplainer = lazy(() => import("./pages/ConceptExplainer"));
+const ExtensionDownload = lazy(() => import("./pages/ExtensionDownload"));
 
 // Phase 8: Social & Knowledge
-import SocialChatDashboard from "./pages/SocialChatDashboard";
-import StudyDiary from "./pages/StudyDiary";
-import KnowledgeGraph from "./pages/KnowledgeGraph";
+const SocialChatDashboard = lazy(() => import("./pages/SocialChatDashboard"));
+const StudyDiary = lazy(() => import("./pages/StudyDiary"));
+const KnowledgeGraph = lazy(() => import("./pages/KnowledgeGraph"));
 
-// Phase 9-10: Peer & Collaboration Features
-import PeerStudyMatching from "./pages/PeerStudyMatching";
-import StudyAccountabilityPartners from "./pages/StudyAccountabilityPartners";
-import CollaborativeNotes from "./pages/CollaborativeNotes";
-import StudyBuddy from "./pages/StudyBuddy";
-import AdvancedAnalyticsDashboard from "./pages/AdvancedAnalyticsDashboard";
-import APIConsole from "./pages/APIConsole";
+// Phase 9-10
+const PeerStudyMatching = lazy(() => import("./pages/PeerStudyMatching"));
+const StudyAccountabilityPartners = lazy(() => import("./pages/StudyAccountabilityPartners"));
+const CollaborativeNotes = lazy(() => import("./pages/CollaborativeNotes"));
+const StudyBuddy = lazy(() => import("./pages/StudyBuddy"));
+const AdvancedAnalyticsDashboard = lazy(() => import("./pages/AdvancedAnalyticsDashboard"));
+const APIConsole = lazy(() => import("./pages/APIConsole"));
 
-import Contact from "./pages/support/Contact";
-import HelpCentre from "./pages/support/HelpCentre";
-import PrivacyPolicy from "./pages/support/PrivacyPolicy";
-import TermsConditions from "./pages/support/TermsConditions";
+const Contact = lazy(() => import("./pages/support/Contact"));
+const HelpCentre = lazy(() => import("./pages/support/HelpCentre"));
+const PrivacyPolicy = lazy(() => import("./pages/support/PrivacyPolicy"));
+const TermsConditions = lazy(() => import("./pages/support/TermsConditions"));
 
-// XVibe Music Platform (Player archived)
-import XVibeLanding from "./xvibe/pages/XVibeLanding";
-import XVibeAuth from "./xvibe/pages/XVibeAuth";
-import XVibeOnboarding from "./xvibe/pages/XVibeOnboarding";
-import XVibeHome from "./xvibe/pages/XVibeHome";
-import XVibeSearch from "./xvibe/pages/XVibeSearch";
-import XVibeLibrary from "./xvibe/pages/XVibeLibrary";
-import XVibeArtistPage from "./xvibe/pages/XVibeArtistPage";
-import XVibeAlbumPage from "./xvibe/pages/XVibeAlbumPage";
-import XVibePlaylistPage from "./xvibe/pages/XVibePlaylistPage";
-import XVibeArtistDashboard from "./xvibe/pages/XVibeArtistDashboard";
-import XVibeUpload from "./xvibe/pages/XVibeUpload";
-import XVibeArtistRegister from "./xvibe/pages/XVibeArtistRegister";
-import XVibeModeration from "./xvibe/pages/XVibeModeration";
-import XVibeReleaseDashboard from "./xvibe/pages/XVibeReleaseDashboard";
-import XVibeReleaseEditor from "./xvibe/pages/XVibeReleaseEditor";
-import XVibeAdminDashboard from "./xvibe/pages/XVibeAdminDashboard";
-import XWaveSongPage from "./xvibe/pages/XWaveSongPage";
-import XWaveBlogEditor from "./xvibe/pages/XWaveBlogEditor";
-import XWaveEditorDashboard from "./xvibe/pages/XWaveEditorDashboard";
+// XVibe Music Platform
+const XVibeLanding = lazy(() => import("./xvibe/pages/XVibeLanding"));
+const XVibeAuth = lazy(() => import("./xvibe/pages/XVibeAuth"));
+const XVibeOnboarding = lazy(() => import("./xvibe/pages/XVibeOnboarding"));
+const XVibeHome = lazy(() => import("./xvibe/pages/XVibeHome"));
+const XVibeSearch = lazy(() => import("./xvibe/pages/XVibeSearch"));
+const XVibeLibrary = lazy(() => import("./xvibe/pages/XVibeLibrary"));
+const XVibeArtistPage = lazy(() => import("./xvibe/pages/XVibeArtistPage"));
+const XVibeAlbumPage = lazy(() => import("./xvibe/pages/XVibeAlbumPage"));
+const XVibePlaylistPage = lazy(() => import("./xvibe/pages/XVibePlaylistPage"));
+const XVibeArtistDashboard = lazy(() => import("./xvibe/pages/XVibeArtistDashboard"));
+const XVibeUpload = lazy(() => import("./xvibe/pages/XVibeUpload"));
+const XVibeArtistRegister = lazy(() => import("./xvibe/pages/XVibeArtistRegister"));
+const XVibeModeration = lazy(() => import("./xvibe/pages/XVibeModeration"));
+const XVibeReleaseDashboard = lazy(() => import("./xvibe/pages/XVibeReleaseDashboard"));
+const XVibeReleaseEditor = lazy(() => import("./xvibe/pages/XVibeReleaseEditor"));
+const XVibeAdminDashboard = lazy(() => import("./xvibe/pages/XVibeAdminDashboard"));
+const XWaveSongPage = lazy(() => import("./xvibe/pages/XWaveSongPage"));
+const XWaveBlogEditor = lazy(() => import("./xvibe/pages/XWaveBlogEditor"));
+const XWaveEditorDashboard = lazy(() => import("./xvibe/pages/XWaveEditorDashboard"));
 import { XVibeLayout } from "./xvibe/components/layout/XVibeLayout";
 
 // Xstage Music Collaboration Platform
 import { XstageLayout } from "./xstage/components/layout/XstageLayout";
-import { XstageLanding } from "./xstage/pages/XstageLanding";
-import { XstageDashboard } from "./xstage/pages/XstageDashboard";
-import { XstageCalendar } from "./xstage/pages/XstageCalendar";
-import { XstageChat } from "./xstage/pages/XstageChat";
-import { XstageFiles } from "./xstage/pages/XstageFiles";
-import { XstageTeam } from "./xstage/pages/XstageTeam";
-import { XstageProjectSettings } from "./xstage/pages/XstageProjectSettings";
-import { XstageSongs, XstageSoundLab, XstageSettings } from "./xstage/pages/XstagePlaceholders";
+const XstageLanding = lazy(() => import("./xstage/pages/XstageLanding").then(m => ({ default: m.XstageLanding })));
+const XstageDashboard = lazy(() => import("./xstage/pages/XstageDashboard").then(m => ({ default: m.XstageDashboard })));
+const XstageCalendar = lazy(() => import("./xstage/pages/XstageCalendar").then(m => ({ default: m.XstageCalendar })));
+const XstageChat = lazy(() => import("./xstage/pages/XstageChat").then(m => ({ default: m.XstageChat })));
+const XstageFiles = lazy(() => import("./xstage/pages/XstageFiles").then(m => ({ default: m.XstageFiles })));
+const XstageTeam = lazy(() => import("./xstage/pages/XstageTeam").then(m => ({ default: m.XstageTeam })));
+const XstageProjectSettings = lazy(() => import("./xstage/pages/XstageProjectSettings").then(m => ({ default: m.XstageProjectSettings })));
+const XstagePlaceholders = lazy(() => import("./xstage/pages/XstagePlaceholders").then(m => ({ default: m.XstageSongs })));
+const XstageSoundLabLazy = lazy(() => import("./xstage/pages/XstagePlaceholders").then(m => ({ default: m.XstageSoundLab })));
+const XstageSettingsLazy = lazy(() => import("./xstage/pages/XstagePlaceholders").then(m => ({ default: m.XstageSettings })));
 
 const queryClient = new QueryClient();
+
+// Suspense wrapper for lazy routes
+function LazyPage({ children }: { children: React.ReactNode }) {
+  return <Suspense fallback={<PageSkeleton />}>{children}</Suspense>;
+}
 
 const App = () => (
   <GlobalErrorBoundary>
@@ -395,6 +406,7 @@ const App = () => (
                       <AdminEditProvider>
                       <NotificationListener />
                       <GlobalRealtimeSync />
+                      <Suspense fallback={<PageSkeleton />}>
                       <Routes>
                         <Route path="/" element={<Landing />} />
                         <Route path="/nexus" element={<Nexus />} />
@@ -881,10 +893,10 @@ const App = () => (
                       <Route path="app/calendar" element={<XstageCalendar />} />
                       <Route path="app/chat" element={<XstageChat />} />
                       <Route path="app/files" element={<XstageFiles />} />
-                      <Route path="app/songs" element={<XstageSongs />} />
-                      <Route path="app/soundlab" element={<XstageSoundLab />} />
+                      <Route path="app/songs" element={<XstagePlaceholders />} />
+                      <Route path="app/soundlab" element={<XstageSoundLabLazy />} />
                       <Route path="app/team" element={<XstageTeam />} />
-                      <Route path="app/settings" element={<XstageSettings />} />
+                      <Route path="app/settings" element={<XstageSettingsLazy />} />
                       <Route path="app/project-settings" element={<XstageProjectSettings />} />
                     </Route>
                     
@@ -903,6 +915,7 @@ const App = () => (
                     
                     <Route path="*" element={<Landing />} />
                     </Routes>
+                    </Suspense>
                     <FloatingAIChat />
                   </AdminEditProvider>
                   </AuthProvider>
