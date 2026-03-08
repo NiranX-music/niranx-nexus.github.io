@@ -23,6 +23,7 @@ const Landing = () => {
         <AboutSection />
         <MusicSection />
         <TestimonialsSection />
+        <UpdatesPanel />
         <CTASection />
       </main>
       <Footer3D />
