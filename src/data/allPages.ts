@@ -61,6 +61,8 @@ export const allPages: PageInfo[] = [
   { name: "Leaderboard", route: "/niranx/leaderboard", description: "Global rankings and competitions", category: "Progress", accessLevel: "Authenticated", icon: "Trophy" },
   { name: "Reward Store", route: "/niranx/reward-store", description: "Redeem XP for rewards", category: "Progress", accessLevel: "Authenticated", icon: "ShoppingBag" },
   { name: "Games", route: "/niranx/games", description: "Educational games", category: "Progress", accessLevel: "Authenticated", icon: "Gamepad2" },
+  { name: "Study Diary", route: "/niranx/study-diary", description: "Daily study journal with mood tracking and reflections", category: "Progress", accessLevel: "Authenticated", icon: "BookOpen" },
+  { name: "Knowledge Graph", route: "/niranx/knowledge-graph", description: "Interactive topic connection visualization", category: "Study", accessLevel: "Authenticated", icon: "Brain" },
 
   // XVibe Music Platform
   { name: "XVibe Landing", route: "/xvibe", description: "XVibe music platform landing", category: "XVibe", accessLevel: "Public", icon: "Music" },
@@ -90,6 +92,7 @@ export const allPages: PageInfo[] = [
 
   // Communication & Social
   { name: "Messages", route: "/niranx/messages", description: "Direct messaging system", category: "Social", accessLevel: "Authenticated", icon: "MessageCircle" },
+  { name: "Social Chat", route: "/niranx/social-chat", description: "Instagram-style chat dashboard with stories and reactions", category: "Social", accessLevel: "Authenticated", icon: "MessageCircle" },
   { name: "Community", route: "/niranx/community", description: "Chat rooms and social features", category: "Social", accessLevel: "Authenticated", icon: "MessagesSquare" },
   { name: "Study Guilds", route: "/niranx/guilds", description: "Create or join study guilds", category: "Social", accessLevel: "Authenticated", icon: "Shield" },
   { name: "Blogs", route: "/niranx/blogs", description: "Community blogs and articles", category: "Social", accessLevel: "Authenticated", icon: "BookOpen" },

@@ -315,7 +315,11 @@ import ExamSimulator from "./pages/ExamSimulator";
 import ConceptExplainer from "./pages/ConceptExplainer";
 import ExtensionDownload from "./pages/ExtensionDownload";
 
-// Support Pages
+// Phase 8: Social & Knowledge
+import SocialChatDashboard from "./pages/SocialChatDashboard";
+import StudyDiary from "./pages/StudyDiary";
+import KnowledgeGraph from "./pages/KnowledgeGraph";
+
 import Contact from "./pages/support/Contact";
 import HelpCentre from "./pages/support/HelpCentre";
 import PrivacyPolicy from "./pages/support/PrivacyPolicy";
@@ -665,6 +669,11 @@ const App = () => (
                           <Route path="/xmail" element={<Mailbox />} />
                           <Route path="/xmail/profile/:slug" element={<XmailProfile />} />
                           <Route path="/xmail/view/:slug" element={<XmailView />} />
+                          
+                          {/* Phase 8 */}
+                          <Route path="/social-chat" element={<SocialChatDashboard />} />
+                          <Route path="/study-diary" element={<StudyDiary />} />
+                          <Route path="/knowledge-graph" element={<KnowledgeGraph />} />
                           
                           {/* Support Pages */}
                           <Route path="/about" element={<AboutUs />} />

@@ -241,6 +241,8 @@ const navigationConfig = {
       { title: "Leaderboard", url: "/leaderboard", icon: Trophy },
       { title: "Reward Store", url: "/reward-store", icon: ShoppingBag },
       { title: "Games", url: "/games", icon: Gamepad2 },
+      { title: "Study Diary", url: "/study-diary", icon: BookOpen },
+      { title: "Knowledge Graph", url: "/knowledge-graph", icon: Brain },
     ],
   },
   tests: {
@@ -285,6 +287,7 @@ const navigationConfig = {
     icon: Users,
     color: "from-primary/90 to-accent/90",
     items: [
+      { title: "Social Chat", url: "/social-chat", icon: MessageCircle },
       { title: "Messages", url: "/messages", icon: MessageCircle },
       { title: "Community", url: "/community", icon: MessagesSquare },
       { title: "Community Forums", url: "/forums", icon: MessagesSquare },
