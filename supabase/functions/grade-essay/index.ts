@@ -122,12 +122,72 @@ Provide comprehensive feedback and grading.`;
         ],
         response_format: { type: 'json_object' },
       };
+    } else if (provider === 'groq') {
+      apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
+      const GROQ_API_KEY = Deno.env.get('GROQ_API_KEY');
+      if (!GROQ_API_KEY) throw new Error('GROQ_API_KEY is not configured');
+      headers = {
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
+        'Content-Type': 'application/json',
+      };
+      body = {
+        model: model || 'llama-3.3-70b-versatile',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ],
+        response_format: { type: 'json_object' },
+      };
+    } else if (provider === 'deepseek') {
+      apiUrl = 'https://api.deepseek.com/v1/chat/completions';
+      const DEEPSEEK_API_KEY = Deno.env.get('DEEPSEEK_API_KEY');
+      if (!DEEPSEEK_API_KEY) throw new Error('DEEPSEEK_API_KEY is not configured');
+      headers = {
+        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`,
+        'Content-Type': 'application/json',
+      };
+      body = {
+        model: model || 'deepseek-chat',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ],
+        response_format: { type: 'json_object' },
+      };
+    } else if (provider === 'perplexity') {
+      apiUrl = 'https://api.perplexity.ai/chat/completions';
+      const PERPLEXITY_API_KEY = Deno.env.get('PERPLEXITY_API_KEY');
+      if (!PERPLEXITY_API_KEY) throw new Error('PERPLEXITY_API_KEY is not configured');
+      headers = {
+        'Authorization': `Bearer ${PERPLEXITY_API_KEY}`,
+        'Content-Type': 'application/json',
+      };
+      body = {
+        model: model || 'sonar-pro',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ],
+      };
+    } else if (provider === 'aiml') {
+      apiUrl = 'https://api.aimlapi.com/chat/completions';
+      const AIML_API_KEY = Deno.env.get('AIML_API_KEY');
+      if (!AIML_API_KEY) throw new Error('AIML_API_KEY is not configured');
+      headers = {
+        'Authorization': `Bearer ${AIML_API_KEY}`,
+        'Content-Type': 'application/json',
+      };
+      body = {
+        model: model || 'gpt-4o',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ],
+      };
     } else {
       apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
       const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
-      if (!OPENROUTER_API_KEY) {
-        throw new Error('OPENROUTER_API_KEY is not configured');
-      }
+      if (!OPENROUTER_API_KEY) throw new Error('OPENROUTER_API_KEY is not configured');
       headers = {
         'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
