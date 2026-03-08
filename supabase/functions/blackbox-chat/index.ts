@@ -6,6 +6,18 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
+// Map Xvibing model names to Groq models
+function mapToGroqModel(model: string): string {
+  const map: Record<string, string> = {
+    'blackboxai': 'llama-3.3-70b-versatile',
+    'blackboxai-pro': 'llama-3.3-70b-versatile',
+    'gpt-4o': 'llama-3.3-70b-versatile',
+    'claude-3-sonnet': 'mixtral-8x7b-32768',
+    'gemini-pro': 'llama-3.3-70b-versatile',
+  };
+  return map[model] || 'llama-3.3-70b-versatile';
+}
+
 // Map Xvibing model names to Lovable AI models
 function mapToLovableModel(model: string): string {
   const map: Record<string, string> = {
@@ -54,45 +66,42 @@ serve(async (req) => {
       content: m.content,
     }));
 
-    // Try OpenRouter first, fall back to Lovable AI
+    // Try Groq first, fall back to Lovable AI
     let responseContent = '';
     let usedFallback = false;
 
-    const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
-    if (OPENROUTER_API_KEY) {
+    const GROQ_API_KEY = Deno.env.get('GROQ_API_KEY');
+    if (GROQ_API_KEY) {
       try {
-        // Use models that are actually available on OpenRouter
-        const orModel = model === 'blackboxai' ? 'meta-llama/llama-3.1-8b-instruct' :
-                        model === 'blackboxai-pro' ? 'meta-llama/llama-3.1-70b-instruct' :
-                        model === 'gpt-4o' ? 'openai/gpt-4o' :
-                        model === 'claude-3-sonnet' ? 'anthropic/claude-3-sonnet' :
-                        model === 'gemini-pro' ? 'google/gemini-pro' : 'meta-llama/llama-3.1-8b-instruct';
+        const groqModel = mapToGroqModel(model);
+        console.log('Using Groq with model:', groqModel);
 
-        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-            'HTTP-Referer': 'https://niranx.com',
-            'X-Title': 'NiranX Xvibing',
+            'Authorization': `Bearer ${GROQ_API_KEY}`,
           },
           body: JSON.stringify({
-            model: orModel,
-            messages: formattedMessages,
+            model: groqModel,
+            messages: [
+              { role: 'system', content: 'You are Xvibing, an expert AI coding assistant. Help users write, debug, and understand code. Provide clear, well-structured responses with code examples when appropriate.' },
+              ...formattedMessages,
+            ],
             max_tokens: 4096,
           }),
         });
 
         if (!response.ok) {
           const errorText = await response.text();
-          console.warn('OpenRouter failed:', response.status, errorText);
-          throw new Error(`OpenRouter error: ${response.status}`);
+          console.warn('Groq failed:', response.status, errorText);
+          throw new Error(`Groq error: ${response.status}`);
         }
 
         const data = await response.json();
         responseContent = data.choices?.[0]?.message?.content || 'No response received';
-      } catch (orError) {
-        console.warn('OpenRouter failed, falling back to Lovable AI:', orError);
+      } catch (groqError) {
+        console.warn('Groq failed, falling back to Lovable AI:', groqError);
         usedFallback = true;
       }
     } else {
