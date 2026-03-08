@@ -446,6 +446,7 @@ const DocsPWA = lazy(() => import("./pages/docs/deploy/DocsPWA"));
 const DocsAnalyticsPage = lazy(() => import("./pages/docs/optimize/DocsAnalytics"));
 const DocsFocusAnalytics = lazy(() => import("./pages/docs/optimize/DocsFocusAnalytics"));
 const DocsGamification = lazy(() => import("./pages/docs/optimize/DocsGamification"));
+const DocsStreaks = lazy(() => import("./pages/docs/optimize/DocsStreaks"));
 const DocsSecurityOverview = lazy(() => import("./pages/docs/security/DocsSecurityOverview"));
 const Docs2FA = lazy(() => import("./pages/docs/security/Docs2FA"));
 const DocsSessions = lazy(() => import("./pages/docs/security/DocsSessions"));
@@ -549,6 +550,7 @@ const App = () => (
                           <Route path="optimize/analytics" element={<DocsAnalyticsPage />} />
                           <Route path="optimize/focus-analytics" element={<DocsFocusAnalytics />} />
                           <Route path="optimize/gamification" element={<DocsGamification />} />
+                          <Route path="optimize/streaks" element={<DocsStreaks />} />
                           <Route path="security/overview" element={<DocsSecurityOverview />} />
                           <Route path="security/2fa" element={<Docs2FA />} />
                           <Route path="security/sessions" element={<DocsSessions />} />
