@@ -93,6 +93,8 @@ import {
   Bot,
   Hammer,
   Activity,
+  Clipboard,
+  GitBranch,
 } from "lucide-react";
 import {
   Sidebar,
