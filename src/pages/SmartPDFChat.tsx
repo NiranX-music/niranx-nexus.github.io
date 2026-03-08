@@ -54,12 +54,14 @@ export default function SmartPDFChat() {
   }, [messages]);
 
   const extractTextFromPDF = async (file: File): Promise<{ text: string; pages: number }> => {
-    // Using pdf.js for text extraction
     const pdfjsLib = await import('pdfjs-dist');
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+    
+    // Use the bundled worker from the installed package
+    const pdfjsVersion = pdfjsLib.version;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsVersion}/pdf.worker.min.mjs`;
     
     const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
     let fullText = "";
     
     for (let i = 1; i <= pdf.numPages; i++) {
@@ -69,6 +71,10 @@ export default function SmartPDFChat() {
         .map((item: any) => item.str)
         .join(" ");
       fullText += `\n--- Page ${i} ---\n${pageText}`;
+    }
+    
+    if (!fullText.trim()) {
+      throw new Error('No text could be extracted from this PDF. It may be image-based or scanned.');
     }
     
     return { text: fullText, pages: pdf.numPages };
@@ -173,13 +179,12 @@ ${documentContext}
 
 Answer questions based on the document content. If the answer cannot be found in the documents, say so clearly. Provide specific references to page numbers when relevant.`;
 
+      const fullContent = `${systemPrompt}\n\nConversation so far:\n${messages.map(m => `${m.role}: ${m.content}`).join('\n')}\n\nUser: ${input}`;
+
       const response = await supabase.functions.invoke("smart-pdf-chat", {
         body: {
-          messages: [
-            { role: "system", content: systemPrompt },
-            ...messages.map(m => ({ role: m.role, content: m.content })),
-            { role: "user", content: input },
-          ],
+          content: fullContent,
+          action: "chat",
           provider,
           model,
         },
@@ -190,7 +195,7 @@ Answer questions based on the document content. If the answer cannot be found in
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: response.data.content || "I couldn't generate a response. Please try again.",
+        content: response.data?.result || response.data?.content || "I couldn't generate a response. Please try again.",
         timestamp: new Date(),
       };
 

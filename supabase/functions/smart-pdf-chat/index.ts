@@ -53,37 +53,67 @@ serve(async (req) => {
     } else if (provider === "openrouter") {
       const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
       if (!OPENROUTER_API_KEY) throw new Error("OpenRouter API key not configured");
-
       response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
-        headers: {
-          "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
-          "Content-Type": "application/json",
-        },
+        headers: { "Authorization": `Bearer ${OPENROUTER_API_KEY}`, "Content-Type": "application/json" },
         body: JSON.stringify({
           model: model || "google/gemini-flash-1.5",
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userPrompt }
-          ],
+          messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
+        }),
+      });
+    } else if (provider === "groq") {
+      const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
+      if (!GROQ_API_KEY) throw new Error("Groq API key not configured");
+      response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${GROQ_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: model || "llama-3.3-70b-versatile",
+          messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
+        }),
+      });
+    } else if (provider === "deepseek") {
+      const DEEPSEEK_API_KEY = Deno.env.get("DEEPSEEK_API_KEY");
+      if (!DEEPSEEK_API_KEY) throw new Error("DeepSeek API key not configured");
+      response = await fetch("https://api.deepseek.com/v1/chat/completions", {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${DEEPSEEK_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: model || "deepseek-chat",
+          messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
+        }),
+      });
+    } else if (provider === "aiml") {
+      const AIML_API_KEY = Deno.env.get("AIML_API_KEY");
+      if (!AIML_API_KEY) throw new Error("AIML API key not configured");
+      response = await fetch("https://api.aimlapi.com/chat/completions", {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${AIML_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: model || "gpt-4o",
+          messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
+        }),
+      });
+    } else if (provider === "perplexity") {
+      const PERPLEXITY_API_KEY = Deno.env.get("PERPLEXITY_API_KEY");
+      if (!PERPLEXITY_API_KEY) throw new Error("Perplexity API key not configured");
+      response = await fetch("https://api.perplexity.ai/chat/completions", {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${PERPLEXITY_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: model || "sonar-pro",
+          messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
         }),
       });
     } else {
       const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
       if (!LOVABLE_API_KEY) throw new Error("Lovable API key not configured");
-
       response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
-        headers: {
-          "Authorization": `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
+        headers: { "Authorization": `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
         body: JSON.stringify({
           model: model || "google/gemini-2.5-flash",
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userPrompt }
-          ],
+          messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
         }),
       });
     }
