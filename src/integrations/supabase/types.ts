@@ -8144,6 +8144,39 @@ export type Database = {
         }
         Relationships: []
       }
+      streak_badges: {
+        Row: {
+          badge_color: string
+          created_at: string | null
+          description: string | null
+          icon: string
+          id: string
+          name: string
+          rarity: string
+          streak_requirement: number
+        }
+        Insert: {
+          badge_color?: string
+          created_at?: string | null
+          description?: string | null
+          icon: string
+          id?: string
+          name: string
+          rarity?: string
+          streak_requirement: number
+        }
+        Update: {
+          badge_color?: string
+          created_at?: string | null
+          description?: string | null
+          icon?: string
+          id?: string
+          name?: string
+          rarity?: string
+          streak_requirement?: number
+        }
+        Relationships: []
+      }
       streak_milestones: {
         Row: {
           achieved_at: string | null
@@ -9803,6 +9836,64 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_earned_badges: {
+        Row: {
+          badge_id: string
+          earned_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          earned_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          earned_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_earned_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "streak_badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_equipped_badges: {
+        Row: {
+          badge_id: string
+          equipped_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          equipped_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          equipped_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_equipped_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "streak_badges"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_favorites: {
         Row: {
@@ -13685,6 +13776,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      auto_award_streak_badges: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
       calculate_level: { Args: { xp_amount: number }; Returns: number }
       can_create_website: { Args: { p_user_id: string }; Returns: boolean }
       generate_ai_generation_slug: { Args: never; Returns: string }
