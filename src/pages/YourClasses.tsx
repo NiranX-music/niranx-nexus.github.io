@@ -58,11 +58,11 @@ export default function YourClasses() {
     if (!user) return;
     const { data } = await supabase
       .from("live_classes")
-      .select("id, title, subject, scheduled_start, scheduled_end, status, class_link, channel_name")
+      .select("id, title, subject, scheduled_start, scheduled_end, status, class_link")
       .eq("user_id", user.id)
       .in("status", ["scheduled", "live"])
       .order("scheduled_start");
-    if (data) setLiveClasses(data);
+    if (data) setLiveClasses(data as any);
   }, [user]);
 
   useEffect(() => { fetchClasses(); }, [fetchClasses]);
