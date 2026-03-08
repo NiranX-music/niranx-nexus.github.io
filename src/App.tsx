@@ -229,6 +229,7 @@ const FerqX = lazy(() => import("./pages/FerqX"));
 const Integrations = lazy(() => import("./pages/Integrations"));
 const BytezAI = lazy(() => import("./pages/BytezAI"));
 const XNexusAI = lazy(() => import("./pages/XNexusAI"));
+const HuggingFaceHub = lazy(() => import("./pages/HuggingFaceHub"));
 const CustomPage = lazy(() => import("./pages/CustomPage"));
 const UserAppLibrary = lazy(() => import("./pages/UserAppLibrary"));
 const SubmitApp = lazy(() => import("./pages/SubmitApp"));
