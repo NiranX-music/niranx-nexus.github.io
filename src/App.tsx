@@ -414,6 +414,62 @@ const XstagePlaceholders = lazy(() => import("./xstage/pages/XstagePlaceholders"
 const XstageSoundLabLazy = lazy(() => import("./xstage/pages/XstagePlaceholders").then(m => ({ default: m.XstageSoundLab })));
 const XstageSettingsLazy = lazy(() => import("./xstage/pages/XstagePlaceholders").then(m => ({ default: m.XstageSettings })));
 
+// Docs Platform
+const DocsLayout = lazy(() => import("./components/docs/DocsLayout").then(m => ({ default: m.DocsLayout })));
+const DocsWelcome = lazy(() => import("./pages/docs/DocsWelcome"));
+const DocsQuickStart = lazy(() => import("./pages/docs/DocsQuickStart"));
+const DocsOverview = lazy(() => import("./pages/docs/DocsOverview"));
+const DocsChangelog = lazy(() => import("./pages/docs/DocsChangelog"));
+const DocsAIHub = lazy(() => import("./pages/docs/features/DocsAIHub"));
+const DocsXGenesisAI = lazy(() => import("./pages/docs/features/DocsXGenesisAI"));
+const DocsCodePlayground = lazy(() => import("./pages/docs/features/DocsCodePlayground"));
+const DocsCustomPagesDoc = lazy(() => import("./pages/docs/features/DocsCustomPages"));
+const DocsIntegrationsDoc = lazy(() => import("./pages/docs/features/DocsIntegrations"));
+const DocsFocusEngine = lazy(() => import("./pages/docs/features/DocsFocusEngine"));
+const DocsFlashcards = lazy(() => import("./pages/docs/features/DocsFlashcards"));
+const DocsVirtualLabs = lazy(() => import("./pages/docs/features/DocsVirtualLabs"));
+const DocsStudyGroupsDoc = lazy(() => import("./pages/docs/features/DocsStudyGroups"));
+const DocsExamHub = lazy(() => import("./pages/docs/features/DocsExamHub"));
+const DocsThemes = lazy(() => import("./pages/docs/design/DocsThemes"));
+const DocsDesignSystem = lazy(() => import("./pages/docs/design/DocsDesignSystem"));
+const DocsWidgets = lazy(() => import("./pages/docs/design/DocsWidgets"));
+const DocsStudyRooms = lazy(() => import("./pages/docs/collaborate/DocsStudyRooms"));
+const DocsClassrooms = lazy(() => import("./pages/docs/collaborate/DocsClassrooms"));
+const DocsCommunity = lazy(() => import("./pages/docs/collaborate/DocsCommunity"));
+const DocsXFlow = lazy(() => import("./pages/docs/collaborate/DocsXFlow"));
+const DocsPublishing = lazy(() => import("./pages/docs/deploy/DocsPublishing"));
+const DocsCustomDomains = lazy(() => import("./pages/docs/deploy/DocsCustomDomains"));
+const DocsPWA = lazy(() => import("./pages/docs/deploy/DocsPWA"));
+const DocsAnalyticsPage = lazy(() => import("./pages/docs/optimize/DocsAnalytics"));
+const DocsFocusAnalytics = lazy(() => import("./pages/docs/optimize/DocsFocusAnalytics"));
+const DocsGamification = lazy(() => import("./pages/docs/optimize/DocsGamification"));
+const DocsSecurityOverview = lazy(() => import("./pages/docs/security/DocsSecurityOverview"));
+const Docs2FA = lazy(() => import("./pages/docs/security/Docs2FA"));
+const DocsSessions = lazy(() => import("./pages/docs/security/DocsSessions"));
+const DocsAuditLogs = lazy(() => import("./pages/docs/security/DocsAuditLogs"));
+const DocsPrivacy = lazy(() => import("./pages/docs/security/DocsPrivacy"));
+const DocsSSO = lazy(() => import("./pages/docs/security/DocsSSO"));
+const DocsAPIOverview = lazy(() => import("./pages/docs/api/DocsAPIOverview"));
+const DocsAIAPI = lazy(() => import("./pages/docs/api/DocsAIAPI"));
+const DocsRestAPI = lazy(() => import("./pages/docs/api/DocsRestAPI"));
+const DocsWebhooks = lazy(() => import("./pages/docs/api/DocsWebhooks"));
+const DocsRateLimits = lazy(() => import("./pages/docs/api/DocsRateLimits"));
+const DocsAdminDashboard = lazy(() => import("./pages/docs/admin/DocsAdminDashboard"));
+const DocsRoles = lazy(() => import("./pages/docs/admin/DocsRoles"));
+const DocsModeration = lazy(() => import("./pages/docs/admin/DocsModeration"));
+const DocsPageManagement = lazy(() => import("./pages/docs/admin/DocsPages"));
+
+// Nexus Showcase Pages
+const NexusAIHub = lazy(() => import("./pages/nexus/NexusAIHub"));
+const NexusXVibeMusic = lazy(() => import("./pages/nexus/NexusXVibeMusic"));
+const NexusLearnZone = lazy(() => import("./pages/nexus/NexusLearnZone"));
+const NexusProjects = lazy(() => import("./pages/nexus/NexusProjects"));
+const NexusGaming = lazy(() => import("./pages/nexus/NexusGaming"));
+const NexusStreaming = lazy(() => import("./pages/nexus/NexusStreaming"));
+const NexusCommunityPage = lazy(() => import("./pages/nexus/NexusCommunity"));
+const NexusDevTools = lazy(() => import("./pages/nexus/NexusDevTools"));
+const NexusCreative = lazy(() => import("./pages/nexus/NexusCreative"));
+
 const queryClient = new QueryClient();
 
 // Suspense wrapper for lazy routes
