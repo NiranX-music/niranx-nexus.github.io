@@ -309,6 +309,7 @@ export const allPages: PageInfo[] = [
   { name: "Scryfall MTG Search", route: "/niranx/scryfall-search", description: "Search Magic: The Gathering cards via Scryfall API", category: "Tools", accessLevel: "Authenticated", icon: "Sparkles" },
   { name: "SpaceX Dashboard", route: "/niranx/spacex", description: "Real-time SpaceX launch, rocket, capsule, starlink and launchpad data", category: "Tools", accessLevel: "Authenticated", icon: "Rocket" },
   { name: "XGames", route: "/xgames", description: "Play HTML5 games powered by GameDistribution", category: "Progress", accessLevel: "Authenticated", icon: "Gamepad2" },
+  { name: "Sunrise & Sunset", route: "/sunrise-sunset", description: "Real-time sunrise, sunset, dawn, dusk and golden hour data", category: "Tools", accessLevel: "Authenticated", icon: "Sun" },
 ];
 
 export const pageCategories = [

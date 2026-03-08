@@ -97,6 +97,7 @@ import {
   GitBranch,
   Keyboard,
   Box,
+  Sun,
 } from "lucide-react";
 import {
   Sidebar,
@@ -256,6 +257,7 @@ const navigationConfig = {
       { title: "Reward Store", url: "/reward-store", icon: ShoppingBag },
       { title: "Games", url: "/games", icon: Gamepad2 },
       { title: "XGames", url: "/xgames", icon: Gamepad2 },
+      { title: "Sunrise & Sunset", url: "/sunrise-sunset", icon: Sun },
       { title: "Study Diary", url: "/study-diary", icon: BookOpen },
       { title: "Knowledge Graph", url: "/knowledge-graph", icon: Brain },
     ],
