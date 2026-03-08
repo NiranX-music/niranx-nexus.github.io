@@ -260,6 +260,7 @@ const XFeed = lazy(() => import("./pages/XFeed"));
 const XClip = lazy(() => import("./pages/XClip"));
 const XMap = lazy(() => import("./pages/XMap"));
 const XBot = lazy(() => import("./pages/XBot"));
+const XGames = lazy(() => import("./pages/XGames"));
 
 const AboutUs = lazy(() => import("./pages/support/AboutUs"));
 const Careers = lazy(() => import("./pages/support/Careers"));
@@ -741,6 +742,7 @@ const App = () => (
                           <Route path="/xclip" element={<XClip />} />
                           <Route path="/xmap" element={<XMap />} />
                           <Route path="/xbot" element={<XBot />} />
+                          <Route path="/xgames" element={<XGames />} />
                           
                           {/* Support Pages */}
                           <Route path="/about" element={<AboutUs />} />
