@@ -330,6 +330,24 @@ export const allPages: PageInfo[] = [
   { name: "XAPI: Government", route: "/xapi-government", description: "Census, FBI wanted, federal documents", category: "Tools", accessLevel: "Authenticated", icon: "Landmark" },
   { name: "XAPI: Health", route: "/xapi-health", description: "Disease tracking, FDA, WHO health data", category: "Tools", accessLevel: "Authenticated", icon: "Heart" },
   { name: "Your Classes", route: "/your-classes", description: "Live classes, study materials, and quick navigation shortcuts", category: "Study", accessLevel: "Authenticated", icon: "GraduationCap" },
+
+  // Documentation Platform
+  { name: "Docs - Welcome", route: "/docs/welcome", description: "Platform documentation home", category: "Documentation", accessLevel: "Public", icon: "BookOpen" },
+  { name: "Docs - Quick Start", route: "/docs/quick-start", description: "Getting started guide", category: "Documentation", accessLevel: "Public", icon: "Zap" },
+  { name: "Docs - API Overview", route: "/docs/api/overview", description: "API documentation", category: "Documentation", accessLevel: "Public", icon: "Code" },
+  { name: "Docs - AI API", route: "/docs/api/ai-api", description: "AI API reference", category: "Documentation", accessLevel: "Public", icon: "Brain" },
+  { name: "Docs - Security", route: "/docs/security/overview", description: "Security documentation", category: "Documentation", accessLevel: "Public", icon: "Shield" },
+
+  // Nexus Showcase Pages
+  { name: "Nexus - AI Hub", route: "/nexus/ai-hub", description: "AI Hub showcase page", category: "Nexus", accessLevel: "Public", icon: "Brain" },
+  { name: "Nexus - XVibe Music", route: "/nexus/xvibe-music", description: "XVibe Music showcase", category: "Nexus", accessLevel: "Public", icon: "Music" },
+  { name: "Nexus - Learn Zone", route: "/nexus/learn-zone", description: "Learn Zone showcase", category: "Nexus", accessLevel: "Public", icon: "GraduationCap" },
+  { name: "Nexus - Projects", route: "/nexus/projects", description: "Projects showcase", category: "Nexus", accessLevel: "Public", icon: "Rocket" },
+  { name: "Nexus - Gaming", route: "/nexus/gaming", description: "Gaming showcase", category: "Nexus", accessLevel: "Public", icon: "Gamepad2" },
+  { name: "Nexus - Streaming", route: "/nexus/streaming", description: "Streaming showcase", category: "Nexus", accessLevel: "Public", icon: "Video" },
+  { name: "Nexus - Community", route: "/nexus/community", description: "Community showcase", category: "Nexus", accessLevel: "Public", icon: "MessageSquare" },
+  { name: "Nexus - Dev Tools", route: "/nexus/dev-tools", description: "Dev Tools showcase", category: "Nexus", accessLevel: "Public", icon: "Code" },
+  { name: "Nexus - Creative", route: "/nexus/creative", description: "Creative tools showcase", category: "Nexus", accessLevel: "Public", icon: "Palette" },
 ];
 
 export const pageCategories = [
@@ -352,6 +370,7 @@ export const pageCategories = [
   "Security",
   "Archive",
   "Nexus",
+  "Documentation",
   "More"
 ];
 

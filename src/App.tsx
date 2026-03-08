@@ -414,6 +414,62 @@ const XstagePlaceholders = lazy(() => import("./xstage/pages/XstagePlaceholders"
 const XstageSoundLabLazy = lazy(() => import("./xstage/pages/XstagePlaceholders").then(m => ({ default: m.XstageSoundLab })));
 const XstageSettingsLazy = lazy(() => import("./xstage/pages/XstagePlaceholders").then(m => ({ default: m.XstageSettings })));
 
+// Docs Platform
+const DocsLayout = lazy(() => import("./components/docs/DocsLayout").then(m => ({ default: m.DocsLayout })));
+const DocsWelcome = lazy(() => import("./pages/docs/DocsWelcome"));
+const DocsQuickStart = lazy(() => import("./pages/docs/DocsQuickStart"));
+const DocsOverview = lazy(() => import("./pages/docs/DocsOverview"));
+const DocsChangelog = lazy(() => import("./pages/docs/DocsChangelog"));
+const DocsAIHub = lazy(() => import("./pages/docs/features/DocsAIHub"));
+const DocsXGenesisAI = lazy(() => import("./pages/docs/features/DocsXGenesisAI"));
+const DocsCodePlayground = lazy(() => import("./pages/docs/features/DocsCodePlayground"));
+const DocsCustomPagesDoc = lazy(() => import("./pages/docs/features/DocsCustomPages"));
+const DocsIntegrationsDoc = lazy(() => import("./pages/docs/features/DocsIntegrations"));
+const DocsFocusEngine = lazy(() => import("./pages/docs/features/DocsFocusEngine"));
+const DocsFlashcards = lazy(() => import("./pages/docs/features/DocsFlashcards"));
+const DocsVirtualLabs = lazy(() => import("./pages/docs/features/DocsVirtualLabs"));
+const DocsStudyGroupsDoc = lazy(() => import("./pages/docs/features/DocsStudyGroups"));
+const DocsExamHub = lazy(() => import("./pages/docs/features/DocsExamHub"));
+const DocsThemes = lazy(() => import("./pages/docs/design/DocsThemes"));
+const DocsDesignSystem = lazy(() => import("./pages/docs/design/DocsDesignSystem"));
+const DocsWidgets = lazy(() => import("./pages/docs/design/DocsWidgets"));
+const DocsStudyRooms = lazy(() => import("./pages/docs/collaborate/DocsStudyRooms"));
+const DocsClassrooms = lazy(() => import("./pages/docs/collaborate/DocsClassrooms"));
+const DocsCommunity = lazy(() => import("./pages/docs/collaborate/DocsCommunity"));
+const DocsXFlow = lazy(() => import("./pages/docs/collaborate/DocsXFlow"));
+const DocsPublishing = lazy(() => import("./pages/docs/deploy/DocsPublishing"));
+const DocsCustomDomains = lazy(() => import("./pages/docs/deploy/DocsCustomDomains"));
+const DocsPWA = lazy(() => import("./pages/docs/deploy/DocsPWA"));
+const DocsAnalyticsPage = lazy(() => import("./pages/docs/optimize/DocsAnalytics"));
+const DocsFocusAnalytics = lazy(() => import("./pages/docs/optimize/DocsFocusAnalytics"));
+const DocsGamification = lazy(() => import("./pages/docs/optimize/DocsGamification"));
+const DocsSecurityOverview = lazy(() => import("./pages/docs/security/DocsSecurityOverview"));
+const Docs2FA = lazy(() => import("./pages/docs/security/Docs2FA"));
+const DocsSessions = lazy(() => import("./pages/docs/security/DocsSessions"));
+const DocsAuditLogs = lazy(() => import("./pages/docs/security/DocsAuditLogs"));
+const DocsPrivacy = lazy(() => import("./pages/docs/security/DocsPrivacy"));
+const DocsSSO = lazy(() => import("./pages/docs/security/DocsSSO"));
+const DocsAPIOverview = lazy(() => import("./pages/docs/api/DocsAPIOverview"));
+const DocsAIAPI = lazy(() => import("./pages/docs/api/DocsAIAPI"));
+const DocsRestAPI = lazy(() => import("./pages/docs/api/DocsRestAPI"));
+const DocsWebhooks = lazy(() => import("./pages/docs/api/DocsWebhooks"));
+const DocsRateLimits = lazy(() => import("./pages/docs/api/DocsRateLimits"));
+const DocsAdminDashboard = lazy(() => import("./pages/docs/admin/DocsAdminDashboard"));
+const DocsRoles = lazy(() => import("./pages/docs/admin/DocsRoles"));
+const DocsModeration = lazy(() => import("./pages/docs/admin/DocsModeration"));
+const DocsPageManagement = lazy(() => import("./pages/docs/admin/DocsPages"));
+
+// Nexus Showcase Pages
+const NexusAIHub = lazy(() => import("./pages/nexus/NexusAIHub"));
+const NexusXVibeMusic = lazy(() => import("./pages/nexus/NexusXVibeMusic"));
+const NexusLearnZone = lazy(() => import("./pages/nexus/NexusLearnZone"));
+const NexusProjects = lazy(() => import("./pages/nexus/NexusProjects"));
+const NexusGaming = lazy(() => import("./pages/nexus/NexusGaming"));
+const NexusStreaming = lazy(() => import("./pages/nexus/NexusStreaming"));
+const NexusCommunityPage = lazy(() => import("./pages/nexus/NexusCommunity"));
+const NexusDevTools = lazy(() => import("./pages/nexus/NexusDevTools"));
+const NexusCreative = lazy(() => import("./pages/nexus/NexusCreative"));
+
 const queryClient = new QueryClient();
 
 // Suspense wrapper for lazy routes
@@ -448,6 +504,64 @@ const App = () => (
                         <Route path="/" element={<Landing />} />
                         <Route path="/nexus" element={<Nexus />} />
                         <Route path="/nexus/:categorySlug" element={<AppLayout><NexusCategory /></AppLayout>} />
+                        
+                        {/* Nexus Showcase Pages */}
+                        <Route path="/nexus/ai-hub" element={<NexusAIHub />} />
+                        <Route path="/nexus/xvibe-music" element={<NexusXVibeMusic />} />
+                        <Route path="/nexus/learn-zone" element={<NexusLearnZone />} />
+                        <Route path="/nexus/projects" element={<NexusProjects />} />
+                        <Route path="/nexus/gaming" element={<NexusGaming />} />
+                        <Route path="/nexus/streaming" element={<NexusStreaming />} />
+                        <Route path="/nexus/community" element={<NexusCommunityPage />} />
+                        <Route path="/nexus/dev-tools" element={<NexusDevTools />} />
+                        <Route path="/nexus/creative" element={<NexusCreative />} />
+
+                        {/* Docs Platform */}
+                        <Route path="/docs" element={<DocsLayout />}>
+                          <Route index element={<DocsWelcome />} />
+                          <Route path="welcome" element={<DocsWelcome />} />
+                          <Route path="quick-start" element={<DocsQuickStart />} />
+                          <Route path="overview" element={<DocsOverview />} />
+                          <Route path="changelog" element={<DocsChangelog />} />
+                          <Route path="features/ai-hub" element={<DocsAIHub />} />
+                          <Route path="features/xgenesis-ai" element={<DocsXGenesisAI />} />
+                          <Route path="features/code-playground" element={<DocsCodePlayground />} />
+                          <Route path="features/custom-pages" element={<DocsCustomPagesDoc />} />
+                          <Route path="features/integrations" element={<DocsIntegrationsDoc />} />
+                          <Route path="features/focus-engine" element={<DocsFocusEngine />} />
+                          <Route path="features/flashcards" element={<DocsFlashcards />} />
+                          <Route path="features/virtual-labs" element={<DocsVirtualLabs />} />
+                          <Route path="features/study-groups" element={<DocsStudyGroupsDoc />} />
+                          <Route path="features/exam-hub" element={<DocsExamHub />} />
+                          <Route path="design/themes" element={<DocsThemes />} />
+                          <Route path="design/design-system" element={<DocsDesignSystem />} />
+                          <Route path="design/widgets" element={<DocsWidgets />} />
+                          <Route path="collaborate/study-rooms" element={<DocsStudyRooms />} />
+                          <Route path="collaborate/classrooms" element={<DocsClassrooms />} />
+                          <Route path="collaborate/community" element={<DocsCommunity />} />
+                          <Route path="collaborate/xflow" element={<DocsXFlow />} />
+                          <Route path="deploy/publishing" element={<DocsPublishing />} />
+                          <Route path="deploy/custom-domains" element={<DocsCustomDomains />} />
+                          <Route path="deploy/pwa" element={<DocsPWA />} />
+                          <Route path="optimize/analytics" element={<DocsAnalyticsPage />} />
+                          <Route path="optimize/focus-analytics" element={<DocsFocusAnalytics />} />
+                          <Route path="optimize/gamification" element={<DocsGamification />} />
+                          <Route path="security/overview" element={<DocsSecurityOverview />} />
+                          <Route path="security/2fa" element={<Docs2FA />} />
+                          <Route path="security/sessions" element={<DocsSessions />} />
+                          <Route path="security/audit-logs" element={<DocsAuditLogs />} />
+                          <Route path="security/privacy" element={<DocsPrivacy />} />
+                          <Route path="security/sso" element={<DocsSSO />} />
+                          <Route path="api/overview" element={<DocsAPIOverview />} />
+                          <Route path="api/ai-api" element={<DocsAIAPI />} />
+                          <Route path="api/rest-api" element={<DocsRestAPI />} />
+                          <Route path="api/webhooks" element={<DocsWebhooks />} />
+                          <Route path="api/rate-limits" element={<DocsRateLimits />} />
+                          <Route path="admin/dashboard" element={<DocsAdminDashboard />} />
+                          <Route path="admin/roles" element={<DocsRoles />} />
+                          <Route path="admin/moderation" element={<DocsModeration />} />
+                          <Route path="admin/pages" element={<DocsPageManagement />} />
+                        </Route>
                         <Route path="/songs" element={<Songs />} />
                         <Route path="/p/:slug" element={<CustomPage />} />
                         <Route path="/auth" element={<Auth />} />
