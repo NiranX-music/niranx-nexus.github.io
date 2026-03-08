@@ -341,6 +341,7 @@ const navigationConfig = {
       { title: "AI Website Generator", url: "/ai-website-generator", icon: Sparkles },
       { title: "User App Library", url: "/app-library", icon: LayoutGrid },
       { title: "Submit Your App", url: "/submit-app", icon: Code },
+      { title: "XForge", url: "/xforge", icon: Hammer },
       { title: "Web Search", url: "/web-search", icon: Search },
       { title: "Xmail", url: "/xmail", icon: Mail },
       { title: "Video Player", url: "/video-player", icon: Video },

@@ -239,6 +239,7 @@ import QuickCheatsheets from "./pages/QuickCheatsheets";
 import CornellNotes from "./pages/CornellNotes";
 import StudySessionPlanner from "./pages/StudySessionPlanner";
 import TypingSpeedTest from "./pages/TypingSpeedTest";
+import XForge from "./pages/XForge";
 
 import AboutUs from "./pages/support/AboutUs";
 import Careers from "./pages/support/Careers";
@@ -690,6 +691,7 @@ const App = () => (
                           <Route path="/study-buddy" element={<StudyBuddy />} />
                           <Route path="/advanced-analytics" element={<AdvancedAnalyticsDashboard />} />
                           <Route path="/api-console" element={<APIConsole />} />
+                          <Route path="/xforge" element={<XForge />} />
                           
                           {/* Support Pages */}
                           <Route path="/about" element={<AboutUs />} />
