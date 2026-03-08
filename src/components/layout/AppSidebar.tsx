@@ -846,8 +846,8 @@ export function AppSidebar() {
     <Sidebar 
       collapsible="icon" 
       className={cn(
-        "border-r border-sidebar-border/20 backdrop-blur-2xl sidebar-glow",
-        "bg-gradient-to-b from-sidebar via-sidebar/98 to-sidebar/92"
+        "border-r border-sidebar-border/10 backdrop-blur-3xl sidebar-glow",
+        "bg-sidebar/70"
       )}
     >
       {/* Header */}
