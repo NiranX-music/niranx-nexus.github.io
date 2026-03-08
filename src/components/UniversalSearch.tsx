@@ -102,24 +102,6 @@ export function UniversalSearch({ open, onOpenChange }: UniversalSearchProps) {
         })
       );
 
-      // Search notes
-      const { data: notes } = await supabase
-        .from("notes")
-        .select("id, title")
-        .eq("user_id", user.id)
-        .ilike("title", `%${query}%`)
-        .limit(5);
-
-      notes?.forEach((n) =>
-        results.push({
-          title: n.title,
-          url: "/niranx/notes",
-          icon: FileText,
-          category: "Notes",
-          type: "note",
-        })
-      );
-
       // Search files
       const { data: files } = await supabase
         .from("user_cloud_files")
