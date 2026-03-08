@@ -38,6 +38,7 @@ interface MiniGame {
 
 const GamesPage = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [currentGame, setCurrentGame] = useState<string | null>(null);
   const [gameStats, setGameStats] = useState<GameStats>({
     gamesPlayed: 0,
