@@ -1027,6 +1027,11 @@ const App = () => (
                               <AdminArtistAccounts />
                             </AdminRoute>
                           } />
+                          <Route path="/admin/layout-editor" element={
+                            <AdminRoute>
+                              <AdminLayoutEditor />
+                            </AdminRoute>
+                          } />
                           <Route path="/stellar" element={
                             <AdminRoute>
                               <XstellarDashboard />
