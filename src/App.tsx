@@ -236,8 +236,10 @@ import StudyPlannerCalendar from "./pages/StudyPlannerCalendar";
 import PomodoroStatsDashboard from "./pages/PomodoroStatsDashboard";
 import FocusModeAmbient from "./pages/FocusModeAmbient";
 import QuickCheatsheets from "./pages/QuickCheatsheets";
+import CornellNotes from "./pages/CornellNotes";
+import StudySessionPlanner from "./pages/StudySessionPlanner";
+import TypingSpeedTest from "./pages/TypingSpeedTest";
 
-// Support Pages
 import AboutUs from "./pages/support/AboutUs";
 import Careers from "./pages/support/Careers";
 import Press from "./pages/support/Press";
