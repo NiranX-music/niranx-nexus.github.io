@@ -25,6 +25,19 @@ serve(async (req: Request): Promise<Response> => {
   }
 
   try {
+    // TEMPORARILY SUSPENDED: External email sending is disabled
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: "External email sending is temporarily suspended. Please try again later.",
+        suspended: true,
+      }),
+      {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
+    );
+
     const MAILEROO_API_KEY = Deno.env.get("MAILEROO_API_KEY");
 
     if (!MAILEROO_API_KEY) {
