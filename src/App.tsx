@@ -86,6 +86,7 @@ const SearchResults = lazy(() => import("./pages/SearchResults"));
 const AIChat = lazy(() => import("./pages/AIChat"));
 const AIChatHistory = lazy(() => import("./pages/AIChatHistory"));
 const AIScheduler = lazy(() => import("./pages/AIScheduler"));
+const SunoMusicGenerator = lazy(() => import("./pages/SunoMusicGenerator"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const WhatsNewPage = lazy(() => import("./pages/WhatsNewPage"));
 const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
