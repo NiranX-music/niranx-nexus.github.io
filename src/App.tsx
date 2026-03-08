@@ -265,6 +265,7 @@ const SunriseSunsetPage = lazy(() => import("./pages/SunriseSunsetPage"));
 const NasaNeoExplorer = lazy(() => import("./pages/NasaNeoExplorer"));
 const Genrenator = lazy(() => import("./pages/Genrenator"));
 const XBoardGames = lazy(() => import("./pages/XBoardGames"));
+const XAPIExplorer = lazy(() => import("./pages/XAPIExplorer"));
 
 const AboutUs = lazy(() => import("./pages/support/AboutUs"));
 const Careers = lazy(() => import("./pages/support/Careers"));
@@ -751,6 +752,7 @@ const App = () => (
                           <Route path="/nasa-neo" element={<NasaNeoExplorer />} />
                           <Route path="/genrenator" element={<Genrenator />} />
                           <Route path="/xboard-games" element={<XBoardGames />} />
+                          <Route path="/xapi-explorer" element={<XAPIExplorer />} />
                           
                           {/* Support Pages */}
                           <Route path="/about" element={<AboutUs />} />

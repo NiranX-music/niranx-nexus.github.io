@@ -261,6 +261,7 @@ const navigationConfig = {
       { title: "NASA NEO Explorer", url: "/nasa-neo", icon: Rocket },
       { title: "Genrenator", url: "/genrenator", icon: Music },
       { title: "XBoard Games", url: "/xboard-games", icon: Gamepad2 },
+      { title: "XAPI Explorer", url: "/xapi-explorer", icon: Globe },
       { title: "Study Diary", url: "/study-diary", icon: BookOpen },
       { title: "Knowledge Graph", url: "/knowledge-graph", icon: Brain },
     ],
