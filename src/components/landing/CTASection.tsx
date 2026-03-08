@@ -50,16 +50,30 @@ export function CTASection() {
               Create, learn, and innovate with thousands of creators worldwide.
             </p>
 
-            <motion.div whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.94 }}>
-              <Button
-                size="lg"
-                onClick={() => navigate(user ? '/nexus' : '/auth?redirect=/nexus')}
-                className="text-lg px-14 py-8 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-2xl shadow-2xl shadow-primary/30 group font-semibold"
-              >
-                <Rocket className="w-6 h-6 mr-2 group-hover:animate-bounce" />
-                Get Started Free
-              </Button>
-            </motion.div>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <motion.div whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.94 }}>
+                <Button
+                  size="lg"
+                  onClick={() => navigate(user ? '/nexus' : '/auth?redirect=/nexus')}
+                  className="text-lg px-14 py-8 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-2xl shadow-2xl shadow-primary/30 group font-semibold"
+                >
+                  <Rocket className="w-6 h-6 mr-2 group-hover:animate-bounce" />
+                  Get Started Free
+                </Button>
+              </motion.div>
+              
+              <motion.div whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.94 }}>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => navigate('/explore-all')}
+                  className="text-lg px-10 py-8 rounded-2xl border-primary/30 hover:bg-primary/5 group font-semibold"
+                >
+                  <Compass className="w-6 h-6 mr-2 group-hover:rotate-45 transition-transform" />
+                  Explore XNexus
+                </Button>
+              </motion.div>
+            </div>
 
             <div className="mt-10 flex flex-wrap items-center justify-center gap-8 text-muted-foreground text-sm">
               {['No credit card', 'Free tier', 'Cancel anytime'].map(t => (
