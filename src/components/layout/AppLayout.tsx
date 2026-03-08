@@ -17,6 +17,7 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { useNavigate } from "react-router-dom";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
+import { useCloudSync } from "@/hooks/useCloudSync";
 import { Keyboard, Sparkles, Bell } from "lucide-react";
 import { RenameTabDialog } from "@/components/RenameTabDialog";
 import {
@@ -64,6 +65,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { user } = useAuth();
   usePageTitle();
   useScrollRestoration();
+  useCloudSync();
 
   // Run cleanup on mount to fix any invalid favorite icons
   useEffect(() => {

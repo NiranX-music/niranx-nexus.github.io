@@ -9595,6 +9595,54 @@ export type Database = {
         }
         Relationships: []
       }
+      user_sync_data: {
+        Row: {
+          created_at: string | null
+          device_info: Json | null
+          id: string
+          last_synced_at: string | null
+          metadata: Json | null
+          page_title: string
+          page_url: string
+          session_id: string | null
+          sync_status: string | null
+          total_time_seconds: number | null
+          updated_at: string | null
+          user_id: string
+          visit_count: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          device_info?: Json | null
+          id?: string
+          last_synced_at?: string | null
+          metadata?: Json | null
+          page_title: string
+          page_url: string
+          session_id?: string | null
+          sync_status?: string | null
+          total_time_seconds?: number | null
+          updated_at?: string | null
+          user_id: string
+          visit_count?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          device_info?: Json | null
+          id?: string
+          last_synced_at?: string | null
+          metadata?: Json | null
+          page_title?: string
+          page_url?: string
+          session_id?: string | null
+          sync_status?: string | null
+          total_time_seconds?: number | null
+          updated_at?: string | null
+          user_id?: string
+          visit_count?: number | null
+        }
+        Relationships: []
+      }
       video_library: {
         Row: {
           ai_summary: string | null

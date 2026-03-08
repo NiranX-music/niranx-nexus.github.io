@@ -393,6 +393,25 @@ export function GlobalRealtimeSync() {
       .subscribe();
     channels.push(aiChannel);
 
+    // User sync data (cloud activity tracking)
+    const syncDataChannel = supabase
+      .channel(`global-sync-data-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_sync_data',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          window.dispatchEvent(new CustomEvent('sync-data-updated'));
+          queryClient.invalidateQueries({ queryKey: ['user-sync-data'] });
+        }
+      )
+      .subscribe();
+    channels.push(syncDataChannel);
+
     // Cleanup on unmount
     return () => {
       channels.forEach(channel => supabase.removeChannel(channel));
