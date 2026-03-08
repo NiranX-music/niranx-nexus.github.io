@@ -344,6 +344,7 @@ const navigationConfig = {
       { title: "Accessibility", url: "/accessibility-settings", icon: Eye },
       { title: "Notifications", url: "/notification-settings", icon: Bell },
       { title: "Feedback", url: "/feedback", icon: MessagesSquare },
+      { title: "Docs", url: "/docs", icon: BookOpen },
       { title: "Guide", url: "/guide", icon: BookOpen },
       { title: "Sitemap", url: "/sitemap", icon: Map },
     ],
