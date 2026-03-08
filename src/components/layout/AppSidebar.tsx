@@ -194,6 +194,9 @@ const navigationConfig = {
       { title: "Timer Dashboard", url: "/study-timer-dashboard", icon: Timer },
       { title: "Knowledge Base", url: "/knowledge-base", icon: BookOpen },
       { title: "Weekly Planner", url: "/study-planner-calendar", icon: Calendar },
+      { title: "Pomodoro Stats", url: "/pomodoro-stats", icon: BarChart3 },
+      { title: "Focus Ambient", url: "/focus-ambient", icon: Eye },
+      { title: "Cheatsheets", url: "/cheatsheets", icon: FileText },
     ],
   },
   learning: {
