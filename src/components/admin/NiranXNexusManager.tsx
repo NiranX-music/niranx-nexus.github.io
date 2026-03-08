@@ -128,6 +128,9 @@ export function NiranXNexusManager() {
         <Button variant={activeTab === 'links' ? 'default' : 'outline'} size="sm" onClick={() => setActiveTab('links')}>
           <Link2 className="w-4 h-4 mr-1" /> Links
         </Button>
+        <Button variant={activeTab === 'submissions' ? 'default' : 'outline'} size="sm" onClick={() => setActiveTab('submissions')}>
+          Submissions {submissions.filter(s => s.status === 'pending').length > 0 && `(${submissions.filter(s => s.status === 'pending').length})`}
+        </Button>
       </div>
 
       {activeTab === 'categories' && (
