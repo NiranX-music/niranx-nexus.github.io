@@ -726,6 +726,56 @@ export type Database = {
         }
         Relationships: []
       }
+      api_usage_logs: {
+        Row: {
+          api_key_id: string
+          created_at: string
+          endpoint: string
+          id: string
+          ip_address: string | null
+          method: string
+          request_body: Json | null
+          response_size_bytes: number | null
+          response_time_ms: number | null
+          status_code: number
+          user_id: string
+        }
+        Insert: {
+          api_key_id: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          ip_address?: string | null
+          method?: string
+          request_body?: Json | null
+          response_size_bytes?: number | null
+          response_time_ms?: number | null
+          status_code?: number
+          user_id: string
+        }
+        Update: {
+          api_key_id?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          ip_address?: string | null
+          method?: string
+          request_body?: Json | null
+          response_size_bytes?: number | null
+          response_time_ms?: number | null
+          status_code?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_usage_logs_api_key_id_fkey"
+            columns: ["api_key_id"]
+            isOneToOne: false
+            referencedRelation: "developer_api_keys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       app_categories: {
         Row: {
           color: string | null
@@ -2357,6 +2407,93 @@ export type Database = {
           target_type?: Database["public"]["Enums"]["debate_target_type"]
           user_id?: string
           vote_type?: Database["public"]["Enums"]["debate_vote_type"]
+        }
+        Relationships: []
+      }
+      developer_api_keys: {
+        Row: {
+          api_key: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          key_name: string
+          key_prefix: string
+          last_used_at: string | null
+          permissions: string[]
+          rate_limit_per_minute: number
+          total_requests: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          api_key: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          key_name?: string
+          key_prefix: string
+          last_used_at?: string | null
+          permissions?: string[]
+          rate_limit_per_minute?: number
+          total_requests?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          api_key?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          key_name?: string
+          key_prefix?: string
+          last_used_at?: string | null
+          permissions?: string[]
+          rate_limit_per_minute?: number
+          total_requests?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      developer_webhooks: {
+        Row: {
+          created_at: string
+          events: string[]
+          failure_count: number
+          id: string
+          is_active: boolean
+          last_triggered_at: string | null
+          secret: string
+          updated_at: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          events?: string[]
+          failure_count?: number
+          id?: string
+          is_active?: boolean
+          last_triggered_at?: string | null
+          secret: string
+          updated_at?: string
+          url: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          events?: string[]
+          failure_count?: number
+          id?: string
+          is_active?: boolean
+          last_triggered_at?: string | null
+          secret?: string
+          updated_at?: string
+          url?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -13551,6 +13688,7 @@ export type Database = {
       calculate_level: { Args: { xp_amount: number }; Returns: number }
       can_create_website: { Args: { p_user_id: string }; Returns: boolean }
       generate_ai_generation_slug: { Args: never; Returns: string }
+      generate_api_key: { Args: never; Returns: string }
       generate_class_code: { Args: never; Returns: string }
       generate_email_slug: { Args: never; Returns: string }
       generate_mailbox_slug: { Args: never; Returns: string }
@@ -13692,6 +13830,15 @@ export type Database = {
       update_recent_page: {
         Args: { p_page_title: string; p_page_url: string; p_user_id: string }
         Returns: undefined
+      }
+      validate_api_key: {
+        Args: { p_api_key: string }
+        Returns: {
+          key_id: string
+          key_user_id: string
+          permissions: string[]
+          rate_limit: number
+        }[]
       }
     }
     Enums: {

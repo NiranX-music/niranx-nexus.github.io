@@ -380,6 +380,7 @@ const HelpCentre = lazy(() => import("./pages/support/HelpCentre"));
 const PrivacyPolicy = lazy(() => import("./pages/support/PrivacyPolicy"));
 const TermsConditions = lazy(() => import("./pages/support/TermsConditions"));
 const Pricing = lazy(() => import("./pages/Pricing"));
+const DeveloperPortal = lazy(() => import("./pages/DeveloperPortal"));
 
 // XVibe Music Platform
 const XVibeLanding = lazy(() => import("./xvibe/pages/XVibeLanding"));
@@ -1100,6 +1101,7 @@ const App = () => (
                     <Route path="/support/privacy" element={<PrivacyPolicy />} />
                     <Route path="/support/terms" element={<TermsConditions />} />
                     <Route path="/pricing" element={<Pricing />} />
+                    <Route path="/developer" element={<ProtectedRoute><DeveloperPortal /></ProtectedRoute>} />
                     
                     <Route path="/shared/resource/:token" element={<SharedResource />} />
                     <Route path="/w/:slug" element={<PublishedWebsite />} />

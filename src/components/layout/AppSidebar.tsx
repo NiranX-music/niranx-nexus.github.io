@@ -409,6 +409,7 @@ const navigationConfig = {
     icon: Code,
     color: "from-muted-foreground to-primary/60",
     items: [
+      { title: "Developer Portal", url: "/developer", icon: Code },
       { title: "Integration Hub", url: "/integration-hub", icon: Plug },
       { title: "API Console", url: "/api-console", icon: Code },
       { title: "REST API Docs", url: "/rest-api-docs", icon: BookOpen },
