@@ -205,6 +205,7 @@ const StudyTemplates = lazy(() => import("./pages/StudyTemplates"));
 const TemplateManager = lazy(() => import("./pages/admin/TemplateManager"));
 const ActivityLog = lazy(() => import("./pages/security/ActivityLog"));
 const ExploreSpaces = lazy(() => import("./pages/ExploreSpaces"));
+const ExploreAll = lazy(() => import("./pages/ExploreAll"));
 const PasswordManager = lazy(() => import("./pages/PasswordManager"));
 const AIQuizGenerator = lazy(() => import("./pages/AIQuizGenerator"));
 const AIDocSummarizer = lazy(() => import("./pages/AIDocSummarizer"));
@@ -731,6 +732,7 @@ const App = () => (
                           <Route path="/study-templates" element={<StudyTemplates />} />
                           <Route path="/security/activity-log" element={<ActivityLog />} />
                           <Route path="/explore-spaces" element={<ExploreSpaces />} />
+                          <Route path="/explore-all" element={<ExploreAll />} />
                           <Route path="/debates" element={<DebateHub />} />
                           <Route path="/debates/:id" element={<DebateDetail />} />
                           <Route path="/debates/mine" element={<MyDebates />} />
