@@ -61,16 +61,19 @@ const Settings = () => {
   
 
   useEffect(() => {
-    const savedSettings = localStorage.getItem('appSettings');
-    if (savedSettings) {
-      setSettings(JSON.parse(savedSettings));
+    if (user) {
+      (supabase as any).from('user_settings').select('settings_data').eq('user_id', user.id).maybeSingle().then(({ data }: any) => {
+        if (data?.settings_data) setSettings({ ...settings, ...data.settings_data });
+      });
     }
-  }, []);
+  }, [user]);
 
   const updateSetting = (key: string, value: boolean) => {
     const newSettings = { ...settings, [key]: value };
     setSettings(newSettings);
-    localStorage.setItem('appSettings', JSON.stringify(newSettings));
+    if (user) {
+      (supabase as any).from('user_settings').upsert({ user_id: user.id, settings_data: newSettings, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+    }
 
     // Notify other components (like MacDock) in the same tab
     window.dispatchEvent(new Event('appSettingsChanged'));

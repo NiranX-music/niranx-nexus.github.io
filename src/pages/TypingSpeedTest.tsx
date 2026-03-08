@@ -83,9 +83,21 @@ const TypingSpeedTest = () => {
   const timeLeft = Math.max(duration - elapsed, 0);
 
   useEffect(() => {
+    if (user) {
+      (supabase as any).from('typing_stats').select('best_wpm').eq('user_id', user.id).maybeSingle().then(({ data }: any) => {
+        if (data?.best_wpm) setBestWPM(data.best_wpm);
+      });
+    }
+  }, [user]);
+
+  useEffect(() => {
     if (isFinished && wpm > bestWPM) {
       setBestWPM(wpm);
-      localStorage.setItem('typing-best-wpm', wpm.toString());
+      if (user) {
+        (supabase as any).from('typing_stats').upsert({
+          user_id: user.id, best_wpm: wpm, wpm, accuracy, tests_taken: 1,
+        }, { onConflict: 'user_id' });
+      }
     }
   }, [isFinished, wpm, bestWPM]);
 
