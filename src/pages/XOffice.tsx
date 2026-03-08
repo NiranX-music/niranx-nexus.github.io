@@ -4,9 +4,9 @@ import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 
 const tools = [
-  { name: 'XDocs', desc: 'Smart Document Editor — rich text, templates, AI writing assistant', icon: FileText, route: '/niranx/xdocs', color: 'from-blue-500/20 to-cyan-500/20', iconColor: 'text-blue-500' },
-  { name: 'XSheets', desc: 'Spreadsheet Tool — formulas, charts, CSV import/export', icon: Table, route: '/niranx/xsheets', color: 'from-emerald-500/20 to-green-500/20', iconColor: 'text-emerald-500' },
-  { name: 'XSlides', desc: 'Presentation Builder — visual slide editor, fullscreen presenting', icon: Presentation, route: '/niranx/xslides', color: 'from-orange-500/20 to-amber-500/20', iconColor: 'text-orange-500' },
+  { name: 'XDocs', desc: 'Smart Document Editor — rich text, templates, AI writing assistant', icon: FileText, route: '/xdocs', color: 'from-blue-500/20 to-cyan-500/20', iconColor: 'text-blue-500' },
+  { name: 'XSheets', desc: 'Spreadsheet Tool — formulas, charts, CSV import/export', icon: Table, route: '/xsheets', color: 'from-emerald-500/20 to-green-500/20', iconColor: 'text-emerald-500' },
+  { name: 'XSlides', desc: 'Presentation Builder — visual slide editor, fullscreen presenting', icon: Presentation, route: '/xslides', color: 'from-orange-500/20 to-amber-500/20', iconColor: 'text-orange-500' },
 ];
 
 export default function XOffice() {
