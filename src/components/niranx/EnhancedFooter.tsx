@@ -159,28 +159,37 @@ export function EnhancedFooter() {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-border/30">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-muted-foreground text-sm flex items-center gap-1">
-              © {new Date().getFullYear()} NiranX Universe. Made with
-              <Heart className="w-4 h-4 text-red-500 fill-red-500" />
-            </p>
+            <div className="text-center md:text-left">
+              <p className="text-muted-foreground text-sm flex items-center gap-1">
+                © {new Date().getFullYear()} NiranX Universe. Built with
+                <Heart className="w-4 h-4 text-red-500 fill-red-500 inline" />
+                by <span className="text-foreground font-medium">NiranX Developers</span>
+              </p>
+              <p className="text-muted-foreground/60 text-xs mt-1">
+                Hosted at{' '}
+                <a href="https://lovable.dev" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                  Lovable
+                </a>
+              </p>
+            </div>
             
             <div className="flex items-center gap-4">
               <Link 
-                to="/privacy" 
+                to="/support/privacy" 
                 className="text-muted-foreground hover:text-foreground text-sm transition-colors"
               >
                 Privacy
               </Link>
               <span className="text-muted-foreground/30">•</span>
               <Link 
-                to="/terms" 
+                to="/support/terms" 
                 className="text-muted-foreground hover:text-foreground text-sm transition-colors"
               >
                 Terms
               </Link>
               <span className="text-muted-foreground/30">•</span>
               <Link 
-                to="/contact" 
+                to="/support/contact" 
                 className="text-muted-foreground hover:text-foreground text-sm transition-colors"
               >
                 Contact

@@ -208,6 +208,98 @@ export const allPages: PageInfo[] = [
   { name: "XMap", route: "/xmap", description: "Visual mind mapping with drag-and-drop nodes", category: "Tools", accessLevel: "Authenticated", icon: "GitBranch" },
   { name: "XBot", route: "/xbot", description: "Create and chat with custom AI agents", category: "Tools", accessLevel: "Authenticated", icon: "Bot" },
 
+  // AI Hub Extended Tools
+  { name: "AI Writing Assistant", route: "/niranx/ai-writing-assistant", description: "AI-powered writing helper", category: "AI Corner", accessLevel: "Authenticated", icon: "PenTool" },
+  { name: "AI Quiz Generator", route: "/niranx/ai-quiz-generator", description: "Generate quizzes from content", category: "AI Corner", accessLevel: "Authenticated", icon: "HelpCircle" },
+  { name: "AI Doc Summarizer", route: "/niranx/ai-doc-summarizer", description: "Summarize documents with AI", category: "AI Corner", accessLevel: "Authenticated", icon: "FileText" },
+  { name: "AI Song Generator", route: "/niranx/ai-song-generator", description: "Generate songs with AI", category: "AI Corner", accessLevel: "Authenticated", icon: "Music" },
+  { name: "AI Presentation", route: "/niranx/ai-presentation-generator", description: "Generate presentations", category: "AI Corner", accessLevel: "Authenticated", icon: "Presentation" },
+  { name: "AI Voice Tutor", route: "/niranx/ai-voice-tutor", description: "Voice-based AI tutor", category: "AI Corner", accessLevel: "Authenticated", icon: "Mic" },
+  { name: "AI Meeting Minutes", route: "/niranx/ai-meeting-minutes", description: "Auto-generate meeting notes", category: "AI Corner", accessLevel: "Authenticated", icon: "FileText" },
+  { name: "Smart PDF Chat", route: "/niranx/smart-pdf-chat", description: "Chat with PDF documents", category: "AI Corner", accessLevel: "Authenticated", icon: "MessageCircle" },
+  { name: "Concept Explainer", route: "/niranx/concept-explainer", description: "AI concept explanations", category: "AI Corner", accessLevel: "Authenticated", icon: "Lightbulb" },
+  { name: "Exam Simulator", route: "/niranx/exam-simulator", description: "AI-powered exam practice", category: "AI Corner", accessLevel: "Authenticated", icon: "GraduationCap" },
+  { name: "Math Solver", route: "/niranx/math-solver", description: "Step-by-step math solutions", category: "AI Corner", accessLevel: "Authenticated", icon: "Calculator" },
+  { name: "Essay Grader", route: "/niranx/essay-grader", description: "AI essay grading and feedback", category: "AI Corner", accessLevel: "Authenticated", icon: "FileText" },
+  { name: "Research Assistant", route: "/niranx/research-assistant", description: "AI research with Perplexity", category: "AI Corner", accessLevel: "Authenticated", icon: "Search" },
+  { name: "XNexus AI", route: "/niranx/xnexus-ai", description: "Multi-model AI chat with BYTEZ", category: "AI Corner", accessLevel: "Authenticated", icon: "Brain" },
+  { name: "Xvibing", route: "/niranx/xvibing", description: "AI coding assistant with Blackbox", category: "AI Corner", accessLevel: "Authenticated", icon: "Code" },
+  { name: "Bytez AI", route: "/niranx/bytez-ai", description: "Multi-model AI with BYTEZ API", category: "AI Corner", accessLevel: "Authenticated", icon: "Sparkles" },
+  { name: "OpenRouter Chat", route: "/niranx/openrouter-chat", description: "Multi-model chat via OpenRouter", category: "AI Corner", accessLevel: "Authenticated", icon: "MessageCircle" },
+  { name: "Auto Study Planner", route: "/niranx/auto-study-planner", description: "AI auto-generated study plans", category: "AI Corner", accessLevel: "Authenticated", icon: "Calendar" },
+  { name: "Lovable Image Gen", route: "/niranx/lovable-image-gen", description: "Generate images with AI", category: "AI Corner", accessLevel: "Authenticated", icon: "Image" },
+  { name: "AI Image Generator", route: "/niranx/ai-image-generator", description: "FluxAPI image generation", category: "AI Corner", accessLevel: "Authenticated", icon: "Image" },
+
+  // Study Tools Extended
+  { name: "Flashcards", route: "/niranx/flashcards", description: "Flashcard system with spaced repetition", category: "Study", accessLevel: "Authenticated", icon: "CreditCard" },
+  { name: "Flashcard Generator", route: "/niranx/flashcard-generator", description: "AI flashcard generation", category: "Study", accessLevel: "Authenticated", icon: "CreditCard" },
+  { name: "Cornell Notes", route: "/niranx/cornell-notes", description: "Cornell note-taking method", category: "Study", accessLevel: "Authenticated", icon: "FileText" },
+  { name: "Session Planner", route: "/niranx/session-planner", description: "Plan study sessions", category: "Study", accessLevel: "Authenticated", icon: "Calendar" },
+  { name: "Habit Tracker", route: "/niranx/habit-tracker", description: "Track daily habits", category: "Study", accessLevel: "Authenticated", icon: "CheckSquare" },
+  { name: "Course Generator", route: "/niranx/course-generator", description: "AI course generation", category: "Study", accessLevel: "Authenticated", icon: "BookOpen" },
+  { name: "Study Rooms", route: "/niranx/study-rooms", description: "Virtual study rooms", category: "Study", accessLevel: "Authenticated", icon: "Users" },
+  { name: "Learning Style", route: "/niranx/learning-style", description: "Analyze your learning style", category: "Study", accessLevel: "Authenticated", icon: "Brain" },
+  { name: "Mind Maps", route: "/niranx/mind-maps", description: "Visual mind map builder", category: "Study", accessLevel: "Authenticated", icon: "GitBranch" },
+  { name: "AR Flashcards", route: "/niranx/ar-flashcards", description: "Augmented reality flashcards", category: "Study", accessLevel: "Authenticated", icon: "Eye" },
+  { name: "Virtual Labs", route: "/niranx/virtual-labs", description: "Interactive virtual labs", category: "Study", accessLevel: "Authenticated", icon: "Beaker" },
+  { name: "Study Planner Calendar", route: "/niranx/study-planner-calendar", description: "Calendar-based study planner", category: "Study", accessLevel: "Authenticated", icon: "Calendar" },
+  { name: "Quick Cheatsheets", route: "/niranx/cheatsheets", description: "Quick reference cheatsheets", category: "Study", accessLevel: "Authenticated", icon: "FileText" },
+  { name: "Knowledge Base Wiki", route: "/niranx/knowledge-base", description: "Community knowledge wiki", category: "Study", accessLevel: "Authenticated", icon: "BookOpen" },
+
+  // Productivity
+  { name: "Typing Speed Test", route: "/niranx/typing-test", description: "Test and improve typing speed", category: "Tools", accessLevel: "Authenticated", icon: "Keyboard" },
+  { name: "Smart Bookmarks", route: "/niranx/smart-bookmarks", description: "AI-organized bookmarks", category: "Tools", accessLevel: "Authenticated", icon: "Bookmark" },
+  { name: "Code Playground", route: "/niranx/code-playground", description: "Online code editor", category: "Tools", accessLevel: "Authenticated", icon: "Code" },
+  { name: "Citation Generator", route: "/niranx/citation-generator", description: "Generate citations", category: "Tools", accessLevel: "Authenticated", icon: "Quote" },
+  { name: "Vocabulary Builder", route: "/niranx/vocabulary-builder", description: "Build vocabulary with AI", category: "Tools", accessLevel: "Authenticated", icon: "BookOpen" },
+  { name: "Grade Calculator", route: "/niranx/grade-calculator", description: "Calculate grades and GPA", category: "Tools", accessLevel: "Authenticated", icon: "Calculator" },
+  { name: "Reading Trainer", route: "/niranx/reading-trainer", description: "Speed reading trainer", category: "Tools", accessLevel: "Authenticated", icon: "BookOpen" },
+  { name: "Lecture Transcriber", route: "/niranx/lecture-transcriber", description: "Transcribe lectures", category: "Tools", accessLevel: "Authenticated", icon: "Mic" },
+  { name: "Document Scanner", route: "/niranx/document-scanner", description: "Scan and digitize documents", category: "Tools", accessLevel: "Authenticated", icon: "Camera" },
+  { name: "Focus Sounds", route: "/niranx/focus-sounds", description: "Ambient sounds for focus", category: "Tools", accessLevel: "Authenticated", icon: "Volume2" },
+  { name: "Quiz Generator", route: "/niranx/quiz-generator", description: "Generate quizzes from notes", category: "Tools", accessLevel: "Authenticated", icon: "HelpCircle" },
+  { name: "Password Manager", route: "/niranx/password-manager", description: "Encrypted password vault", category: "Security", accessLevel: "Authenticated", icon: "Key" },
+  { name: "FerqX Radio", route: "/niranx/ferqx", description: "Online radio streaming", category: "Media", accessLevel: "Authenticated", icon: "Radio" },
+
+  // Progress Extended
+  { name: "Pomodoro Stats", route: "/niranx/pomodoro-stats", description: "Pomodoro session statistics", category: "Progress", accessLevel: "Authenticated", icon: "BarChart3" },
+  { name: "Focus Ambient", route: "/niranx/focus-ambient", description: "Ambient focus environment", category: "Progress", accessLevel: "Authenticated", icon: "Moon" },
+  { name: "Progress Journal", route: "/niranx/progress-journal", description: "Track study progress", category: "Progress", accessLevel: "Authenticated", icon: "BookOpen" },
+  { name: "Study Timer Analytics", route: "/niranx/study-timer", description: "Detailed timer analytics", category: "Progress", accessLevel: "Authenticated", icon: "Timer" },
+  { name: "Study Analytics", route: "/niranx/study-analytics", description: "Deep study analytics", category: "Progress", accessLevel: "Authenticated", icon: "TrendingUp" },
+
+  // Social Extended
+  { name: "Activity Feed", route: "/niranx/activity-feed", description: "Platform activity feed", category: "Social", accessLevel: "Authenticated", icon: "Activity" },
+  { name: "Community Forums", route: "/niranx/forums", description: "Discussion forums", category: "Social", accessLevel: "Authenticated", icon: "MessagesSquare" },
+
+  // Test Platform
+  { name: "Test Hub", route: "/niranx/tests", description: "Browse and take tests", category: "Study", accessLevel: "Authenticated", icon: "ClipboardList" },
+  { name: "Test Builder", route: "/niranx/tests/create", description: "Create custom tests", category: "Study", accessLevel: "Authenticated", icon: "Plus" },
+  { name: "AI Test Generator", route: "/niranx/tests/ai-generate", description: "Generate tests with AI", category: "Study", accessLevel: "Authenticated", icon: "Sparkles" },
+
+  // App Library
+  { name: "App Library", route: "/niranx/app-library", description: "Browse community apps", category: "Tools", accessLevel: "Authenticated", icon: "Grid" },
+  { name: "Personal Apps", route: "/niranx/personal-apps", description: "Your personal apps", category: "Tools", accessLevel: "Authenticated", icon: "User" },
+  { name: "Submit App", route: "/niranx/submit-app", description: "Submit your app", category: "Tools", accessLevel: "Authenticated", icon: "Upload" },
+
+  // Integrations
+  { name: "Integrations", route: "/niranx/integrations", description: "Connect external services", category: "System", accessLevel: "Authenticated", icon: "Plug" },
+  { name: "Google Drive", route: "/niranx/google-drive", description: "Google Drive integration", category: "Files", accessLevel: "Authenticated", icon: "HardDrive" },
+  { name: "XOrbit", route: "/niranx/xorbit", description: "XOrbit cloud integration", category: "Files", accessLevel: "Authenticated", icon: "Cloud" },
+  { name: "Email Reports", route: "/niranx/settings/email-reports", description: "Configure email reports", category: "System", accessLevel: "Authenticated", icon: "Mail" },
+  { name: "Browser Extension Sync", route: "/niranx/browser-extension-sync", description: "Sync with browser extension", category: "System", accessLevel: "Authenticated", icon: "Plug" },
+
+  // Xstage
+  { name: "Xstage", route: "/xstage", description: "Music collaboration platform", category: "XVibe", accessLevel: "Authenticated", icon: "Music" },
+
+  // Support Pages
+  { name: "About Us", route: "/niranx/about", description: "About NiranX", category: "More", accessLevel: "Authenticated", icon: "Info" },
+  { name: "Careers", route: "/niranx/careers", description: "Job opportunities", category: "More", accessLevel: "Authenticated", icon: "Briefcase" },
+  { name: "Help Centre", route: "/support/help", description: "Help and support", category: "More", accessLevel: "Public", icon: "HelpCircle" },
+  { name: "Contact", route: "/support/contact", description: "Contact support", category: "More", accessLevel: "Public", icon: "Mail" },
+  { name: "Privacy Policy", route: "/support/privacy", description: "Privacy policy", category: "More", accessLevel: "Public", icon: "Shield" },
+  { name: "Terms & Conditions", route: "/support/terms", description: "Terms of service", category: "More", accessLevel: "Public", icon: "FileText" },
+
   // Nexus Portal
   { name: "Nexus Portal", route: "/nexus", description: "Gateway to all NiranX portals and curated links", category: "Nexus", accessLevel: "Public", icon: "Globe" },
   { name: "Nexus Category", route: "/nexus/:categorySlug", description: "Individual Nexus category with curated links and guides", category: "Nexus", accessLevel: "Public", icon: "Folder" },

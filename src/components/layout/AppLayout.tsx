@@ -5,6 +5,7 @@ import { NowPlaying } from "./NowPlaying";
 import { MobileBottomNav } from "./MobileBottomNav";
 
 import AISolverWidget from "@/components/widgets/AISolverWidget";
+import { EnhancedFooter } from "@/components/niranx/EnhancedFooter";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { CommandPalette } from "@/components/CommandPalette";
 import { UniversalSearch } from "@/components/UniversalSearch";
@@ -18,7 +19,7 @@ import { useNavigate } from "react-router-dom";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import { useCloudSync } from "@/hooks/useCloudSync";
-import { Keyboard, Sparkles, Bell } from "lucide-react";
+import { Keyboard, Sparkles, Bell, Map } from "lucide-react";
 import { RenameTabDialog } from "@/components/RenameTabDialog";
 import {
   Breadcrumb,
@@ -181,6 +182,15 @@ export function AppLayout({ children }: AppLayoutProps) {
               <Button
                 variant="ghost"
                 size="icon"
+                onClick={() => navigate("/niranx/sitemap")}
+                className="hover:bg-accent"
+                title="Sitemap"
+              >
+                <Map className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setShortcutsHelpOpen(true)}
                 className="hover:bg-accent"
                 title="Keyboard shortcuts (Shift + ?)"
@@ -195,6 +205,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             <div className="p-4 pb-20 md:pb-4 animate-fade-in">
               {children}
             </div>
+            <EnhancedFooter />
           </main>
 
           <NowPlaying />
