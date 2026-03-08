@@ -6,6 +6,18 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
+// Map Xvibing model names to Groq models
+function mapToGroqModel(model: string): string {
+  const map: Record<string, string> = {
+    'blackboxai': 'llama-3.3-70b-versatile',
+    'blackboxai-pro': 'llama-3.3-70b-versatile',
+    'gpt-4o': 'llama-3.3-70b-versatile',
+    'claude-3-sonnet': 'mixtral-8x7b-32768',
+    'gemini-pro': 'llama-3.3-70b-versatile',
+  };
+  return map[model] || 'llama-3.3-70b-versatile';
+}
+
 // Map Xvibing model names to Lovable AI models
 function mapToLovableModel(model: string): string {
   const map: Record<string, string> = {
