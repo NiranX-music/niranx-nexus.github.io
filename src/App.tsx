@@ -782,6 +782,7 @@ const App = () => (
                           <Route path="/xapi-sports" element={<XApiSports />} />
                           <Route path="/xapi-government" element={<XApiGovernment />} />
                           <Route path="/xapi-health" element={<XApiHealth />} />
+                          <Route path="/your-classes" element={<YourClasses />} />
 
                           {/* Support Pages */}
                           <Route path="/about" element={<AboutUs />} />
