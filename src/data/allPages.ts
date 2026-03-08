@@ -159,6 +159,7 @@ export const allPages: PageInfo[] = [
 
   // Settings & System
   { name: "Explore Spaces", route: "/niranx/explore-spaces", description: "Browse public spaces", category: "System", accessLevel: "Authenticated", icon: "Layers" },
+  { name: "Explore All from NiranX", route: "/explore-all", description: "Discover all NiranX products and platforms", category: "Core", accessLevel: "Public", icon: "Compass" },
   { name: "Widget Settings", route: "/niranx/widget-settings", description: "Customize dashboard widgets", category: "System", accessLevel: "Authenticated", icon: "Layout" },
   { name: "Notification Settings", route: "/niranx/notification-settings", description: "Notification preferences", category: "System", accessLevel: "Authenticated", icon: "Bell" },
   { name: "Smart Notifications", route: "/niranx/smart-notifications", description: "AI-powered notification timing", category: "System", accessLevel: "Authenticated", icon: "Zap" },
