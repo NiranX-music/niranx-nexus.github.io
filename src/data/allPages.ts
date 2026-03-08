@@ -13,6 +13,7 @@ export interface PageInfo {
 export const allPages: PageInfo[] = [
   // Core Navigation
   { name: "Landing", route: "/", description: "Welcome page with app overview", category: "Core", accessLevel: "Public", icon: "Home" },
+  { name: "Trial", route: "/trial", description: "Sign-up wall for unauthenticated users", category: "Core", accessLevel: "Public", icon: "Lock" },
   { name: "Dashboard", route: "/niranx/dashboard", description: "Main user dashboard with widgets", category: "Core", accessLevel: "Authenticated", icon: "Home" },
   { name: "What's New", route: "/niranx/whats-new", description: "Latest updates and features", category: "Core", accessLevel: "Authenticated", icon: "Sparkles" },
   { name: "Notifications", route: "/niranx/notifications", description: "View all notifications", category: "Core", accessLevel: "Authenticated", icon: "Bell" },
