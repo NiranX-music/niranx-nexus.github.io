@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import XFlowPostCard from "@/components/xflow/XFlowPostCard";
 import XFlowCreatePost from "@/components/xflow/XFlowCreatePost";
+import XFlowStories from "@/components/xflow/XFlowStories";
 
 export default function XFlowFeed() {
   const navigate = useNavigate();
@@ -144,6 +145,10 @@ export default function XFlowFeed() {
 
         {/* Feed */}
         <div className="max-w-[470px] mx-auto py-4">
+          {/* Stories */}
+          <div className="mb-4 border-b border-border/20 pb-4">
+            <XFlowStories />
+          </div>
           {isLoading ? (
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
