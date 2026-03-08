@@ -77,6 +77,14 @@ serve(async (req) => {
         throw new Error("Lovable API key not configured");
       }
 
+      const validLovableModels = [
+        'google/gemini-2.5-flash', 'google/gemini-2.5-pro', 'google/gemini-2.5-flash-lite',
+        'google/gemini-3-flash-preview', 'google/gemini-3.1-pro-preview',
+        'openai/gpt-5', 'openai/gpt-5-mini', 'openai/gpt-5-nano', 'openai/gpt-5.2',
+      ];
+      const lovableModel = validLovableModels.includes(model) ? model : 'google/gemini-3-flash-preview';
+      console.log('Using Lovable AI model:', lovableModel);
+
       response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -84,7 +92,7 @@ serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: model || "google/gemini-2.5-flash",
+          model: lovableModel,
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: text }
