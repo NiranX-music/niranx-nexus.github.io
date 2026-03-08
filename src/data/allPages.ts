@@ -90,6 +90,7 @@ export const allPages: PageInfo[] = [
 
   // Communication & Social
   { name: "Messages", route: "/niranx/messages", description: "Direct messaging system", category: "Social", accessLevel: "Authenticated", icon: "MessageCircle" },
+  { name: "Social Chat", route: "/niranx/social-chat", description: "Instagram-style chat dashboard with stories and reactions", category: "Social", accessLevel: "Authenticated", icon: "MessageCircle" },
   { name: "Community", route: "/niranx/community", description: "Chat rooms and social features", category: "Social", accessLevel: "Authenticated", icon: "MessagesSquare" },
   { name: "Study Guilds", route: "/niranx/guilds", description: "Create or join study guilds", category: "Social", accessLevel: "Authenticated", icon: "Shield" },
   { name: "Blogs", route: "/niranx/blogs", description: "Community blogs and articles", category: "Social", accessLevel: "Authenticated", icon: "BookOpen" },
