@@ -95,6 +95,7 @@ import {
   Activity,
   Clipboard,
   GitBranch,
+  Keyboard,
 } from "lucide-react";
 import {
   Sidebar,
