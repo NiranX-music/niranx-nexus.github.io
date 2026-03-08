@@ -293,6 +293,14 @@ const navigationConfig = {
       { title: "SoundLab X", url: "/xstage/app/soundlab", icon: Headphones },
     ],
   },
+  nexus: {
+    title: "Nexus Portal",
+    icon: Globe,
+    color: "from-cyan-500 to-purple-500",
+    items: [
+      { title: "Nexus Home", url: "/nexus", icon: Globe },
+    ],
+  },
   social: {
     title: "Network",
     icon: Users,
