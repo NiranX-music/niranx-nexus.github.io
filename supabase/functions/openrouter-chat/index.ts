@@ -20,10 +20,10 @@ serve(async (req) => {
       throw new Error("OPENROUTER_API_KEY is not configured");
     }
 
-    // Get user from JWT - authentication is REQUIRED
+    // Validate authentication
     const authHeader = req.headers.get('Authorization');
     
-    if (!authHeader) {
+    if (!authHeader?.startsWith('Bearer ')) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized - authentication required' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
@@ -36,14 +36,19 @@ serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    const token = authHeader.replace('Bearer ', '');
+    const { data, error: claimsError } = await supabaseClient.auth.getClaims(token);
     
-    if (userError || !user) {
+    if (claimsError || !data?.claims?.sub) {
+      console.error('Auth error:', claimsError);
       return new Response(
-        JSON.stringify({ error: 'Unauthorized - invalid token' }),
+        JSON.stringify({ error: 'Unauthorized - invalid token. Please sign in again.' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
       );
     }
+    
+    const userId = data.claims.sub;
+    console.log('Authenticated user:', userId);
 
     console.log('Calling OpenRouter with model:', model);
 
