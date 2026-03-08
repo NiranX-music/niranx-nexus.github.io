@@ -915,6 +915,7 @@ const App = () => (
                     
                     <Route path="*" element={<Landing />} />
                     </Routes>
+                    </Suspense>
                     <FloatingAIChat />
                   </AdminEditProvider>
                   </AuthProvider>
