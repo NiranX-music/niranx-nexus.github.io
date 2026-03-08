@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -14,109 +14,56 @@ interface VoiceCommandProps {
 export default function VoiceCommand({ onPomodoroStart, onTaskCreate }: VoiceCommandProps) {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState("");
+  const [supported, setSupported] = useState(false);
   const recognitionRef = useRef<any>(null);
   const navigate = useNavigate();
+  const navigateRef = useRef(navigate);
+  const onPomodoroStartRef = useRef(onPomodoroStart);
+  const onTaskCreateRef = useRef(onTaskCreate);
 
-  useEffect(() => {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
-      recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.continuous = false;
-      recognitionRef.current.interimResults = true;
-      recognitionRef.current.lang = 'en-US';
+  // Keep refs current
+  navigateRef.current = navigate;
+  onPomodoroStartRef.current = onPomodoroStart;
+  onTaskCreateRef.current = onTaskCreate;
 
-      recognitionRef.current.onresult = (event: any) => {
-        const transcript = Array.from(event.results)
-          .map((result: any) => result[0])
-          .map((result) => result.transcript)
-          .join('');
-        
-        setTranscript(transcript);
-        
-        if (event.results[0].isFinal) {
-          processCommand(transcript.toLowerCase());
-        }
-      };
+  const processCommand = useCallback(async (command: string) => {
+    console.log("Processing voice command:", command);
 
-      recognitionRef.current.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error);
-        setIsListening(false);
-        toast.error("Voice recognition error. Please try again.");
-      };
-
-      recognitionRef.current.onend = () => {
-        setIsListening(false);
-      };
-    }
-
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
-    };
-  }, []);
-
-  const toggleListening = () => {
-    if (isListening) {
-      recognitionRef.current?.stop();
-      setIsListening(false);
-    } else {
-      if (!recognitionRef.current) {
-        toast.error("Voice recognition not supported in this browser");
-        return;
-      }
-      
-      recognitionRef.current.start();
-      setIsListening(true);
-      setTranscript("");
-      toast.info("Listening... Say 'Hey Niranx' followed by a command");
-    }
-  };
-
-  const processCommand = async (command: string) => {
-    console.log("Processing command:", command);
-    
-    // Remove "hey niranx" prefix if present
     const cleanCommand = command.replace(/^(hey|hi|hello)\s+(niranx|niran)\s*/i, '').trim();
-    
+
     let actionTaken = "Unknown command";
     let success = false;
 
     try {
-      // Start Pomodoro commands
       if (cleanCommand.match(/start\s+(pomodoro|timer|focus)/i)) {
         const subjectMatch = cleanCommand.match(/for\s+(\w+)/i);
         const subject = subjectMatch ? subjectMatch[1] : undefined;
-        
-        if (onPomodoroStart) {
-          onPomodoroStart(subject);
+
+        if (onPomodoroStartRef.current) {
+          onPomodoroStartRef.current(subject);
           actionTaken = `Started Pomodoro${subject ? ` for ${subject}` : ''}`;
           toast.success(actionTaken);
         } else {
-          navigate("/pomodoro");
+          navigateRef.current("/pomodoro");
           actionTaken = "Navigated to Pomodoro page";
           toast.success("Opening Pomodoro Timer");
         }
         success = true;
-      }
-      // Create task commands
-      else if (cleanCommand.match(/create\s+(task|todo)/i)) {
+      } else if (cleanCommand.match(/create\s+(task|todo)/i)) {
         const taskMatch = cleanCommand.match(/create\s+(?:task|todo)\s+(.+)/i);
         const taskTitle = taskMatch ? taskMatch[1] : "New task from voice";
-        
-        if (onTaskCreate) {
-          onTaskCreate(taskTitle);
+
+        if (onTaskCreateRef.current) {
+          onTaskCreateRef.current(taskTitle);
           actionTaken = `Created task: ${taskTitle}`;
           toast.success(actionTaken);
         } else {
-          navigate("/tasks");
+          navigateRef.current("/tasks");
           actionTaken = "Navigated to Tasks page";
           toast.success("Opening Tasks page");
         }
         success = true;
-      }
-      // Navigation commands
-      else if (cleanCommand.match(/open|go to|navigate/i)) {
+      } else if (cleanCommand.match(/open|go to|navigate/i)) {
         const pages: Record<string, string> = {
           dashboard: "/niranx",
           tasks: "/tasks",
@@ -125,12 +72,15 @@ export default function VoiceCommand({ onPomodoroStart, onTaskCreate }: VoiceCom
           exams: "/exam-hub",
           notes: "/note-summarizer",
           videos: "/youtube-library",
+          music: "/niranx/suno-music",
+          chat: "/niranx/ai-chat",
+          ai: "/niranx/ai-corner",
         };
-        
+
         let navigated = false;
         for (const [key, path] of Object.entries(pages)) {
           if (cleanCommand.includes(key)) {
-            navigate(path);
+            navigateRef.current(path);
             actionTaken = `Navigated to ${key}`;
             toast.success(`Opening ${key}`);
             navigated = true;
@@ -138,13 +88,12 @@ export default function VoiceCommand({ onPomodoroStart, onTaskCreate }: VoiceCom
             break;
           }
         }
-        
+
         if (!navigated) {
-          toast.error("Page not recognized");
+          toast.error("Page not recognized. Try: dashboard, tasks, music, chat, ai");
         }
-      }
-      else {
-        toast.error("Command not recognized. Try 'start pomodoro' or 'create task'");
+      } else {
+        toast.info(`Command heard: "${cleanCommand}". Try "start pomodoro", "create task", or "open dashboard"`);
       }
 
       // Log command
@@ -161,11 +110,95 @@ export default function VoiceCommand({ onPomodoroStart, onTaskCreate }: VoiceCom
       console.error("Error processing command:", error);
       toast.error("Failed to execute command");
     }
+  }, []);
+
+  useEffect(() => {
+    const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+
+    if (!SpeechRecognition) {
+      console.warn("Speech Recognition not supported in this browser");
+      setSupported(false);
+      return;
+    }
+
+    setSupported(true);
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    recognition.onresult = (event: any) => {
+      const result = Array.from(event.results)
+        .map((r: any) => r[0].transcript)
+        .join('');
+
+      setTranscript(result);
+
+      if (event.results[0].isFinal) {
+        processCommand(result.toLowerCase());
+      }
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error('Speech recognition error:', event.error);
+      setIsListening(false);
+      if (event.error === 'not-allowed') {
+        toast.error("Microphone access denied. Please allow microphone permission.");
+      } else if (event.error === 'no-speech') {
+        toast.info("No speech detected. Try again.");
+      } else {
+        toast.error(`Voice recognition error: ${event.error}`);
+      }
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognition;
+
+    return () => {
+      try {
+        recognition.stop();
+      } catch {}
+    };
+  }, [processCommand]);
+
+  const toggleListening = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+    } else {
+      if (!recognitionRef.current || !supported) {
+        toast.error("Voice recognition not supported in this browser. Use Chrome or Edge.");
+        return;
+      }
+
+      try {
+        recognitionRef.current.start();
+        setIsListening(true);
+        setTranscript("");
+        toast.info("Listening... Say a command like 'open dashboard' or 'start pomodoro'");
+      } catch (error: any) {
+        console.error("Failed to start recognition:", error);
+        if (error.message?.includes("already started")) {
+          recognitionRef.current.stop();
+          setTimeout(() => {
+            try {
+              recognitionRef.current.start();
+              setIsListening(true);
+              setTranscript("");
+            } catch {}
+          }, 200);
+        } else {
+          toast.error("Failed to start voice recognition");
+        }
+      }
+    }
   };
 
-  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-    return null;
-  }
+  if (!supported) return null;
 
   return (
     <div className="fixed bottom-20 right-4 z-50">
@@ -178,11 +211,11 @@ export default function VoiceCommand({ onPomodoroStart, onTaskCreate }: VoiceCom
             </CardContent>
           </Card>
         )}
-        
+
         <Button
           size="lg"
           variant={isListening ? "destructive" : "default"}
-          className="h-14 w-14 rounded-full shadow-lg"
+          className={`h-14 w-14 rounded-full shadow-lg ${isListening ? "animate-pulse" : ""}`}
           onClick={toggleListening}
         >
           {isListening ? (
