@@ -929,6 +929,7 @@ const App = () => (
                     
                     <Route path="/shared/resource/:token" element={<SharedResource />} />
                     <Route path="/w/:slug" element={<PublishedWebsite />} />
+                    <Route path="/published/songs/ai/:songId" element={<PublishedSong />} />
                     <Route path="/published/:slug" element={<PublishedContent />} />
                     
                     {/* Dual routing: /niranx/* redirects to /* */}
