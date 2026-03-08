@@ -199,6 +199,8 @@ import ExploreSpaces from "./pages/ExploreSpaces";
 import PasswordManager from "./pages/PasswordManager";
 import AIQuizGenerator from "./pages/AIQuizGenerator";
 import AIDocSummarizer from "./pages/AIDocSummarizer";
+import ActivityFeed from "./pages/ActivityFeed";
+import CommunityForums from "./pages/CommunityForums";
 import SpaceLimitsManager from "./pages/admin/SpaceLimitsManager";
 import XFlowLogin from "./pages/xflow/XFlowLogin";
 import XFlowFeed from "./pages/xflow/XFlowFeed";
@@ -564,6 +566,10 @@ const App = () => (
                           {/* Phase 2: AI Intelligence Layer */}
                           <Route path="/ai-quiz-generator" element={<AIQuizGenerator />} />
                           <Route path="/ai-doc-summarizer" element={<AIDocSummarizer />} />
+                          
+                          {/* Phase 4: Social & Communication */}
+                          <Route path="/activity-feed" element={<ActivityFeed />} />
+                          <Route path="/forums" element={<CommunityForums />} />
                           
                           {/* Flashcard System */}
                           <Route path="/flashcards" element={<Flashcards />} />
