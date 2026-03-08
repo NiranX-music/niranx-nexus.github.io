@@ -345,6 +345,8 @@ const navigationConfig = {
       { title: "XForge", url: "/xforge", icon: Hammer },
       { title: "XBoard", url: "/xboard", icon: LayoutGrid },
       { title: "XVault", url: "/xvault", icon: Lock },
+      { title: "XLink", url: "/xlink", icon: Link2 },
+      { title: "XPulse", url: "/xpulse", icon: TrendingUp },
       { title: "Web Search", url: "/web-search", icon: Search },
       { title: "Xmail", url: "/xmail", icon: Mail },
       { title: "Video Player", url: "/video-player", icon: Video },

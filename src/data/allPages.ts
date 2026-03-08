@@ -197,6 +197,8 @@ export const allPages: PageInfo[] = [
   { name: "XForge", route: "/xforge", description: "Visual micro-app & widget builder with AI assist, templates, and drag canvas", category: "Tools", accessLevel: "Authenticated", icon: "Hammer" },
   { name: "XBoard", route: "/xboard", description: "Kanban board for task and project management with drag-and-drop cards", category: "Tools", accessLevel: "Authenticated", icon: "LayoutGrid" },
   { name: "XVault", route: "/xvault", description: "PIN-protected encrypted notes and private journal", category: "Tools", accessLevel: "Authenticated", icon: "Lock" },
+  { name: "XLink", route: "/xlink", description: "Customizable link-in-bio page builder with themes and analytics", category: "Tools", accessLevel: "Authenticated", icon: "Link2" },
+  { name: "XPulse", route: "/xpulse", description: "Live activity feed showing real-time platform events", category: "Social", accessLevel: "Authenticated", icon: "Activity" },
 ];
 
 export const pageCategories = [

@@ -242,6 +242,8 @@ import TypingSpeedTest from "./pages/TypingSpeedTest";
 import XForge from "./pages/XForge";
 import XBoard from "./pages/XBoard";
 import XVault from "./pages/XVault";
+import XLink from "./pages/XLink";
+import XPulse from "./pages/XPulse";
 
 import AboutUs from "./pages/support/AboutUs";
 import Careers from "./pages/support/Careers";
@@ -696,6 +698,8 @@ const App = () => (
                           <Route path="/xforge" element={<XForge />} />
                           <Route path="/xboard" element={<XBoard />} />
                           <Route path="/xvault" element={<XVault />} />
+                          <Route path="/xlink" element={<XLink />} />
+                          <Route path="/xpulse" element={<XPulse />} />
                           
                           {/* Support Pages */}
                           <Route path="/about" element={<AboutUs />} />
