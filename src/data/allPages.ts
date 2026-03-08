@@ -311,6 +311,7 @@ export const allPages: PageInfo[] = [
   { name: "XGames", route: "/xgames", description: "Play HTML5 games powered by GameDistribution", category: "Progress", accessLevel: "Authenticated", icon: "Gamepad2" },
   { name: "Sunrise & Sunset", route: "/sunrise-sunset", description: "Real-time sunrise, sunset, dawn, dusk and golden hour data", category: "Tools", accessLevel: "Authenticated", icon: "Sun" },
   { name: "NASA NEO Explorer", route: "/nasa-neo", description: "Browse NASA near-earth asteroids with orbital data and close approaches", category: "Tools", accessLevel: "Authenticated", icon: "Rocket" },
+  { name: "Genrenator", route: "/genrenator", description: "Random music genre and story generator powered by Binary Jazz API", category: "Tools", accessLevel: "Authenticated", icon: "Music" },
 ];
 
 export const pageCategories = [
