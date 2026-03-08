@@ -585,6 +585,11 @@ const App = () => (
                           <Route path="/focus-ambient" element={<FocusModeAmbient />} />
                           <Route path="/cheatsheets" element={<QuickCheatsheets />} />
                           
+                          {/* Phase 7: Advanced Tools */}
+                          <Route path="/cornell-notes" element={<CornellNotes />} />
+                          <Route path="/session-planner" element={<StudySessionPlanner />} />
+                          <Route path="/typing-test" element={<TypingSpeedTest />} />
+
                           {/* Phase 4: Social & Communication */}
                           <Route path="/activity-feed" element={<ActivityFeed />} />
                           <Route path="/forums" element={<CommunityForums />} />
