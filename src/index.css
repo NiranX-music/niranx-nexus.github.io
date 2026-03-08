@@ -667,3 +667,146 @@ body {
     @apply block md:hidden;
   }
 }
+
+/* Phase 1 Animation Tweaks */
+
+/* Button press scale */
+button:active:not(:disabled) {
+  transform: scale(0.96);
+  transition: transform 0.1s ease;
+}
+
+/* Card hover lift */
+.card-hover-lift {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.card-hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* Input focus glow */
+input:focus, textarea:focus, select:focus {
+  box-shadow: 0 0 0 2px hsl(var(--ring) / 0.25);
+  transition: box-shadow 0.2s ease;
+}
+
+/* Skeleton shimmer */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton-shimmer {
+  background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--muted-foreground) / 0.08) 50%, hsl(var(--muted)) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Number roll-up */
+@keyframes numberRollUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.number-roll-up {
+  animation: numberRollUp 0.4s ease-out;
+}
+
+/* Badge pulse */
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+.badge-pulse {
+  animation: badgePulse 0.6s ease-in-out;
+}
+
+/* Stagger list items */
+.stagger-item {
+  opacity: 0;
+  animation: fadeSlideIn 0.3s ease forwards;
+}
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Streak flame flicker */
+@keyframes flameFlicker {
+  0%, 100% { transform: scaleY(1) rotate(0deg); }
+  25% { transform: scaleY(1.1) rotate(-2deg); }
+  75% { transform: scaleY(0.95) rotate(2deg); }
+}
+.flame-flicker {
+  animation: flameFlicker 0.8s ease infinite;
+}
+
+/* Notification bell shake */
+@keyframes bellShake {
+  0%, 100% { transform: rotate(0); }
+  15% { transform: rotate(10deg); }
+  30% { transform: rotate(-8deg); }
+  45% { transform: rotate(6deg); }
+  60% { transform: rotate(-4deg); }
+  75% { transform: rotate(2deg); }
+}
+.bell-shake {
+  animation: bellShake 0.6s ease;
+}
+
+/* Success checkmark draw */
+@keyframes checkDraw {
+  0% { stroke-dashoffset: 24; }
+  100% { stroke-dashoffset: 0; }
+}
+.check-draw path {
+  stroke-dasharray: 24;
+  animation: checkDraw 0.4s ease forwards;
+}
+
+/* Error shake */
+@keyframes errorShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+.error-shake {
+  animation: errorShake 0.4s ease;
+}
+
+/* XP increment glow */
+@keyframes xpGlow {
+  0% { text-shadow: 0 0 4px hsl(var(--primary) / 0.5); }
+  50% { text-shadow: 0 0 12px hsl(var(--primary) / 0.8); }
+  100% { text-shadow: 0 0 4px hsl(var(--primary) / 0.5); }
+}
+.xp-glow {
+  animation: xpGlow 1s ease;
+}
+
+/* Level badge shine sweep */
+@keyframes shineSweep {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shine-sweep {
+  background: linear-gradient(90deg, transparent 30%, hsl(0 0% 100% / 0.3) 50%, transparent 70%);
+  background-size: 200% 100%;
+  animation: shineSweep 2s ease infinite;
+}
+
+/* Avatar hover glow ring */
+.avatar-glow:hover {
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.4);
+  transition: box-shadow 0.25s ease;
+}
+
+/* Drop zone pulse */
+@keyframes dropPulse {
+  0%, 100% { border-color: hsl(var(--primary) / 0.3); }
+  50% { border-color: hsl(var(--primary) / 0.7); }
+}
+.drop-zone-pulse {
+  animation: dropPulse 1s ease infinite;
+}

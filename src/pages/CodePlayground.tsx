@@ -120,7 +120,8 @@ export default function CodePlayground() {
         };
 
         try {
-          const result = eval(code);
+          const fn = new Function(code);
+          const result = fn();
           if (result !== undefined) {
             logs.push(`=> ${typeof result === 'object' ? JSON.stringify(result, null, 2) : result}`);
           }

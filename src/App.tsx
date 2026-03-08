@@ -15,6 +15,10 @@ import { GuestModeProvider } from "./contexts/GuestModeContext";
 import { BeepSoundProvider } from "./contexts/BeepSoundContext";
 import { AdminEditProvider } from "./contexts/AdminEditContext";
 import { AppLayout } from "./components/layout/AppLayout";
+import { GlobalErrorBoundary } from "./components/GlobalErrorBoundary";
+import { PageLoadProgress } from "./components/PageLoadProgress";
+import { OfflineBanner } from "./components/OfflineBanner";
+import { BackToTop } from "./components/BackToTop";
 import VoiceCommand from "./components/VoiceCommand";
 import Landing from "./pages/Landing";
 import Nexus from "./pages/Nexus";
@@ -340,6 +344,7 @@ import { XstageSongs, XstageSoundLab, XstageSettings } from "./xstage/pages/Xsta
 const queryClient = new QueryClient();
 
 const App = () => (
+  <GlobalErrorBoundary>
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <BeepSoundProvider>
@@ -352,6 +357,9 @@ const App = () => (
                   <Toaster />
                   <Sonner />
                   <BrowserRouter>
+                    <PageLoadProgress />
+                    <OfflineBanner />
+                    <BackToTop />
                     <MusicPlayerProvider>
                     <AuthProvider>
                       <AdminEditProvider>
@@ -839,6 +847,7 @@ const App = () => (
     </BeepSoundProvider>
   </ThemeProvider>
 </QueryClientProvider>
+</GlobalErrorBoundary>
 );
 
 export default App;
