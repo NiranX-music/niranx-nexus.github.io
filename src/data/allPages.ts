@@ -370,6 +370,7 @@ export const pageCategories = [
   "Security",
   "Archive",
   "Nexus",
+  "Documentation",
   "More"
 ];
 
