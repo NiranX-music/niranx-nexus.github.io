@@ -683,6 +683,14 @@ const App = () => (
                           <Route path="/study-diary" element={<StudyDiary />} />
                           <Route path="/knowledge-graph" element={<KnowledgeGraph />} />
                           
+                          {/* Phase 9-10: Collaboration & Analytics */}
+                          <Route path="/peer-study-matching" element={<PeerStudyMatching />} />
+                          <Route path="/accountability-partners" element={<StudyAccountabilityPartners />} />
+                          <Route path="/collaborative-notes" element={<CollaborativeNotes />} />
+                          <Route path="/study-buddy" element={<StudyBuddy />} />
+                          <Route path="/advanced-analytics" element={<AdvancedAnalyticsDashboard />} />
+                          <Route path="/api-console" element={<APIConsole />} />
+                          
                           {/* Support Pages */}
                           <Route path="/about" element={<AboutUs />} />
                           <Route path="/careers" element={<Careers />} />
