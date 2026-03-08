@@ -128,11 +128,9 @@ const Weather = () => {
                     {weatherData.current.location.localtime}
                   </div>
                 </div>
-                <img
-                  src={weatherData.current.current.condition.icon}
-                  alt={weatherData.current.current.condition.text}
-                  className="h-16 w-16"
-                />
+                <span className="text-6xl">
+                  {weatherData.current.current.condition.icon}
+                </span>
               </div>
 
               <div className="space-y-4">
@@ -199,17 +197,7 @@ const Weather = () => {
                 </div>
               </Card>
 
-              <Card className="p-4">
-                <div className="flex items-center gap-3">
-                  <Sun className="h-5 w-5 text-primary" />
-                  <div>
-                    <div className="text-sm text-muted-foreground">UV Index</div>
-                    <div className="text-lg font-semibold">
-                      {weatherData.current.current.uv}
-                    </div>
-                  </div>
-                </div>
-              </Card>
+
             </div>
 
             {weatherData.forecast && (
@@ -229,11 +217,9 @@ const Weather = () => {
                             day: "numeric",
                           })}
                         </div>
-                        <img
-                          src={day.day.condition.icon}
-                          alt={day.day.condition.text}
-                          className="h-12 w-12 mx-auto"
-                        />
+                        <span className="text-4xl block">
+                          {day.day.condition.icon}
+                        </span>
                         <div className="text-sm">{day.day.condition.text}</div>
                         <div className="flex items-center justify-center gap-2 text-sm">
                           <span className="font-semibold">
