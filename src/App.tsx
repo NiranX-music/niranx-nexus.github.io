@@ -244,6 +244,7 @@ import AboutUs from "./pages/support/AboutUs";
 import Careers from "./pages/support/Careers";
 import Press from "./pages/support/Press";
 import Documentation from "./pages/support/Documentation";
+import DocsHub from "./pages/DocsHub";
 import APIReference from "./pages/support/APIReference";
 import CookiePolicy from "./pages/support/CookiePolicy";
 import GDPR from "./pages/support/GDPR";
@@ -669,7 +670,7 @@ const App = () => (
                           <Route path="/about" element={<AboutUs />} />
                           <Route path="/careers" element={<Careers />} />
                           <Route path="/press" element={<Press />} />
-                          <Route path="/docs" element={<Documentation />} />
+                          <Route path="/docs" element={<DocsHub />} />
                           <Route path="/api" element={<APIReference />} />
                           <Route path="/cookies" element={<CookiePolicy />} />
                           <Route path="/gdpr" element={<GDPR />} />

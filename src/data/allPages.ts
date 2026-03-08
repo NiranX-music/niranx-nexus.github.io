@@ -180,6 +180,7 @@ export const allPages: PageInfo[] = [
   { name: "Old Pages", route: "/niranx/old-pages", description: "Archive of legacy pages", category: "Archive", accessLevel: "Authenticated", icon: "Archive" },
 
   // More
+  { name: "Docs Hub", route: "/docs", description: "Complete platform documentation, page guide, restrictions & limitations", category: "More", accessLevel: "Public", icon: "BookOpen" },
   { name: "Website Guide", route: "/niranx/guide", description: "Complete page directory", category: "More", accessLevel: "Moderator", icon: "BookOpen" },
   { name: "Sitemap", route: "/niranx/sitemap", description: "Site map overview", category: "More", accessLevel: "Authenticated", icon: "Map" },
 ];
