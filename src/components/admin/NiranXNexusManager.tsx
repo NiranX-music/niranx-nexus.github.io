@@ -35,7 +35,8 @@ export function NiranXNexusManager() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [links, setLinks] = useState<NexusLink[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'categories' | 'links'>('categories');
+  const [activeTab, setActiveTab] = useState<'categories' | 'links' | 'submissions'>('categories');
+  const [submissions, setSubmissions] = useState<any[]>([]);
   
   // Category form
   const [catDialogOpen, setCatDialogOpen] = useState(false);
@@ -51,12 +52,14 @@ export function NiranXNexusManager() {
   });
 
   const fetchData = async () => {
-    const [catsRes, linksRes] = await Promise.all([
+    const [catsRes, linksRes, subsRes] = await Promise.all([
       supabase.from('nexus_categories').select('*').order('display_order'),
       supabase.from('nexus_links').select('*').order('display_order'),
+      supabase.from('nexus_link_submissions').select('*').order('created_at', { ascending: false }),
     ]);
     if (catsRes.data) setCategories(catsRes.data);
     if (linksRes.data) setLinks(linksRes.data);
+    if (subsRes.data) setSubmissions(subsRes.data);
     setIsLoading(false);
   };
 
@@ -114,6 +117,28 @@ export function NiranXNexusManager() {
     fetchData();
   };
 
+  const approveSubmission = async (sub: any) => {
+    // Add to nexus_links
+    await supabase.from('nexus_links').insert({
+      category_id: sub.category_id,
+      name: sub.name,
+      url: sub.url,
+      description: sub.description,
+      image_url: sub.image_url,
+      display_order: 999,
+      is_visible: true,
+    });
+    await supabase.from('nexus_link_submissions').update({ status: 'approved', reviewed_at: new Date().toISOString() }).eq('id', sub.id);
+    toast.success('Approved and added to Nexus!');
+    fetchData();
+  };
+
+  const rejectSubmission = async (id: string) => {
+    await supabase.from('nexus_link_submissions').update({ status: 'rejected', reviewed_at: new Date().toISOString() }).eq('id', id);
+    toast.success('Submission rejected');
+    fetchData();
+  };
+
   if (isLoading) return <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin" /></div>;
 
   return (
@@ -124,6 +149,9 @@ export function NiranXNexusManager() {
         </Button>
         <Button variant={activeTab === 'links' ? 'default' : 'outline'} size="sm" onClick={() => setActiveTab('links')}>
           <Link2 className="w-4 h-4 mr-1" /> Links
+        </Button>
+        <Button variant={activeTab === 'submissions' ? 'default' : 'outline'} size="sm" onClick={() => setActiveTab('submissions')}>
+          Submissions {submissions.filter(s => s.status === 'pending').length > 0 && `(${submissions.filter(s => s.status === 'pending').length})`}
         </Button>
       </div>
 
@@ -257,6 +285,48 @@ export function NiranXNexusManager() {
                   </TableCell>
                 </TableRow>
               ))}
+            </TableBody>
+          </Table>
+        </>
+      )}
+
+      {activeTab === 'submissions' && (
+        <>
+          <h3 className="text-lg font-semibold">User Submissions</h3>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>URL</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {submissions.map(sub => (
+                <TableRow key={sub.id}>
+                  <TableCell className="font-medium">{sub.name}</TableCell>
+                  <TableCell><a href={sub.url} target="_blank" rel="noopener" className="text-primary underline truncate max-w-[200px] block">{sub.url}</a></TableCell>
+                  <TableCell>{categories.find(c => c.id === sub.category_id)?.name || '—'}</TableCell>
+                  <TableCell>
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${sub.status === 'pending' ? 'bg-yellow-500/20 text-yellow-500' : sub.status === 'approved' ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}`}>
+                      {sub.status}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    {sub.status === 'pending' && (
+                      <div className="flex gap-1">
+                        <Button size="sm" variant="outline" className="text-green-500" onClick={() => approveSubmission(sub)}>Approve</Button>
+                        <Button size="sm" variant="outline" className="text-red-500" onClick={() => rejectSubmission(sub.id)}>Reject</Button>
+                      </div>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+              {submissions.length === 0 && (
+                <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-8">No submissions yet</TableCell></TableRow>
+              )}
             </TableBody>
           </Table>
         </>
