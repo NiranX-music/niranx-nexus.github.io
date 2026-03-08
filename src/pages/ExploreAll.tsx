@@ -54,8 +54,7 @@ export default function ExploreAll() {
   }, [links, search, activeCategory]);
 
   return (
-    <>
-    
+    <div className="min-h-screen bg-background">
         {/* Hero */}
         <div className="relative overflow-hidden border-b border-border/50">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-accent/10" />
@@ -187,8 +186,7 @@ export default function ExploreAll() {
               Explore XNexus
             </Button>
           </motion.div>
-        </div>
       </div>
-    </>
+    </div>
   );
 }
