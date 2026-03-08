@@ -1,0 +1,1 @@
+ALTER TABLE public.schedule_tasks ADD COLUMN IF NOT EXISTS recurrence_type text DEFAULT 'weekly';

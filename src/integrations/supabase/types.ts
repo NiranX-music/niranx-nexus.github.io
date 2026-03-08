@@ -7513,6 +7513,7 @@ export type Database = {
           notes: string | null
           priority: string | null
           recording_link: string | null
+          recurrence_type: string | null
           start_time: string
           status: string | null
           subject: string
@@ -7534,6 +7535,7 @@ export type Database = {
           notes?: string | null
           priority?: string | null
           recording_link?: string | null
+          recurrence_type?: string | null
           start_time: string
           status?: string | null
           subject: string
@@ -7555,6 +7557,7 @@ export type Database = {
           notes?: string | null
           priority?: string | null
           recording_link?: string | null
+          recurrence_type?: string | null
           start_time?: string
           status?: string | null
           subject?: string
