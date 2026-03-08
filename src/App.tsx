@@ -233,6 +233,9 @@ import PublishedPage from "./pages/PublishedPage";
 import StudyTimerDashboard from "./pages/StudyTimerDashboard";
 import KnowledgeBaseWiki from "./pages/KnowledgeBaseWiki";
 import StudyPlannerCalendar from "./pages/StudyPlannerCalendar";
+import PomodoroStatsDashboard from "./pages/PomodoroStatsDashboard";
+import FocusModeAmbient from "./pages/FocusModeAmbient";
+import QuickCheatsheets from "./pages/QuickCheatsheets";
 
 // Support Pages
 import AboutUs from "./pages/support/AboutUs";
@@ -574,6 +577,11 @@ const App = () => (
                           <Route path="/study-timer-dashboard" element={<StudyTimerDashboard />} />
                           <Route path="/knowledge-base" element={<KnowledgeBaseWiki />} />
                           <Route path="/study-planner-calendar" element={<StudyPlannerCalendar />} />
+                          
+                          {/* Phase 6: Productivity & Utilities */}
+                          <Route path="/pomodoro-stats" element={<PomodoroStatsDashboard />} />
+                          <Route path="/focus-ambient" element={<FocusModeAmbient />} />
+                          <Route path="/cheatsheets" element={<QuickCheatsheets />} />
                           
                           {/* Phase 4: Social & Communication */}
                           <Route path="/activity-feed" element={<ActivityFeed />} />
