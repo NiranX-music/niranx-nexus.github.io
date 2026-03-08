@@ -201,6 +201,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           {/* MacDock temporarily disabled to avoid overlapping live class controls */}
           <AISolverWidget />
           <CommandPalette open={commandPaletteOpen} onOpenChange={setCommandPaletteOpen} />
+          <UniversalSearch open={universalSearchOpen} onOpenChange={setUniversalSearchOpen} />
           <KeyboardShortcutsHelp open={shortcutsHelpOpen} onOpenChange={setShortcutsHelpOpen} />
         </SidebarInset>
       </div>
