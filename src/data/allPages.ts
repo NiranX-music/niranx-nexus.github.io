@@ -64,6 +64,14 @@ export const allPages: PageInfo[] = [
   { name: "Study Diary", route: "/niranx/study-diary", description: "Daily study journal with mood tracking and reflections", category: "Progress", accessLevel: "Authenticated", icon: "BookOpen" },
   { name: "Knowledge Graph", route: "/niranx/knowledge-graph", description: "Interactive topic connection visualization", category: "Study", accessLevel: "Authenticated", icon: "Brain" },
 
+  // Phase 9-10: Collaboration & Peer Features
+  { name: "Peer Study Matching", route: "/niranx/peer-study-matching", description: "Find compatible study partners based on subjects and goals", category: "Social", accessLevel: "Authenticated", icon: "Users" },
+  { name: "Accountability Partners", route: "/niranx/accountability-partners", description: "Stay accountable with study partners and shared goals", category: "Social", accessLevel: "Authenticated", icon: "Handshake" },
+  { name: "Collaborative Notes", route: "/niranx/collaborative-notes", description: "Create and edit notes together with study partners", category: "Study", accessLevel: "Authenticated", icon: "FileText" },
+  { name: "Study Buddy", route: "/niranx/study-buddy", description: "AI companion that studies alongside you with animations", category: "Study", accessLevel: "Authenticated", icon: "Bot" },
+  { name: "Advanced Analytics", route: "/niranx/advanced-analytics", description: "Deep analytics dashboard with study metrics", category: "Progress", accessLevel: "Authenticated", icon: "TrendingUp" },
+  { name: "API Console", route: "/niranx/api-console", description: "Test and explore platform API endpoints", category: "Tools", accessLevel: "Authenticated", icon: "Code" },
+
   // XVibe Music Platform
   { name: "XVibe Landing", route: "/xvibe", description: "XVibe music platform landing", category: "XVibe", accessLevel: "Public", icon: "Music" },
   { name: "XVibe Home", route: "/xvibe/home", description: "Browse music and discover artists", category: "XVibe", accessLevel: "Authenticated", icon: "Headphones" },
