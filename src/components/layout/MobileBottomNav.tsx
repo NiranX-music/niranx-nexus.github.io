@@ -1,12 +1,13 @@
 import { NavLink } from "react-router-dom";
-import { Home, CheckSquare, Timer, User } from "lucide-react";
+import { Home, CheckSquare, Timer, User, Music, MessageCircle, BookOpen, Compass } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navigationItems = [
-  { title: "Dashboard", url: "/dashboard", icon: Home },
-  { title: "Tasks", url: "/tasks", icon: CheckSquare },
-  { title: "Focus", url: "/focus-engine", icon: Timer },
-  { title: "Profile", url: "/profile", icon: User },
+  { title: "Home", url: "/niranx/dashboard", icon: Home },
+  { title: "Tasks", url: "/niranx/tasks", icon: CheckSquare },
+  { title: "Focus", url: "/niranx/focus-engine", icon: Timer },
+  { title: "Chat", url: "/niranx/chat", icon: MessageCircle },
+  { title: "Profile", url: "/niranx/profile", icon: User },
 ];
 
 export function MobileBottomNav() {

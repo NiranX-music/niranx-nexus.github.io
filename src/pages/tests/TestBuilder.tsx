@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -131,7 +132,6 @@ export default function TestBuilder() {
       }
 
       // Add questions to the test using supabase directly
-      const { supabase } = await import('@/integrations/supabase/client');
       
       const questionsToInsert = questions.map((q, index) => ({
         test_id: createdTest.id,
