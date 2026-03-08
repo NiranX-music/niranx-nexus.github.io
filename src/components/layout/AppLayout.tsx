@@ -5,6 +5,7 @@ import { NowPlaying } from "./NowPlaying";
 import { MobileBottomNav } from "./MobileBottomNav";
 
 import AISolverWidget from "@/components/widgets/AISolverWidget";
+import { EnhancedFooter } from "@/components/niranx/EnhancedFooter";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { CommandPalette } from "@/components/CommandPalette";
 import { UniversalSearch } from "@/components/UniversalSearch";
@@ -204,6 +205,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             <div className="p-4 pb-20 md:pb-4 animate-fade-in">
               {children}
             </div>
+            <EnhancedFooter />
           </main>
 
           <NowPlaying />
