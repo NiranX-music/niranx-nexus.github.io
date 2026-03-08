@@ -92,6 +92,7 @@ import {
   Handshake,
   Bot,
   Hammer,
+  Activity,
 } from "lucide-react";
 import {
   Sidebar,
@@ -347,6 +348,8 @@ const navigationConfig = {
       { title: "XVault", url: "/xvault", icon: Lock },
       { title: "XLink", url: "/xlink", icon: Link2 },
       { title: "XPulse", url: "/xpulse", icon: TrendingUp },
+      { title: "XSync", url: "/xsync", icon: Cloud },
+      { title: "XRadar", url: "/xradar", icon: Activity },
       { title: "Web Search", url: "/web-search", icon: Search },
       { title: "Xmail", url: "/xmail", icon: Mail },
       { title: "Video Player", url: "/video-player", icon: Video },

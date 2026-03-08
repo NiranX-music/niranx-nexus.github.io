@@ -10069,6 +10069,86 @@ export type Database = {
         }
         Relationships: []
       }
+      xboard_boards: {
+        Row: {
+          columns: Json
+          created_at: string
+          id: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          columns?: Json
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          columns?: Json
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      xboard_cards: {
+        Row: {
+          board_id: string
+          column_id: string
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          position: number
+          priority: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          board_id: string
+          column_id: string
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          position?: number
+          priority?: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          board_id?: string
+          column_id?: string
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          position?: number
+          priority?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xboard_cards_board_id_fkey"
+            columns: ["board_id"]
+            isOneToOne: false
+            referencedRelation: "xboard_boards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       xflow_comments: {
         Row: {
           content: string
@@ -11231,6 +11311,42 @@ export type Database = {
           settings?: Json | null
           slug?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      xvault_notes: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_favorite: boolean
+          pin_hash: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_favorite?: boolean
+          pin_hash?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_favorite?: boolean
+          pin_hash?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

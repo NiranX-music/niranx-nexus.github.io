@@ -199,6 +199,8 @@ export const allPages: PageInfo[] = [
   { name: "XVault", route: "/xvault", description: "PIN-protected encrypted notes and private journal", category: "Tools", accessLevel: "Authenticated", icon: "Lock" },
   { name: "XLink", route: "/xlink", description: "Customizable link-in-bio page builder with themes and analytics", category: "Tools", accessLevel: "Authenticated", icon: "Link2" },
   { name: "XPulse", route: "/xpulse", description: "Live activity feed showing real-time platform events", category: "Social", accessLevel: "Authenticated", icon: "Activity" },
+  { name: "XSync", route: "/xsync", description: "Cross-device sync status and data management", category: "Tools", accessLevel: "Authenticated", icon: "Cloud" },
+  { name: "XRadar", route: "/xradar", description: "Personal analytics dashboard with AI insights", category: "Tools", accessLevel: "Authenticated", icon: "Activity" },
 ];
 
 export const pageCategories = [
