@@ -132,7 +132,7 @@ const Auth = () => {
         email: signUpData.email,
         password: signUpData.password,
         options: {
-          emailRedirectTo: `${window.location.origin}/niranx/dashboard`,
+          emailRedirectTo: `${window.location.origin}/welcome-setup`,
           data: {
             username: signUpData.username,
             display_name: signUpData.fullName,
@@ -157,9 +157,9 @@ const Auth = () => {
           title: "Success!",
           description: "Account created successfully. Please check your email to confirm.",
         });
-        // Auto-navigate if email confirmation is disabled
+        // Auto-navigate to onboarding if session exists
         if (data.session) {
-          navigate(redirectPath);
+          navigate("/welcome-setup");
         }
       }
     } catch (error: any) {
@@ -221,7 +221,7 @@ const Auth = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/niranx/dashboard`,
+          redirectTo: `${window.location.origin}/welcome-setup`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
