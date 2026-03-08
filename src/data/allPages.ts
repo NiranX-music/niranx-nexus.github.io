@@ -313,6 +313,7 @@ export const allPages: PageInfo[] = [
   { name: "NASA NEO Explorer", route: "/nasa-neo", description: "Browse NASA near-earth asteroids with orbital data and close approaches", category: "Tools", accessLevel: "Authenticated", icon: "Rocket" },
   { name: "Genrenator", route: "/genrenator", description: "Random music genre and story generator powered by Binary Jazz API", category: "Tools", accessLevel: "Authenticated", icon: "Music" },
   { name: "XBoard Games", route: "/xboard-games", description: "Explore board games with hot rankings, search and details via BoardGameGeek API", category: "Tools", accessLevel: "Authenticated", icon: "Gamepad2" },
+  { name: "XAPI Explorer", route: "/xapi-explorer", description: "Unified hub to browse and live-test 100+ free public APIs across 15 categories", category: "Tools", accessLevel: "Authenticated", icon: "Layers" },
 ];
 
 export const pageCategories = [

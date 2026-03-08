@@ -751,6 +751,7 @@ const App = () => (
                           <Route path="/nasa-neo" element={<NasaNeoExplorer />} />
                           <Route path="/genrenator" element={<Genrenator />} />
                           <Route path="/xboard-games" element={<XBoardGames />} />
+                          <Route path="/xapi-explorer" element={<XAPIExplorer />} />
                           
                           {/* Support Pages */}
                           <Route path="/about" element={<AboutUs />} />
