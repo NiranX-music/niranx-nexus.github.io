@@ -60,6 +60,7 @@ import { useWidgets } from "@/hooks/useWidgets";
 import { StreakDisplay } from "@/components/StreakDisplay";
 import { ApplyForGuardianCard } from "@/components/ApplyForGuardianCard";
 import { GoogleStyleSearchBar } from "@/components/dashboard/GoogleStyleSearchBar";
+import { DraggableWidgetGrid } from "@/components/DraggableWidgetGrid";
 
 const Index = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -476,20 +477,12 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Widgets Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 auto-rows-min perspective-3d">
-        {widgets.map(({ key, component: Component }, index) => 
-          isWidgetEnabled(key) && (
-            <div 
-              key={key} 
-              className="animate-flip-in card-3d hover-lift"
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              <Component />
-            </div>
-          )
-        )}
-      </div>
+      {/* Widgets Grid — Drag-and-Drop */}
+      <DraggableWidgetGrid
+        widgets={widgets}
+        isWidgetEnabled={isWidgetEnabled}
+        storageKey="dashboard-widget-order"
+      />
 
       {/* Empty State */}
       {!widgets.some(w => isWidgetEnabled(w.key)) && (
