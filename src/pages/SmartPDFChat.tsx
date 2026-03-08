@@ -195,7 +195,7 @@ Answer questions based on the document content. If the answer cannot be found in
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: response.data.content || "I couldn't generate a response. Please try again.",
+        content: response.data?.result || response.data?.content || "I couldn't generate a response. Please try again.",
         timestamp: new Date(),
       };
 
