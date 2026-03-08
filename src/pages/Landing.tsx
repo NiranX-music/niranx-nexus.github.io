@@ -8,12 +8,14 @@ import { TestimonialsSection } from '@/components/niranx/TestimonialsSection';
 import { CTASection } from '@/components/landing/CTASection';
 import { Footer3D } from '@/components/landing/Footer3D';
 import { NewsletterPopup } from '@/components/niranx/NewsletterPopup';
+import { LiquidBackground } from '@/components/LiquidBackground';
 
 const Landing = () => {
   return (
-    <div className="bg-background">
+    <div className="bg-background relative">
+      <LiquidBackground />
       <NiranXNavigation />
-      <main>
+      <main className="relative z-10">
         <Hero3D />
         <StatsSection />
         <FeaturesGrid3D />

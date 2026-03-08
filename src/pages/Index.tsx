@@ -330,6 +330,40 @@ const Index = () => {
           </motion.div>
         )}
 
+        {/* Widget Banner - shown after auth */}
+        {isLoggedIn && !widgets.some(w => isWidgetEnabled(w.key)) && (
+          <motion.div
+            className="mb-6"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.48 }}
+          >
+            <Card className="border-primary/30 bg-gradient-to-r from-primary/10 via-accent/5 to-primary/10 backdrop-blur-xl overflow-hidden relative">
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_right,hsl(var(--primary)/0.1)_0%,transparent_60%)]" />
+              <CardContent className="p-5 flex items-center justify-between gap-4 relative z-10">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-xl bg-primary/10 border border-primary/20">
+                    <Layers className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-display font-bold text-sm tracking-wider">ADD_WIDGETS</h3>
+                    <p className="text-xs font-mono text-muted-foreground tracking-wide mt-0.5">
+                      Customize your dashboard with widgets for tasks, music, notes & more
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={() => navigate('/niranx/widget-settings')}
+                  className="font-mono text-xs tracking-widest gap-2 shrink-0"
+                >
+                  <Target className="w-4 h-4" /> CONFIGURE
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
         {/* Streak */}
         {isLoggedIn && (
           <motion.div className="mb-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>

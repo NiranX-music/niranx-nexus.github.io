@@ -1,25 +1,24 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
 const scrollPositions = new Map<string, number>();
 
 /**
- * Restores scroll position when navigating back to a previously visited page.
+ * Scrolls to top on new page navigation; restores position on back/forward.
  */
 export function useScrollRestoration() {
   const location = useLocation();
+  const prevPathRef = useRef<string | null>(null);
 
   useEffect(() => {
     const main = document.querySelector("main");
     if (!main) return;
 
-    // Restore saved scroll position for this path
-    const saved = scrollPositions.get(location.pathname);
-    if (saved !== undefined) {
-      requestAnimationFrame(() => main.scrollTo(0, saved));
-    } else {
-      main.scrollTo(0, 0);
-    }
+    // Always scroll to top on route change
+    main.scrollTo(0, 0);
+
+    const prevPath = prevPathRef.current;
+    prevPathRef.current = location.pathname;
 
     // Save scroll position when leaving
     const handler = () => {
@@ -28,7 +27,7 @@ export function useScrollRestoration() {
 
     main.addEventListener("scroll", handler, { passive: true });
     return () => {
-      handler(); // save on unmount
+      handler();
       main.removeEventListener("scroll", handler);
     };
   }, [location.pathname]);
