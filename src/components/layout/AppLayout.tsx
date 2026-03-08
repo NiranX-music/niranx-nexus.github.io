@@ -71,6 +71,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   usePageTitle();
   useScrollRestoration();
   useCloudSync();
+  useAutoStreak();
 
   // Run cleanup on mount to fix any invalid favorite icons
   useEffect(() => {
