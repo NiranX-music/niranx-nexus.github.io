@@ -89,6 +89,8 @@ import {
   Rocket,
   Puzzle,
   Edit3,
+  Handshake,
+  Bot,
 } from "lucide-react";
 import {
   Sidebar,
@@ -212,6 +214,10 @@ const navigationConfig = {
       { title: "AI Study Path", url: "/study-path-generator", icon: RouteIcon },
       { title: "Study Rooms", url: "/study-rooms", icon: Radio },
       { title: "Study Groups", url: "/study-groups", icon: Users },
+      { title: "Peer Matching", url: "/peer-study-matching", icon: Users },
+      { title: "Accountability Partners", url: "/accountability-partners", icon: Handshake },
+      { title: "Collaborative Notes", url: "/collaborative-notes", icon: FileText },
+      { title: "Study Buddy", url: "/study-buddy", icon: Bot },
       { title: "Code Playground", url: "/code-playground", icon: Cpu },
       { title: "Vocabulary Builder", url: "/vocabulary-builder", icon: BookOpen },
       { title: "Reading Trainer", url: "/reading-trainer", icon: BookOpen },
@@ -231,6 +237,7 @@ const navigationConfig = {
     color: "from-destructive to-destructive/80",
     items: [
       { title: "Advanced Dashboard", url: "/advanced-dashboard", icon: BarChart3 },
+      { title: "Advanced Analytics", url: "/advanced-analytics", icon: TrendingUp },
       { title: "Study Analytics", url: "/study-analytics", icon: BarChart3 },
       { title: "Progress Journal", url: "/progress-journal", icon: BookOpen },
       { title: "Analytics", url: "/analytics", icon: TrendingUp },
@@ -327,6 +334,7 @@ const navigationConfig = {
     color: "from-primary/70 to-muted-foreground",
     items: [
       { title: "Integration Hub", url: "/integration-hub", icon: Plug },
+      { title: "API Console", url: "/api-console", icon: Code },
       { title: "Browser Extension", url: "/browser-extension-sync", icon: Chrome },
       { title: "Extension Download", url: "/extension-download", icon: Puzzle },
       { title: "Password Manager", url: "/password-manager", icon: Lock },

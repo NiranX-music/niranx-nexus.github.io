@@ -320,6 +320,14 @@ import SocialChatDashboard from "./pages/SocialChatDashboard";
 import StudyDiary from "./pages/StudyDiary";
 import KnowledgeGraph from "./pages/KnowledgeGraph";
 
+// Phase 9-10: Peer & Collaboration Features
+import PeerStudyMatching from "./pages/PeerStudyMatching";
+import StudyAccountabilityPartners from "./pages/StudyAccountabilityPartners";
+import CollaborativeNotes from "./pages/CollaborativeNotes";
+import StudyBuddy from "./pages/StudyBuddy";
+import AdvancedAnalyticsDashboard from "./pages/AdvancedAnalyticsDashboard";
+import APIConsole from "./pages/APIConsole";
+
 import Contact from "./pages/support/Contact";
 import HelpCentre from "./pages/support/HelpCentre";
 import PrivacyPolicy from "./pages/support/PrivacyPolicy";
@@ -674,6 +682,14 @@ const App = () => (
                           <Route path="/social-chat" element={<SocialChatDashboard />} />
                           <Route path="/study-diary" element={<StudyDiary />} />
                           <Route path="/knowledge-graph" element={<KnowledgeGraph />} />
+                          
+                          {/* Phase 9-10: Collaboration & Analytics */}
+                          <Route path="/peer-study-matching" element={<PeerStudyMatching />} />
+                          <Route path="/accountability-partners" element={<StudyAccountabilityPartners />} />
+                          <Route path="/collaborative-notes" element={<CollaborativeNotes />} />
+                          <Route path="/study-buddy" element={<StudyBuddy />} />
+                          <Route path="/advanced-analytics" element={<AdvancedAnalyticsDashboard />} />
+                          <Route path="/api-console" element={<APIConsole />} />
                           
                           {/* Support Pages */}
                           <Route path="/about" element={<AboutUs />} />
