@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "npm:resend@4.0.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -17,20 +16,19 @@ interface SendEmailRequest {
   html_body?: string;
   reply_to?: string;
   priority?: string;
-  email_id?: string; // Reference to the niranx_emails record
+  email_id?: string;
 }
 
 serve(async (req: Request): Promise<Response> => {
-  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-    
-    if (!RESEND_API_KEY) {
-      console.error("RESEND_API_KEY is not configured");
+    const MAILEROO_API_KEY = Deno.env.get("MAILEROO_API_KEY");
+
+    if (!MAILEROO_API_KEY) {
+      console.error("MAILEROO_API_KEY is not configured");
       return new Response(
         JSON.stringify({
           success: false,
@@ -43,8 +41,6 @@ serve(async (req: Request): Promise<Response> => {
         }
       );
     }
-
-    const resend = new Resend(RESEND_API_KEY);
 
     // Verify authentication
     const authHeader = req.headers.get("Authorization");
@@ -61,9 +57,7 @@ serve(async (req: Request): Promise<Response> => {
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      {
-        global: { headers: { Authorization: authHeader } },
-      }
+      { global: { headers: { Authorization: authHeader } } }
     );
 
     const {
@@ -94,7 +88,6 @@ serve(async (req: Request): Promise<Response> => {
       email_id,
     } = requestData;
 
-    // Validate required fields
     if (!from_address || !to_addresses || to_addresses.length === 0) {
       return new Response(
         JSON.stringify({
@@ -128,72 +121,58 @@ serve(async (req: Request): Promise<Response> => {
     }
 
     console.log(
-      `Sending email from ${from_address} to ${externalAddresses.join(", ")}`
+      `Sending email via Maileroo from ${from_address} to ${externalAddresses.join(", ")}`
     );
 
-    // Prepare email options - Use onboarding@resend.dev for testing if domain not verified
-    // Once you verify your domain in Resend, change this to your verified domain
-    const fromEmail = Deno.env.get("RESEND_FROM_EMAIL") || "NiranX Mail <onboarding@resend.dev>";
-    
-    const emailOptions: any = {
-      from: fromEmail,
-      to: externalAddresses,
-      subject: subject || "(No Subject)",
-      text: body || "",
-      reply_to: from_address, // Allow replies to go to the sender
-    };
-
-    // Add HTML body if provided
-    if (html_body) {
-      emailOptions.html = html_body;
-    } else if (body) {
-      // Convert plain text to simple HTML
-      emailOptions.html = `
-        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px;">
+    // Build HTML body
+    const emailHtml = html_body || (body
+      ? `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px;">
           <div style="white-space: pre-wrap;">${body.replace(/\n/g, "<br>")}</div>
           <hr style="margin-top: 30px; border: none; border-top: 1px solid #e5e5e5;">
-          <p style="color: #666; font-size: 12px;">
-            Sent via <a href="https://niranx.com" style="color: #0066cc;">NiranX Mail</a>
-          </p>
-        </div>
-      `;
+          <p style="color: #666; font-size: 12px;">Sent via <a href="https://niranx.com" style="color: #0066cc;">NiranX Mail</a></p>
+        </div>`
+      : "");
+
+    // Build Maileroo API payload
+    const fromEmail = Deno.env.get("MAILEROO_FROM_EMAIL") || from_address;
+
+    const formData = new FormData();
+    formData.append("from", fromEmail);
+    formData.append("to", externalAddresses.join(","));
+    formData.append("subject", subject || "(No Subject)");
+    formData.append("plain", body || "");
+    formData.append("html", emailHtml);
+
+    if (reply_to || from_address) {
+      formData.append("reply_to", reply_to || from_address);
     }
 
-    // Add CC if provided
     if (cc_addresses && cc_addresses.length > 0) {
       const externalCC = cc_addresses.filter(
         (addr) => !addr.toLowerCase().endsWith("@niranx.com")
       );
       if (externalCC.length > 0) {
-        emailOptions.cc = externalCC;
+        formData.append("cc", externalCC.join(","));
       }
     }
 
-    // Add priority header
-    if (priority === "high") {
-      emailOptions.headers = {
-        "X-Priority": "1",
-        "X-MSMail-Priority": "High",
-        Importance: "high",
-      };
-    } else if (priority === "low") {
-      emailOptions.headers = {
-        "X-Priority": "5",
-        "X-MSMail-Priority": "Low",
-        Importance: "low",
-      };
-    }
+    // Send via Maileroo API
+    const response = await fetch("https://smtp.maileroo.com/send", {
+      method: "POST",
+      headers: {
+        "X-API-Key": MAILEROO_API_KEY,
+      },
+      body: formData,
+    });
 
-    // Send the email
-    const { data: emailResponse, error: sendError } =
-      await resend.emails.send(emailOptions);
+    const responseData = await response.json();
 
-    if (sendError) {
-      console.error("Resend API error:", sendError);
+    if (!response.ok) {
+      console.error("Maileroo API error:", responseData);
       return new Response(
         JSON.stringify({
           success: false,
-          error: sendError.message || "Failed to send email",
+          error: responseData.message || "Failed to send email via Maileroo",
         }),
         {
           status: 500,
@@ -202,10 +181,10 @@ serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    console.log("Email sent successfully:", emailResponse);
+    console.log("Email sent successfully via Maileroo:", responseData);
 
-    // Update the email record with external message ID if email_id provided
-    if (email_id && emailResponse?.id) {
+    // Update email record if email_id provided
+    if (email_id && responseData?.data?.message_id) {
       const serviceClient = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
         Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
@@ -214,7 +193,7 @@ serve(async (req: Request): Promise<Response> => {
       await serviceClient
         .from("niranx_emails")
         .update({
-          external_message_id: emailResponse.id,
+          external_message_id: responseData.data.message_id,
           is_external: true,
         })
         .eq("id", email_id);
@@ -225,7 +204,7 @@ serve(async (req: Request): Promise<Response> => {
         success: true,
         message: `Email sent to ${externalAddresses.length} external recipient(s)`,
         sent_to: externalAddresses,
-        message_id: emailResponse?.id,
+        message_id: responseData?.data?.message_id,
       }),
       {
         status: 200,
