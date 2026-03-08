@@ -265,6 +265,7 @@ const SunriseSunsetPage = lazy(() => import("./pages/SunriseSunsetPage"));
 const NasaNeoExplorer = lazy(() => import("./pages/NasaNeoExplorer"));
 const Genrenator = lazy(() => import("./pages/Genrenator"));
 const XBoardGames = lazy(() => import("./pages/XBoardGames"));
+const XAPIExplorer = lazy(() => import("./pages/XAPIExplorer"));
 
 const AboutUs = lazy(() => import("./pages/support/AboutUs"));
 const Careers = lazy(() => import("./pages/support/Careers"));
