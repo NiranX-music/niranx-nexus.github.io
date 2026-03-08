@@ -27,6 +27,7 @@ export const allPages: PageInfo[] = [
   { name: "AI Solver", route: "/niranx/ai-solver", description: "AI homework solver with image support", category: "AI Corner", accessLevel: "Authenticated", icon: "Brain" },
   { name: "Groq Chat", route: "/niranx/groq-chat", description: "Fast AI chat with Groq models", category: "AI Corner", accessLevel: "Authenticated", icon: "Zap" },
   { name: "Groq Chat History", route: "/niranx/groq-chat-history", description: "Groq conversation history", category: "AI Corner", accessLevel: "Authenticated", icon: "ScrollText" },
+  { name: "Scitely AI", route: "/niranx/scitely-ai", description: "50+ free AI models — chat, image, video, audio", category: "AI Corner", accessLevel: "Authenticated", icon: "Sparkles" },
   { name: "PDF Summarizer", route: "/niranx/pdf-summarizer", description: "AI-powered PDF summarization", category: "AI Corner", accessLevel: "Authenticated", icon: "FileText" },
   { name: "AI Library", route: "/niranx/ai-library", description: "Saved AI generations", category: "AI Corner", accessLevel: "Authenticated", icon: "Archive" },
   { name: "Topic Map Generator", route: "/niranx/ai-topic-map-generator", description: "Generate visual topic maps", category: "AI Corner", accessLevel: "Authenticated", icon: "Route" },
