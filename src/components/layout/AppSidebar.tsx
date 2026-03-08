@@ -752,11 +752,11 @@ export function AppSidebar() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2, type: "spring" }}
               >
-                <span className="font-bold text-lg bg-gradient-to-r from-foreground via-foreground to-foreground/60 bg-clip-text text-transparent">
-                  NiranX
+                <span className="font-display font-bold text-lg tracking-wider gradient-text">
+                  NIRANX
                 </span>
-                <span className="text-[10px] text-muted-foreground font-medium tracking-wide uppercase">
-                  Universe
+                <span className="text-[9px] text-muted-foreground font-mono tracking-[0.2em] uppercase">
+                  CYBER_NEXUS
                 </span>
               </motion.div>
             )}
@@ -787,7 +787,7 @@ export function AppSidebar() {
             <div className="relative group">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors duration-200 group-focus-within:text-primary" />
               <Input
-                placeholder="Search pages..."
+                placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={cn(
