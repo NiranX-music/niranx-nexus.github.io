@@ -7,6 +7,7 @@ import { MobileBottomNav } from "./MobileBottomNav";
 import AISolverWidget from "@/components/widgets/AISolverWidget";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { CommandPalette } from "@/components/CommandPalette";
+import { UniversalSearch } from "@/components/UniversalSearch";
 import { KeyboardShortcutsHelp } from "@/components/KeyboardShortcutsHelp";
 import { NewLaunchesPopover } from "@/components/NewLaunchesPopover";
 import { Separator } from "@/components/ui/separator";
