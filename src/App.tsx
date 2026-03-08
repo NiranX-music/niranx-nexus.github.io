@@ -225,6 +225,7 @@ const ProtocolHandler = lazy(() => import("./pages/ProtocolHandler"));
 const LocalServerSaves = lazy(() => import("./pages/LocalServerSaves"));
 const RecycleBin = lazy(() => import("./pages/RecycleBin"));
 const AdminArtistAccounts = lazy(() => import("./pages/admin/AdminArtistAccounts"));
+const AdminLayoutEditor = lazy(() => import("./pages/admin/AdminLayoutEditor"));
 const FerqX = lazy(() => import("./pages/FerqX"));
 const Integrations = lazy(() => import("./pages/Integrations"));
 const BytezAI = lazy(() => import("./pages/BytezAI"));
@@ -1024,6 +1025,11 @@ const App = () => (
                           <Route path="/admin/artist-accounts" element={
                             <AdminRoute>
                               <AdminArtistAccounts />
+                            </AdminRoute>
+                          } />
+                          <Route path="/admin/layout-editor" element={
+                            <AdminRoute>
+                              <AdminLayoutEditor />
                             </AdminRoute>
                           } />
                           <Route path="/stellar" element={

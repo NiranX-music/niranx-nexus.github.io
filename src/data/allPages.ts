@@ -301,6 +301,7 @@ export const allPages: PageInfo[] = [
   { name: "Privacy Policy", route: "/support/privacy", description: "Privacy policy", category: "More", accessLevel: "Public", icon: "Shield" },
   { name: "Terms & Conditions", route: "/support/terms", description: "Terms of service", category: "More", accessLevel: "Public", icon: "FileText" },
   { name: "Pricing", route: "/pricing", description: "Plans and pricing for NiranX premium features", category: "More", accessLevel: "Public", icon: "CreditCard" },
+  { name: "Layout Editor", route: "/admin/layout-editor", description: "Edit header and footer layout", category: "Admin", accessLevel: "Admin", icon: "Layout" },
 
   // Nexus Portal
   { name: "Nexus Portal", route: "/nexus", description: "Gateway to all NiranX portals and curated links", category: "Nexus", accessLevel: "Public", icon: "Globe" },
