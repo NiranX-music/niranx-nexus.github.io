@@ -7,6 +7,7 @@ import { MobileBottomNav } from "./MobileBottomNav";
 import AISolverWidget from "@/components/widgets/AISolverWidget";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { CommandPalette } from "@/components/CommandPalette";
+import { UniversalSearch } from "@/components/UniversalSearch";
 import { KeyboardShortcutsHelp } from "@/components/KeyboardShortcutsHelp";
 import { NewLaunchesPopover } from "@/components/NewLaunchesPopover";
 import { Separator } from "@/components/ui/separator";
@@ -14,6 +15,8 @@ import { Button } from "@/components/ui/button";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useNavigate } from "react-router-dom";
+import { usePageTitle } from "@/hooks/usePageTitle";
+import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import { Keyboard, Sparkles, Bell } from "lucide-react";
 import { RenameTabDialog } from "@/components/RenameTabDialog";
 import {
@@ -55,9 +58,12 @@ export function AppLayout({ children }: AppLayoutProps) {
   const navigate = useNavigate();
   const breadcrumbs = getBreadcrumbs(location.pathname);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [universalSearchOpen, setUniversalSearchOpen] = useState(false);
   const [shortcutsHelpOpen, setShortcutsHelpOpen] = useState(false);
   const { favorites } = useFavorites();
   const { user } = useAuth();
+  usePageTitle();
+  useScrollRestoration();
 
   // Run cleanup on mount to fix any invalid favorite icons
   useEffect(() => {
@@ -195,6 +201,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           {/* MacDock temporarily disabled to avoid overlapping live class controls */}
           <AISolverWidget />
           <CommandPalette open={commandPaletteOpen} onOpenChange={setCommandPaletteOpen} />
+          <UniversalSearch open={universalSearchOpen} onOpenChange={setUniversalSearchOpen} />
           <KeyboardShortcutsHelp open={shortcutsHelpOpen} onOpenChange={setShortcutsHelpOpen} />
         </SidebarInset>
       </div>
