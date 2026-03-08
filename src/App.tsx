@@ -674,7 +674,6 @@ const App = () => (
                           <Route path="/social-chat" element={<SocialChatDashboard />} />
                           <Route path="/study-diary" element={<StudyDiary />} />
                           <Route path="/knowledge-graph" element={<KnowledgeGraph />} />
-                          </Route>
                           
                           {/* Support Pages */}
                           <Route path="/about" element={<AboutUs />} />
