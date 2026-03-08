@@ -1046,11 +1046,18 @@ export function AppSidebar() {
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="space-y-0.5 py-2"
+            className="space-y-1 py-2"
           >
-            {Object.entries(navigationConfig).map(([key, config]) => 
-              renderNavGroup(key, config)
-            )}
+            {Object.entries(navigationConfig).map(([key, config], index, arr) => (
+              <div key={key}>
+                {renderNavGroup(key, config)}
+                {index < arr.length - 1 && (
+                  <div className="mx-4 my-1.5">
+                    <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+                  </div>
+                )}
+              </div>
+            ))}
 
             {/* Custom Sidebar Groups from Database */}
             {!customGroupsLoading && customGroups.length > 0 && (
