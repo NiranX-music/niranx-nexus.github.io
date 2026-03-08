@@ -3,6 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { FileText, Wand2, BookOpen, Download, Upload, Share2, Loader2 } from 'lucide-react';
+import ExportMenu from '@/components/xoffice/ExportMenu';
+import { exportDocAsPDF, exportDocAsDOCX } from '@/utils/exportUtils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import DocumentToolbar from '@/components/xdocs/DocumentToolbar';
@@ -173,7 +175,11 @@ export default function XDocs() {
                   placeholder="Document title..."
                 />
                 <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="sm" onClick={exportMarkdown}><Download className="h-4 w-4" /></Button>
+                  <ExportMenu options={[
+                    { label: 'PDF', icon: '📄', onClick: () => exportDocAsPDF(editorRef.current?.innerHTML || '', title) },
+                    { label: 'DOCX', icon: '📝', onClick: () => exportDocAsDOCX(editorRef.current?.innerHTML || '', title) },
+                    { label: 'Markdown', icon: '📋', onClick: exportMarkdown },
+                  ]} />
                   <Button variant="ghost" size="sm" disabled={aiLoading} onClick={() => handleAI('improve')}>
                     {aiLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
                   </Button>
