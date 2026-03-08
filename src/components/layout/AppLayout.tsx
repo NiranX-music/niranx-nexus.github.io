@@ -58,9 +58,12 @@ export function AppLayout({ children }: AppLayoutProps) {
   const navigate = useNavigate();
   const breadcrumbs = getBreadcrumbs(location.pathname);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [universalSearchOpen, setUniversalSearchOpen] = useState(false);
   const [shortcutsHelpOpen, setShortcutsHelpOpen] = useState(false);
   const { favorites } = useFavorites();
   const { user } = useAuth();
+  usePageTitle();
+  useScrollRestoration();
 
   // Run cleanup on mount to fix any invalid favorite icons
   useEffect(() => {
