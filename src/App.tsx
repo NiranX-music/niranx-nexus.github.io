@@ -236,8 +236,10 @@ import StudyPlannerCalendar from "./pages/StudyPlannerCalendar";
 import PomodoroStatsDashboard from "./pages/PomodoroStatsDashboard";
 import FocusModeAmbient from "./pages/FocusModeAmbient";
 import QuickCheatsheets from "./pages/QuickCheatsheets";
+import CornellNotes from "./pages/CornellNotes";
+import StudySessionPlanner from "./pages/StudySessionPlanner";
+import TypingSpeedTest from "./pages/TypingSpeedTest";
 
-// Support Pages
 import AboutUs from "./pages/support/AboutUs";
 import Careers from "./pages/support/Careers";
 import Press from "./pages/support/Press";
@@ -583,6 +585,11 @@ const App = () => (
                           <Route path="/focus-ambient" element={<FocusModeAmbient />} />
                           <Route path="/cheatsheets" element={<QuickCheatsheets />} />
                           
+                          {/* Phase 7: Advanced Tools */}
+                          <Route path="/cornell-notes" element={<CornellNotes />} />
+                          <Route path="/session-planner" element={<StudySessionPlanner />} />
+                          <Route path="/typing-test" element={<TypingSpeedTest />} />
+
                           {/* Phase 4: Social & Communication */}
                           <Route path="/activity-feed" element={<ActivityFeed />} />
                           <Route path="/forums" element={<CommunityForums />} />

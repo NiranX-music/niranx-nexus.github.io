@@ -197,6 +197,9 @@ const navigationConfig = {
       { title: "Pomodoro Stats", url: "/pomodoro-stats", icon: BarChart3 },
       { title: "Focus Ambient", url: "/focus-ambient", icon: Eye },
       { title: "Cheatsheets", url: "/cheatsheets", icon: FileText },
+      { title: "Cornell Notes", url: "/cornell-notes", icon: StickyNote },
+      { title: "Session Planner", url: "/session-planner", icon: CalendarClock },
+      { title: "Typing Test", url: "/typing-test", icon: Cpu },
     ],
   },
   learning: {
