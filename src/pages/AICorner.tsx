@@ -8,6 +8,7 @@ import {
   Music, Brain, Mic, Presentation, Archive, Bot, Cloud, Network,
   Grid3x3, List, Code, Image, Headphones, GraduationCap, Wrench
 } from "lucide-react";
+import { AICreditsPanel } from "@/components/ai/AICreditsPanel";
 
 type Category = "all" | "chat" | "image" | "audio" | "study" | "code" | "utility";
 
@@ -149,6 +150,9 @@ export default function AICorner() {
 
   return (
     <div className="container mx-auto p-4 md:p-6 space-y-5">
+      {/* Credits & Referral */}
+      <AICreditsPanel />
+
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-3">
