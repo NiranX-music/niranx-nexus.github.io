@@ -6,6 +6,8 @@ import { Progress } from '@/components/ui/progress';
 import { motion } from 'framer-motion';
 import { Keyboard, RotateCcw, Zap, Timer, Target, Trophy, Gauge } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const paragraphs = [
   "The quick brown fox jumps over the lazy dog near the river bank.",
@@ -21,6 +23,7 @@ const paragraphs = [
 ];
 
 const TypingSpeedTest = () => {
+  const { user } = useAuth();
   const [text, setText] = useState('');
   const [typed, setTyped] = useState('');
   const [isRunning, setIsRunning] = useState(false);
@@ -28,10 +31,7 @@ const TypingSpeedTest = () => {
   const [startTime, setStartTime] = useState<number | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const [duration, setDuration] = useState(60);
-  const [bestWPM, setBestWPM] = useState(() => {
-    const saved = localStorage.getItem('typing-best-wpm');
-    return saved ? parseInt(saved) : 0;
-  });
+  const [bestWPM, setBestWPM] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const initTest = useCallback(() => {
@@ -83,9 +83,21 @@ const TypingSpeedTest = () => {
   const timeLeft = Math.max(duration - elapsed, 0);
 
   useEffect(() => {
+    if (user) {
+      (supabase as any).from('typing_stats').select('best_wpm').eq('user_id', user.id).maybeSingle().then(({ data }: any) => {
+        if (data?.best_wpm) setBestWPM(data.best_wpm);
+      });
+    }
+  }, [user]);
+
+  useEffect(() => {
     if (isFinished && wpm > bestWPM) {
       setBestWPM(wpm);
-      localStorage.setItem('typing-best-wpm', wpm.toString());
+      if (user) {
+        (supabase as any).from('typing_stats').upsert({
+          user_id: user.id, best_wpm: wpm, wpm, accuracy, tests_taken: 1,
+        }, { onConflict: 'user_id' });
+      }
     }
   }, [isFinished, wpm, bestWPM]);
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -42,7 +43,7 @@ const Settings = () => {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
   const { isVisible, setIsVisible } = useNowPlaying();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const navigate = useNavigate();
   const { isAdmin } = useAdminCheck();
   const { beepEnabled, setBeepEnabled, selectedSound, setSelectedSound, previewSound, availableSounds } = useBeepSound();
@@ -61,16 +62,19 @@ const Settings = () => {
   
 
   useEffect(() => {
-    const savedSettings = localStorage.getItem('appSettings');
-    if (savedSettings) {
-      setSettings(JSON.parse(savedSettings));
+    if (user) {
+      (supabase as any).from('user_settings').select('settings_data').eq('user_id', user.id).maybeSingle().then(({ data }: any) => {
+        if (data?.settings_data) setSettings({ ...settings, ...data.settings_data });
+      });
     }
-  }, []);
+  }, [user]);
 
   const updateSetting = (key: string, value: boolean) => {
     const newSettings = { ...settings, [key]: value };
     setSettings(newSettings);
-    localStorage.setItem('appSettings', JSON.stringify(newSettings));
+    if (user) {
+      (supabase as any).from('user_settings').upsert({ user_id: user.id, settings_data: newSettings, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+    }
 
     // Notify other components (like MacDock) in the same tab
     window.dispatchEvent(new Event('appSettingsChanged'));

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +9,8 @@ import { motion } from 'framer-motion';
 import { CalendarClock, Plus, Trash2, Clock, BookOpen, GripVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface TimeBlock {
   id: string;
@@ -43,15 +45,46 @@ const hours = Array.from({ length: 16 }, (_, i) => {
 const subjects = Object.keys(subjectColors);
 
 const StudySessionPlanner = () => {
-  const [plans, setPlans] = useState<DayPlan[]>(() => {
-    const saved = localStorage.getItem('study-session-plans');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const { user } = useAuth();
+  const [plans, setPlans] = useState<DayPlan[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [newSubject, setNewSubject] = useState('Mathematics');
   const [newStart, setNewStart] = useState('09:00');
   const [newEnd, setNewEnd] = useState('10:00');
   const [newNotes, setNewNotes] = useState('');
+
+  useEffect(() => {
+    if (user) loadPlans();
+  }, [user]);
+
+  const loadPlans = async () => {
+    if (!user) return;
+    try {
+      const { data } = await (supabase as any)
+        .from('study_session_plans')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('plan_date', { ascending: true });
+      if (data) {
+        const grouped: Record<string, TimeBlock[]> = {};
+        data.forEach((row: any) => {
+          const date = row.plan_date;
+          if (!grouped[date]) grouped[date] = [];
+          grouped[date].push({
+            id: row.id,
+            subject: row.subject,
+            startTime: row.start_time || '09:00',
+            endTime: row.end_time || '10:00',
+            color: subjectColors[row.subject] || subjectColors.General,
+            notes: row.notes || '',
+          });
+        });
+        setPlans(Object.entries(grouped).map(([date, blocks]) => ({ date, blocks })));
+      }
+    } catch (error) {
+      console.error('Error loading plans:', error);
+    }
+  };
 
   const currentPlan = useMemo(() => {
     return plans.find(p => p.date === selectedDate) || { date: selectedDate, blocks: [] };
@@ -59,38 +92,54 @@ const StudySessionPlanner = () => {
 
   const savePlans = (updated: DayPlan[]) => {
     setPlans(updated);
-    localStorage.setItem('study-session-plans', JSON.stringify(updated));
   };
 
-  const addBlock = () => {
+  const addBlock = async () => {
     if (newStart >= newEnd) {
       toast.error('End time must be after start time');
       return;
     }
-    const block: TimeBlock = {
-      id: Date.now().toString(),
-      subject: newSubject,
-      startTime: newStart,
-      endTime: newEnd,
-      color: subjectColors[newSubject] || subjectColors.General,
-      notes: newNotes,
-    };
-    const existing = plans.find(p => p.date === selectedDate);
-    let updated: DayPlan[];
-    if (existing) {
-      updated = plans.map(p => p.date === selectedDate
-        ? { ...p, blocks: [...p.blocks, block].sort((a, b) => a.startTime.localeCompare(b.startTime)) }
-        : p
-      );
-    } else {
-      updated = [...plans, { date: selectedDate, blocks: [block] }];
+    if (user) {
+      try {
+        const { data } = await (supabase as any).from('study_session_plans').insert({
+          user_id: user.id,
+          plan_date: selectedDate,
+          subject: newSubject,
+          start_time: newStart,
+          end_time: newEnd,
+          notes: newNotes,
+        }).select().single();
+        if (data) {
+          const block: TimeBlock = {
+            id: data.id,
+            subject: newSubject,
+            startTime: newStart,
+            endTime: newEnd,
+            color: subjectColors[newSubject] || subjectColors.General,
+            notes: newNotes,
+          };
+          const existing = plans.find(p => p.date === selectedDate);
+          if (existing) {
+            setPlans(plans.map(p => p.date === selectedDate
+              ? { ...p, blocks: [...p.blocks, block].sort((a, b) => a.startTime.localeCompare(b.startTime)) }
+              : p
+            ));
+          } else {
+            setPlans([...plans, { date: selectedDate, blocks: [block] }]);
+          }
+        }
+      } catch (error) {
+        console.error('Error adding block:', error);
+      }
     }
-    savePlans(updated);
     setNewNotes('');
     toast.success('Block added');
   };
 
-  const removeBlock = (blockId: string) => {
+  const removeBlock = async (blockId: string) => {
+    if (user) {
+      await (supabase as any).from('study_session_plans').delete().eq('id', blockId);
+    }
     const updated = plans.map(p => p.date === selectedDate
       ? { ...p, blocks: p.blocks.filter(b => b.id !== blockId) }
       : p

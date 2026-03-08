@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -36,6 +38,7 @@ interface MiniGame {
 
 const GamesPage = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [currentGame, setCurrentGame] = useState<string | null>(null);
   const [gameStats, setGameStats] = useState<GameStats>({
     gamesPlayed: 0,
@@ -102,25 +105,20 @@ const GamesPage = () => {
   ];
 
   useEffect(() => {
-    const saved = localStorage.getItem('studyverse-game-stats');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setGameStats({
-          gamesPlayed: parsed.gamesPlayed || 0,
-          totalXP: parsed.totalXP || 0,
-          highScores: parsed.highScores || {},
-          achievements: parsed.achievements || []
-        });
-      } catch (e) {
-        console.error('Failed to parse game stats:', e);
-      }
+    if (user) {
+      (supabase as any).from('game_stats').select('*').eq('user_id', user.id).then(({ data }: any) => {
+        if (data && data.length > 0) {
+          const combined = { gamesPlayed: 0, totalXP: 0, highScores: {} as any, achievements: [] as string[] };
+          data.forEach((row: any) => {
+            combined.gamesPlayed += row.games_played || 0;
+            combined.totalXP += row.total_xp || 0;
+            combined.highScores[row.game_type] = row.high_score || 0;
+          });
+          setGameStats(combined);
+        }
+      });
     }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('studyverse-game-stats', JSON.stringify(gameStats));
-  }, [gameStats]);
+  }, [user]);
 
   const startGame = (gameId: string) => {
     setCurrentGame(gameId);

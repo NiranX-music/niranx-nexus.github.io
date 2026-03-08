@@ -1668,6 +1668,42 @@ export type Database = {
         }
         Relationships: []
       }
+      cornell_notes: {
+        Row: {
+          created_at: string | null
+          cues: string | null
+          id: string
+          main_notes: string | null
+          subject: string | null
+          summary: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          cues?: string | null
+          id?: string
+          main_notes?: string | null
+          subject?: string | null
+          summary?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          cues?: string | null
+          id?: string
+          main_notes?: string | null
+          subject?: string | null
+          summary?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       course_progress: {
         Row: {
           completed_lessons: Json | null
@@ -2881,6 +2917,45 @@ export type Database = {
         }
         Relationships: []
       }
+      game_stats: {
+        Row: {
+          created_at: string | null
+          game_type: string
+          games_played: number | null
+          high_score: number | null
+          id: string
+          metadata: Json | null
+          score: number | null
+          total_xp: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          game_type: string
+          games_played?: number | null
+          high_score?: number | null
+          id?: string
+          metadata?: Json | null
+          score?: number | null
+          total_xp?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          game_type?: string
+          games_played?: number | null
+          high_score?: number | null
+          id?: string
+          metadata?: Json | null
+          score?: number | null
+          total_xp?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       generated_courses: {
         Row: {
           ai_provider: string | null
@@ -3604,6 +3679,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      infinite_chains: {
+        Row: {
+          chain_data: Json | null
+          created_at: string | null
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          chain_data?: Json | null
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          chain_data?: Json | null
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       institutes: {
         Row: {
@@ -4963,6 +5062,27 @@ export type Database = {
           style_config?: Json | null
           title?: string
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mood_entries: {
+        Row: {
+          created_at: string | null
+          id: string
+          mood: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          mood: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          mood?: string
           user_id?: string
         }
         Relationships: []
@@ -6540,6 +6660,39 @@ export type Database = {
         }
         Relationships: []
       }
+      pdf_history: {
+        Row: {
+          created_at: string | null
+          file_name: string
+          file_url: string | null
+          id: string
+          last_page: number | null
+          last_viewed_at: string | null
+          page_count: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          file_name: string
+          file_url?: string | null
+          id?: string
+          last_page?: number | null
+          last_viewed_at?: string | null
+          page_count?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          file_name?: string
+          file_url?: string | null
+          id?: string
+          last_page?: number | null
+          last_viewed_at?: string | null
+          page_count?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       pdf_summary_history: {
         Row: {
           created_at: string
@@ -6785,6 +6938,39 @@ export type Database = {
           name?: string
           updated_at?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      pomodoro_sessions: {
+        Row: {
+          break_duration: number | null
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          duration_minutes: number
+          id: string
+          session_type: string | null
+          user_id: string
+        }
+        Insert: {
+          break_duration?: number | null
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          duration_minutes?: number
+          id?: string
+          session_type?: string | null
+          user_id: string
+        }
+        Update: {
+          break_duration?: number | null
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          duration_minutes?: number
+          id?: string
+          session_type?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -7052,6 +7238,36 @@ export type Database = {
           station_name?: string
           station_url?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      reading_sessions: {
+        Row: {
+          accuracy: number | null
+          created_at: string | null
+          duration_seconds: number | null
+          id: string
+          text_length: number | null
+          user_id: string
+          wpm: number | null
+        }
+        Insert: {
+          accuracy?: number | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          id?: string
+          text_length?: number | null
+          user_id: string
+          wpm?: number | null
+        }
+        Update: {
+          accuracy?: number | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          id?: string
+          text_length?: number | null
+          user_id?: string
+          wpm?: number | null
         }
         Relationships: []
       }
@@ -7890,6 +8106,42 @@ export type Database = {
         }
         Relationships: []
       }
+      study_diary_entries: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          entry_date: string | null
+          id: string
+          mood: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          entry_date?: string | null
+          id?: string
+          mood?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          entry_date?: string | null
+          id?: string
+          mood?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       study_group_members: {
         Row: {
           group_id: string
@@ -8301,6 +8553,42 @@ export type Database = {
         }
         Relationships: []
       }
+      study_session_plans: {
+        Row: {
+          created_at: string | null
+          end_time: string | null
+          id: string
+          is_completed: boolean | null
+          notes: string | null
+          plan_date: string
+          start_time: string | null
+          subject: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          end_time?: string | null
+          id?: string
+          is_completed?: boolean | null
+          notes?: string | null
+          plan_date: string
+          start_time?: string | null
+          subject: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          end_time?: string | null
+          id?: string
+          is_completed?: boolean | null
+          notes?: string | null
+          plan_date?: string
+          start_time?: string | null
+          subject?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       study_sessions: {
         Row: {
           created_at: string | null
@@ -8440,6 +8728,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      task_scheduler_items: {
+        Row: {
+          category: string | null
+          column_type: string | null
+          completed_at: string | null
+          created_at: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          is_completed: boolean | null
+          priority: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          column_type?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          is_completed?: boolean | null
+          priority?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          column_type?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          is_completed?: boolean | null
+          priority?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       tasks: {
         Row: {
@@ -8826,6 +9156,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      typing_stats: {
+        Row: {
+          accuracy: number | null
+          best_wpm: number | null
+          created_at: string | null
+          id: string
+          tests_taken: number | null
+          user_id: string
+          wpm: number | null
+        }
+        Insert: {
+          accuracy?: number | null
+          best_wpm?: number | null
+          created_at?: string | null
+          id?: string
+          tests_taken?: number | null
+          user_id: string
+          wpm?: number | null
+        }
+        Update: {
+          accuracy?: number | null
+          best_wpm?: number | null
+          created_at?: string | null
+          id?: string
+          tests_taken?: number | null
+          user_id?: string
+          wpm?: number | null
+        }
+        Relationships: []
       }
       user_2fa: {
         Row: {
@@ -9475,6 +9835,30 @@ export type Database = {
           ip_address?: string | null
           last_activity?: string | null
           session_token?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_settings: {
+        Row: {
+          created_at: string | null
+          id: string
+          settings_data: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          settings_data?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          settings_data?: Json | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -10197,6 +10581,39 @@ export type Database = {
           },
         ]
       }
+      xclip_items: {
+        Row: {
+          content: string
+          content_type: string | null
+          created_at: string | null
+          id: string
+          is_pinned: boolean | null
+          is_starred: boolean | null
+          label: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          content_type?: string | null
+          created_at?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          is_starred?: boolean | null
+          label?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          content_type?: string | null
+          created_at?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          is_starred?: boolean | null
+          label?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       xflow_comments: {
         Row: {
           content: string
@@ -10575,6 +10992,98 @@ export type Database = {
             columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "xflow_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xlink_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          display_name: string | null
+          id: string
+          is_public: boolean | null
+          links: Json | null
+          slug: string | null
+          social_links: Json | null
+          theme: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string
+          is_public?: boolean | null
+          links?: Json | null
+          slug?: string | null
+          social_links?: Json | null
+          theme?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string
+          is_public?: boolean | null
+          links?: Json | null
+          slug?: string | null
+          social_links?: Json | null
+          theme?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      xmap_nodes: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          id: string
+          is_collapsed: boolean | null
+          label: string
+          map_id: string
+          parent_id: string | null
+          user_id: string
+          x: number | null
+          y: number | null
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          id?: string
+          is_collapsed?: boolean | null
+          label: string
+          map_id?: string
+          parent_id?: string | null
+          user_id: string
+          x?: number | null
+          y?: number | null
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          id?: string
+          is_collapsed?: boolean | null
+          label?: string
+          map_id?: string
+          parent_id?: string | null
+          user_id?: string
+          x?: number | null
+          y?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xmap_nodes_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "xmap_nodes"
             referencedColumns: ["id"]
           },
         ]
