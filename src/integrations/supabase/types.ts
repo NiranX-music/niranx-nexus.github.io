@@ -10579,6 +10579,33 @@ export type Database = {
           },
         ]
       }
+      xp_transactions: {
+        Row: {
+          activity_type: string | null
+          amount: number
+          created_at: string | null
+          id: string
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          activity_type?: string | null
+          amount: number
+          created_at?: string | null
+          id?: string
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          activity_type?: string | null
+          amount?: number
+          created_at?: string | null
+          id?: string
+          reason?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       xstage_channels: {
         Row: {
           created_at: string
