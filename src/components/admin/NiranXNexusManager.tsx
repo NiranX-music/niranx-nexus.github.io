@@ -35,7 +35,8 @@ export function NiranXNexusManager() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [links, setLinks] = useState<NexusLink[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'categories' | 'links'>('categories');
+  const [activeTab, setActiveTab] = useState<'categories' | 'links' | 'submissions'>('categories');
+  const [submissions, setSubmissions] = useState<any[]>([]);
   
   // Category form
   const [catDialogOpen, setCatDialogOpen] = useState(false);
