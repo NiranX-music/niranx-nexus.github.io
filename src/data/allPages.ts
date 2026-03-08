@@ -303,6 +303,10 @@ export const allPages: PageInfo[] = [
   // Nexus Portal
   { name: "Nexus Portal", route: "/nexus", description: "Gateway to all NiranX portals and curated links", category: "Nexus", accessLevel: "Public", icon: "Globe" },
   { name: "Nexus Category", route: "/nexus/:categorySlug", description: "Individual Nexus category with curated links and guides", category: "Nexus", accessLevel: "Public", icon: "Folder" },
+
+  // Developer Tools
+  { name: "REST API Docs", route: "/niranx/rest-api-docs", description: "Complete REST API documentation with endpoints and examples", category: "Tools", accessLevel: "Authenticated", icon: "BookOpen" },
+  { name: "Scryfall MTG Search", route: "/niranx/scryfall-search", description: "Search Magic: The Gathering cards via Scryfall API", category: "Tools", accessLevel: "Authenticated", icon: "Sparkles" },
 ];
 
 export const pageCategories = [
