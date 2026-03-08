@@ -197,7 +197,7 @@ const Weather = () => {
                 </div>
               </Card>
 
-              </Card>
+
             </div>
 
             {weatherData.forecast && (
