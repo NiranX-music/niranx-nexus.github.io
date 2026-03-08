@@ -14,7 +14,7 @@ const AI_MODELS = [
   { name: "Lovable AI", provider: "Lovable", status: "configured", key: "LOVABLE_API_KEY" },
   { name: "Google Gemini", provider: "Google", status: "available", key: "via Lovable AI" },
   { name: "Hugging Face", provider: "HuggingFace", status: "configured", key: "HUGGINGFACE_API_KEY" },
-  { name: "Scitely AI", provider: "Scitely", status: "configured", key: "SCITELY_API_KEY" },
+  { name: "XGenesis AI (Scitely)", provider: "Scitely", status: "configured", key: "SCITELY_API_KEY" },
 ];
 
 const AI_FEATURES = [
