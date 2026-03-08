@@ -65,7 +65,7 @@ const XBoardGames = () => {
     if (!searchQuery.trim()) return;
     setLoading(true);
     try {
-      const res = await fetch(`https://boardgamegeek.com/xmlapi2/search?query=${encodeURIComponent(searchQuery)}&type=boardgame`);
+      const res = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(`https://boardgamegeek.com/xmlapi2/search?query=${encodeURIComponent(searchQuery)}&type=boardgame`));
       const text = await res.text();
       const doc = parseXML(text);
       const items = Array.from(doc.querySelectorAll('item')).slice(0, 30).map(item => ({
