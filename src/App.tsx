@@ -892,10 +892,10 @@ const App = () => (
                       <Route path="app/calendar" element={<XstageCalendar />} />
                       <Route path="app/chat" element={<XstageChat />} />
                       <Route path="app/files" element={<XstageFiles />} />
-                      <Route path="app/songs" element={<XstageSongs />} />
-                      <Route path="app/soundlab" element={<XstageSoundLab />} />
+                      <Route path="app/songs" element={<XstagePlaceholders />} />
+                      <Route path="app/soundlab" element={<XstageSoundLabLazy />} />
                       <Route path="app/team" element={<XstageTeam />} />
-                      <Route path="app/settings" element={<XstageSettings />} />
+                      <Route path="app/settings" element={<XstageSettingsLazy />} />
                       <Route path="app/project-settings" element={<XstageProjectSettings />} />
                     </Route>
                     
