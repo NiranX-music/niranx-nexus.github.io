@@ -74,29 +74,49 @@ export function ProductsDropdown() {
               <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">NiranX Products</span>
             </div>
             <div className="space-y-1">
-              {products.map((product) => (
-                <Link
-                  key={product.id}
-                  to={product.href}
-                  onClick={() => setOpen(false)}
-                  className="flex items-start gap-3 px-3 py-2.5 rounded-lg hover:bg-primary/5 transition-colors group"
-                >
-                  <span className="text-xl mt-0.5">{product.icon}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
-                        {product.name}
-                      </span>
-                      {product.badge && (
-                        <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">
-                          {product.badge}
-                        </Badge>
-                      )}
+              {products.map((product) => {
+                const isExternal = product.href.startsWith('http');
+                const commonClass = "flex items-start gap-3 px-3 py-2.5 rounded-lg hover:bg-primary/5 transition-colors group";
+                const content = (
+                  <>
+                    <span className="text-xl mt-0.5">{product.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                          {product.name}
+                        </span>
+                        {product.badge && (
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">
+                            {product.badge}
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5 truncate">{product.description}</p>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-0.5 truncate">{product.description}</p>
-                  </div>
-                </Link>
-              ))}
+                  </>
+                );
+                return isExternal ? (
+                  <a
+                    key={product.id}
+                    href={product.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setOpen(false)}
+                    className={commonClass}
+                  >
+                    {content}
+                  </a>
+                ) : (
+                  <Link
+                    key={product.id}
+                    to={product.href}
+                    onClick={() => setOpen(false)}
+                    className={commonClass}
+                  >
+                    {content}
+                  </Link>
+                );
+              })}
             </div>
           </motion.div>
         )}
