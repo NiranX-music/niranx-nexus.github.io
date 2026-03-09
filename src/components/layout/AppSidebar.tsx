@@ -173,6 +173,8 @@ const navigationConfig = {
       { title: "Concept Explainer", url: "/concept-explainer", icon: Sparkles },
       { title: "XGenesis AI", url: "/xgenesis-ai", icon: Sparkles },
       { title: "XBot", url: "/xbot", icon: Bot },
+      { title: "AI Model Compare", url: "/ai-model-compare", icon: Combine },
+      { title: "Prompt Templates", url: "/prompt-templates", icon: Clipboard },
     ],
   },
   aiTools: {
@@ -289,6 +291,8 @@ const navigationConfig = {
       { title: "Study Streaks", url: "/study-streak-challenges", icon: Flame },
       { title: "Study Diary", url: "/study-diary", icon: BookOpen },
       { title: "Knowledge Graph", url: "/knowledge-graph", icon: Brain },
+      { title: "Focus Heatmap", url: "/focus-heatmap", icon: Flame },
+      { title: "Weekly Report", url: "/weekly-report", icon: BarChart3 },
     ],
   },
   rewards: {
@@ -297,9 +301,11 @@ const navigationConfig = {
     color: "from-warning to-accent",
     items: [
       { title: "Daily Challenges", url: "/daily-challenges", icon: Star },
+      { title: "Weekly Challenges", url: "/weekly-challenges", icon: Trophy },
       { title: "Daily Rewards", url: "/daily-rewards", icon: Gift },
       { title: "Leaderboard", url: "/leaderboard", icon: Trophy },
       { title: "Study Leaderboards", url: "/study-leaderboards", icon: TrendingUp },
+      { title: "Achievement Showcase", url: "/achievement-showcase", icon: Star },
       { title: "Reward Store", url: "/reward-store", icon: ShoppingBag },
       { title: "Games", url: "/games", icon: Gamepad2 },
       { title: "XGames", url: "/xgames", icon: Gamepad2 },
