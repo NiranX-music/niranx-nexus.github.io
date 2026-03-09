@@ -1,6 +1,9 @@
 import { NiranXNavigation } from '@/components/niranx/NiranXNavigation';
 import { Hero3D } from '@/components/landing/Hero3D';
+import { Cards3DScroll } from '@/components/landing/Cards3DScroll';
+import { ProductPreview } from '@/components/landing/ProductPreview';
 import { FeaturesGrid3D } from '@/components/landing/FeaturesGrid3D';
+import { FeatureGridGlow } from '@/components/landing/FeatureGridGlow';
 import { StatsSection } from '@/components/landing/StatsSection';
 import { AboutSection } from '@/components/niranx/AboutSection';
 import { MusicSection } from '@/components/niranx/MusicSection';
@@ -18,8 +21,11 @@ const Landing = () => {
       <NiranXNavigation />
       <main className="relative z-10">
         <Hero3D />
+        <Cards3DScroll />
         <StatsSection />
+        <ProductPreview />
         <FeaturesGrid3D />
+        <FeatureGridGlow />
         <AboutSection />
         <MusicSection />
         <TestimonialsSection />
