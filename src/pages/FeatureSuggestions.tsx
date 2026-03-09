@@ -209,8 +209,12 @@ const FeatureSuggestions = () => {
           <Sparkles className="w-12 h-12 mx-auto mb-4 text-primary" />
           <h3 className="text-2xl font-bold mb-2">Have More Ideas?</h3>
           <p className="text-muted-foreground mb-4">
-            These are just suggestions! Let us know what features you'd like to see implemented.
+            Submit your own feature requests and vote on ideas from the community!
           </p>
+          <a href="/feature-requests" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold hover:opacity-90 transition-opacity">
+            <Sparkles className="w-4 h-4" />
+            Request a Feature
+          </a>
         </CardContent>
       </Card>
     </div>
