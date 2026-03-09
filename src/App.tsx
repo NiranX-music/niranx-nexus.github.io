@@ -394,6 +394,17 @@ const FeatureRequests = lazy(() => import("./pages/FeatureRequests"));
 const AIVideoSummarizer = lazy(() => import("./pages/AIVideoSummarizer"));
 const StudyLeaderboards = lazy(() => import("./pages/StudyLeaderboards"));
 
+// New Feature Enhancement Pages
+const AIModelCompare = lazy(() => import("./pages/AIModelCompare"));
+const PromptTemplates = lazy(() => import("./pages/PromptTemplates"));
+const FocusHeatmap = lazy(() => import("./pages/FocusHeatmap"));
+const MentorshipHub = lazy(() => import("./pages/MentorshipHub"));
+const CodeSnippets = lazy(() => import("./pages/CodeSnippets"));
+const LoginActivity = lazy(() => import("./pages/LoginActivity"));
+const WeeklyReport = lazy(() => import("./pages/WeeklyReport"));
+const WeeklyChallenges = lazy(() => import("./pages/WeeklyChallenges"));
+const AchievementShowcase = lazy(() => import("./pages/AchievementShowcase"));
+
 // XVibe Music Platform
 const XVibeLanding = lazy(() => import("./xvibe/pages/XVibeLanding"));
 const XVibeAuth = lazy(() => import("./xvibe/pages/XVibeAuth"));
