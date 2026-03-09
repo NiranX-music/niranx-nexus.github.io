@@ -1469,6 +1469,10 @@ export default function AdminDashboard() {
         <TabsContent value="launcher-apps">
           <LauncherAppsManager />
         </TabsContent>
+
+        <TabsContent value="developers">
+          <DevelopersManager />
+        </TabsContent>
       </Tabs>
     </div>
   );
