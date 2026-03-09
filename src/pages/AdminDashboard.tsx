@@ -28,6 +28,7 @@ import { ApiKeysManager } from "@/components/admin/ApiKeysManager";
 import { CustomPagesManager } from "@/components/admin/CustomPagesManager";
 import { ExploreLinksManager } from "@/components/admin/ExploreLinksManager";
 import { AdminUserManager } from "@/components/admin/AdminUserManager";
+import { LauncherAppsManager } from "@/components/admin/LauncherAppsManager";
 
 interface Stats {
   totalUsers: number;
@@ -541,6 +542,9 @@ export default function AdminDashboard() {
           </TabsTrigger>
           <TabsTrigger value="user-management" className="gap-1">
             <Users className="h-3 w-3" /> User Mgmt
+          </TabsTrigger>
+          <TabsTrigger value="launcher-apps" className="gap-1">
+            <Globe className="h-3 w-3" /> App Launcher
           </TabsTrigger>
         </TabsList>
 
@@ -1456,6 +1460,10 @@ export default function AdminDashboard() {
 
         <TabsContent value="user-management">
           <AdminUserManager />
+        </TabsContent>
+
+        <TabsContent value="launcher-apps">
+          <LauncherAppsManager />
         </TabsContent>
       </Tabs>
     </div>
