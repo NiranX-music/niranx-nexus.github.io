@@ -6,6 +6,7 @@ import { Menu, X, ChevronDown } from 'lucide-react';
 import { AppLauncherMenu } from './AppLauncherMenu';
 import { HeaderClock } from './HeaderClock';
 import { ControlCenterMenu } from './ControlCenterMenu';
+import { ProductsDropdown } from './ProductsDropdown';
 import niranxLogo from '@/assets/niranx-logo.jpg';
 import { supabase } from '@/integrations/supabase/client';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
@@ -177,6 +178,9 @@ export function NiranXNavigation() {
                 </AnimatePresence>
               </div>
             ))}
+
+            {/* Products Dropdown */}
+            <ProductsDropdown />
 
             {/* Simple Links */}
             {navConfig.simpleLinks.map((link) => (

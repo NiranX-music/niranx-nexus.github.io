@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Users, FileText, MessageSquare, Activity, TrendingUp, Clock, Award, BarChart3, Sparkles, UserPlus, Music, Pencil, RotateCcw, AlertTriangle, Eye, Mail, Calendar, Globe, Link2, Newspaper, Layers, Quote, LinkIcon, Key, Code, Compass } from "lucide-react";
+import { Users, FileText, MessageSquare, Activity, TrendingUp, Clock, Award, BarChart3, Sparkles, UserPlus, Music, Pencil, RotateCcw, AlertTriangle, Eye, Mail, Calendar, Globe, Link2, Newspaper, Layers, Quote, LinkIcon, Key, Code, Compass, ExternalLink } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { CreateUserForm } from "@/components/admin/CreateUserForm";
@@ -30,6 +30,7 @@ import { ExploreLinksManager } from "@/components/admin/ExploreLinksManager";
 import { AdminUserManager } from "@/components/admin/AdminUserManager";
 import { LauncherAppsManager } from "@/components/admin/LauncherAppsManager";
 import { DevelopersManager } from "@/components/admin/DevelopersManager";
+import { ProductsManager } from "@/components/admin/ProductsManager";
 
 interface Stats {
   totalUsers: number;
@@ -549,6 +550,9 @@ export default function AdminDashboard() {
           </TabsTrigger>
           <TabsTrigger value="developers" className="gap-1">
             <Code className="h-3 w-3" /> Developers
+          </TabsTrigger>
+          <TabsTrigger value="products" className="gap-1">
+            <ExternalLink className="h-3 w-3" /> Products
           </TabsTrigger>
         </TabsList>
 
@@ -1472,6 +1476,10 @@ export default function AdminDashboard() {
 
         <TabsContent value="developers">
           <DevelopersManager />
+        </TabsContent>
+
+        <TabsContent value="products">
+          <ProductsManager />
         </TabsContent>
       </Tabs>
     </div>
