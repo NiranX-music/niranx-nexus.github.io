@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { AppLauncherMenu } from './AppLauncherMenu';
+import { HeaderClock } from './HeaderClock';
+import { ControlCenterMenu } from './ControlCenterMenu';
 import niranxLogo from '@/assets/niranx-logo.jpg';
 import { supabase } from '@/integrations/supabase/client';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
@@ -189,7 +191,9 @@ export function NiranXNavigation() {
           </div>
 
           {/* CTA Buttons */}
-          <div className="hidden md:flex items-center space-x-3">
+          <div className="hidden md:flex items-center space-x-2">
+            <HeaderClock />
+            <ControlCenterMenu />
             <AppLauncherMenu />
             <Button variant="ghost" onClick={() => navigate('/auth')} className="text-muted-foreground hover:text-foreground text-sm">
               Sign In
