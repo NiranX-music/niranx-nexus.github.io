@@ -941,7 +941,17 @@ const App = () => (
                           <Route path="/xsheets" element={<XSheets />} />
                           <Route path="/xslides" element={<XSlides />} />
 
-                          {/* Support Pages */}
+                          {/* New Feature Enhancement Pages */}
+                          <Route path="/ai-model-compare" element={<AIModelCompare />} />
+                          <Route path="/prompt-templates" element={<PromptTemplates />} />
+                          <Route path="/focus-heatmap" element={<FocusHeatmap />} />
+                          <Route path="/mentorship-hub" element={<MentorshipHub />} />
+                          <Route path="/code-snippets" element={<CodeSnippets />} />
+                          <Route path="/login-activity" element={<LoginActivity />} />
+                          <Route path="/weekly-report" element={<WeeklyReport />} />
+                          <Route path="/weekly-challenges" element={<WeeklyChallenges />} />
+                          <Route path="/achievement-showcase" element={<AchievementShowcase />} />
+
                           <Route path="/about" element={<AboutUs />} />
                           <Route path="/about-developers" element={<AboutDevelopers />} />
                           <Route path="/careers" element={<Careers />} />
