@@ -29,6 +29,7 @@ import { CustomPagesManager } from "@/components/admin/CustomPagesManager";
 import { ExploreLinksManager } from "@/components/admin/ExploreLinksManager";
 import { AdminUserManager } from "@/components/admin/AdminUserManager";
 import { LauncherAppsManager } from "@/components/admin/LauncherAppsManager";
+import { DevelopersManager } from "@/components/admin/DevelopersManager";
 
 interface Stats {
   totalUsers: number;
