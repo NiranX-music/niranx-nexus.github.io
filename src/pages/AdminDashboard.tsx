@@ -29,6 +29,7 @@ import { CustomPagesManager } from "@/components/admin/CustomPagesManager";
 import { ExploreLinksManager } from "@/components/admin/ExploreLinksManager";
 import { AdminUserManager } from "@/components/admin/AdminUserManager";
 import { LauncherAppsManager } from "@/components/admin/LauncherAppsManager";
+import { DevelopersManager } from "@/components/admin/DevelopersManager";
 
 interface Stats {
   totalUsers: number;
@@ -545,6 +546,9 @@ export default function AdminDashboard() {
           </TabsTrigger>
           <TabsTrigger value="launcher-apps" className="gap-1">
             <Globe className="h-3 w-3" /> App Launcher
+          </TabsTrigger>
+          <TabsTrigger value="developers" className="gap-1">
+            <Code className="h-3 w-3" /> Developers
           </TabsTrigger>
         </TabsList>
 
@@ -1464,6 +1468,10 @@ export default function AdminDashboard() {
 
         <TabsContent value="launcher-apps">
           <LauncherAppsManager />
+        </TabsContent>
+
+        <TabsContent value="developers">
+          <DevelopersManager />
         </TabsContent>
       </Tabs>
     </div>
