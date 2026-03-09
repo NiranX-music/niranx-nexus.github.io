@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { Users, Github, Linkedin, Globe, Mail, Code, Heart } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
 
 interface Developer {
   id: string;
@@ -54,13 +53,7 @@ export default function AboutDevelopers() {
   }, []);
 
   return (
-    <>
-      <Helmet>
-        <title>About the Developers | NiranX</title>
-        <meta name="description" content="Meet the developers behind NiranX - the creative minds building the future of learning, music, and innovation." />
-      </Helmet>
-
-      <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
         {/* Hero */}
         <section className="relative py-24 px-4 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
