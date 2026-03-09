@@ -390,6 +390,9 @@ const PrivacyPolicy = lazy(() => import("./pages/support/PrivacyPolicy"));
 const TermsConditions = lazy(() => import("./pages/support/TermsConditions"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const DeveloperPortal = lazy(() => import("./pages/DeveloperPortal"));
+const FeatureRequests = lazy(() => import("./pages/FeatureRequests"));
+const AIVideoSummarizer = lazy(() => import("./pages/AIVideoSummarizer"));
+const StudyLeaderboards = lazy(() => import("./pages/StudyLeaderboards"));
 
 // XVibe Music Platform
 const XVibeLanding = lazy(() => import("./xvibe/pages/XVibeLanding"));
@@ -722,6 +725,9 @@ const App = () => (
                           <Route path="/sitemap" element={<Sitemap />} />
                           <Route path="/kiosk-mode" element={<KioskMode />} />
                           <Route path="/feature-suggestions" element={<FeatureSuggestions />} />
+                          <Route path="/feature-requests" element={<FeatureRequests />} />
+                          <Route path="/ai-video-summarizer" element={<AIVideoSummarizer />} />
+                          <Route path="/study-leaderboards" element={<StudyLeaderboards />} />
                           <Route path="/feedback" element={<FeedbackSubmission />} />
                           <Route path="/notification-settings" element={<NotificationSettings />} />
                           <Route path="/labs" element={<Labs />} />
