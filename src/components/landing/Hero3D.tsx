@@ -48,9 +48,10 @@ export function Hero3D() {
 
       {/* Parallax grid */}
       <motion.div 
-        style={{ x: gridX, y: gridY }}
         className="absolute inset-0 z-[1] opacity-[0.03]"
         style={{
+          x: gridX,
+          y: gridY,
           backgroundImage: 'linear-gradient(hsl(var(--primary)/0.3) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary)/0.3) 1px, transparent 1px)',
           backgroundSize: '60px 60px',
         }}
