@@ -547,6 +547,9 @@ export default function AdminDashboard() {
           <TabsTrigger value="launcher-apps" className="gap-1">
             <Globe className="h-3 w-3" /> App Launcher
           </TabsTrigger>
+          <TabsTrigger value="developers" className="gap-1">
+            <Code className="h-3 w-3" /> Developers
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
