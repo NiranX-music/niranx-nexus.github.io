@@ -258,6 +258,7 @@ const CornellNotes = lazy(() => import("./pages/CornellNotes"));
 const StudySessionPlanner = lazy(() => import("./pages/StudySessionPlanner"));
 const TypingSpeedTest = lazy(() => import("./pages/TypingSpeedTest"));
 const XForge = lazy(() => import("./pages/XForge"));
+const AboutDevelopers = lazy(() => import("./pages/AboutDevelopers"));
 const XBoard = lazy(() => import("./pages/XBoard"));
 const XVault = lazy(() => import("./pages/XVault"));
 const XLink = lazy(() => import("./pages/XLink"));
@@ -925,6 +926,7 @@ const App = () => (
 
                           {/* Support Pages */}
                           <Route path="/about" element={<AboutUs />} />
+                          <Route path="/about-developers" element={<AboutDevelopers />} />
                           <Route path="/careers" element={<Careers />} />
                           <Route path="/press" element={<Press />} />
                           <Route path="/docs" element={<DocsHub />} />
