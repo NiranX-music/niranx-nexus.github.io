@@ -9,6 +9,9 @@ import { LiquidBackground } from "@/components/LiquidBackground";
 import AISolverWidget from "@/components/widgets/AISolverWidget";
 import { EnhancedFooter } from "@/components/niranx/EnhancedFooter";
 import { FloatingCountdown } from "@/components/FloatingCountdown";
+import { HeaderClock } from "@/components/niranx/HeaderClock";
+import { ControlCenterMenu } from "@/components/niranx/ControlCenterMenu";
+import { AppLauncherMenu } from "@/components/niranx/AppLauncherMenu";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { CommandPalette } from "@/components/CommandPalette";
 import { UniversalSearch } from "@/components/UniversalSearch";
@@ -164,6 +167,10 @@ export function AppLayout({ children }: AppLayoutProps) {
               </BreadcrumbList>
             </Breadcrumb>
             <div className="ml-auto flex items-center gap-2">
+              <HeaderClock />
+              <ControlCenterMenu />
+              <AppLauncherMenu />
+              <Separator orientation="vertical" className="h-4 hidden lg:block" />
               <RenameTabDialog />
               {user && <SpaceSwitcher />}
               <Button
