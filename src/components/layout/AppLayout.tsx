@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { PageSkeleton } from "@/components/PageSkeleton";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
@@ -12,6 +12,7 @@ import { FloatingCountdown } from "@/components/FloatingCountdown";
 import { HeaderClock } from "@/components/niranx/HeaderClock";
 import { ControlCenterMenu } from "@/components/niranx/ControlCenterMenu";
 import { AppLauncherMenu } from "@/components/niranx/AppLauncherMenu";
+import { LockScreen } from "@/components/niranx/LockScreen";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { CommandPalette } from "@/components/CommandPalette";
 import { UniversalSearch } from "@/components/UniversalSearch";
@@ -69,12 +70,16 @@ export function AppLayout({ children }: AppLayoutProps) {
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [universalSearchOpen, setUniversalSearchOpen] = useState(false);
   const [shortcutsHelpOpen, setShortcutsHelpOpen] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
   const { favorites } = useFavorites();
   const { user } = useAuth();
   usePageTitle();
   useScrollRestoration();
   useCloudSync();
   useAutoStreak();
+
+  const handleLock = useCallback(() => setIsLocked(true), []);
+  const handleUnlock = useCallback(() => setIsLocked(false), []);
 
   // Run cleanup on mount to fix any invalid favorite icons
   useEffect(() => {
@@ -168,7 +173,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             </Breadcrumb>
             <div className="ml-auto flex items-center gap-2">
               <HeaderClock />
-              <ControlCenterMenu />
+              <ControlCenterMenu onLock={handleLock} />
               <AppLauncherMenu />
               <Separator orientation="vertical" className="h-4 hidden lg:block" />
               <RenameTabDialog />
@@ -232,7 +237,8 @@ export function AppLayout({ children }: AppLayoutProps) {
           <CommandPalette open={commandPaletteOpen} onOpenChange={setCommandPaletteOpen} />
           <UniversalSearch open={universalSearchOpen} onOpenChange={setUniversalSearchOpen} />
           <KeyboardShortcutsHelp open={shortcutsHelpOpen} onOpenChange={setShortcutsHelpOpen} />
-        </SidebarInset>
+        <LockScreen isLocked={isLocked} onUnlock={handleUnlock} />
+      </SidebarInset>
       </div>
       <FirstTimeGuide />
     </SidebarProvider>

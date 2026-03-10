@@ -1,0 +1,1 @@
+ALTER TABLE public.niranx_launcher_apps ADD COLUMN IF NOT EXISTS category text DEFAULT 'general';

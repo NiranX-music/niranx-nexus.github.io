@@ -6265,6 +6265,7 @@ export type Database = {
       }
       niranx_launcher_apps: {
         Row: {
+          category: string | null
           color: string | null
           created_at: string | null
           created_by: string | null
@@ -6278,6 +6279,7 @@ export type Database = {
           url: string
         }
         Insert: {
+          category?: string | null
           color?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -6291,6 +6293,7 @@ export type Database = {
           url: string
         }
         Update: {
+          category?: string | null
           color?: string | null
           created_at?: string | null
           created_by?: string | null

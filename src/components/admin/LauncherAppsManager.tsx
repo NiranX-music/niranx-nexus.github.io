@@ -20,6 +20,7 @@ interface LauncherApp {
   color: string | null;
   sort_order: number;
   is_active: boolean;
+  category: string | null;
 }
 
 const POPULAR_ICONS = [
@@ -41,7 +42,9 @@ const COLOR_PRESETS = [
   { label: 'Red', value: 'from-red-500/20 to-rose-500/20' },
 ];
 
-const emptyApp = { name: '', icon: 'Globe', url: '', description: '', color: 'from-primary/20 to-accent/20', sort_order: 0, is_active: true };
+const CATEGORY_OPTIONS = ['general', 'tools', 'social', 'entertainment', 'education', 'productivity'];
+
+const emptyApp = { name: '', icon: 'Globe', url: '', description: '', color: 'from-primary/20 to-accent/20', sort_order: 0, is_active: true, category: 'general' };
 
 export function LauncherAppsManager() {
   const [apps, setApps] = useState<LauncherApp[]>([]);
@@ -78,6 +81,7 @@ export function LauncherAppsManager() {
           color: editApp.color,
           sort_order: editApp.sort_order,
           is_active: editApp.is_active,
+          category: editApp.category || 'general',
           updated_at: new Date().toISOString(),
         })
         .eq('id', editApp.id);
@@ -94,6 +98,7 @@ export function LauncherAppsManager() {
           color: editApp.color,
           sort_order: editApp.sort_order,
           is_active: editApp.is_active,
+          category: editApp.category || 'general',
         });
       if (error) { toast.error('Failed to create'); return; }
       toast.success('App created');
@@ -192,6 +197,17 @@ export function LauncherAppsManager() {
                 </Select>
               </div>
               <div>
+                <Label>Category</Label>
+                <Select value={editApp.category || 'general'} onValueChange={v => setEditApp(p => ({ ...p, category: v }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {CATEGORY_OPTIONS.map(c => (
+                      <SelectItem key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
                 <Label>Sort Order</Label>
                 <Input type="number" value={editApp.sort_order} onChange={e => setEditApp(p => ({ ...p, sort_order: parseInt(e.target.value) || 0 }))} />
               </div>
@@ -212,6 +228,7 @@ export function LauncherAppsManager() {
                 <TableHead>Icon</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>URL</TableHead>
+                <TableHead>Category</TableHead>
                 <TableHead>Order</TableHead>
                 <TableHead>Active</TableHead>
                 <TableHead>Actions</TableHead>
@@ -229,6 +246,7 @@ export function LauncherAppsManager() {
                     </TableCell>
                     <TableCell className="font-medium">{app.name}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">{app.url}</TableCell>
+                    <TableCell className="text-xs capitalize text-muted-foreground">{app.category || 'general'}</TableCell>
                     <TableCell>{app.sort_order}</TableCell>
                     <TableCell>
                       <Switch checked={app.is_active} onCheckedChange={v => toggleActive(app.id, v)} />
