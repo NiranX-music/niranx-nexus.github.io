@@ -42,7 +42,9 @@ const COLOR_PRESETS = [
   { label: 'Red', value: 'from-red-500/20 to-rose-500/20' },
 ];
 
-const emptyApp = { name: '', icon: 'Globe', url: '', description: '', color: 'from-primary/20 to-accent/20', sort_order: 0, is_active: true };
+const CATEGORY_OPTIONS = ['general', 'tools', 'social', 'entertainment', 'education', 'productivity'];
+
+const emptyApp = { name: '', icon: 'Globe', url: '', description: '', color: 'from-primary/20 to-accent/20', sort_order: 0, is_active: true, category: 'general' };
 
 export function LauncherAppsManager() {
   const [apps, setApps] = useState<LauncherApp[]>([]);
