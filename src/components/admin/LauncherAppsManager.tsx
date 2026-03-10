@@ -98,6 +98,7 @@ export function LauncherAppsManager() {
           color: editApp.color,
           sort_order: editApp.sort_order,
           is_active: editApp.is_active,
+          category: editApp.category || 'general',
         });
       if (error) { toast.error('Failed to create'); return; }
       toast.success('App created');
