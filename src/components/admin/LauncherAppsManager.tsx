@@ -246,6 +246,7 @@ export function LauncherAppsManager() {
                     </TableCell>
                     <TableCell className="font-medium">{app.name}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">{app.url}</TableCell>
+                    <TableCell className="text-xs capitalize text-muted-foreground">{app.category || 'general'}</TableCell>
                     <TableCell>{app.sort_order}</TableCell>
                     <TableCell>
                       <Switch checked={app.is_active} onCheckedChange={v => toggleActive(app.id, v)} />
