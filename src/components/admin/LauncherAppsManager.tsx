@@ -197,6 +197,17 @@ export function LauncherAppsManager() {
                 </Select>
               </div>
               <div>
+                <Label>Category</Label>
+                <Select value={editApp.category || 'general'} onValueChange={v => setEditApp(p => ({ ...p, category: v }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {CATEGORY_OPTIONS.map(c => (
+                      <SelectItem key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
                 <Label>Sort Order</Label>
                 <Input type="number" value={editApp.sort_order} onChange={e => setEditApp(p => ({ ...p, sort_order: parseInt(e.target.value) || 0 }))} />
               </div>
