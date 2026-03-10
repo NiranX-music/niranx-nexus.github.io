@@ -70,12 +70,16 @@ export function AppLayout({ children }: AppLayoutProps) {
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [universalSearchOpen, setUniversalSearchOpen] = useState(false);
   const [shortcutsHelpOpen, setShortcutsHelpOpen] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
   const { favorites } = useFavorites();
   const { user } = useAuth();
   usePageTitle();
   useScrollRestoration();
   useCloudSync();
   useAutoStreak();
+
+  const handleLock = useCallback(() => setIsLocked(true), []);
+  const handleUnlock = useCallback(() => setIsLocked(false), []);
 
   // Run cleanup on mount to fix any invalid favorite icons
   useEffect(() => {
