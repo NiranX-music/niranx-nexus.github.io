@@ -19,6 +19,7 @@ import {
   Lock,
 } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
+import { useMusicPlayer } from '@/contexts/MusicPlayerContext';
 
 interface ToggleState {
   wifi: boolean;
@@ -31,11 +32,23 @@ interface ToggleState {
   lockScreen: boolean;
 }
 
-export function ControlCenterMenu() {
+interface ControlCenterMenuProps {
+  onLock?: () => void;
+}
+
+export function ControlCenterMenu({ onLock }: ControlCenterMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const [brightness, setBrightness] = useState([75]);
-  const [volume, setVolume] = useState([60]);
+  const [brightness, setBrightness] = useState(() => {
+    const saved = localStorage.getItem('niranx_brightness');
+    return saved ? [Number(saved)] : [100];
+  });
+  const [volume, setVolume] = useState(() => {
+    const saved = localStorage.getItem('niranx_volume');
+    return saved ? [Number(saved)] : [60];
+  });
+  const musicPlayer = useMusicPlayer();
+
   const [toggles, setToggles] = useState<ToggleState>(() => {
     const saved = localStorage.getItem('niranx_control_center');
     return saved ? JSON.parse(saved) : {
@@ -50,6 +63,29 @@ export function ControlCenterMenu() {
     };
   });
 
+  // Apply brightness filter to the page
+  useEffect(() => {
+    const val = brightness[0];
+    localStorage.setItem('niranx_brightness', String(val));
+    document.documentElement.style.filter = val < 100 ? `brightness(${val / 100})` : '';
+  }, [brightness]);
+
+  // Apply volume to audio
+  useEffect(() => {
+    const vol = volume[0];
+    localStorage.setItem('niranx_volume', String(vol));
+    musicPlayer.setVolume(vol / 100);
+  }, [volume]);
+
+  // Apply sound toggle (mute/unmute)
+  useEffect(() => {
+    if (!toggles.sound) {
+      musicPlayer.setVolume(0);
+    } else {
+      musicPlayer.setVolume(volume[0] / 100);
+    }
+  }, [toggles.sound]);
+
   useEffect(() => {
     localStorage.setItem('niranx_control_center', JSON.stringify(toggles));
   }, [toggles]);
@@ -63,6 +99,17 @@ export function ControlCenterMenu() {
   }, []);
 
   const toggle = (key: keyof ToggleState) => {
+    if (key === 'lockScreen' && onLock) {
+      onLock();
+      setIsOpen(false);
+      return;
+    }
+    if (key === 'darkMode') {
+      const isDark = document.documentElement.classList.contains('dark');
+      document.documentElement.classList.remove('dark', 'light');
+      document.documentElement.classList.add(isDark ? 'light' : 'dark');
+      localStorage.setItem('theme', isDark ? 'light' : 'dark');
+    }
     setToggles(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
@@ -139,6 +186,7 @@ export function ControlCenterMenu() {
                 <Slider
                   value={brightness}
                   onValueChange={setBrightness}
+                  min={20}
                   max={100}
                   step={1}
                   className="w-full"
@@ -153,7 +201,12 @@ export function ControlCenterMenu() {
                 </div>
                 <Slider
                   value={volume}
-                  onValueChange={setVolume}
+                  onValueChange={(val) => {
+                    setVolume(val);
+                    if (val[0] > 0 && !toggles.sound) {
+                      setToggles(prev => ({ ...prev, sound: true }));
+                    }
+                  }}
                   max={100}
                   step={1}
                   className="w-full"
