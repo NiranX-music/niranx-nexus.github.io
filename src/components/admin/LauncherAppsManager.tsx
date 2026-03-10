@@ -228,6 +228,7 @@ export function LauncherAppsManager() {
                 <TableHead>Icon</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>URL</TableHead>
+                <TableHead>Category</TableHead>
                 <TableHead>Order</TableHead>
                 <TableHead>Active</TableHead>
                 <TableHead>Actions</TableHead>
