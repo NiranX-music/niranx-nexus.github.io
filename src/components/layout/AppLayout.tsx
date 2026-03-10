@@ -173,7 +173,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             </Breadcrumb>
             <div className="ml-auto flex items-center gap-2">
               <HeaderClock />
-              <ControlCenterMenu />
+              <ControlCenterMenu onLock={handleLock} />
               <AppLauncherMenu />
               <Separator orientation="vertical" className="h-4 hidden lg:block" />
               <RenameTabDialog />
