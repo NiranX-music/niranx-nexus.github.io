@@ -237,7 +237,8 @@ export function AppLayout({ children }: AppLayoutProps) {
           <CommandPalette open={commandPaletteOpen} onOpenChange={setCommandPaletteOpen} />
           <UniversalSearch open={universalSearchOpen} onOpenChange={setUniversalSearchOpen} />
           <KeyboardShortcutsHelp open={shortcutsHelpOpen} onOpenChange={setShortcutsHelpOpen} />
-        </SidebarInset>
+        <LockScreen isLocked={isLocked} onUnlock={handleUnlock} />
+      </SidebarInset>
       </div>
       <FirstTimeGuide />
     </SidebarProvider>
