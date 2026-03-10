@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { PageSkeleton } from "@/components/PageSkeleton";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
@@ -12,6 +12,7 @@ import { FloatingCountdown } from "@/components/FloatingCountdown";
 import { HeaderClock } from "@/components/niranx/HeaderClock";
 import { ControlCenterMenu } from "@/components/niranx/ControlCenterMenu";
 import { AppLauncherMenu } from "@/components/niranx/AppLauncherMenu";
+import { LockScreen } from "@/components/niranx/LockScreen";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { CommandPalette } from "@/components/CommandPalette";
 import { UniversalSearch } from "@/components/UniversalSearch";
