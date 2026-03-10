@@ -20,6 +20,7 @@ interface LauncherApp {
   color: string | null;
   sort_order: number;
   is_active: boolean;
+  category: string | null;
 }
 
 const POPULAR_ICONS = [
