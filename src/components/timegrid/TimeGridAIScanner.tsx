@@ -124,7 +124,7 @@ export function TimeGridAIScanner({ onTasksExtracted }: Props) {
         </Button>
 
         {extractedCount > 0 && (
-          <p className="text-xs text-center text-green-500 font-medium">
+          <p className="text-xs text-center text-primary font-medium">
             ✅ {extractedCount} tasks extracted and added to your grid!
           </p>
         )}

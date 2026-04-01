@@ -361,6 +361,9 @@ export const allPages: PageInfo[] = [
   { name: "XDocs", route: "/niranx/xdocs", description: "Smart document editor with AI", category: "XOffice", accessLevel: "Authenticated", icon: "FileText" },
   { name: "XSheets", route: "/niranx/xsheets", description: "Spreadsheet tool with formulas & charts", category: "XOffice", accessLevel: "Authenticated", icon: "Table" },
   { name: "XSlides", route: "/niranx/xslides", description: "Presentation builder with fullscreen mode", category: "XOffice", accessLevel: "Authenticated", icon: "Presentation" },
+
+  // TimeGrid OS
+  { name: "TimeGrid OS", route: "/niranx/timegrid", description: "Smart visual timetable with drag-drop and AI document scanning", category: "Study", accessLevel: "Authenticated", icon: "LayoutGrid" },
 ];
 
 export const pageCategories = [
