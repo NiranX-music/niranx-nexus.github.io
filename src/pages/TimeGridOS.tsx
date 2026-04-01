@@ -73,11 +73,6 @@ export default function TimeGridOS() {
 
   return (
     <>
-      <Helmet>
-        <title>NiranX TimeGrid OS - Smart Study Scheduler</title>
-        <meta name="description" content="NiranX TimeGrid OS - Futuristic timetable with drag-drop, AI document scanning, and smart scheduling" />
-      </Helmet>
-
       <div className="space-y-4">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
