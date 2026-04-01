@@ -9530,6 +9530,78 @@ export type Database = {
         }
         Relationships: []
       }
+      timegrid_tasks: {
+        Row: {
+          checklist: Json | null
+          class_link: string | null
+          color: string | null
+          created_at: string
+          day_column: string
+          deadline: string | null
+          description: string | null
+          duration_minutes: number
+          end_time: string | null
+          id: string
+          linked_pdfs: Json | null
+          notes: string | null
+          priority: string | null
+          sort_order: number | null
+          start_time: string | null
+          subject: string | null
+          tags: string[] | null
+          time_row: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          checklist?: Json | null
+          class_link?: string | null
+          color?: string | null
+          created_at?: string
+          day_column?: string
+          deadline?: string | null
+          description?: string | null
+          duration_minutes?: number
+          end_time?: string | null
+          id?: string
+          linked_pdfs?: Json | null
+          notes?: string | null
+          priority?: string | null
+          sort_order?: number | null
+          start_time?: string | null
+          subject?: string | null
+          tags?: string[] | null
+          time_row?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          checklist?: Json | null
+          class_link?: string | null
+          color?: string | null
+          created_at?: string
+          day_column?: string
+          deadline?: string | null
+          description?: string | null
+          duration_minutes?: number
+          end_time?: string | null
+          id?: string
+          linked_pdfs?: Json | null
+          notes?: string | null
+          priority?: string | null
+          sort_order?: number | null
+          start_time?: string | null
+          subject?: string | null
+          tags?: string[] | null
+          time_row?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       topic_map_history: {
         Row: {
           created_at: string

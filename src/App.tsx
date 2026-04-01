@@ -244,6 +244,7 @@ const XOffice = lazy(() => import("./pages/XOffice"));
 const XDocs = lazy(() => import("./pages/XDocs"));
 const XSheets = lazy(() => import("./pages/XSheets"));
 const XSlides = lazy(() => import("./pages/XSlides"));
+const TimeGridOS = lazy(() => import("./pages/TimeGridOS"));
 const PublicProfile = lazy(() => import("./pages/PublicProfile"));
 const PersonalAppLibrary = lazy(() => import("./pages/PersonalAppLibrary"));
 const XstellarDashboard = lazy(() => import("./pages/xstellar/XstellarDashboard"));
@@ -940,6 +941,7 @@ const App = () => (
                           <Route path="/xdocs" element={<XDocs />} />
                           <Route path="/xsheets" element={<XSheets />} />
                           <Route path="/xslides" element={<XSlides />} />
+                          <Route path="/timegrid" element={<TimeGridOS />} />
 
                           {/* New Feature Enhancement Pages */}
                           <Route path="/ai-model-compare" element={<AIModelCompare />} />
