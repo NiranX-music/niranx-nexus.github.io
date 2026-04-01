@@ -941,6 +941,7 @@ const App = () => (
                           <Route path="/xdocs" element={<XDocs />} />
                           <Route path="/xsheets" element={<XSheets />} />
                           <Route path="/xslides" element={<XSlides />} />
+                          <Route path="/timegrid" element={<TimeGridOS />} />
 
                           {/* New Feature Enhancement Pages */}
                           <Route path="/ai-model-compare" element={<AIModelCompare />} />
