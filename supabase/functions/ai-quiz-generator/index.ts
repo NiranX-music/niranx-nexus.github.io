@@ -48,11 +48,7 @@ async function tryLovableAI(notes: string): Promise<string | null> {
 
 async function tryOpenRouter(notes: string): Promise<string | null> {
   const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
-  if (!OPENROUTER_API_KEY) {
-    console.log("OPENROUTER_API_KEY not configured, skipping OpenRouter");
-    return null;
-  }
-
+  if (!OPENROUTER_API_KEY) return null;
   try {
     console.log("Attempting OpenRouter...");
     const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -64,26 +60,34 @@ async function tryOpenRouter(notes: string): Promise<string | null> {
       },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash-preview",
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: notes.slice(0, 8000) },
-        ],
+        messages: [{ role: "system", content: SYSTEM_PROMPT }, { role: "user", content: notes.slice(0, 8000) }],
         max_tokens: 2000,
       }),
     });
-
-    if (!resp.ok) {
-      const errText = await resp.text();
-      console.error("OpenRouter error:", resp.status, errText);
-      return null;
-    }
-
+    if (!resp.ok) { console.error("OpenRouter error:", resp.status); return null; }
     const data = await resp.json();
     return data.choices?.[0]?.message?.content || null;
-  } catch (e) {
-    console.error("OpenRouter exception:", e);
-    return null;
-  }
+  } catch (e) { console.error("OpenRouter exception:", e); return null; }
+}
+
+async function tryScitely(notes: string): Promise<string | null> {
+  const SCITELY_API_KEY = Deno.env.get("SCITELY_API_KEY");
+  if (!SCITELY_API_KEY) return null;
+  try {
+    console.log("Attempting Scitely fallback...");
+    const resp = await fetch("https://api.scitely.com/v1/chat/completions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${SCITELY_API_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "deepseek-v3.2",
+        messages: [{ role: "system", content: SYSTEM_PROMPT }, { role: "user", content: notes.slice(0, 8000) }],
+        max_tokens: 2000,
+      }),
+    });
+    if (!resp.ok) { console.error("Scitely error:", resp.status); return null; }
+    const data = await resp.json();
+    return data.choices?.[0]?.message?.content || null;
+  } catch (e) { console.error("Scitely exception:", e); return null; }
 }
 
 function parseQuizJSON(content: string) {
