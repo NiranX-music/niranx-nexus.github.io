@@ -130,6 +130,10 @@ serve(async (req) => {
       content = await tryOpenRouter(notes);
       provider = "openrouter";
     }
+    if (!content) {
+      content = await tryScitely(notes);
+      provider = "scitely";
+    }
 
     if (!content) {
       console.error("All AI providers failed");
