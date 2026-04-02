@@ -7,4 +7,8 @@
   <url><loc>https://niranx-nexus.lovable.app/docs</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://niranx-nexus.lovable.app/careers</loc><priority>0.5</priority><changefreq>monthly</changefreq></url>
   <url><loc>https://niranx-nexus.lovable.app/press</loc><priority>0.5</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://niranx-nexus.lovable.app/pricing</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://niranx-nexus.lovable.app/sitemap</loc><priority>0.4</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://niranx-nexus.lovable.app/whats-new</loc><priority>0.6</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://niranx-nexus.lovable.app/timegrid</loc><priority>0.6</priority><changefreq>weekly</changefreq></url>
 </urlset>
