@@ -75,57 +75,63 @@ ${noteContent}
 
 Generate a summary, extract key points, create a mind map structure, and suggest relevant tags.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        max_tokens: 6000,
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
-        ],
-      }),
-    });
+    let aiResponse = null;
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Rate limit exceeded. Please try again later." }), 
-          {
-            status: 429,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          }
-        );
-      }
-      
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "AI credits exhausted. Please add credits to continue." }), 
-          {
-            status: 402,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          }
-        );
-      }
-
-      return new Response(
-        JSON.stringify({ error: "AI service error" }), 
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+    // Try Lovable AI first
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (LOVABLE_API_KEY) {
+      try {
+        const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model: "google/gemini-2.5-flash",
+            max_tokens: 6000,
+            messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
+          }),
+        });
+        if (response.ok) {
+          aiResponse = await response.json();
+        } else if (response.status === 429) {
+          return new Response(JSON.stringify({ error: "Rate limit exceeded." }),
+            { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        } else if (response.status === 402) {
+          return new Response(JSON.stringify({ error: "AI credits exhausted." }),
+            { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        } else {
+          console.warn("Lovable AI failed:", response.status);
         }
-      );
+      } catch (e) {
+        console.warn("Lovable AI error:", e);
+      }
     }
 
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
+    // Scitely fallback
+    if (!aiResponse) {
+      const SCITELY_API_KEY = Deno.env.get("SCITELY_API_KEY");
+      if (SCITELY_API_KEY) {
+        console.log("Falling back to Scitely for summarize-notes...");
+        const res = await fetch("https://api.scitely.com/v1/chat/completions", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${SCITELY_API_KEY}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model: "deepseek-v3.2",
+            messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
+            max_tokens: 6000,
+          }),
+        });
+        if (res.ok) {
+          aiResponse = await res.json();
+        }
+      }
+    }
+
+    if (!aiResponse) {
+      return new Response(JSON.stringify({ error: "All AI services unavailable." }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    const content = aiResponse.choices?.[0]?.message?.content;
     
     if (!content) {
       throw new Error("No content in AI response");

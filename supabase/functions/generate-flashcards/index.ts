@@ -171,11 +171,29 @@ Only return the JSON array, no other text.`;
 
     console.log(`Calling ${provider} API with model: ${body.model}`);
 
-    const response = await fetch(apiUrl, {
+    let response = await fetch(apiUrl, {
       method: 'POST',
       headers,
       body: JSON.stringify(body),
     });
+
+    // If primary provider fails (not rate limit), try Scitely fallback
+    if (!response.ok && response.status !== 429 && response.status !== 402) {
+      console.warn(`Primary provider ${provider} failed:`, response.status);
+      const SCITELY_API_KEY = Deno.env.get('SCITELY_API_KEY');
+      if (SCITELY_API_KEY) {
+        console.log("Falling back to Scitely for flashcards...");
+        response = await fetch('https://api.scitely.com/v1/chat/completions', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${SCITELY_API_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'deepseek-v3.2',
+            messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
+            max_tokens: 4096,
+          }),
+        });
+      }
+    }
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -189,7 +207,7 @@ Only return the JSON array, no other text.`;
       }
       if (response.status === 402) {
         return new Response(
-          JSON.stringify({ error: 'API credits exhausted. Please check your API key balance.' }),
+          JSON.stringify({ error: 'API credits exhausted.' }),
           { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
