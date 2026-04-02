@@ -2,8 +2,10 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
+
+const SCITELY_BASE = "https://api.scitely.com/v1";
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -23,111 +25,87 @@ Your role is to:
 - Use examples and analogies to make complex topics understandable
 - Ask follow-up questions to ensure understanding
 - Encourage critical thinking
-- Adapt your explanations based on the student's level
 - Be patient, supportive, and encouraging
 
 Keep your responses conversational and engaging, as they will be read aloud. Avoid using markdown formatting, bullet points, or special characters. Speak naturally as if having a real conversation.`;
 
-    let apiUrl: string;
-    let headers: Record<string, string>;
-    let body: any;
+    const fullMessages = [{ role: 'system', content: systemPrompt }, ...messages];
 
-    if (provider === 'lovable') {
-      apiUrl = 'https://ai.gateway.lovable.dev/v1/chat/completions';
-      const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-      if (!LOVABLE_API_KEY) {
-        throw new Error('LOVABLE_API_KEY is not configured');
+    // Try primary provider
+    let response: Response | null = null;
+
+    if (provider === 'openai-direct') {
+      const key = Deno.env.get('OPENAI_API_KEY');
+      if (key) {
+        response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model: model || 'gpt-4o-mini', messages: fullMessages }),
+        });
+        if (response.ok) return extractContent(response);
       }
-      headers = {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      };
-      body = {
-        model: model || 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...messages,
-        ],
-      };
-    } else if (provider === 'openai-direct') {
-      apiUrl = 'https://api.openai.com/v1/chat/completions';
-      const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-      if (!OPENAI_API_KEY) {
-        throw new Error('OPENAI_API_KEY is not configured');
+    } else if (provider !== 'lovable') {
+      const key = Deno.env.get('OPENROUTER_API_KEY');
+      if (key) {
+        response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model: model || 'openai/gpt-4o-mini', messages: fullMessages }),
+        });
+        if (response.ok) return extractContent(response);
       }
-      headers = {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-      };
-      body = {
-        model: model || 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...messages,
-        ],
-      };
-    } else {
-      apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
-      const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
-      if (!OPENROUTER_API_KEY) {
-        throw new Error('OPENROUTER_API_KEY is not configured');
-      }
-      headers = {
-        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json',
-      };
-      body = {
-        model: model || 'openai/gpt-4o-mini',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...messages,
-        ],
-      };
     }
 
-    console.log(`Voice tutor chat with provider: ${provider}, model: ${body.model}`);
-
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(body),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('AI API error:', response.status, errorText);
-      
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
-          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+    // Lovable AI
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (LOVABLE_API_KEY) {
+      try {
+        response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${LOVABLE_API_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model: model || 'google/gemini-2.5-flash', messages: fullMessages }),
+        });
+        if (response.ok) return extractContent(response);
+        if (response.status === 429) {
+          return new Response(JSON.stringify({ error: 'Rate limit exceeded.' }),
+            { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+        }
+        console.warn("Lovable AI failed:", response.status);
+      } catch (e) {
+        console.warn("Lovable AI error:", e);
       }
-      
-      throw new Error(`AI API error: ${response.status}`);
     }
 
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
-
-    if (!content) {
-      throw new Error('No response from AI');
+    // Scitely fallback
+    const SCITELY_API_KEY = Deno.env.get("SCITELY_API_KEY");
+    if (SCITELY_API_KEY) {
+      console.log("Falling back to Scitely for voice tutor...");
+      const res = await fetch(`${SCITELY_BASE}/chat/completions`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${SCITELY_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ model: "deepseek-v3.2", messages: fullMessages, max_tokens: 2000 }),
+      });
+      if (res.ok) return extractContent(res);
     }
 
-    console.log(`AI response: "${content.substring(0, 100)}..."`);
-
-    return new Response(
-      JSON.stringify({ content }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: "All AI services unavailable." }),
+      { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   } catch (error) {
     console.error('Voice tutor error:', error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+    return new Response(JSON.stringify({ error: error.message }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   }
 });
+
+async function extractContent(response: Response) {
+  const corsH = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
+  };
+  const data = await response.json();
+  const content = data.choices?.[0]?.message?.content;
+  if (!content) throw new Error('No response from AI');
+  return new Response(JSON.stringify({ content }), {
+    headers: { ...corsH, 'Content-Type': 'application/json' },
+  });
+}
