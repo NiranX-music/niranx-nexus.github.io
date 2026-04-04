@@ -3,6 +3,7 @@ import { PageSkeleton } from "@/components/PageSkeleton";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { NowPlaying } from "./NowPlaying";
+import { HeaderMediaControl } from "./HeaderMediaControl";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { LiquidBackground } from "@/components/LiquidBackground";
 
@@ -27,7 +28,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import { useCloudSync } from "@/hooks/useCloudSync";
 import { useAutoStreak } from "@/hooks/useAutoStreak";
-import { Keyboard, Sparkles, Bell, Map } from "lucide-react";
+import { Keyboard, Map } from "lucide-react";
 import { RenameTabDialog } from "@/components/RenameTabDialog";
 import {
   Breadcrumb,
@@ -172,30 +173,13 @@ export function AppLayout({ children }: AppLayoutProps) {
               </BreadcrumbList>
             </Breadcrumb>
             <div className="ml-auto flex items-center gap-2">
+              <HeaderMediaControl />
               <HeaderClock />
               <ControlCenterMenu onLock={handleLock} />
               <AppLauncherMenu />
               <Separator orientation="vertical" className="h-4 hidden lg:block" />
               <RenameTabDialog />
               {user && <SpaceSwitcher />}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate("/niranx/whats-new")}
-                className="hover:bg-accent"
-                title="What's New"
-              >
-                <Sparkles className="h-5 w-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate("/niranx/notifications")}
-                className="hover:bg-accent"
-                title="View All Notifications"
-              >
-                <Bell className="h-5 w-5" />
-              </Button>
               <NewLaunchesPopover />
               <Button
                 variant="ghost"
