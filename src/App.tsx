@@ -1162,6 +1162,9 @@ const App = () => (
                     <Route path="/published/songs/ai/:songId" element={<PublishedSong />} />
                     <Route path="/published/:slug" element={<PublishedContent />} />
                     
+                    {/* Embedded external apps */}
+                    <Route path="/apps/:appId/*" element={<LazyPage><EmbeddedApp /></LazyPage>} />
+                    
                     {/* Dual routing: /niranx/* redirects to /* */}
                     <Route path="/niranx/*" element={<NiranxRedirect />} />
                     
