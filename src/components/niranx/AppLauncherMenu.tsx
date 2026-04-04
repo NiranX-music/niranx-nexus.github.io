@@ -105,7 +105,7 @@ export function AppLauncherMenu() {
                           onClick={() => {
                             setIsOpen(false);
                             if (app.url.startsWith('http')) {
-                              window.open(app.url, '_blank');
+                              navigate(`/apps/${app.id}`);
                             } else {
                               navigate(app.url);
                             }
