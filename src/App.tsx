@@ -487,6 +487,9 @@ const DocsRoles = lazy(() => import("./pages/docs/admin/DocsRoles"));
 const DocsModeration = lazy(() => import("./pages/docs/admin/DocsModeration"));
 const DocsPageManagement = lazy(() => import("./pages/docs/admin/DocsPages"));
 
+// Embedded App Viewer
+const EmbeddedApp = lazy(() => import("./pages/EmbeddedApp"));
+
 // Nexus Showcase Pages
 const NexusAIHub = lazy(() => import("./pages/nexus/NexusAIHub"));
 const NexusXVibeMusic = lazy(() => import("./pages/nexus/NexusXVibeMusic"));
