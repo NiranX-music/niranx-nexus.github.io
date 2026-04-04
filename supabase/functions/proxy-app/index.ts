@@ -1,4 +1,7 @@
-import { corsHeaders } from '../_shared/cors'
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
 
 const REBRAND_RULES: Record<string, { find: RegExp; replace: string }[]> = {
   'kworb.net': [
