@@ -14,6 +14,7 @@ interface Session {
   ip_address: string;
   last_activity: string;
   created_at: string;
+  session_token: string;
 }
 
 function parseUserAgent(ua: string) {
