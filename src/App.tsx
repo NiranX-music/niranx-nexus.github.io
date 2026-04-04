@@ -487,9 +487,6 @@ const DocsRoles = lazy(() => import("./pages/docs/admin/DocsRoles"));
 const DocsModeration = lazy(() => import("./pages/docs/admin/DocsModeration"));
 const DocsPageManagement = lazy(() => import("./pages/docs/admin/DocsPages"));
 
-// Embedded App Viewer
-const EmbeddedApp = lazy(() => import("./pages/EmbeddedApp"));
-
 // Nexus Showcase Pages
 const NexusAIHub = lazy(() => import("./pages/nexus/NexusAIHub"));
 const NexusXVibeMusic = lazy(() => import("./pages/nexus/NexusXVibeMusic"));
@@ -1161,9 +1158,6 @@ const App = () => (
                     <Route path="/w/:slug" element={<PublishedWebsite />} />
                     <Route path="/published/songs/ai/:songId" element={<PublishedSong />} />
                     <Route path="/published/:slug" element={<PublishedContent />} />
-                    
-                    {/* Embedded external apps */}
-                    <Route path="/apps/:appId/*" element={<LazyPage><EmbeddedApp /></LazyPage>} />
                     
                     {/* Dual routing: /niranx/* redirects to /* */}
                     <Route path="/niranx/*" element={<NiranxRedirect />} />
