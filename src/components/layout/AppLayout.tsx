@@ -28,7 +28,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import { useCloudSync } from "@/hooks/useCloudSync";
 import { useAutoStreak } from "@/hooks/useAutoStreak";
-import { Keyboard, Sparkles, Bell, Map } from "lucide-react";
+import { Keyboard, Map } from "lucide-react";
 import { RenameTabDialog } from "@/components/RenameTabDialog";
 import {
   Breadcrumb,
