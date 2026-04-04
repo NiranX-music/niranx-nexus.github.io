@@ -3,6 +3,7 @@ import { PageSkeleton } from "@/components/PageSkeleton";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { NowPlaying } from "./NowPlaying";
+import { HeaderMediaControl } from "./HeaderMediaControl";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { LiquidBackground } from "@/components/LiquidBackground";
 
