@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Copy, Check, ThumbsUp, ThumbsDown } from "lucide-react";
+import DOMPurify from "dompurify";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -55,7 +56,10 @@ export default function AIChatMessage({ role, content, index }: AIChatMessagePro
           {role === "assistant" ? (
             <div
               className="prose-sm [&_pre]:my-1 [&_code]:text-xs [&_li]:my-0.5"
-              dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(renderMarkdown(content), {
+                ALLOWED_TAGS: ['p','b','i','em','strong','ul','ol','li','code','pre','blockquote','h1','h2','h3','h4','a','br'],
+                ALLOWED_ATTR: ['href','target','rel','class'],
+              }) }}
             />
           ) : (
             content
