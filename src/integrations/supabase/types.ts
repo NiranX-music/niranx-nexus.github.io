@@ -11393,6 +11393,13 @@ export type Database = {
             referencedRelation: "xflow_profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "xflow_comments_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "xflow_profiles_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       xflow_follows: {
@@ -11423,10 +11430,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "xflow_follows_follower_id_fkey"
+            columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "xflow_profiles_safe"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "xflow_follows_following_id_fkey"
             columns: ["following_id"]
             isOneToOne: false
             referencedRelation: "xflow_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xflow_follows_following_id_fkey"
+            columns: ["following_id"]
+            isOneToOne: false
+            referencedRelation: "xflow_profiles_safe"
             referencedColumns: ["id"]
           },
         ]
@@ -11462,6 +11483,13 @@ export type Database = {
             columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "xflow_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xflow_highlights_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "xflow_profiles_safe"
             referencedColumns: ["id"]
           },
         ]
@@ -11510,6 +11538,13 @@ export type Database = {
             referencedRelation: "xflow_profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "xflow_likes_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "xflow_profiles_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       xflow_messages: {
@@ -11552,10 +11587,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "xflow_messages_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "xflow_profiles_safe"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "xflow_messages_sender_id_fkey"
             columns: ["sender_id"]
             isOneToOne: false
             referencedRelation: "xflow_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xflow_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "xflow_profiles_safe"
             referencedColumns: ["id"]
           },
           {
@@ -11616,6 +11665,13 @@ export type Database = {
             columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "xflow_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xflow_posts_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "xflow_profiles_safe"
             referencedColumns: ["id"]
           },
         ]
@@ -11721,6 +11777,13 @@ export type Database = {
             columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "xflow_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xflow_saved_posts_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "xflow_profiles_safe"
             referencedColumns: ["id"]
           },
         ]
@@ -14236,7 +14299,114 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      profiles_public: {
+        Row: {
+          ambition: string | null
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          display_name: string | null
+          full_name: string | null
+          id: string | null
+          is_verified: boolean | null
+          level: number | null
+          location: string | null
+          social_links: Json | null
+          updated_at: string | null
+          user_id: string | null
+          username: string | null
+          website: string | null
+          xp: number | null
+        }
+        Insert: {
+          ambition?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          full_name?: string | null
+          id?: string | null
+          is_verified?: boolean | null
+          level?: number | null
+          location?: string | null
+          social_links?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
+          website?: string | null
+          xp?: number | null
+        }
+        Update: {
+          ambition?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          full_name?: string | null
+          id?: string | null
+          is_verified?: boolean | null
+          level?: number | null
+          location?: string | null
+          social_links?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
+          website?: string | null
+          xp?: number | null
+        }
+        Relationships: []
+      }
+      xflow_profiles_safe: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          display_name: string | null
+          followers_count: number | null
+          following_count: number | null
+          id: string | null
+          is_approved: boolean | null
+          is_verified: boolean | null
+          posts_count: number | null
+          updated_at: string | null
+          user_id: string | null
+          username: string | null
+          website: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          followers_count?: number | null
+          following_count?: number | null
+          id?: string | null
+          is_approved?: boolean | null
+          is_verified?: boolean | null
+          posts_count?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
+          website?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          followers_count?: number | null
+          following_count?: number | null
+          id?: string | null
+          is_approved?: boolean | null
+          is_verified?: boolean | null
+          posts_count?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       auto_award_streak_badges: {
