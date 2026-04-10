@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.51.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -15,15 +16,35 @@ interface AdminDecisionRequest {
   reason?: string;
 }
 
+function escapeHtml(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Auth check
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!, {
+      global: { headers: { Authorization: authHeader } }
+    });
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     const { email, fullName, status, reason }: AdminDecisionRequest = await req.json();
 
-    console.log("Sending admin decision email:", { email, fullName, status });
+    const safeName = escapeHtml(fullName || '');
+    const safeReason = reason ? escapeHtml(reason) : '';
+
+    console.log("Sending admin decision email:", { email, fullName: safeName, status });
 
     const subject = status === 'approved' 
       ? "Admin Request Approved - NiranX StudyVerse" 
@@ -31,19 +52,16 @@ const handler = async (req: Request): Promise<Response> => {
 
     const message = status === 'approved'
       ? `
-        <h2>Great News, ${fullName}! 🎉</h2>
+        <h2>Great News, ${safeName}! 🎉</h2>
         <p>Your admin request has been <strong>approved</strong>.</p>
-        <p>You now have admin privileges on NiranX StudyVerse. You can access the Admin Dashboard to manage users, feedback, and platform statistics.</p>
-        <p>Please use your new privileges responsibly.</p>
+        <p>You now have admin privileges on NiranX StudyVerse.</p>
         <p>Best regards,<br/>The NiranX Team</p>
       `
       : `
         <h2>Admin Request Update</h2>
-        <p>Dear ${fullName},</p>
-        <p>Thank you for your interest in becoming an admin on NiranX StudyVerse.</p>
+        <p>Dear ${safeName},</p>
         <p>After careful review, we have decided not to approve your admin request at this time.</p>
-        ${reason ? `<p><strong>Reason:</strong> ${reason}</p>` : ''}
-        <p>If you have any questions or would like to discuss this decision, please feel free to reach out.</p>
+        ${safeReason ? `<p><strong>Reason:</strong> ${safeReason}</p>` : ''}
         <p>Best regards,<br/>The NiranX Team</p>
       `;
 
@@ -58,19 +76,13 @@ const handler = async (req: Request): Promise<Response> => {
 
     return new Response(JSON.stringify(emailResponse), {
       status: 200,
-      headers: {
-        "Content-Type": "application/json",
-        ...corsHeaders,
-      },
+      headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   } catch (error: any) {
     console.error("Error in send-admin-decision-email function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
+      JSON.stringify({ error: "Internal server error" }),
+      { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   }
 };
