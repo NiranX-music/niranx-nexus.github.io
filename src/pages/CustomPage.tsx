@@ -92,7 +92,7 @@ export default function CustomPage() {
       srcDoc={content || ''}
       className="w-full min-h-screen border-0"
       title="Custom Page"
-      sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+      sandbox="allow-scripts allow-forms allow-popups"
     />
   );
 }

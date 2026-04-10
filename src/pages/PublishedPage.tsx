@@ -65,7 +65,7 @@ export default function PublishedPage() {
     <iframe
       ref={iframeRef}
       className="w-full h-screen border-0"
-      sandbox="allow-scripts allow-same-origin"
+      sandbox="allow-scripts"
       title={page?.title || "Published Page"}
     />
   );
