@@ -65,8 +65,24 @@ serve(async (req) => {
 
     const authData: B2AuthResponse = await authResponse.json();
 
+    // Helper: confirm a fileId belongs to the current user via our metadata table
+    const userOwnsFile = async (fid: string): Promise<{ owns: boolean; fileName?: string }> => {
+      const { data, error } = await supabase
+        .from("backblaze_files")
+        .select("file_name")
+        .eq("file_id", fid)
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (error) {
+        console.error("Ownership check failed:", error);
+        return { owns: false };
+      }
+      return { owns: !!data, fileName: data?.file_name };
+    };
+
     switch (action) {
       case "list": {
+        // Scope listing to this user's prefix only
         const listResponse = await fetch(`${authData.apiUrl}/b2api/v2/b2_list_file_names`, {
           method: "POST",
           headers: {
@@ -75,6 +91,7 @@ serve(async (req) => {
           },
           body: JSON.stringify({
             bucketId: BUCKET_ID,
+            prefix: `${user.id}/`,
             maxFileCount: 1000,
           }),
         });
