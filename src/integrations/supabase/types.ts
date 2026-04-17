@@ -629,6 +629,13 @@ export type Database = {
             referencedRelation: "artists"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "album_artists_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       album_tracks: {
@@ -719,6 +726,13 @@ export type Database = {
             columns: ["artist_id"]
             isOneToOne: false
             referencedRelation: "artists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "albums_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists_public"
             referencedColumns: ["id"]
           },
         ]
@@ -906,6 +920,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "artist_catalogue_folders_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "artist_catalogue_folders_parent_folder_id_fkey"
             columns: ["parent_folder_id"]
             isOneToOne: false
@@ -941,6 +962,13 @@ export type Database = {
             referencedRelation: "artists"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "artist_followers_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       artist_sessions: {
@@ -971,6 +999,13 @@ export type Database = {
             columns: ["artist_id"]
             isOneToOne: false
             referencedRelation: "artists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artist_sessions_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists_public"
             referencedColumns: ["id"]
           },
         ]
@@ -14299,6 +14334,51 @@ export type Database = {
       }
     }
     Views: {
+      artists_public: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          created_by: string | null
+          custom_url: string | null
+          follower_count: number | null
+          id: string | null
+          is_verified: boolean | null
+          monthly_listeners: number | null
+          name: string | null
+          studio_enabled: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          custom_url?: string | null
+          follower_count?: number | null
+          id?: string | null
+          is_verified?: boolean | null
+          monthly_listeners?: number | null
+          name?: string | null
+          studio_enabled?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          custom_url?: string | null
+          follower_count?: number | null
+          id?: string | null
+          is_verified?: boolean | null
+          monthly_listeners?: number | null
+          name?: string | null
+          studio_enabled?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles_public: {
         Row: {
           ambition: string | null

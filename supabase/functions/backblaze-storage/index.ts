@@ -65,8 +65,24 @@ serve(async (req) => {
 
     const authData: B2AuthResponse = await authResponse.json();
 
+    // Helper: confirm a fileId belongs to the current user via our metadata table
+    const userOwnsFile = async (fid: string): Promise<{ owns: boolean; fileName?: string }> => {
+      const { data, error } = await supabase
+        .from("backblaze_files")
+        .select("file_name")
+        .eq("file_id", fid)
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (error) {
+        console.error("Ownership check failed:", error);
+        return { owns: false };
+      }
+      return { owns: !!data, fileName: data?.file_name };
+    };
+
     switch (action) {
       case "list": {
+        // Scope listing to this user's prefix only
         const listResponse = await fetch(`${authData.apiUrl}/b2api/v2/b2_list_file_names`, {
           method: "POST",
           headers: {
@@ -75,6 +91,7 @@ serve(async (req) => {
           },
           body: JSON.stringify({
             bucketId: BUCKET_ID,
+            prefix: `${user.id}/`,
             maxFileCount: 1000,
           }),
         });
@@ -93,6 +110,10 @@ serve(async (req) => {
         if (!fileName || !fileData) {
           throw new Error("Missing file name or data");
         }
+
+        // Force user-scoped storage prefix to prevent path collisions / cross-user access
+        const safeName = fileName.replace(/^\/+/, "");
+        const scopedFileName = `${user.id}/${safeName}`;
 
         // Get upload URL
         const uploadUrlResponse = await fetch(`${authData.apiUrl}/b2api/v2/b2_get_upload_url`, {
@@ -116,12 +137,12 @@ serve(async (req) => {
         const hashArray = Array.from(new Uint8Array(sha1Hash));
         const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
 
-        // Upload file
+        // Upload file under user-scoped path
         const uploadResponse = await fetch(uploadUrlData.uploadUrl, {
           method: "POST",
           headers: {
             Authorization: uploadUrlData.authorizationToken,
-            "X-Bz-File-Name": encodeURIComponent(fileName),
+            "X-Bz-File-Name": encodeURIComponent(scopedFileName),
             "Content-Type": "b2/x-auto",
             "X-Bz-Content-Sha1": hashHex,
           },
@@ -134,10 +155,10 @@ serve(async (req) => {
 
         const uploadResult = await uploadResponse.json();
 
-        // Save metadata to Supabase
+        // Save metadata to Supabase (store the original display name; ownership is via user_id)
         const { error: dbError } = await supabase.from("backblaze_files").insert({
           user_id: user.id,
-          file_name: fileName,
+          file_name: safeName,
           file_id: uploadResult.fileId,
           file_size: binaryData.length,
           content_type: uploadResult.contentType,
@@ -155,6 +176,15 @@ serve(async (req) => {
       case "download": {
         if (!fileId) {
           throw new Error("Missing file ID");
+        }
+
+        // Verify the requesting user owns this file
+        const ownership = await userOwnsFile(fileId);
+        if (!ownership.owns) {
+          return new Response(JSON.stringify({ error: "Forbidden" }), {
+            status: 403,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
         }
 
         const downloadResponse = await fetch(
@@ -186,6 +216,18 @@ serve(async (req) => {
           throw new Error("Missing file ID or name");
         }
 
+        // Verify ownership before deleting
+        const ownership = await userOwnsFile(fileId);
+        if (!ownership.owns) {
+          return new Response(JSON.stringify({ error: "Forbidden" }), {
+            status: 403,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        // Use the user-scoped path stored in B2 (prefix with user id)
+        const scopedFileName = `${user.id}/${(ownership.fileName ?? fileName).replace(/^\/+/, "")}`;
+
         const deleteResponse = await fetch(`${authData.apiUrl}/b2api/v2/b2_delete_file_version`, {
           method: "POST",
           headers: {
@@ -194,7 +236,7 @@ serve(async (req) => {
           },
           body: JSON.stringify({
             fileId,
-            fileName,
+            fileName: scopedFileName,
           }),
         });
 
