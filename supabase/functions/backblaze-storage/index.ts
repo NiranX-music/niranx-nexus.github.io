@@ -216,6 +216,18 @@ serve(async (req) => {
           throw new Error("Missing file ID or name");
         }
 
+        // Verify ownership before deleting
+        const ownership = await userOwnsFile(fileId);
+        if (!ownership.owns) {
+          return new Response(JSON.stringify({ error: "Forbidden" }), {
+            status: 403,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        // Use the user-scoped path stored in B2 (prefix with user id)
+        const scopedFileName = `${user.id}/${(ownership.fileName ?? fileName).replace(/^\/+/, "")}`;
+
         const deleteResponse = await fetch(`${authData.apiUrl}/b2api/v2/b2_delete_file_version`, {
           method: "POST",
           headers: {
@@ -224,7 +236,7 @@ serve(async (req) => {
           },
           body: JSON.stringify({
             fileId,
-            fileName,
+            fileName: scopedFileName,
           }),
         });
 
