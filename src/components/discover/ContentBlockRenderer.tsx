@@ -13,9 +13,9 @@ function highlight(text: string, query?: string) {
   const re = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi");
   return text.split(re).map((part, i) =>
     re.test(part) ? (
-      <mark key={i} className="bg-primary/30 text-foreground rounded px-0.5">
+      <span key={i} className="bg-primary/30 text-foreground rounded px-0.5">
         {part}
-      </mark>
+      </span>
     ) : (
       <span key={i}>{part}</span>
     )
@@ -32,7 +32,7 @@ function MarkdownInline({ value, query }: { value: string; query?: string }) {
     if (part.startsWith("**")) nodes.push(<strong key={i}>{part.slice(2, -2)}</strong>);
     else if (part.startsWith("*")) nodes.push(<em key={i}>{part.slice(1, -1)}</em>);
     else if (part.startsWith("`")) nodes.push(<code key={i} className="px-1.5 py-0.5 rounded bg-muted text-primary font-mono text-sm">{part.slice(1, -1)}</code>);
-    else if (part.startsWith("==")) nodes.push(<mark key={i} className="bg-yellow-500/30 px-1 rounded">{part.slice(2, -2)}</mark>);
+    else if (part.startsWith("==")) nodes.push(<span key={i} className="bg-yellow-500/30 px-1 rounded">{part.slice(2, -2)}</span>);
     else if (part.startsWith("[")) {
       const m = /\[([^\]]+)\]\(([^)]+)\)/.exec(part);
       if (m) nodes.push(<a key={i} href={m[2]} target="_blank" rel="noopener noreferrer" className="text-primary underline hover:no-underline">{m[1]}</a>);
