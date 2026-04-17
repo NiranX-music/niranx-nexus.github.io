@@ -83,6 +83,7 @@ const Blogs = lazy(() => import("./pages/Blogs"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const GlobalSearch = lazy(() => import("./pages/GlobalSearch"));
 const SearchResults = lazy(() => import("./pages/SearchResults"));
+const SeoSearch = lazy(() => import("./pages/SeoSearch"));
 const AIChat = lazy(() => import("./pages/AIChat"));
 const AIChatHistory = lazy(() => import("./pages/AIChatHistory"));
 const AIScheduler = lazy(() => import("./pages/AIScheduler"));
@@ -702,6 +703,7 @@ const App = () => (
                           <Route path="/blogs/settings" element={<BlogSettings />} />
                           <Route path="/search" element={<GlobalSearch />} />
                           <Route path="/search-results" element={<SearchResults />} />
+                          <Route path="/seo-search" element={<SeoSearch />} />
                           <Route path="/ai-chat" element={<AIChat />} />
                           <Route path="/ai-chat-history" element={<AIChatHistory />} />
                           <Route path="/ai-scheduler" element={<AIScheduler />} />
