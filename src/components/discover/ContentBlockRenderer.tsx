@@ -120,14 +120,18 @@ export function ContentBlockRenderer({ block, query }: { block: ContentBlock; qu
 
   switch (block.type) {
     case "heading": {
-      const Tag = `h${block.level}` as keyof JSX.IntrinsicElements;
       const cls: Record<number, string> = {
         1: "text-4xl font-bold mt-8 mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent",
         2: "text-3xl font-bold mt-7 mb-3 text-foreground",
         3: "text-2xl font-semibold mt-6 mb-2 text-foreground",
         4: "text-xl font-semibold mt-5 mb-2 text-foreground",
       };
-      return <Tag className={cls[block.level]}>{highlight(block.value, query)}</Tag>;
+      const children = highlight(block.value, query);
+      const className = cls[block.level];
+      if (block.level === 1) return <h1 className={className}>{children}</h1>;
+      if (block.level === 2) return <h2 className={className}>{children}</h2>;
+      if (block.level === 3) return <h3 className={className}>{children}</h3>;
+      return <h4 className={className}>{children}</h4>;
     }
     case "text":
       return (
