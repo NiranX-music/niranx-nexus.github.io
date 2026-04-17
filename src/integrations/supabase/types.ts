@@ -2568,6 +2568,154 @@ export type Database = {
         }
         Relationships: []
       }
+      discover_page_comments: {
+        Row: {
+          avatar_url: string | null
+          content: string
+          created_at: string
+          id: string
+          page_id: string
+          parent_comment_id: string | null
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          page_id: string
+          parent_comment_id?: string | null
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          page_id?: string
+          parent_comment_id?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discover_page_comments_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "discover_pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "discover_page_comments_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "discover_page_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      discover_page_likes: {
+        Row: {
+          created_at: string
+          id: string
+          page_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          page_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          page_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discover_page_likes_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "discover_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      discover_pages: {
+        Row: {
+          author_id: string
+          author_name: string | null
+          content: Json
+          cover_image_url: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_published: boolean
+          like_count: number
+          parent_id: string | null
+          published_at: string | null
+          slug: string
+          sort_order: number | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          view_count: number
+        }
+        Insert: {
+          author_id: string
+          author_name?: string | null
+          content?: Json
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          like_count?: number
+          parent_id?: string | null
+          published_at?: string | null
+          slug: string
+          sort_order?: number | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          view_count?: number
+        }
+        Update: {
+          author_id?: string
+          author_name?: string | null
+          content?: Json
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          like_count?: number
+          parent_id?: string | null
+          published_at?: string | null
+          slug?: string
+          sort_order?: number | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          view_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discover_pages_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "discover_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_report_preferences: {
         Row: {
           created_at: string | null
@@ -4130,6 +4278,51 @@ export type Database = {
           score?: number
           total_questions?: number
           user_id?: string
+        }
+        Relationships: []
+      }
+      landing_page_templates: {
+        Row: {
+          created_at: string
+          created_by: string
+          css_content: string
+          description: string | null
+          html_content: string
+          id: string
+          is_active: boolean
+          is_default: boolean
+          js_content: string
+          name: string
+          preview_image_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          css_content?: string
+          description?: string | null
+          html_content?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          js_content?: string
+          name: string
+          preview_image_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          css_content?: string
+          description?: string | null
+          html_content?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          js_content?: string
+          name?: string
+          preview_image_url?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -14591,6 +14784,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_discover_page_views: {
+        Args: { _page_id: string }
+        Returns: undefined
       }
       increment_xvibe_play_count: {
         Args: { p_track_id: string }
