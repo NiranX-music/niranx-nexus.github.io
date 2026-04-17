@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Sparkles, ArrowRight, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -140,20 +139,37 @@ export default function SeoSearch() {
     ? `Search results for "${submitted}" across NiranX Universe — AI tutor, flashcards, study tools and more.`
     : "Lightning-fast SEO-optimized search across 100+ AI study tools, productivity features and learning resources.";
 
+  useEffect(() => {
+    document.title = title;
+    const setMeta = (selector: string, attr: string, value: string, content: string) => {
+      let el = document.head.querySelector(selector) as HTMLMetaElement | HTMLLinkElement | null;
+      if (!el) {
+        el = document.createElement(selector.startsWith("link") ? "link" : "meta") as any;
+        if (selector.startsWith("link")) (el as HTMLLinkElement).rel = "canonical";
+        else (el as HTMLMetaElement).setAttribute(attr, value);
+        document.head.appendChild(el);
+      }
+      if (selector.startsWith("link")) (el as HTMLLinkElement).href = content;
+      else (el as HTMLMetaElement).content = content;
+    };
+    setMeta('meta[name="description"]', "name", "description", description);
+    setMeta('meta[property="og:title"]', "property", "og:title", title);
+    setMeta('meta[property="og:description"]', "property", "og:description", description);
+    setMeta('link[rel="canonical"]', "rel", "canonical", window.location.href);
+
+    const ldId = "seo-search-jsonld";
+    let ld = document.getElementById(ldId) as HTMLScriptElement | null;
+    if (!ld) {
+      ld = document.createElement("script");
+      ld.id = ldId;
+      ld.type = "application/ld+json";
+      document.head.appendChild(ld);
+    }
+    ld.textContent = JSON.stringify(jsonLd);
+  }, [title, description, jsonLd]);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30">
-      <Helmet>
-        <title>{title}</title>
-        <meta name="description" content={description} />
-        <meta name="keywords" content="search, AI study tools, flashcards, pomodoro, quiz, NiranX search" />
-        <meta property="og:title" content={title} />
-        <meta property="og:description" content={description} />
-        <meta property="og:type" content="website" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <link rel="canonical" href={typeof window !== "undefined" ? window.location.href : ""} />
-        <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
-      </Helmet>
-
       <main className="container mx-auto px-4 py-10 md:py-16 max-w-4xl">
         <motion.header
           initial={{ opacity: 0, y: -12 }}
