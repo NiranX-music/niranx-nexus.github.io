@@ -99,16 +99,14 @@ export default function DiscoverPageView() {
 
   return (
     <>
-      <Helmet>
-        <title>{page.title} — Discover NiranX</title>
-        <meta name="description" content={page.description || page.title} />
-        <meta name="keywords" content={page.tags.join(", ")} />
-        <link rel="canonical" href={`/discover/${page.slug}`} />
-        <meta property="og:title" content={page.title} />
-        <meta property="og:description" content={page.description || ""} />
-        <meta property="og:type" content="article" />
-        {page.cover_image_url && <meta property="og:image" content={page.cover_image_url} />}
-        <script type="application/ld+json">{JSON.stringify({
+      <PageMeta
+        title={`${page.title} — Discover NiranX`}
+        description={page.description || page.title}
+        keywords={page.tags.join(", ")}
+        canonical={`/discover/${page.slug}`}
+        ogType="article"
+        ogImage={page.cover_image_url || undefined}
+        jsonLd={{
           "@context": "https://schema.org",
           "@type": "Article",
           headline: page.title,
@@ -118,8 +116,8 @@ export default function DiscoverPageView() {
           dateModified: page.updated_at,
           author: { "@type": "Person", name: page.author_name || "NiranX" },
           keywords: page.tags.join(", "),
-        })}</script>
-      </Helmet>
+        }}
+      />
 
       <div className="flex h-[calc(100vh-4rem)]">
         <DiscoverSidebar tree={tree} search={search} onSearchChange={setSearch} currentSlug={page.slug} />

@@ -52,17 +52,17 @@ export default function DiscoverFeed() {
 
   return (
     <>
-      <Helmet>
-        <title>Discover NiranX Pages — Knowledge Hub & Articles</title>
-        <meta name="description" content="Explore curated articles, documentation, and knowledge pages on NiranX. AI-powered summaries, deep dives, and rich content." />
-        <link rel="canonical" href="/discover" />
-        <script type="application/ld+json">{JSON.stringify({
+      <PageMeta
+        title="Discover NiranX Pages — Knowledge Hub & Articles"
+        description="Explore curated articles, documentation, and knowledge pages on NiranX. AI-powered summaries, deep dives, and rich content."
+        canonical="/discover"
+        jsonLd={{
           "@context": "https://schema.org",
           "@type": "CollectionPage",
           name: "Discover NiranX Pages",
           description: "Knowledge hub of articles, docs, and guides.",
-        })}</script>
-      </Helmet>
+        }}
+      />
 
       <div className="flex h-[calc(100vh-4rem)]">
         <DiscoverSidebar tree={tree} search={search} onSearchChange={setSearch} />
