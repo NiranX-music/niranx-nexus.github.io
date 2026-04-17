@@ -111,6 +111,10 @@ serve(async (req) => {
           throw new Error("Missing file name or data");
         }
 
+        // Force user-scoped storage prefix to prevent path collisions / cross-user access
+        const safeName = fileName.replace(/^\/+/, "");
+        const scopedFileName = `${user.id}/${safeName}`;
+
         // Get upload URL
         const uploadUrlResponse = await fetch(`${authData.apiUrl}/b2api/v2/b2_get_upload_url`, {
           method: "POST",
@@ -133,12 +137,12 @@ serve(async (req) => {
         const hashArray = Array.from(new Uint8Array(sha1Hash));
         const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
 
-        // Upload file
+        // Upload file under user-scoped path
         const uploadResponse = await fetch(uploadUrlData.uploadUrl, {
           method: "POST",
           headers: {
             Authorization: uploadUrlData.authorizationToken,
-            "X-Bz-File-Name": encodeURIComponent(fileName),
+            "X-Bz-File-Name": encodeURIComponent(scopedFileName),
             "Content-Type": "b2/x-auto",
             "X-Bz-Content-Sha1": hashHex,
           },
@@ -151,10 +155,10 @@ serve(async (req) => {
 
         const uploadResult = await uploadResponse.json();
 
-        // Save metadata to Supabase
+        // Save metadata to Supabase (store the original display name; ownership is via user_id)
         const { error: dbError } = await supabase.from("backblaze_files").insert({
           user_id: user.id,
-          file_name: fileName,
+          file_name: safeName,
           file_id: uploadResult.fileId,
           file_size: binaryData.length,
           content_type: uploadResult.contentType,
@@ -172,6 +176,15 @@ serve(async (req) => {
       case "download": {
         if (!fileId) {
           throw new Error("Missing file ID");
+        }
+
+        // Verify the requesting user owns this file
+        const ownership = await userOwnsFile(fileId);
+        if (!ownership.owns) {
+          return new Response(JSON.stringify({ error: "Forbidden" }), {
+            status: 403,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
         }
 
         const downloadResponse = await fetch(
