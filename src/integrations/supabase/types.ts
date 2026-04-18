@@ -4281,6 +4281,57 @@ export type Database = {
         }
         Relationships: []
       }
+      landing_highlights: {
+        Row: {
+          badge: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          gradient_from: string | null
+          gradient_to: string | null
+          icon: string | null
+          id: string
+          is_active: boolean
+          is_external: boolean
+          order_index: number
+          title: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          badge?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          gradient_from?: string | null
+          gradient_to?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          is_external?: boolean
+          order_index?: number
+          title: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          badge?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          gradient_from?: string | null
+          gradient_to?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          is_external?: boolean
+          order_index?: number
+          title?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       landing_page_templates: {
         Row: {
           created_at: string
@@ -8260,8 +8311,45 @@ export type Database = {
         }
         Relationships: []
       }
+      sidebar_categories: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_enabled: boolean
+          name: string
+          order_index: number
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_enabled?: boolean
+          name: string
+          order_index?: number
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_enabled?: boolean
+          name?: string
+          order_index?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       sidebar_groups: {
         Row: {
+          category_id: string | null
           created_at: string
           icon: string | null
           id: string
@@ -8272,6 +8360,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          category_id?: string | null
           created_at?: string
           icon?: string | null
           id?: string
@@ -8282,6 +8371,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          category_id?: string | null
           created_at?: string
           icon?: string | null
           id?: string
@@ -8291,7 +8381,15 @@ export type Database = {
           order_index?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "sidebar_groups_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "sidebar_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sidebar_pages: {
         Row: {
