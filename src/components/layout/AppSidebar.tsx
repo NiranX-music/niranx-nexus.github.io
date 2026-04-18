@@ -516,6 +516,7 @@ const adminNavigation = [
   { title: "Discover Pages", url: "/admin/discover", icon: FileText },
   { title: "Landing Templates", url: "/admin/landing-templates", icon: LayoutGrid },
   { title: "Landing Highlights", url: "/admin/landing-highlights", icon: Sparkles },
+  { title: "Landing Sections", url: "/admin/landing-sections", icon: Layers },
   { title: "Sidebar Editor", url: "/admin/sidebar-editor", icon: Menu },
   { title: "User Controls", url: "/admin/user-controls", icon: Settings },
   { title: "Space Limits", url: "/admin/space-limits", icon: Layers },

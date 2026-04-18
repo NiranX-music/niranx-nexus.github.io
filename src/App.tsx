@@ -232,6 +232,7 @@ const AdminArtistAccounts = lazy(() => import("./pages/admin/AdminArtistAccounts
 const AdminLayoutEditor = lazy(() => import("./pages/admin/AdminLayoutEditor"));
 const SidebarEditor = lazy(() => import("./pages/admin/SidebarEditor"));
 const LandingHighlightsManager = lazy(() => import("./pages/admin/LandingHighlightsManager"));
+const LandingSectionsManager = lazy(() => import("./pages/admin/LandingSectionsManager"));
 const DiscoverFeed = lazy(() => import("./pages/discover/DiscoverFeed"));
 const DiscoverPageView = lazy(() => import("./pages/discover/DiscoverPageView"));
 const DiscoverAdmin = lazy(() => import("./pages/discover/admin/DiscoverAdmin"));
@@ -1101,6 +1102,11 @@ const App = () => (
                           <Route path="/admin/landing-highlights" element={
                             <AdminRoute>
                               <LandingHighlightsManager />
+                            </AdminRoute>
+                          } />
+                          <Route path="/admin/landing-sections" element={
+                            <AdminRoute>
+                              <LandingSectionsManager />
                             </AdminRoute>
                           } />
                           <Route path="/admin/landing-templates" element={

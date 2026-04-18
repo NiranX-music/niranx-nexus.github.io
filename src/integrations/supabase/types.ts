@@ -4377,6 +4377,42 @@ export type Database = {
         }
         Relationships: []
       }
+      landing_sections: {
+        Row: {
+          created_at: string | null
+          custom_props: Json | null
+          description: string | null
+          display_name: string
+          id: string
+          is_enabled: boolean | null
+          order_index: number | null
+          section_key: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          custom_props?: Json | null
+          description?: string | null
+          display_name: string
+          id?: string
+          is_enabled?: boolean | null
+          order_index?: number | null
+          section_key: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          custom_props?: Json | null
+          description?: string | null
+          display_name?: string
+          id?: string
+          is_enabled?: boolean | null
+          order_index?: number | null
+          section_key?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       leaderboard_entries: {
         Row: {
           category: string | null
