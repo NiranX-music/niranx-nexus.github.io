@@ -50,8 +50,8 @@ export default function DiscoverPageView() {
         }
       });
 
-    supabase.from("discover_pages").select("id,parent_id,title,slug,order_index").eq("is_published", true)
-      .then(({ data: list }) => !cancelled && setAllPages((list as DiscoverPage[]) || []));
+    supabase.from("discover_pages").select("id,parent_id,title,slug").eq("is_published", true)
+      .then(({ data: list }) => !cancelled && setAllPages((list as unknown as DiscoverPage[]) || []));
 
     return () => { cancelled = true; };
   }, [slug, user]);
