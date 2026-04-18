@@ -451,6 +451,7 @@ const navigationConfig = {
     icon: Globe,
     color: "from-accent/80 to-primary/80",
     items: [
+      { title: "Discover NiranX", url: "/discover", icon: Compass },
       { title: "XAPI Explorer", url: "/xapi-explorer", icon: Globe },
       { title: "XAPI: Space & Science", url: "/xapi-space-science", icon: Rocket },
       { title: "XAPI: Animals", url: "/xapi-animals", icon: Globe },
@@ -512,6 +513,10 @@ const navigationConfig = {
 const adminNavigation = [
   { title: "Admin Dashboard", url: "/admin", icon: UserCog },
   { title: "Xstellar", url: "/stellar", icon: Globe },
+  { title: "Discover Pages", url: "/admin/discover", icon: FileText },
+  { title: "Landing Templates", url: "/admin/landing-templates", icon: LayoutGrid },
+  { title: "Landing Highlights", url: "/admin/landing-highlights", icon: Sparkles },
+  { title: "Sidebar Editor", url: "/admin/sidebar-editor", icon: Menu },
   { title: "User Controls", url: "/admin/user-controls", icon: Settings },
   { title: "Space Limits", url: "/admin/space-limits", icon: Layers },
   { title: "Artist Accounts", url: "/admin/artist-accounts", icon: Music },
