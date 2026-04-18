@@ -230,6 +230,13 @@ const LocalServerSaves = lazy(() => import("./pages/LocalServerSaves"));
 const RecycleBin = lazy(() => import("./pages/RecycleBin"));
 const AdminArtistAccounts = lazy(() => import("./pages/admin/AdminArtistAccounts"));
 const AdminLayoutEditor = lazy(() => import("./pages/admin/AdminLayoutEditor"));
+const SidebarEditor = lazy(() => import("./pages/admin/SidebarEditor"));
+const LandingHighlightsManager = lazy(() => import("./pages/admin/LandingHighlightsManager"));
+const DiscoverFeed = lazy(() => import("./pages/discover/DiscoverFeed"));
+const DiscoverPageView = lazy(() => import("./pages/discover/DiscoverPageView"));
+const DiscoverAdmin = lazy(() => import("./pages/discover/admin/DiscoverAdmin"));
+const DiscoverEditor = lazy(() => import("./pages/discover/admin/DiscoverEditor"));
+const LandingTemplatesAdmin = lazy(() => import("./pages/discover/admin/LandingTemplates"));
 const FerqX = lazy(() => import("./pages/FerqX"));
 const Integrations = lazy(() => import("./pages/Integrations"));
 const BytezAI = lazy(() => import("./pages/BytezAI"));
@@ -1086,6 +1093,38 @@ const App = () => (
                               <AdminLayoutEditor />
                             </AdminRoute>
                           } />
+                          <Route path="/admin/sidebar-editor" element={
+                            <AdminRoute>
+                              <SidebarEditor />
+                            </AdminRoute>
+                          } />
+                          <Route path="/admin/landing-highlights" element={
+                            <AdminRoute>
+                              <LandingHighlightsManager />
+                            </AdminRoute>
+                          } />
+                          <Route path="/admin/landing-templates" element={
+                            <AdminRoute>
+                              <LandingTemplatesAdmin />
+                            </AdminRoute>
+                          } />
+                          <Route path="/admin/discover" element={
+                            <AdminRoute>
+                              <DiscoverAdmin />
+                            </AdminRoute>
+                          } />
+                          <Route path="/admin/discover/new" element={
+                            <AdminRoute>
+                              <DiscoverEditor />
+                            </AdminRoute>
+                          } />
+                          <Route path="/admin/discover/edit/:id" element={
+                            <AdminRoute>
+                              <DiscoverEditor />
+                            </AdminRoute>
+                          } />
+                          <Route path="/discover" element={<DiscoverFeed />} />
+                          <Route path="/discover/:slug" element={<DiscoverPageView />} />
                           <Route path="/stellar" element={
                             <AdminRoute>
                               <XstellarDashboard />
