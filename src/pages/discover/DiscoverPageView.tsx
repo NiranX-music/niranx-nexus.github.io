@@ -27,29 +27,33 @@ export default function DiscoverPageView() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    (async () => {
-      setLoading(true);
-      const [{ data: pageData }, { data: list }] = await Promise.all([
-        supabase.from("discover_pages").select("*").eq("slug", slug).maybeSingle(),
-        supabase.from("discover_pages").select("*").eq("is_published", true),
-      ]);
-      setPage(pageData as DiscoverPage | null);
-      setAllPages((list as DiscoverPage[]) || []);
-      setLoading(false);
+    let cancelled = false;
+    setLoading(true);
 
-      if (pageData) {
-        await supabase.rpc("increment_discover_page_views", { _page_id: pageData.id });
-        if (user) {
-          const { data: likeRow } = await supabase
-            .from("discover_page_likes")
-            .select("id")
-            .eq("page_id", pageData.id)
-            .eq("user_id", user.id)
-            .maybeSingle();
-          setLiked(!!likeRow);
+    // Load page (priority) and full list (background) in parallel but render as soon as either is ready
+    supabase.from("discover_pages").select("*").eq("slug", slug).maybeSingle()
+      .then(({ data: pageData }) => {
+        if (cancelled) return;
+        setPage(pageData as DiscoverPage | null);
+        setLoading(false);
+        if (pageData) {
+          supabase.rpc("increment_discover_page_views", { _page_id: pageData.id });
+          if (user) {
+            supabase
+              .from("discover_page_likes")
+              .select("id")
+              .eq("page_id", pageData.id)
+              .eq("user_id", user.id)
+              .maybeSingle()
+              .then(({ data: likeRow }) => !cancelled && setLiked(!!likeRow));
+          }
         }
-      }
-    })();
+      });
+
+    supabase.from("discover_pages").select("id,parent_id,title,slug,order_index").eq("is_published", true)
+      .then(({ data: list }) => !cancelled && setAllPages((list as DiscoverPage[]) || []));
+
+    return () => { cancelled = true; };
   }, [slug, user]);
 
   const tree = useMemo(() => buildPageTree(allPages), [allPages]);
@@ -78,7 +82,7 @@ export default function DiscoverPageView() {
   if (loading) {
     return (
       <div className="flex h-[calc(100vh-4rem)]">
-        <div className="w-72 border-r border-border" />
+        <DiscoverSidebar tree={tree} search={search} onSearchChange={setSearch} currentSlug={slug} />
         <div className="flex-1 p-10 space-y-4 max-w-4xl">
           <div className="h-10 bg-muted/30 rounded-xl animate-pulse w-3/4" />
           <div className="h-4 bg-muted/30 rounded animate-pulse w-1/2" />
