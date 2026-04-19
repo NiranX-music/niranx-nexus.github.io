@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { User, Save, ArrowLeft, Mail, Lock } from "lucide-react";
 import { toast } from "sonner";
+import { hashPassword } from "@/lib/passwordHashing";
 
 interface ArtistForm {
   name: string;
@@ -71,6 +72,9 @@ export default function CreateArtist() {
         return;
       }
 
+      // Hash password securely server-side before storing
+      const hashedPassword = await hashPassword(form.password);
+
       const { data, error } = await supabase
         .from("artists")
         .insert({
@@ -80,7 +84,7 @@ export default function CreateArtist() {
           custom_url: form.custom_url || null,
           created_by: session.user.id,
           email: generatedEmail,
-          password_hash: form.password, // In production, use proper hashing
+          password_hash: hashedPassword,
           studio_enabled: true,
         })
         .select()
