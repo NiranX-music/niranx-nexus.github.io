@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Helmet } from "react-helmet-async";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -97,6 +96,11 @@ export default function NiranxCoreAI() {
   const [testing, setTesting] = useState(false);
 
   useEffect(() => {
+    document.title = "NiranX Core AI — Developer API Platform";
+    const meta = document.querySelector('meta[name="description"]') || (() => {
+      const m = document.createElement("meta"); m.setAttribute("name", "description"); document.head.appendChild(m); return m;
+    })();
+    meta.setAttribute("content", "NiranX Core AI: API keys + frontier AI models (chat/image) at /ai/u, powered by Scitely.");
     if (user) load();
   }, [user]);
 
@@ -223,12 +227,6 @@ export default function NiranxCoreAI() {
 
   return (
     <>
-      <Helmet>
-        <title>NiranX Core AI — Developer API Platform</title>
-        <meta name="description" content="NiranX Core AI: Issue API keys and access frontier AI models (chat & image) via the {app}/ai/u endpoint, powered by Scitely." />
-        <link rel="canonical" href={`${APP_ORIGIN}/ai/u/portal`} />
-      </Helmet>
-
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-4 md:p-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
