@@ -1109,6 +1109,7 @@ export function AppSidebar() {
             {!customGroupsLoading && customGroups.length > 0 && (
               <CustomSidebarGroups
                 groups={customGroups}
+                categories={sidebarCategories}
                 getGroupPages={getGroupPages}
                 isCollapsed={isCollapsed}
                 expandedSections={expandedSections}
