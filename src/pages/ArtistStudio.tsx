@@ -20,7 +20,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { toast } from "sonner";
-import { verifyPassword } from "@/lib/passwordHashing";
+// password verification handled by edge function 'verify-artist-password'
 
 interface Artist {
   id: string;
