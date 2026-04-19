@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
+export interface SidebarCategory {
+  id: string;
+  name: string;
+  icon: string | null;
+  order_index: number;
+}
+
 export interface CustomSidebarGroup {
   id: string;
   name: string;
@@ -8,6 +15,7 @@ export interface CustomSidebarGroup {
   order_index: number;
   is_enabled: boolean;
   is_default: boolean;
+  category_id?: string | null;
 }
 
 export interface CustomSidebarPage {
