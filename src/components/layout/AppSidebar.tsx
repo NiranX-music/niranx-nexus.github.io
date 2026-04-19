@@ -139,6 +139,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useCustomSidebarGroups } from "@/hooks/useCustomSidebarGroups";
+import { useSidebarOverrides } from "@/hooks/useSidebarOverrides";
 import { CustomSidebarGroups } from "@/components/sidebar/CustomSidebarGroups";
 import { SidebarShortcutEditor } from "@/components/sidebar/SidebarShortcutEditor";
 
@@ -596,7 +597,19 @@ export function AppSidebar() {
   const { classrooms } = useClassroom();
   const { xp, level } = useXP();
   const { groups: customGroups, getGroupPages, loading: customGroupsLoading, reload: reloadCustomGroups } = useCustomSidebarGroups();
-  
+  const { hiddenUrls, hiddenGroupNames } = useSidebarOverrides();
+
+  // Apply admin overrides: hide groups + items disabled in the database
+  const effectiveNavConfig = useMemo(() => {
+    const out: typeof navigationConfig = {} as any;
+    Object.entries(navigationConfig).forEach(([key, cfg]: any) => {
+      if (hiddenGroupNames.has(cfg.title)) return;
+      const items = cfg.items.filter((it: any) => !hiddenUrls.has(it.url));
+      if (items.length > 0) out[key as keyof typeof navigationConfig] = { ...cfg, items };
+    });
+    return out;
+  }, [hiddenUrls, hiddenGroupNames]);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     favorites: true,
@@ -607,13 +620,13 @@ export function AppSidebar() {
   // Combine all navigation items for search
   const allNavItems = useMemo(() => {
     const items: any[] = [];
-    Object.values(navigationConfig).forEach(section => {
+    Object.values(effectiveNavConfig).forEach((section: any) => {
       items.push(...section.items);
     });
     if (isAdmin) items.push(...adminNavigation);
     if (isTeacher || isAdmin) items.push(...teacherNavigation);
     return items;
-  }, [isAdmin, isTeacher]);
+  }, [isAdmin, isTeacher, effectiveNavConfig]);
 
   // Filter navigation items based on search query
   const filteredNavItems = useMemo(() => {
@@ -1081,7 +1094,7 @@ export function AppSidebar() {
             animate="visible"
             className="space-y-1 py-2"
           >
-            {Object.entries(navigationConfig).map(([key, config], index, arr) => (
+            {Object.entries(effectiveNavConfig).map(([key, config], index, arr) => (
               <div key={key}>
                 {renderNavGroup(key, config)}
                 {index < arr.length - 1 && (
