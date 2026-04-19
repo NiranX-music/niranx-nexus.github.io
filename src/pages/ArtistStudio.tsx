@@ -20,7 +20,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { toast } from "sonner";
-import { verifyPassword } from "@/lib/passwordHashing";
+// password verification handled by edge function 'verify-artist-password'
 
 interface Artist {
   id: string;
@@ -104,26 +104,23 @@ export default function ArtistStudio() {
     
     if (!artist) return;
 
-    // Get password hash from database
-    const { data, error } = await supabase
-      .from("artists")
-      .select("password_hash")
-      .eq("id", artistId)
-      .single();
+    // Verify password server-side - never expose password_hash to the client
+    const { data, error } = await supabase.functions.invoke(
+      "verify-artist-password",
+      { body: { artistId, password } },
+    );
 
-    if (error || !data?.password_hash) {
-      toast.error("Artist studio not set up. Please contact admin.");
+    if (error) {
+      toast.error("Unable to verify credentials. Please try again.");
       return;
     }
 
-    // Verify password using secure server-side verification
-    const isValid = await verifyPassword(password, data.password_hash);
-    if (isValid) {
+    if (data?.valid) {
       sessionStorage.setItem(`artist_studio_${artistId}`, "authenticated");
       setIsAuthenticated(true);
       toast.success(`Welcome to ${artist.name}'s Studio!`);
     } else {
-      toast.error("Invalid password");
+      toast.error(data?.error || "Invalid password");
     }
   };
 
