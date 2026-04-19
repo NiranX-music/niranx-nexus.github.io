@@ -16,7 +16,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { CustomSidebarGroup, CustomSidebarPage } from "@/hooks/useCustomSidebarGroups";
+import { CustomSidebarGroup, CustomSidebarPage, SidebarCategory } from "@/hooks/useCustomSidebarGroups";
 import { SidebarGroupEditor } from "./SidebarGroupEditor";
 
 interface CustomSidebarGroupsProps {
@@ -27,6 +27,7 @@ interface CustomSidebarGroupsProps {
   toggleSection: (section: string) => void;
   currentPath: string;
   onReload?: () => void;
+  categories?: SidebarCategory[];
 }
 
 const groupVariants = {
