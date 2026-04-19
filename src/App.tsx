@@ -400,6 +400,7 @@ const PrivacyPolicy = lazy(() => import("./pages/support/PrivacyPolicy"));
 const TermsConditions = lazy(() => import("./pages/support/TermsConditions"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const DeveloperPortal = lazy(() => import("./pages/DeveloperPortal"));
+const NiranxCoreAI = lazy(() => import("./pages/NiranxCoreAI"));
 const FeatureRequests = lazy(() => import("./pages/FeatureRequests"));
 const AIVideoSummarizer = lazy(() => import("./pages/AIVideoSummarizer"));
 const StudyLeaderboards = lazy(() => import("./pages/StudyLeaderboards"));
@@ -1200,6 +1201,8 @@ const App = () => (
                     <Route path="/support/terms" element={<TermsConditions />} />
                     <Route path="/pricing" element={<Pricing />} />
                     <Route path="/developer" element={<ProtectedRoute><DeveloperPortal /></ProtectedRoute>} />
+                    <Route path="/ai/u/portal" element={<ProtectedRoute><NiranxCoreAI /></ProtectedRoute>} />
+                    <Route path="/ai/u" element={<ProtectedRoute><NiranxCoreAI /></ProtectedRoute>} />
                     
                     <Route path="/shared/resource/:token" element={<SharedResource />} />
                     <Route path="/w/:slug" element={<PublishedWebsite />} />
