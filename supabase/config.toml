@@ -174,3 +174,10 @@ verify_jwt = true
 
 [functions.huggingface-api]
 verify_jwt = true
+
+[functions.niranx-core-ai]
+verify_jwt = false
+
+[functions.niranx-core-ai-keys]
+verify_jwt = true
+
