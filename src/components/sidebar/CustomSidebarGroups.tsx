@@ -319,12 +319,78 @@ export function CustomSidebarGroups({
 
   if (groups.length === 0) return null;
 
+  // If categories are provided, group everything by category (6-master-group view)
+  const renderCategoryBucket = (cat: SidebarCategory) => {
+    const CatIcon = getIcon(cat.icon);
+    const sectionKey = `category_${cat.id}`;
+    const isExpanded = expandedSections[sectionKey] ?? true;
+    const catGroups = groups.filter((g) => g.category_id === cat.id);
+    const visibleGroups = catGroups.filter((g) => getGroupPages(g.id).length > 0);
+    if (visibleGroups.length === 0) return null;
+
+    return (
+      <SidebarGroup key={cat.id} className="py-0.5">
+        <Collapsible open={isExpanded} onOpenChange={() => toggleSection(sectionKey)}>
+          <CollapsibleTrigger className="w-full">
+            <SidebarGroupLabel
+              className={cn(
+                "flex items-center justify-between cursor-pointer rounded-xl px-3 py-2.5 mx-1 transition-all",
+                "hover:bg-muted/60",
+                isExpanded && "bg-muted/40"
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-sm">
+                  <CatIcon className="h-4 w-4" />
+                </div>
+                {!isCollapsed && (
+                  <span className="font-bold text-sm uppercase tracking-wider text-foreground">
+                    {cat.name}
+                  </span>
+                )}
+              </div>
+              {!isCollapsed && (
+                <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                </motion.div>
+              )}
+            </SidebarGroupLabel>
+          </CollapsibleTrigger>
+          <AnimatePresence initial={false}>
+            {isExpanded && (
+              <CollapsibleContent forceMount>
+                <motion.div
+                  variants={groupVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  className="overflow-hidden pl-2"
+                >
+                  {visibleGroups.map((g) => renderCustomGroup(g))}
+                </motion.div>
+              </CollapsibleContent>
+            )}
+          </AnimatePresence>
+        </Collapsible>
+      </SidebarGroup>
+    );
+  };
+
+  const uncategorized = groups.filter((g) => !g.category_id);
+
   return (
     <>
       <div className="space-y-0.5">
-        {groups.map((group) => renderCustomGroup(group))}
+        {categories.length > 0 ? (
+          <>
+            {categories.map((cat) => renderCategoryBucket(cat))}
+            {uncategorized.map((group) => renderCustomGroup(group))}
+          </>
+        ) : (
+          groups.map((group) => renderCustomGroup(group))
+        )}
       </div>
-      
+
       {/* Group Editor Dialog */}
       <SidebarGroupEditor
         groupId={editingGroupId || ''}
