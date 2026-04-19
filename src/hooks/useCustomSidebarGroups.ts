@@ -30,13 +30,15 @@ export interface CustomSidebarPage {
 }
 
 export function useCustomSidebarGroups() {
+  const [categories, setCategories] = useState<SidebarCategory[]>([]);
   const [groups, setGroups] = useState<CustomSidebarGroup[]>([]);
   const [pages, setPages] = useState<CustomSidebarPage[]>([]);
   const [loading, setLoading] = useState(true);
 
   const loadData = async () => {
     try {
-      const [groupsRes, pagesRes] = await Promise.all([
+      const [catsRes, groupsRes, pagesRes] = await Promise.all([
+        supabase.from('sidebar_categories').select('*').order('order_index'),
         supabase.from('sidebar_groups').select('*').eq('is_enabled', true).order('order_index'),
         supabase.from('sidebar_pages').select('*').eq('is_enabled', true).order('order_index')
       ]);
@@ -51,6 +53,7 @@ export function useCustomSidebarGroups() {
         return new Date(page.disabled_until) <= now;
       });
 
+      setCategories((catsRes.data as SidebarCategory[]) || []);
       setGroups(groupsRes.data || []);
       setPages(activePagesData);
     } catch (error) {
@@ -72,12 +75,23 @@ export function useCustomSidebarGroups() {
     return pages.filter(p => p.group_id === null).sort((a, b) => a.order_index - b.order_index);
   };
 
+  const getCategoryGroups = (categoryId: string) => {
+    return groups.filter(g => g.category_id === categoryId).sort((a, b) => a.order_index - b.order_index);
+  };
+
+  const getUncategorizedGroups = () => {
+    return groups.filter(g => !g.category_id).sort((a, b) => a.order_index - b.order_index);
+  };
+
   return {
+    categories,
     groups,
     pages,
     loading,
     getGroupPages,
     getRootPages,
+    getCategoryGroups,
+    getUncategorizedGroups,
     reload: loadData
   };
 }
