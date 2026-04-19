@@ -80,6 +80,7 @@ export function CustomSidebarGroups({
   toggleSection,
   currentPath,
   onReload,
+  categories = [],
 }: CustomSidebarGroupsProps) {
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
   const [editingGroupName, setEditingGroupName] = useState<string>('');
