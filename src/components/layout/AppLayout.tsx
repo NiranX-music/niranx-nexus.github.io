@@ -44,6 +44,7 @@ import { cleanupInvalidFavoriteIcons } from "@/utils/cleanupFavorites";
 import { FirstTimeGuide } from "@/components/FirstTimeGuide";
 import { MiniPlayer } from "./MiniPlayer";
 import { SpaceSwitcher } from "@/components/SpaceSwitcher";
+import { HeaderNavButtons } from "./HeaderNavButtons";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -152,6 +153,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border/30 backdrop-blur-2xl bg-background/60 px-4 transition-all duration-300 animate-fade-in sticky top-0 z-30">
             <SidebarTrigger className="-ml-1 hover:scale-110 transition-transform duration-200" />
             <Separator orientation="vertical" className="mr-2 h-4" />
+            <HeaderNavButtons />
             <Breadcrumb>
               <BreadcrumbList>
                 {breadcrumbs.map((breadcrumb, index) => (
