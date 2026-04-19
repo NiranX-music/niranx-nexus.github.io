@@ -596,7 +596,7 @@ export function AppSidebar() {
   const { quickLinks, addQuickLink, removeQuickLink } = useQuickLinks();
   const { classrooms } = useClassroom();
   const { xp, level } = useXP();
-  const { groups: customGroups, getGroupPages, loading: customGroupsLoading, reload: reloadCustomGroups } = useCustomSidebarGroups();
+  const { categories: sidebarCategories, groups: customGroups, getGroupPages, loading: customGroupsLoading, reload: reloadCustomGroups } = useCustomSidebarGroups();
   const { hiddenUrls, hiddenGroupNames } = useSidebarOverrides();
 
   // Apply admin overrides: hide groups + items disabled in the database
@@ -1109,6 +1109,7 @@ export function AppSidebar() {
             {!customGroupsLoading && customGroups.length > 0 && (
               <CustomSidebarGroups
                 groups={customGroups}
+                categories={sidebarCategories}
                 getGroupPages={getGroupPages}
                 isCollapsed={isCollapsed}
                 expandedSections={expandedSections}
