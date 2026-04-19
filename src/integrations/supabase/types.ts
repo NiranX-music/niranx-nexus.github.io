@@ -6065,6 +6065,116 @@ export type Database = {
         }
         Relationships: []
       }
+      niranx_core_ai_keys: {
+        Row: {
+          api_key: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          key_name: string
+          key_prefix: string
+          last_used_at: string | null
+          monthly_quota: number
+          rate_limit_per_minute: number
+          total_requests: number
+          total_tokens: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          api_key: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          key_name?: string
+          key_prefix: string
+          last_used_at?: string | null
+          monthly_quota?: number
+          rate_limit_per_minute?: number
+          total_requests?: number
+          total_tokens?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          api_key?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          key_name?: string
+          key_prefix?: string
+          last_used_at?: string | null
+          monthly_quota?: number
+          rate_limit_per_minute?: number
+          total_requests?: number
+          total_tokens?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      niranx_core_ai_logs: {
+        Row: {
+          api_key_id: string
+          completion_tokens: number | null
+          created_at: string
+          endpoint: string
+          error_message: string | null
+          id: string
+          ip_address: string | null
+          model: string | null
+          prompt_tokens: number | null
+          request_type: string
+          response_time_ms: number | null
+          status_code: number
+          total_tokens: number | null
+          user_id: string
+        }
+        Insert: {
+          api_key_id: string
+          completion_tokens?: number | null
+          created_at?: string
+          endpoint: string
+          error_message?: string | null
+          id?: string
+          ip_address?: string | null
+          model?: string | null
+          prompt_tokens?: number | null
+          request_type?: string
+          response_time_ms?: number | null
+          status_code: number
+          total_tokens?: number | null
+          user_id: string
+        }
+        Update: {
+          api_key_id?: string
+          completion_tokens?: number | null
+          created_at?: string
+          endpoint?: string
+          error_message?: string | null
+          id?: string
+          ip_address?: string | null
+          model?: string | null
+          prompt_tokens?: number | null
+          request_type?: string
+          response_time_ms?: number | null
+          status_code?: number
+          total_tokens?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "niranx_core_ai_logs_api_key_id_fkey"
+            columns: ["api_key_id"]
+            isOneToOne: false
+            referencedRelation: "niranx_core_ai_keys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       niranx_developers: {
         Row: {
           avatar_url: string | null
@@ -14977,6 +15087,16 @@ export type Database = {
           key_id: string
           key_user_id: string
           permissions: string[]
+          rate_limit: number
+        }[]
+      }
+      validate_niranx_core_ai_key: {
+        Args: { p_api_key: string }
+        Returns: {
+          current_month_requests: number
+          key_id: string
+          key_user_id: string
+          monthly_quota: number
           rate_limit: number
         }[]
       }
