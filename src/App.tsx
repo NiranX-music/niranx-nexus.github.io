@@ -249,6 +249,7 @@ const UserAppLibrary = lazy(() => import("./pages/UserAppLibrary"));
 const SubmitApp = lazy(() => import("./pages/SubmitApp"));
 const WelcomeSetup = lazy(() => import("./pages/WelcomeSetup"));
 const Trial = lazy(() => import("./pages/Trial"));
+const SignInRequired = lazy(() => import("./pages/SignInRequired"));
 const XOffice = lazy(() => import("./pages/XOffice"));
 const XDocs = lazy(() => import("./pages/XDocs"));
 const XSheets = lazy(() => import("./pages/XSheets"));
