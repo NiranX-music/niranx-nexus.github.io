@@ -10,8 +10,8 @@ interface ProtectedRouteProps {
   children: ReactNode;
 }
 
-// Routes accessible in guest mode
-const GUEST_ALLOWED_ROUTES = ['/niranx/focus'];
+// Only the Focus Session is publicly accessible without auth
+const PUBLIC_ROUTES = ['/focus-engine', '/niranx/focus'];
 
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading } = useAuth();
@@ -58,20 +58,17 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     return <>{children}</>;
   }
 
-  // If in guest mode and route is allowed, allow access
-  if (isGuestMode && GUEST_ALLOWED_ROUTES.includes(location.pathname)) {
+  // Public routes (Focus Session) are accessible without auth
+  if (PUBLIC_ROUTES.includes(location.pathname)) {
     return <>{children}</>;
   }
 
-  // If not logged in, redirect to trial page
-  if (!user && !isGuestMode) {
-    return <Navigate to="/trial" replace />;
-  }
-
-  // If in guest mode but trying to access restricted route
-  if (isGuestMode && !GUEST_ALLOWED_ROUTES.includes(location.pathname)) {
-    return <Navigate to="/trial" replace />;
-  }
-
-  return <Navigate to="/trial" replace />;
+  // Everything else requires sign-in
+  return (
+    <Navigate
+      to="/sign-in-required"
+      replace
+      state={{ from: location.pathname }}
+    />
+  );
 };
