@@ -40,16 +40,28 @@ const Landing = () => {
       .map((s) => ({ key: s.section_key, Comp: sectionRegistry[s.section_key] }));
   }, [sections, loading]);
 
+  // Keep the hero full-width at the top, split the rest into 2 columns.
+  const heroEntry = rendered.find((r) => r.key === 'hero3d');
+  const rest = rendered.filter((r) => r.key !== 'hero3d');
+  const leftItems = rest.filter((_, i) => i % 2 === 0);
+  const rightItems = rest.filter((_, i) => i % 2 === 1);
+
+  const renderItem = ({ key, Comp }: { key: string; Comp: React.LazyExoticComponent<React.ComponentType> }) => (
+    <Suspense key={key} fallback={<div className="h-32" />}>
+      <Comp />
+    </Suspense>
+  );
+
   return (
-    <div className="bg-background relative">
+    <div className="bg-background relative overflow-x-hidden">
       <LiquidBackground />
       <NiranXNavigation />
       <main className="relative z-10">
-        {rendered.map(({ key, Comp }) => (
-          <Suspense key={key} fallback={<div className="h-32" />}>
-            <Comp />
-          </Suspense>
-        ))}
+        {heroEntry && renderItem(heroEntry)}
+        <SplitScrollStage
+          leftChildren={leftItems.map(renderItem)}
+          rightChildren={rightItems.map(renderItem)}
+        />
       </main>
       <Footer3D />
       <NewsletterPopup />
