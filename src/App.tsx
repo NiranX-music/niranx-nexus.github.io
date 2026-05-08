@@ -607,6 +607,7 @@ const App = () => (
                         <Route path="/auth" element={<Auth />} />
                         <Route path="/welcome-setup" element={<WelcomeSetup />} />
                         <Route path="/trial" element={<Trial />} />
+                        <Route path="/sign-in-required" element={<SignInRequired />} />
                         <Route path="/user/:username" element={<PublicProfile />} />
                         <Route path="/reset-password" element={<ResetPassword />} />
                         <Route path="/magic-link" element={<MagicLink />} />
