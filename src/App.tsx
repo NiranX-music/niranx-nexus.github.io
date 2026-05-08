@@ -249,6 +249,7 @@ const UserAppLibrary = lazy(() => import("./pages/UserAppLibrary"));
 const SubmitApp = lazy(() => import("./pages/SubmitApp"));
 const WelcomeSetup = lazy(() => import("./pages/WelcomeSetup"));
 const Trial = lazy(() => import("./pages/Trial"));
+const SignInRequired = lazy(() => import("./pages/SignInRequired"));
 const XOffice = lazy(() => import("./pages/XOffice"));
 const XDocs = lazy(() => import("./pages/XDocs"));
 const XSheets = lazy(() => import("./pages/XSheets"));
@@ -607,6 +608,7 @@ const App = () => (
                         <Route path="/auth" element={<Auth />} />
                         <Route path="/welcome-setup" element={<WelcomeSetup />} />
                         <Route path="/trial" element={<Trial />} />
+                        <Route path="/sign-in-required" element={<SignInRequired />} />
                         <Route path="/user/:username" element={<PublicProfile />} />
                         <Route path="/reset-password" element={<ResetPassword />} />
                         <Route path="/magic-link" element={<MagicLink />} />
