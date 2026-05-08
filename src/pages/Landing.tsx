@@ -4,6 +4,7 @@ import { Footer3D } from '@/components/landing/Footer3D';
 import { NewsletterPopup } from '@/components/niranx/NewsletterPopup';
 import { LiquidBackground } from '@/components/LiquidBackground';
 import { useLandingSections } from '@/hooks/useLandingSections';
+import { SplitScrollStage } from '@/components/landing/SplitScrollStage';
 
 // Lazy-load every landing section so they only render when enabled and ordered
 const sectionRegistry: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
