@@ -1,0 +1,37 @@
+# NiranX Universe
+
+> Free all-in-one AI-powered study platform with smart timetable, flashcards, AI tutor, quiz generator, document scanner, live classroom, music streaming, and 100+ productivity tools for students.
+
+NiranX Universe combines artificial intelligence, study planning, collaboration, and creative tools in a single web app. It serves students, teachers, and self-learners with adaptive scheduling, spaced repetition, real-time classrooms, and access to 500+ frontier AI models.
+
+## Pages
+
+- [Home](/): Landing page and product overview.
+- [About](/about): Mission and team behind NiranX Universe.
+- [Developers](/about-developers): Information for developers and the API platform.
+- [Pricing](/pricing): Plans and pricing details.
+- [Documentation](/docs): Guides and reference for all features.
+- [What's New](/whats-new): Latest updates and changelog.
+- [Sitemap](/sitemap): Full list of public pages.
+
+## Features
+
+- [Nexus Hub](/nexus): Central hub for all NiranX tools and categories.
+- [AI Hub](/nexus/ai-hub): 500+ AI models for chat, reasoning, and creation.
+- [Learn Zone](/nexus/learn-zone): Study tools, courses, and learning resources.
+- [XVibe Music](/nexus/xvibe-music): Study-friendly music streaming.
+- [Smart Timetable](/smart-timetable): Adaptive weekly study scheduler.
+- [Flashcards](/flashcards): Spaced repetition decks with AI generation.
+- [AI Quiz Generator](/ai-quiz-generator): Instant quizzes from any source.
+- [Document Scanner](/document-scanner): OCR and AI summarization.
+- [Pomodoro Timer](/pomodoro): Focus sessions with analytics.
+- [Live Classroom](/live-classroom): Real-time video, screen share, breakout rooms.
+- [Cornell Notes](/cornell-notes): Structured note-taking workflow.
+- [Mind Maps](/mind-map-builder): Visual knowledge graphs.
+- [Focus Engine](/focus-engine): Public focus session tool.
+
+## Optional
+
+- [Auth](/auth): Sign in or create an account.
+- [Search](/seo-search): Universal search across the platform.
+- [Sitemap XML](/sitemap.xml): Machine-readable sitemap for crawlers.

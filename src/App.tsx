@@ -30,6 +30,7 @@ import { ModeratorRoute } from "./components/ModeratorRoute";
 import { TeacherRoute } from "./components/TeacherRoute";
 import NiranxRedirect from "./components/NiranxRedirect";
 import FloatingAIChat from "./components/FloatingAIChat";
+import { RouteMetaSync } from "./components/seo/RouteMetaSync";
 
 // Critical pages loaded eagerly (landing, auth, dashboard)
 import Landing from "./pages/Landing";
@@ -531,6 +532,7 @@ const App = () => (
                   <Toaster />
                   <Sonner />
                   <BrowserRouter>
+                    <RouteMetaSync />
                     <PageLoadProgress />
                     <OfflineBanner />
                     <BackToTop />
