@@ -15,4 +15,9 @@
   <url><loc>https://niranx-nexus.lovable.app/nexus/ai-hub</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://niranx-nexus.lovable.app/nexus/xvibe-music</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://niranx-nexus.lovable.app/nexus/learn-zone</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://niranx-nexus.lovable.app/nexus/projects</loc><priority>0.6</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://niranx-nexus.lovable.app/nexus/gaming</loc><priority>0.6</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://niranx-nexus.lovable.app/nexus/streaming</loc><priority>0.6</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://niranx-nexus.lovable.app/nexus/community</loc><priority>0.6</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://niranx-nexus.lovable.app/nexus/dev-tools</loc><priority>0.6</priority><changefreq>weekly</changefreq></url>
 </urlset>

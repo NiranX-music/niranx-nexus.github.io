@@ -105,7 +105,7 @@ export default function AboutDevelopers() {
                   </div>
 
                   <div className="text-center">
-                    <h3 className="text-lg font-bold text-foreground font-[Orbitron]">{dev.name}</h3>
+                    <h2 className="text-lg font-bold text-foreground font-[Orbitron]">{dev.name}</h2>
                     <p className="text-sm text-primary font-mono">{dev.role}</p>
                     <p className="text-sm text-muted-foreground mt-2 line-clamp-3">{dev.bio}</p>
                   </div>
@@ -113,22 +113,22 @@ export default function AboutDevelopers() {
                   {/* Social links */}
                   <div className="flex items-center justify-center gap-3 mt-4">
                     {dev.github_url && (
-                      <a href={dev.github_url} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors">
+                      <a href={dev.github_url} target="_blank" rel="noopener noreferrer" aria-label={`${dev.name} on GitHub`} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors">
                         <Github className="w-4 h-4" />
                       </a>
                     )}
                     {dev.linkedin_url && (
-                      <a href={dev.linkedin_url} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors">
+                      <a href={dev.linkedin_url} target="_blank" rel="noopener noreferrer" aria-label={`${dev.name} on LinkedIn`} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors">
                         <Linkedin className="w-4 h-4" />
                       </a>
                     )}
                     {dev.website_url && (
-                      <a href={dev.website_url} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors">
+                      <a href={dev.website_url} target="_blank" rel="noopener noreferrer" aria-label={`${dev.name}'s website`} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors">
                         <Globe className="w-4 h-4" />
                       </a>
                     )}
                     {dev.email && (
-                      <a href={`mailto:${dev.email}`} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors">
+                      <a href={`mailto:${dev.email}`} aria-label={`Email ${dev.name}`} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors">
                         <Mail className="w-4 h-4" />
                       </a>
                     )}

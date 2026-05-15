@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 /**
  * Syncs the browser tab title with the current page route.
  */
-export function usePageTitle(defaultTitle = "NiranX StudyVerse") {
+export function usePageTitle(defaultTitle = "NiranX Universe") {
   const location = useLocation();
 
   useEffect(() => {

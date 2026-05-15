@@ -66,6 +66,8 @@ export function AppLauncherMenu() {
         onClick={() => setIsOpen(!isOpen)}
         className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors"
         title="More from NiranX"
+        aria-label="Open app launcher"
+        aria-expanded={isOpen}
       >
         <LayoutGrid className="w-5 h-5" />
       </button>

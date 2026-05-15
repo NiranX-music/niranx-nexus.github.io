@@ -69,6 +69,7 @@ const Landing = () => {
     <div className="bg-background relative overflow-x-hidden">
       <LiquidBackground />
       <NiranXNavigation />
+      <h1 className="sr-only">NiranX Universe — The Future of AI, Music, and Learning</h1>
       <main className={`relative z-10 ${snapClasses}`}>
         {heroEntry && renderItem(heroEntry, settings.snap)}
 
