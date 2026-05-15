@@ -128,6 +128,8 @@ export function ControlCenterMenu({ onLock }: ControlCenterMenuProps) {
         onClick={() => setIsOpen(!isOpen)}
         className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors"
         title="Control Center"
+        aria-label="Open control center"
+        aria-expanded={isOpen}
       >
         <Settings2 className="w-5 h-5" />
       </button>

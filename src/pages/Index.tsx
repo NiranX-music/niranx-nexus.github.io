@@ -171,7 +171,7 @@ const Index = () => {
             <CircuitBoard className="w-10 h-10 md:w-12 md:h-12 text-primary animate-pulse-scale" />
             <div>
               <h1 className="text-3xl md:text-5xl lg:text-6xl font-display font-bold gradient-text tracking-wider">
-                NIRANX
+                NiranX Dashboard — Your AI Study Command Center
               </h1>
               <p className="text-xs md:text-sm font-mono text-muted-foreground tracking-[0.3em] mt-1.5">
                 NEXUS // QUANTUM_ENGINE

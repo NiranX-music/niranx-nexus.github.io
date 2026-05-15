@@ -208,7 +208,12 @@ export function NiranXNavigation() {
           </div>
 
           {/* Mobile Menu Toggle */}
-          <button className="md:hidden p-2 text-foreground" onClick={() => setIsOpen(!isOpen)}>
+          <button
+            className="md:hidden p-2 text-foreground"
+            onClick={() => setIsOpen(!isOpen)}
+            aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-expanded={isOpen}
+          >
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
