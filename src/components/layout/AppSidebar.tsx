@@ -599,16 +599,22 @@ export function AppSidebar() {
   const { categories: sidebarCategories, groups: customGroups, getGroupPages, loading: customGroupsLoading, reload: reloadCustomGroups } = useCustomSidebarGroups();
   const { hiddenUrls, hiddenGroupNames } = useSidebarOverrides();
 
-  // Apply admin overrides: hide groups + items disabled in the database
+  // Apply admin overrides: hide groups + items disabled in the database.
+  // Also auto-hide built-in static groups whose title duplicates a custom DB group.
+  const customGroupTitles = useMemo(
+    () => new Set(customGroups.map((g) => g.name.trim().toLowerCase())),
+    [customGroups]
+  );
   const effectiveNavConfig = useMemo(() => {
     const out: typeof navigationConfig = {} as any;
     Object.entries(navigationConfig).forEach(([key, cfg]: any) => {
       if (hiddenGroupNames.has(cfg.title)) return;
+      if (customGroupTitles.has(cfg.title.trim().toLowerCase())) return;
       const items = cfg.items.filter((it: any) => !hiddenUrls.has(it.url));
       if (items.length > 0) out[key as keyof typeof navigationConfig] = { ...cfg, items };
     });
     return out;
-  }, [hiddenUrls, hiddenGroupNames]);
+  }, [hiddenUrls, hiddenGroupNames, customGroupTitles]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
