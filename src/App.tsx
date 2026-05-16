@@ -31,10 +31,12 @@ import { TeacherRoute } from "./components/TeacherRoute";
 import NiranxRedirect from "./components/NiranxRedirect";
 import FloatingAIChat from "./components/FloatingAIChat";
 import { RouteMetaSync } from "./components/seo/RouteMetaSync";
+import { QuantumAgentBanner } from "./components/QuantumAgentBanner";
 
 // Critical pages loaded eagerly (landing, auth, dashboard)
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
+const QuantumAgent = lazy(() => import("./pages/QuantumAgent"));
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
@@ -533,6 +535,7 @@ const App = () => (
                   <Sonner />
                   <BrowserRouter>
                     <RouteMetaSync />
+                    <QuantumAgentBanner />
                     <PageLoadProgress />
                     <OfflineBanner />
                     <BackToTop />
@@ -544,6 +547,7 @@ const App = () => (
                       <Suspense fallback={<PageSkeleton />}>
                       <Routes>
                         <Route path="/" element={<Landing />} />
+                        <Route path="/quantum-agent" element={<QuantumAgent />} />
                         <Route path="/nexus" element={<Nexus />} />
                         <Route path="/nexus/:categorySlug" element={<AppLayout><NexusCategory /></AppLayout>} />
                         
