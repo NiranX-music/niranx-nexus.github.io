@@ -144,7 +144,7 @@ import { CustomSidebarGroups } from "@/components/sidebar/CustomSidebarGroups";
 import { SidebarShortcutEditor } from "@/components/sidebar/SidebarShortcutEditor";
 
 // Navigation Configuration - Organized by category
-const navigationConfig = {
+export const navigationConfig = {
   main: {
     title: "Command",
     icon: Compass,
@@ -607,10 +607,32 @@ export function AppSidebar() {
   );
   const effectiveNavConfig = useMemo(() => {
     const out: typeof navigationConfig = {} as any;
+    const seenUrls = new Set<string>();
     Object.entries(navigationConfig).forEach(([key, cfg]: any) => {
       if (hiddenGroupNames.has(cfg.title)) return;
-      if (customGroupTitles.has(cfg.title.trim().toLowerCase())) return;
-      const items = cfg.items.filter((it: any) => !hiddenUrls.has(it.url));
+      if (customGroupTitles.has(cfg.title.trim().toLowerCase())) {
+        import("@/lib/sidebarIntegrity").then(({ logIntegrityEvent }) =>
+          logIntegrityEvent({
+            event_type: "dedupe", duplicate_kind: "group",
+            identifier: cfg.title, details: { source: "built-in", action: "hidden_by_db_dup" },
+          })
+        );
+        return;
+      }
+      const items = cfg.items.filter((it: any) => {
+        if (hiddenUrls.has(it.url)) return false;
+        if (seenUrls.has(it.url)) {
+          import("@/lib/sidebarIntegrity").then(({ logIntegrityEvent }) =>
+            logIntegrityEvent({
+              event_type: "dedupe", duplicate_kind: "item",
+              identifier: it.url, details: { title: it.title, group: cfg.title },
+            })
+          );
+          return false;
+        }
+        seenUrls.add(it.url);
+        return true;
+      });
       if (items.length > 0) out[key as keyof typeof navigationConfig] = { ...cfg, items };
     });
     return out;
