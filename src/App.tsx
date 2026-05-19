@@ -25,6 +25,7 @@ import VoiceCommand from "./components/VoiceCommand";
 import { MusicPlayerProvider } from "./contexts/MusicPlayerContext";
 import UniversalMusicPlayer from "./components/music/UniversalMusicPlayer";
 import { AdminRoute } from "./components/AdminRoute";
+import { RouteOverrideGate } from "./components/RouteOverrideGate";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ModeratorRoute } from "./components/ModeratorRoute";
 import { TeacherRoute } from "./components/TeacherRoute";
@@ -1229,6 +1230,7 @@ const App = () => (
                     
                     <Route path="*" element={<Landing />} />
                     </Routes>
+                    </RouteOverrideGate>
                     </Suspense>
                     <FloatingAIChat />
                   </AdminEditProvider>
