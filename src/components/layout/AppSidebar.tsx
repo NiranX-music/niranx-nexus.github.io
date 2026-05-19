@@ -144,7 +144,7 @@ import { CustomSidebarGroups } from "@/components/sidebar/CustomSidebarGroups";
 import { SidebarShortcutEditor } from "@/components/sidebar/SidebarShortcutEditor";
 
 // Navigation Configuration - Organized by category
-const navigationConfig = {
+export const navigationConfig = {
   main: {
     title: "Command",
     icon: Compass,
