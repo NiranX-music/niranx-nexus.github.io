@@ -248,6 +248,8 @@ const XNexusAI = lazy(() => import("./pages/XNexusAI"));
 const HuggingFaceHub = lazy(() => import("./pages/HuggingFaceHub"));
 const XGenesisAI = lazy(() => import("./pages/XGenesisAI"));
 const CustomPage = lazy(() => import("./pages/CustomPage"));
+const SidebarDebug = lazy(() => import("./pages/admin/SidebarDebug"));
+const AdminPageEditor = lazy(() => import("./pages/admin/AdminPageEditor"));
 const UserAppLibrary = lazy(() => import("./pages/UserAppLibrary"));
 const SubmitApp = lazy(() => import("./pages/SubmitApp"));
 const WelcomeSetup = lazy(() => import("./pages/WelcomeSetup"));
@@ -545,7 +547,10 @@ const App = () => (
                       <NotificationListener />
                       <GlobalRealtimeSync />
                       <Suspense fallback={<PageSkeleton />}>
+                      <RouteOverrideGate>
                       <Routes>
+                        <Route path="/admin/sidebar-debug" element={<AdminRoute><AppLayout><SidebarDebug /></AppLayout></AdminRoute>} />
+                        <Route path="/admin/page-editor" element={<AdminRoute><AppLayout><AdminPageEditor /></AppLayout></AdminRoute>} />
                         <Route path="/" element={<Landing />} />
                         <Route path="/quantum-agent" element={<QuantumAgent />} />
                         <Route path="/nexus" element={<Nexus />} />
