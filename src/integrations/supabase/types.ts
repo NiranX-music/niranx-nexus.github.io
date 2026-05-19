@@ -143,6 +143,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           css_content: string | null
+          files: Json
           html_content: string
           id: string
           is_personal: boolean | null
@@ -151,6 +152,7 @@ export type Database = {
           meta_description: string | null
           moderation_status: string | null
           rejection_reason: string | null
+          route_override: string | null
           show_author: boolean | null
           show_in_sidebar: boolean | null
           sidebar_group_id: string | null
@@ -163,6 +165,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           css_content?: string | null
+          files?: Json
           html_content: string
           id?: string
           is_personal?: boolean | null
@@ -171,6 +174,7 @@ export type Database = {
           meta_description?: string | null
           moderation_status?: string | null
           rejection_reason?: string | null
+          route_override?: string | null
           show_author?: boolean | null
           show_in_sidebar?: boolean | null
           sidebar_group_id?: string | null
@@ -183,6 +187,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           css_content?: string | null
+          files?: Json
           html_content?: string
           id?: string
           is_personal?: boolean | null
@@ -191,6 +196,7 @@ export type Database = {
           meta_description?: string | null
           moderation_status?: string | null
           rejection_reason?: string | null
+          route_override?: string | null
           show_author?: boolean | null
           show_in_sidebar?: boolean | null
           sidebar_group_id?: string | null
@@ -8536,6 +8542,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sidebar_integrity_log: {
+        Row: {
+          created_at: string
+          details: Json
+          duplicate_kind: string
+          event_type: string
+          id: string
+          identifier: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          details?: Json
+          duplicate_kind: string
+          event_type: string
+          id?: string
+          identifier: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          details?: Json
+          duplicate_kind?: string
+          event_type?: string
+          id?: string
+          identifier?: string
+          user_id?: string | null
+        }
+        Relationships: []
       }
       sidebar_pages: {
         Row: {
