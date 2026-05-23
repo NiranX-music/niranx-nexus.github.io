@@ -328,6 +328,16 @@ export default function AdminPageEditor() {
             )}
           </CardContent>
         </Card>
+
+        {/* Versions */}
+        <div className="col-span-12 lg:col-span-2">
+          <PageVersionHistory
+            pageId={selected?.id ?? null}
+            currentSnapshot={selected ? buildSnapshot() : null}
+            userId={user?.id}
+            onRestore={applySnapshot}
+          />
+        </div>
       </div>
     </div>
   );
