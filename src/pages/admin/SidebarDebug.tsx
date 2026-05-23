@@ -26,6 +26,9 @@ type Row = {
 export default function SidebarDebug() {
   const { groups: dbGroups, pages: dbPages, loading } = useCustomSidebarGroups();
   const [auditLog, setAuditLog] = useState<any[]>([]);
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     supabase
@@ -35,6 +38,38 @@ export default function SidebarDebug() {
       .limit(200)
       .then(({ data }) => setAuditLog(data || []));
   }, []);
+
+  const exportCsv = async () => {
+    setExporting(true);
+    try {
+      let q = supabase.from("sidebar_integrity_log").select("*").order("created_at", { ascending: false });
+      if (fromDate) q = q.gte("created_at", new Date(fromDate).toISOString());
+      if (toDate) {
+        const t = new Date(toDate); t.setHours(23, 59, 59, 999);
+        q = q.lte("created_at", t.toISOString());
+      }
+      const { data, error } = await q;
+      if (error) throw error;
+      const rows = data || [];
+      const headers = ["created_at", "event_type", "duplicate_kind", "identifier", "user_id", "details"];
+      const escape = (v: any) => {
+        const s = v == null ? "" : typeof v === "object" ? JSON.stringify(v) : String(v);
+        return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+      };
+      const csv = [headers.join(","), ...rows.map((r: any) => headers.map((h) => escape(r[h])).join(","))].join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `sidebar-integrity-log-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast({ title: `Exported ${rows.length} events` });
+    } catch (e: any) {
+      toast({ title: "Export failed", description: e.message, variant: "destructive" });
+    } finally { setExporting(false); }
+  };
+
 
   const rows = useMemo<Row[]>(() => {
     const out: Row[] = [];
