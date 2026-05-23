@@ -31,13 +31,42 @@ async function loadOverrides() {
 
 export function invalidateRouteOverrideCache() { cache = null; }
 
+function escapeHtml(s: string): string {
+  return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
+}
+
 function buildHtml(p: OverrideRow): string {
   let html = p.html_content || "<!doctype html><html><head></head><body></body></html>";
   if (!/<html/i.test(html)) html = `<!doctype html><html><head></head><body>${html}</body></html>`;
+
+  // Hardening: strict CSP, deny referrer, block tracking, no opener,
+  // disable powerful features. Prevents the custom page from calling
+  // back into the parent app, reading session storage, or geolocation.
+  const csp = [
+    "default-src 'self' data: blob:",
+    "script-src 'unsafe-inline' 'self' blob:",
+    "style-src 'unsafe-inline' 'self'",
+    "img-src 'self' data: blob: https:",
+    "font-src 'self' data: https:",
+    "connect-src 'self'",
+    "frame-ancestors 'none'",
+    "form-action 'none'",
+    "base-uri 'none'",
+    "object-src 'none'",
+  ].join("; ");
+
+  const securityHead = [
+    `<meta http-equiv="Content-Security-Policy" content="${escapeHtml(csp)}">`,
+    `<meta name="referrer" content="no-referrer">`,
+    `<meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=(), usb=(), clipboard-read=()">`,
+  ].join("");
+
+  html = html.replace(/<head[^>]*>/i, (m) => `${m}${securityHead}`);
+
   if (p.css_content) html = html.replace(/<\/head>/i, `<style>${p.css_content}</style></head>`);
   if (p.js_content) html = html.replace(/<\/body>/i, `<script>${p.js_content}</script></body>`);
   if (p.meta_description) {
-    html = html.replace(/<\/head>/i, `<meta name="description" content="${p.meta_description.replace(/"/g, "&quot;")}"></head>`);
+    html = html.replace(/<\/head>/i, `<meta name="description" content="${escapeHtml(p.meta_description)}"></head>`);
   }
   return html;
 }
@@ -58,13 +87,19 @@ export function RouteOverrideGate({ children }: { children: ReactNode }) {
   if (override === undefined) return <>{children}</>;
   if (!override) return <>{children}</>;
 
+  // Strict sandbox: no same-origin (cannot read parent storage / cookies /
+  // call supabase as authed user), no top navigation, no popups-to-escape,
+  // no modals, no pointer lock, no presentation.
   return (
     <iframe
       key={override.id}
       srcDoc={buildHtml(override)}
       title={override.title}
       className="w-full min-h-screen border-0"
-      sandbox="allow-scripts allow-forms allow-popups"
+      sandbox="allow-scripts allow-forms"
+      referrerPolicy="no-referrer"
+      allow=""
+      loading="lazy"
     />
   );
 }
