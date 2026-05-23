@@ -7,6 +7,7 @@ import { Copy, Check, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ContentBlock } from "@/types/discover";
 import { cn } from "@/lib/utils";
+import DOMPurify from "dompurify";
 
 function highlight(text: string, query?: string) {
   if (!query) return text;
