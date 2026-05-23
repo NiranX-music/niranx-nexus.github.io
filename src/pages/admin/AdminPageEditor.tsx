@@ -141,34 +141,69 @@ export default function AdminPageEditor() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [files, activeFile]);
 
+  const buildSnapshot = (): PageSnapshot => {
+    const indexFile = getFile("index.html") || files.find(f => f.language === "html");
+    const cssFile = files.find(f => f.language === "css");
+    const jsFile = files.find(f => f.language === "javascript");
+    return {
+      title,
+      slug: slug.toLowerCase().replace(/[^a-z0-9-]/g, "-"),
+      route_override: routeOverride.trim() ? routeOverride.trim() : null,
+      html_content: indexFile?.content || "",
+      css_content: cssFile?.content || null,
+      js_content: jsFile?.content || null,
+      files: files as any,
+      meta_description: meta || null,
+      is_published: isPublished,
+    };
+  };
+
+  const applySnapshot = (s: PageSnapshot) => {
+    setTitle(s.title); setSlug(s.slug);
+    setRouteOverride(s.route_override || "");
+    setIsPublished(s.is_published);
+    setMeta(s.meta_description || "");
+    const f: FileEntry[] = Array.isArray(s.files) && s.files.length > 0
+      ? s.files
+      : [
+          { path: "index.html", language: "html", content: s.html_content || "" },
+          ...(s.css_content ? [{ path: "style.css", language: "css", content: s.css_content }] : []),
+          ...(s.js_content ? [{ path: "app.js", language: "javascript", content: s.js_content }] : []),
+        ];
+    setFiles(f);
+    setActiveFile(f[0]?.path || "");
+  };
+
   const save = async () => {
     if (!title || !slug) { toast({ title: "Title and slug required", variant: "destructive" }); return; }
     setSaving(true);
     try {
-      const indexFile = getFile("index.html") || files.find(f => f.language === "html");
-      const cssFile = files.find(f => f.language === "css");
-      const jsFile = files.find(f => f.language === "javascript");
-      const payload = {
-        title,
-        slug: slug.toLowerCase().replace(/[^a-z0-9-]/g, "-"),
-        route_override: routeOverride.trim() ? routeOverride.trim() : null,
-        html_content: indexFile?.content || "",
-        css_content: cssFile?.content || null,
-        js_content: jsFile?.content || null,
-        files: files as any,
-        meta_description: meta || null,
-        is_published: isPublished,
-        show_in_sidebar: showInSidebar,
-        created_by: user?.id,
-      };
+      const snap = buildSnapshot();
+      const payload = { ...snap, show_in_sidebar: showInSidebar, created_by: user?.id };
+      let pageId = selected?.id;
       if (selected) {
         const { error } = await supabase.from("admin_custom_pages").update(payload).eq("id", selected.id);
         if (error) throw error;
         toast({ title: "Saved" });
       } else {
-        const { error } = await supabase.from("admin_custom_pages").insert(payload);
+        const { data, error } = await supabase.from("admin_custom_pages").insert(payload).select("id").single();
         if (error) throw error;
+        pageId = data?.id;
         toast({ title: "Created" });
+      }
+      // Auto restore point on every save
+      if (pageId) {
+        const { data: last } = await supabase
+          .from("admin_custom_page_versions")
+          .select("version_number")
+          .eq("page_id", pageId)
+          .order("version_number", { ascending: false })
+          .limit(1).maybeSingle();
+        const next = ((last?.version_number as number) || 0) + 1;
+        await supabase.from("admin_custom_page_versions").insert({
+          page_id: pageId, version_number: next, label: `auto-save v${next}`,
+          created_by: user?.id ?? null, ...snap,
+        });
       }
       invalidateRouteOverrideCache();
       await load();
