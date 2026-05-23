@@ -178,7 +178,22 @@ export default function SidebarDebug() {
 
         <TabsContent value="audit">
           <Card>
-            <CardHeader><CardTitle className="text-sm">Dedupe Audit Log</CardTitle></CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between gap-3 flex-wrap">
+              <CardTitle className="text-sm">Dedupe Audit Log</CardTitle>
+              <div className="flex items-end gap-2">
+                <div>
+                  <Label className="text-[10px] text-muted-foreground">From</Label>
+                  <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="h-8 text-xs" />
+                </div>
+                <div>
+                  <Label className="text-[10px] text-muted-foreground">To</Label>
+                  <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="h-8 text-xs" />
+                </div>
+                <Button size="sm" onClick={exportCsv} disabled={exporting}>
+                  <Download className="h-3.5 w-3.5 mr-1" />{exporting ? "Exporting…" : "Export CSV"}
+                </Button>
+              </div>
+            </CardHeader>
             <CardContent className="p-0">
               <ScrollArea className="h-[70vh]">
                 <Table>
