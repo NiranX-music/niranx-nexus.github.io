@@ -205,7 +205,7 @@ export function useXFlow() {
       .eq('user_id', user.id);
 
     if (error) return [];
-    return data || [];
+    return (data || []).map((row) => stripSensitive(row) as XFlowProfile);
   };
 
   return {
