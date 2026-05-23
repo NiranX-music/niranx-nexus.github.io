@@ -124,11 +124,12 @@ export function useXFlow() {
       return null;
     }
 
-    setCurrentProfile(data);
+    const safe = stripSensitive(data);
+    setCurrentProfile(safe as XFlowProfile);
     setIsAuthenticated(true);
-    localStorage.setItem('xflow_current_profile', JSON.stringify(data));
+    localStorage.setItem('xflow_current_profile', JSON.stringify(safe));
     toast.success('XFlow profile created!');
-    return data;
+    return safe as XFlowProfile;
   };
 
   const loginToProfile = async (username: string, password: string): Promise<boolean> => {
