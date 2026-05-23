@@ -57,12 +57,24 @@ export function useXFlow() {
   useEffect(() => {
     const storedProfile = localStorage.getItem('xflow_current_profile');
     if (storedProfile) {
-      const parsed = JSON.parse(storedProfile);
-      setCurrentProfile(parsed);
-      setIsAuthenticated(true);
+      try {
+        const parsed = JSON.parse(storedProfile);
+        // Strip any legacy sensitive fields that may have been stored before this fix
+        delete parsed.password_hash;
+        setCurrentProfile(parsed);
+        setIsAuthenticated(true);
+      } catch {
+        localStorage.removeItem('xflow_current_profile');
+      }
     }
     setIsLoading(false);
   }, []);
+
+  const stripSensitive = <T extends Record<string, any>>(row: T): Omit<T, 'password_hash'> => {
+    const { password_hash, ...safe } = row as any;
+    return safe;
+  };
+
 
   const checkUsernameAvailable = async (username: string): Promise<boolean> => {
     const { data, error } = await supabase
