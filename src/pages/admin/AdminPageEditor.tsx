@@ -13,6 +13,7 @@ import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { Plus, Save, Trash2, FileCode, FolderPlus, Eye, ExternalLink, FilePlus } from "lucide-react";
 import { invalidateRouteOverrideCache } from "@/components/RouteOverrideGate";
+import { PageVersionHistory, PageSnapshot } from "@/components/admin/PageVersionHistory";
 
 interface FileEntry {
   path: string;     // e.g. "src/index.html" or "assets/style.css"
