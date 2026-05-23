@@ -173,7 +173,7 @@ export function useXFlow() {
       .single();
 
     if (error) return null;
-    return data;
+    return stripSensitive(data) as XFlowProfile;
   };
 
   const updateProfile = async (updates: Partial<XFlowProfile>): Promise<boolean> => {
