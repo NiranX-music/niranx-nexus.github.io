@@ -137,6 +137,68 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_custom_page_versions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          css_content: string | null
+          files: Json | null
+          html_content: string | null
+          id: string
+          is_published: boolean
+          js_content: string | null
+          label: string | null
+          meta_description: string | null
+          page_id: string
+          route_override: string | null
+          slug: string
+          title: string
+          version_number: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          css_content?: string | null
+          files?: Json | null
+          html_content?: string | null
+          id?: string
+          is_published?: boolean
+          js_content?: string | null
+          label?: string | null
+          meta_description?: string | null
+          page_id: string
+          route_override?: string | null
+          slug: string
+          title: string
+          version_number: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          css_content?: string | null
+          files?: Json | null
+          html_content?: string | null
+          id?: string
+          is_published?: boolean
+          js_content?: string | null
+          label?: string | null
+          meta_description?: string | null
+          page_id?: string
+          route_override?: string | null
+          slug?: string
+          title?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_custom_page_versions_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "admin_custom_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_custom_pages: {
         Row: {
           category_id: string | null
