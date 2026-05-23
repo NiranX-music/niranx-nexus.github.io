@@ -152,7 +152,13 @@ export function ContentBlockRenderer({ block, query }: { block: ContentBlock; qu
       return (
         <div
           className="discover-html-block my-4 [&_a]:text-primary [&_a]:underline"
-          dangerouslySetInnerHTML={{ __html: block.value }}
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(block.value, {
+              ALLOWED_TAGS: ['p','b','i','em','strong','u','s','ul','ol','li','a','br','h1','h2','h3','h4','h5','h6','img','table','thead','tbody','tr','td','th','blockquote','code','pre','span','div','hr'],
+              ALLOWED_ATTR: ['href','src','alt','class','target','rel','title'],
+              ALLOW_DATA_ATTR: false,
+            }),
+          }}
         />
       );
     case "latex":
