@@ -57,12 +57,24 @@ export function useXFlow() {
   useEffect(() => {
     const storedProfile = localStorage.getItem('xflow_current_profile');
     if (storedProfile) {
-      const parsed = JSON.parse(storedProfile);
-      setCurrentProfile(parsed);
-      setIsAuthenticated(true);
+      try {
+        const parsed = JSON.parse(storedProfile);
+        // Strip any legacy sensitive fields that may have been stored before this fix
+        delete parsed.password_hash;
+        setCurrentProfile(parsed);
+        setIsAuthenticated(true);
+      } catch {
+        localStorage.removeItem('xflow_current_profile');
+      }
     }
     setIsLoading(false);
   }, []);
+
+  const stripSensitive = <T extends Record<string, any>>(row: T): Omit<T, 'password_hash'> => {
+    const { password_hash, ...safe } = row as any;
+    return safe;
+  };
+
 
   const checkUsernameAvailable = async (username: string): Promise<boolean> => {
     const { data, error } = await supabase
@@ -112,11 +124,12 @@ export function useXFlow() {
       return null;
     }
 
-    setCurrentProfile(data);
+    const safe = stripSensitive(data);
+    setCurrentProfile(safe as XFlowProfile);
     setIsAuthenticated(true);
-    localStorage.setItem('xflow_current_profile', JSON.stringify(data));
+    localStorage.setItem('xflow_current_profile', JSON.stringify(safe));
     toast.success('XFlow profile created!');
-    return data;
+    return safe as XFlowProfile;
   };
 
   const loginToProfile = async (username: string, password: string): Promise<boolean> => {
@@ -138,9 +151,10 @@ export function useXFlow() {
       return false;
     }
 
-    setCurrentProfile(data);
+    const safe = stripSensitive(data);
+    setCurrentProfile(safe as XFlowProfile);
     setIsAuthenticated(true);
-    localStorage.setItem('xflow_current_profile', JSON.stringify(data));
+    localStorage.setItem('xflow_current_profile', JSON.stringify(safe));
     toast.success(`Welcome back, @${data.username}!`);
     return true;
   };
@@ -159,7 +173,7 @@ export function useXFlow() {
       .single();
 
     if (error) return null;
-    return data;
+    return stripSensitive(data) as XFlowProfile;
   };
 
   const updateProfile = async (updates: Partial<XFlowProfile>): Promise<boolean> => {
@@ -191,7 +205,7 @@ export function useXFlow() {
       .eq('user_id', user.id);
 
     if (error) return [];
-    return data || [];
+    return (data || []).map((row) => stripSensitive(row) as XFlowProfile);
   };
 
   return {

@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { AIProviderSelector, useAIProvider } from '@/components/ai/AIProviderSelector';
 import { motion, AnimatePresence } from 'framer-motion';
+import DOMPurify from 'dompurify';
 
 interface Citation {
   id: string;
@@ -303,7 +304,10 @@ Return ONLY the formatted citation text, nothing else. Make sure it follows ${st
                         <div className="flex-1 min-w-0">
                           <p className="text-sm leading-relaxed break-words"
                              dangerouslySetInnerHTML={{ 
-                               __html: citation.formatted.replace(/_([^_]+)_/g, '<em>$1</em>') 
+                               __html: DOMPurify.sanitize(
+                                 citation.formatted.replace(/_([^_]+)_/g, '<em>$1</em>'),
+                                 { ALLOWED_TAGS: ['em', 'i', 'b', 'strong'], ALLOWED_ATTR: [] }
+                               )
                              }} 
                           />
                         </div>

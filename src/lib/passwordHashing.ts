@@ -20,12 +20,11 @@ export async function hashPassword(password: string): Promise<string> {
  * Verify a password against a stored hash using the secure server-side edge function
  */
 export async function verifyPassword(password: string, storedHash: string): Promise<boolean> {
-  // Handle legacy base64 encoded passwords during transition
-  if (!storedHash.includes(':')) {
-    // This is a legacy base64 password - compare directly for backwards compatibility
-    // but log a warning so we can track migration
-    console.warn('Legacy password format detected - consider migrating to secure hash');
-    return btoa(password) === storedHash;
+  // Reject legacy base64-encoded passwords - they are trivially reversible.
+  // Users with legacy credentials must reset their password.
+  if (!storedHash || !storedHash.includes(':')) {
+    console.warn('Legacy password format detected - password reset required');
+    return false;
   }
 
   const { data, error } = await supabase.functions.invoke('hash-password', {
