@@ -276,7 +276,7 @@ export default function AdminPageEditor() {
         </Card>
 
         {/* Editor + meta */}
-        <Card className="col-span-12 lg:col-span-8">
+        <Card className="col-span-12 lg:col-span-6">
           <CardHeader className="pb-2">
             <div className="flex flex-wrap items-center gap-2">
               <Input placeholder="Title" value={title} onChange={e=>setTitle(e.target.value)} className="h-8 w-48" />
