@@ -151,9 +151,10 @@ export function useXFlow() {
       return false;
     }
 
-    setCurrentProfile(data);
+    const safe = stripSensitive(data);
+    setCurrentProfile(safe as XFlowProfile);
     setIsAuthenticated(true);
-    localStorage.setItem('xflow_current_profile', JSON.stringify(data));
+    localStorage.setItem('xflow_current_profile', JSON.stringify(safe));
     toast.success(`Welcome back, @${data.username}!`);
     return true;
   };
