@@ -13,7 +13,7 @@ export interface LandingModeSettings {
   snap: boolean;
 }
 
-const STORAGE_KEY = 'niranx.landing.mode.v1';
+const STORAGE_KEY = 'niranx.landing.mode.v2';
 
 export const DEFAULT_SETTINGS: LandingModeSettings = {
   splitMode: false,
