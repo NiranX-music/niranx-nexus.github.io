@@ -15148,6 +15148,10 @@ export type Database = {
         Args: { p_project_id: string; p_user_id: string }
         Returns: boolean
       }
+      join_classroom_with_code: {
+        Args: { _class_code: string }
+        Returns: string
+      }
       notify_user: {
         Args: {
           p_data?: Json
@@ -15187,6 +15191,10 @@ export type Database = {
           permissions: string[]
           rate_limit: number
         }[]
+      }
+      validate_classroom_enrollment: {
+        Args: { _class_code: string; _classroom_id: string }
+        Returns: boolean
       }
       validate_niranx_core_ai_key: {
         Args: { p_api_key: string }
