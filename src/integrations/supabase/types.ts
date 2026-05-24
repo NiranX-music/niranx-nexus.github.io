@@ -15188,6 +15188,10 @@ export type Database = {
           rate_limit: number
         }[]
       }
+      validate_classroom_enrollment: {
+        Args: { _class_code: string; _classroom_id: string }
+        Returns: boolean
+      }
       validate_niranx_core_ai_key: {
         Args: { p_api_key: string }
         Returns: {
