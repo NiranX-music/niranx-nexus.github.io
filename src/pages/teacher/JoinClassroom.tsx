@@ -34,73 +34,40 @@ export default function JoinClassroom() {
       return;
     }
 
-    try {
-      const { data: classroom, error: fetchError } = await supabase
-        .from("classrooms")
-        .select("id")
-        .eq("class_code", classCode.toUpperCase())
-        .eq("is_active", true)
-        .single();
-
-      if (fetchError || !classroom) {
-        toast({
-          title: "Error",
-          description: "Invalid class code",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      await joinClassroom(classroom.id);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to join classroom",
-        variant: "destructive",
-      });
-    }
+    await joinClassroom(classCode.trim().toUpperCase());
   };
 
-  const joinClassroom = async (classroomId: string) => {
-    setJoiningId(classroomId);
+  const joinClassroom = async (codeOrCardCode: string) => {
+    setJoiningId(codeOrCardCode);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-
-      const { error } = await supabase.from("classroom_members").insert({
-        classroom_id: classroomId,
-        student_id: user.id,
-        role: "student",
-        enrollment_status: "active",
+      const { data, error } = await supabase.rpc("join_classroom_with_code", {
+        _class_code: codeOrCardCode.toUpperCase(),
       });
 
       if (error) {
-        if (error.code === "23505") {
-          toast({
-            title: "Already Enrolled",
-            description: "You are already a member of this classroom",
-          });
-          window.open(`/niranx/teacher/classrooms/${classroomId}`, '_blank');
-        } else {
-          throw error;
-        }
+        toast({
+          title: "Error",
+          description: error.message || "Failed to join classroom",
+          variant: "destructive",
+        });
       } else {
         toast({
           title: "Success",
           description: "Successfully joined classroom!",
         });
-        window.open(`/niranx/teacher/classrooms/${classroomId}`, '_blank');
+        window.open(`/niranx/teacher/classrooms/${data}`, '_blank');
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to join classroom",
+        description: error?.message || "Failed to join classroom",
         variant: "destructive",
       });
     } finally {
       setJoiningId(null);
     }
   };
+
 
   return (
     <AppLayout>
