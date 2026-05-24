@@ -16,12 +16,13 @@ export interface LandingModeSettings {
 const STORAGE_KEY = 'niranx.landing.mode.v1';
 
 export const DEFAULT_SETTINGS: LandingModeSettings = {
-  splitMode: true,
+  splitMode: false,
   intensity: 18,
   stiffness: 60,
   damping: 24,
   snap: false,
 };
+
 
 export function useLandingModeSettings() {
   const [settings, setSettings] = useState<LandingModeSettings>(DEFAULT_SETTINGS);
