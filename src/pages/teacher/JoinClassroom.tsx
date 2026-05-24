@@ -156,11 +156,12 @@ export default function JoinClassroom() {
                     )}
                     <Button
                       className="w-full"
-                      onClick={() => joinClassroom(classroom.id)}
-                      disabled={joiningId === classroom.id}
+                      onClick={() => joinClassroom(classroom.class_code)}
+                      disabled={joiningId === classroom.class_code}
                     >
-                      {joiningId === classroom.id ? "Joining..." : "View Classroom"}
+                      {joiningId === classroom.class_code ? "Joining..." : "View Classroom"}
                     </Button>
+
                   </CardContent>
                 </Card>
               ))}
