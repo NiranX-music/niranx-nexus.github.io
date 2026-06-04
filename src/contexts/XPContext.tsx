@@ -81,74 +81,65 @@ export function XPProvider({ children }: { children: React.ReactNode }) {
   };
 
   const addXP = useCallback(async (amount: number, reason?: string, activityType?: string) => {
-    const newXP = xp + amount;
-    const newLevel = Math.floor(newXP / 1000) + 1;
-    const leveledUp = newLevel > level;
-
-    setXP(newXP);
-    setLevel(newLevel);
-
-    if (leveledUp) {
-      setCelebration({ type: 'level-up', message: `You're now level ${newLevel}!` });
-    } else {
-      setCelebration({ type: 'xp', value: amount, message: reason });
+    if (!user) {
+      const newXP = xp + amount;
+      const newLevel = Math.floor(newXP / 1000) + 1;
+      setXP(newXP);
+      setLevel(newLevel);
+      setCelebration(newLevel > level
+        ? { type: 'level-up', message: `You're now level ${newLevel}!` }
+        : { type: 'xp', value: amount, message: reason });
+      return;
     }
 
-    if (user) {
-      try {
-        // Update profile XP
-        const { error } = await supabase
-          .from('user_profiles')
-          .upsert({ id: user.id, xp: newXP, level: newLevel, updated_at: new Date().toISOString() }, { onConflict: 'id' });
-        if (error) throw error;
+    try {
+      const { data, error } = await supabase.rpc('award_xp', {
+        _amount: amount,
+        _reason: reason || 'XP earned',
+        _activity_type: activityType || 'general',
+      });
+      if (error) throw error;
 
-        // Log transaction
-        await supabase.from('xp_transactions').insert({
-          user_id: user.id,
-          amount,
-          reason: reason || 'XP earned',
-          activity_type: activityType || 'general',
-        });
+      const row: any = Array.isArray(data) ? data[0] : data;
+      const newXP = row?.new_xp ?? xp + amount;
+      const newLevel = row?.new_level ?? Math.floor(newXP / 1000) + 1;
+      const leveledUp = !!row?.leveled_up;
 
-        if (leveledUp) {
-          toast.success(`🎉 Level Up! You're now level ${newLevel}!`);
-        } else if (reason) {
-          toast.success(`+${amount} XP ${reason}`);
-        }
-      } catch (error) {
-        console.error('Error saving XP:', error);
+      setXP(newXP);
+      setLevel(newLevel);
+
+      if (leveledUp) {
+        setCelebration({ type: 'level-up', message: `You're now level ${newLevel}!` });
+        toast.success(`🎉 Level Up! You're now level ${newLevel}!`);
+      } else {
+        setCelebration({ type: 'xp', value: amount, message: reason });
+        if (reason) toast.success(`+${amount} XP ${reason}`);
       }
+    } catch (error) {
+      console.error('Error awarding XP:', error);
     }
   }, [xp, level, user]);
 
   const spendXP = useCallback(async (amount: number, reason?: string): Promise<boolean> => {
-    if (xp < amount) return false;
-    const newXP = xp - amount;
-    const newLevel = Math.floor(newXP / 1000) + 1;
-    setXP(newXP);
-    setLevel(newLevel);
+    if (!user) return false;
+    try {
+      const { data, error } = await supabase.rpc('spend_xp', {
+        _amount: amount,
+        _reason: reason || 'XP spent',
+      });
+      if (error) throw error;
 
-    if (user) {
-      try {
-        await supabase
-          .from('user_profiles')
-          .upsert({ id: user.id, xp: newXP, level: newLevel, updated_at: new Date().toISOString() }, { onConflict: 'id' });
+      const row: any = Array.isArray(data) ? data[0] : data;
+      if (!row?.success) return false;
 
-        await supabase.from('xp_transactions').insert({
-          user_id: user.id,
-          amount: -amount,
-          reason: reason || 'XP spent',
-          activity_type: 'purchase',
-        });
-      } catch (error) {
-        console.error('Error spending XP:', error);
-        setXP(xp);
-        setLevel(level);
-        return false;
-      }
+      setXP(row.new_xp);
+      setLevel(row.new_level);
+      return true;
+    } catch (error) {
+      console.error('Error spending XP:', error);
+      return false;
     }
-    return true;
-  }, [xp, level, user]);
+  }, [user]);
 
   const getXPForNextLevel = () => level * 1000;
 
