@@ -245,6 +245,43 @@ const BlogPost = () => {
 
   return (
     <div className="min-h-screen p-4 space-y-6 max-w-4xl mx-auto">
+      {blog && (() => {
+        const excerpt = (blog.content || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 160);
+        const url = `https://niranx-nexus.lovable.app/blogs/${blog.id}`;
+        return (
+          <Helmet>
+            <title>{`${blog.title} — NiranX Universe`}</title>
+            <meta name="description" content={excerpt} />
+            <link rel="canonical" href={url} />
+            <meta property="og:type" content="article" />
+            <meta property="og:url" content={url} />
+            <meta property="og:title" content={blog.title} />
+            <meta property="og:description" content={excerpt} />
+            {blog.cover_image_url && <meta property="og:image" content={blog.cover_image_url} />}
+            <meta property="article:published_time" content={blog.created_at} />
+            {blog.publisher_name && <meta property="article:author" content={blog.publisher_name} />}
+            <meta name="twitter:card" content={blog.cover_image_url ? 'summary_large_image' : 'summary'} />
+            <meta name="twitter:title" content={blog.title} />
+            <meta name="twitter:description" content={excerpt} />
+            {blog.cover_image_url && <meta name="twitter:image" content={blog.cover_image_url} />}
+            <script type="application/ld+json">{JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              headline: blog.title,
+              datePublished: blog.created_at,
+              author: { "@type": "Person", name: blog.publisher_name || "NiranX" },
+              image: blog.cover_image_url || undefined,
+              mainEntityOfPage: { "@type": "WebPage", "@id": url },
+              keywords: (blog.tags || []).join(', ') || undefined,
+              publisher: {
+                "@type": "Organization",
+                name: "NiranX Universe",
+                logo: { "@type": "ImageObject", url: "https://niranx-nexus.lovable.app/logo.jpg" }
+              }
+            })}</script>
+          </Helmet>
+        );
+      })()}
       {/* Header */}
       <div className="flex items-center justify-between">
         <Button variant="ghost" onClick={() => navigate('/niranx/blogs')}>
