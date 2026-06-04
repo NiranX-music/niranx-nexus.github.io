@@ -15,7 +15,7 @@
     <meta name="rating" content="General" />
     <meta name="revisit-after" content="3 days" />
     <meta name="distribution" content="global" />
-    <link rel="canonical" href="https://niranx-nexus.lovable.app/" />
+    <!-- canonical set per-route via react-helmet-async -->
     <link rel="alternate" hreflang="en" href="https://niranx-nexus.lovable.app/" />
     <link rel="alternate" hreflang="x-default" href="https://niranx-nexus.lovable.app/" />
 
@@ -106,52 +106,9 @@
     }
     </script>
 
-    <!-- JSON-LD: WebApplication -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "NiranX Universe",
-      "url": "https://niranx-nexus.lovable.app",
-      "description": "All-in-one AI-powered study platform with smart timetable, flashcards, AI tutor, document scanner, quiz generator, and 100+ productivity tools for students.",
-      "applicationCategory": "EducationalApplication",
-      "operatingSystem": "Web, iOS, Android",
-      "browserRequirements": "Requires JavaScript. Requires HTML5.",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.8",
-        "ratingCount": "1200"
-      },
-      "featureList": [
-        "AI Study Assistant",
-        "Smart Timetable & Scheduler",
-        "Flashcard Generator",
-        "Document Scanner & OCR",
-        "AI Quiz Generator",
-        "Study Timer & Pomodoro",
-        "AI Homework Solver",
-        "Collaborative Study Rooms",
-        "Course Generator",
-        "Mind Maps",
-        "Live Classroom",
-        "AI Voice Tutor",
-        "Xvibe Music Streaming",
-        "XGenesis AI Hub",
-        "Cornell Notes",
-        "Spaced Repetition"
-      ],
-      "author": {
-        "@type": "Organization",
-        "name": "NiranX",
-        "url": "https://niranx-nexus.lovable.app"
-      }
-    }
-    </script>
+    <!-- WebApplication and FAQ JSON-LD moved to Landing route (home only) -->
+
+
 
     <!-- JSON-LD: SiteNavigationElement (helps search engines surface key pages) -->
     <script type="application/ld+json">
@@ -178,55 +135,8 @@
     }
     </script>
 
-    <!-- JSON-LD: FAQ -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "What is NiranX Universe?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "NiranX Universe is a free all-in-one AI-powered study platform that provides students with smart timetable, flashcards, AI tutor, document scanner, quiz generator, and 100+ productivity tools."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Is NiranX Universe free to use?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Yes, NiranX Universe is completely free for students. It includes AI-powered study tools, smart scheduling, and productivity features at no cost."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "What AI tools does NiranX Universe offer?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "NiranX Universe offers AI Chat, AI Homework Solver, AI Quiz Generator, AI Writing Assistant, AI Voice Tutor, AI Document Summarizer, and access to 50+ frontier AI models through XGenesis AI."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Does NiranX Universe support live classrooms?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Yes. NiranX Universe includes a Live Classroom suite with real-time video, screen sharing, breakout rooms, attendance tracking, and recordings."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Can I use NiranX Universe on mobile?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Yes. NiranX Universe is a mobile-responsive Progressive Web App (PWA) installable on iOS and Android, with offline support and push notifications."
-          }
-        }
-      ]
-    }
-    </script>
+    <!-- FAQ JSON-LD moved to Landing route (home only) -->
+
   </head>
 
   <body>
