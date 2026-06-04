@@ -1,4 +1,5 @@
 import { lazy, Suspense, useMemo } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { NiranXNavigation } from '@/components/niranx/NiranXNavigation';
 import { Footer3D } from '@/components/landing/Footer3D';
 import { NewsletterPopup } from '@/components/niranx/NewsletterPopup';
