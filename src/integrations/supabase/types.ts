@@ -15028,6 +15028,14 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: undefined
       }
+      award_xp: {
+        Args: { _activity_type?: string; _amount: number; _reason?: string }
+        Returns: {
+          leveled_up: boolean
+          new_level: number
+          new_xp: number
+        }[]
+      }
       calculate_level: { Args: { xp_amount: number }; Returns: number }
       can_create_website: { Args: { p_user_id: string }; Returns: boolean }
       generate_ai_generation_slug: { Args: never; Returns: string }
@@ -15174,6 +15182,14 @@ export type Database = {
       refresh_current_month_leaderboard: { Args: never; Returns: undefined }
       send_exam_reminders: { Args: never; Returns: undefined }
       send_streak_reminders: { Args: never; Returns: undefined }
+      spend_xp: {
+        Args: { _amount: number; _reason?: string }
+        Returns: {
+          new_level: number
+          new_xp: number
+          success: boolean
+        }[]
+      }
       update_leaderboard_entries: {
         Args: { p_end_date: string; p_start_date: string }
         Returns: undefined
