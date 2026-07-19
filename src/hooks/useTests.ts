@@ -252,18 +252,16 @@ export function useTestDetails(testId: string | undefined) {
         if (testError) throw testError;
         setTest(testData);
 
-        // Fetch questions
+        // Fetch questions via SECURITY DEFINER RPC (strips correct_answer for non-owners)
         const { data: questionsData, error: questionsError } = await supabase
-          .from('test_questions')
-          .select('*')
-          .eq('test_id', testId)
-          .order('order_index', { ascending: true });
+          .rpc('get_test_questions', { _test_id: testId });
 
         if (questionsError) throw questionsError;
-        setQuestions(questionsData?.map(q => ({
+        setQuestions((questionsData || []).map((q: any) => ({
           ...q,
           options: q.options as TestQuestion['options']
-        })) || []);
+        })));
+
       } catch (error) {
         console.error('Error fetching test details:', error);
       } finally {
