@@ -36,6 +36,10 @@ import { QuantumAgentBanner } from "./components/QuantumAgentBanner";
 
 // Critical pages loaded eagerly (landing, auth, dashboard)
 import Landing from "./pages/Landing";
+const LandingRouter = lazy(() => import("./pages/LandingRouter"));
+const VelorahLanding = lazy(() => import("./pages/landings/VelorahLanding"));
+const JackLanding = lazy(() => import("./pages/landings/JackLanding"));
+const AdminLandingSelector = lazy(() => import("./pages/admin/AdminLandingSelector"));
 import Auth from "./pages/Auth";
 const QuantumAgent = lazy(() => import("./pages/QuantumAgent"));
 import Index from "./pages/Index";
@@ -552,7 +556,10 @@ const App = () => (
                       <Routes>
                         <Route path="/admin/sidebar-debug" element={<AdminRoute><AppLayout><SidebarDebug /></AppLayout></AdminRoute>} />
                         <Route path="/admin/page-editor" element={<AdminRoute><AppLayout><AdminPageEditor /></AppLayout></AdminRoute>} />
-                        <Route path="/" element={<Landing />} />
+                        <Route path="/admin/landing" element={<AdminRoute><AppLayout><AdminLandingSelector /></AppLayout></AdminRoute>} />
+                        <Route path="/" element={<LandingRouter />} />
+                        <Route path="/velorah" element={<VelorahLanding />} />
+                        <Route path="/jack" element={<JackLanding />} />
                         <Route path="/quantum-agent" element={<QuantumAgent />} />
                         <Route path="/nexus" element={<Nexus />} />
                         <Route path="/nexus/:categorySlug" element={<AppLayout><NexusCategory /></AppLayout>} />
