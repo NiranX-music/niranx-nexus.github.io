@@ -556,8 +556,8 @@ const App = () => (
                         <Route path="/admin/page-editor" element={<AdminRoute><AppLayout><AdminPageEditor /></AppLayout></AdminRoute>} />
                         <Route path="/admin/landing" element={<AdminRoute><AppLayout><AdminLandingSelector /></AppLayout></AdminRoute>} />
                         <Route path="/" element={<LandingRouter />} />
-                        <Route path="/velorah" element={<LandingRouter />} />
-                        <Route path="/jack" element={<LandingRouter />} />
+                        <Route path="/velorah" element={<VelorahLanding />} />
+                        <Route path="/jack" element={<JackLanding />} />
                         <Route path="/quantum-agent" element={<QuantumAgent />} />
                         <Route path="/nexus" element={<Nexus />} />
                         <Route path="/nexus/:categorySlug" element={<AppLayout><NexusCategory /></AppLayout>} />
