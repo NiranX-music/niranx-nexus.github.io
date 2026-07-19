@@ -1,109 +1,51 @@
-Looking at the project state — NiranX Universe is a massive platform with 176+ pages across 23 navigation groups, AI ecosystem, music streaming, live classroom, social platform, email service, debate system, custom page engine, Discover content platform, and more. The user wants honest feedback on improvements, new feature ideas, and problematic areas.
+## Goal
 
-Let me give a focused, candid assessment rather than a build plan.
+Build both landing designs as **separate pages**, let an **admin choose which one is shown at `/`**, and adopt their fonts/tokens as the **global theme**.
 
-# NiranX Universe — Honest Assessment
+## Deliverables
 
-## Problematic Features (Fix or Cut)
+### 1. Two landing pages
+- `src/pages/landings/VelorahLanding.tsx` — cinematic video hero, glassmorphic nav, single H1, "Begin Journey" CTA. Exact spec from your message (video URL, liquid-glass CSS, fade-rise animations).
+- `src/pages/landings/JackLanding.tsx` — hero + marquee + about + services + projects with scroll-driven stacked cards, magnetic portrait, character-reveal text. Exact spec (all 21 GIFs, 3 project cases, Kanit font, gradient hero heading).
+- Small reusable pieces under `src/pages/landings/_shared/`: `LiquidGlass.tsx` wrapper, `Magnet.tsx`, `FadeIn.tsx`, `AnimatedText.tsx`, `ContactButton.tsx`, `LiveProjectButton.tsx`, `StackedProjectCards.tsx`.
+- Direct routes: `/velorah` and `/jack` (public, both bypass auth like the current landing).
 
-**1. Scope sprawl is the #1 risk**
-176 pages, 23 sidebar groups, parallel ecosystems (XFlow social, Xmail, Xstage music, XVibe music, XWave music, Xstellar dev platform, Live Classroom, Discover, Debates, Test Hub, AI Hub…). Most users will never find half of it. **Two music platforms (XVibe + Xstage + XWave) overlap heavily** — pick one identity.
+### 2. Admin-controlled `/` selector
+- Read a single row from the existing `admin_settings` table with `setting_key = 'active_landing'` and `setting_value` in `{ "velorah", "jack", "default" }`.
+- New `src/pages/LandingRouter.tsx` mounted at `/`:
+  - Fetch the setting once, cache in memory, subscribe to realtime changes.
+  - Render `<VelorahLanding />`, `<JackLanding />`, or the existing `Landing` accordingly.
+  - Instant render fallback while loading = current `Landing` (no flash of blank).
+- Admin toggle in `src/pages/admin/AdminDashboard.tsx` (or nearest existing admin surface): three-way choice card "Active landing page" → writes the setting via `insert` upsert.
+- Seed the setting via SQL migration with default `"default"` so nothing changes until admin flips it.
 
-**2. Sidebar overload**
-Even with the new admin Sidebar Editor, 23 categories is cognitive overload. Users abandon apps that feel like a Windows 98 Start Menu. Needs aggressive consolidation: 6–8 top-level groups max.
+### 3. Global theme refresh
+- Add both font families to `index.html` `<head>`: Instrument Serif + Inter 400/500 and Kanit 300-900.
+- Extend `src/index.css` design tokens:
+  - CSS vars `--font-display-serif` = Instrument Serif, `--font-display-kanit` = Kanit, `--font-body` = Inter.
+  - Global `.liquid-glass` class (spec verbatim).
+  - Global `.hero-heading` gradient class (spec verbatim).
+  - `@keyframes fade-rise` + `.animate-fade-rise[-delay|-delay-2]` utilities.
+- Extend `tailwind.config.ts` `fontFamily`: `serifDisplay`, `kanit`, `body`.
+- **Scope color-token changes conservatively**: only add new tokens (`--velorah-bg`, `--jack-bg`). Don't replace `--primary`/`--background` — that would repaint the entire NiranX app you've already built. You said "adopt as global theme" but the two designs conflict with each other and with your Cyber-Tech NiranX theme; adding shared utilities + fonts globally is the safe intersection.
 
-**3. Performance debt**
+### 4. Sidebar entry
+- Add "Landing Pages" group under the existing Home sidebar category with two items: Velorah, Jack (per your rule about adding new features to the sidebar).
+- Insert via `sidebar_groups` + `sidebar_pages` seed migration (uses existing custom-sidebar infra).
 
-- Landing page lazy-loads 12 sections but `LiquidBackground` + heavy backdrop-blur on every page = jank on mid-tier devices.
-- `AppLayout` mounts ~15 global widgets (NowPlaying, MiniPlayer, AISolverWidget, FloatingCountdown, NotificationCenter, CommandPalette, UniversalSearch, etc.) on every route. That's a lot of JS for a dashboard skeleton.
-- Custom Page Engine renders user code in iframes — good — but the proxy-app system embedding external sites is fragile and a security/legal liability.
+## Technical notes
 
-**4. Auth/Onboarding friction**
-`ProtectedRoute` forces onboarding before *any* page load, then guest mode only allows `/niranx/focus`. Users hitting a deep link (e.g., a shared Discover article) get bounced to `/trial`. Public Discover pages should be readable without login.
+- Framer Motion is already installed (used in `SplitScrollStage.tsx`).
+- Lucide React already installed.
+- The Jack page uses window scroll listeners; wrap in `useEffect` with cleanup and `passive: true`.
+- `StackedProjectCards` uses `useScroll({ target, offset: ["start end", "end start"] })` per card + `useTransform` for `scale`, matching the spec's `targetScale = 1 - (total - 1 - i) * 0.03`.
+- Both landing pages will be added to `src/components/ProtectedRoute.tsx` public allow-list alongside `/focus-engine`, so unauthenticated visitors can view them.
+- SEO: each landing gets its own `<Helmet>` with title + description; `/` uses whichever landing is active.
 
-**5. Two parallel route systems**
-`/niranx/dashboard` vs `/dashboard` redirects, breadcrumbs that strip `niranx`, sitemap at `/niranx/sitemap`. Pick one URL scheme and 301 the other.
+## Out of scope (say so explicitly)
 
-**6. Features that look abandoned/half-built**
+- Not replacing your Cyber-Tech color palette globally.
+- Not building an editor for landing page content — admin just picks which of the three is active.
+- Not migrating existing Landing analytics/hooks into the new pages.
 
-- `voiceInterface: false` flag in appConfig — dead code.
-- "MacDock temporarily disabled" comment in AppLayout.
-- Three separate music platforms suggest pivots without cleanup.
-- Browser extension generated as ZIP — cool demo, but who installs it?
-
-**7. SEO is weak for a content platform**
-Discover pages need server-rendered meta tags. Client-side React Helmet won't get indexed well by most crawlers. The published URL `niranx-nexus.lovable.app` has no sitemap.xml or robots.txt strategy.
-
----
-
-## High-Impact Improvements (Do These First)
-
-**1. Consolidate the sidebar to 6 groups**
-Suggested: Home · Learn · Create · Connect · AI · Settings. Move the rest behind "More" or app launcher. Use the new `sidebar_categories` table to enforce this.
-
-**2. Make Discover public + SEO-ready**
-
-- Allow unauthenticated read access to published Discover pages.
-- Add per-page `<meta>` + Open Graph + JSON-LD article schema.
-- Generate `/sitemap.xml` from `discover_pages` table via edge function.
-- Add canonical URLs.
-
-**3. Performance budget**
-
-- Lazy-load global widgets (CommandPalette, AISolverWidget, MiniPlayer) — they don't need to be in the initial bundle.
-- Make `LiquidBackground` opt-in per route, not global.
-- Add a `prefers-reduced-motion` path that swaps liquid bg for a static gradient.
-
-**4. Unify the music platforms**
-Merge XVibe/XWave/Xstage into one "NiranX Sound" with three modes (Listen / Create / Collaborate). Saves you 30+ files of duplicate logic.
-
-**5. Real analytics dashboard for admins**
-You have `global-activity-sync` tracking page visits. Expose that in admin: top pages, drop-off routes, dead features. This data should *drive* what you cut.
-
----
-
-## New Feature Ideas (Genuine Value)
-
-**1. Discover comments + reactions**
-Discover is currently read-only. Adding threaded comments (you already have the debate-comment infra) turns it into a real knowledge community.
-
-**2. Public profile pages for creators**
-`/u/:username` showing their Discover articles, debates, Xstage tracks, XP level. Drives organic SEO + retention.
-
-**3. AI-powered "Continue Reading" on Discover**
-Use existing AI ecosystem to suggest next articles based on read history. Cheap, high-value.
-
-**4. Saved/Bookmarks across the platform**
-Universal save button — articles, debates, music, classes — all in one `/saved` page. You have `useFavorites` for nav; extend it to content.
-
-**5. Weekly digest email via Xmail**
-Auto-generate a personalized weekly summary (new Discover articles, hot debates, friend activity) delivered to user's @niranx.com inbox. Closes the loop on Xmail's value prop.
-
-**6. Mobile PWA install prompt + offline Discover**
-Service worker is already there (`dev-dist/sw.js`). Cache Discover articles for offline reading. Mobile-first move.
-
-**7. Public API + embeddable widgets**
-Let users embed a Discover article or debate poll on external sites. Free distribution.
-
----
-
-## Quick Wins (1-day fixes)
-
-- Add `robots.txt` and `sitemap.xml`
-- Remove dead `voiceInterface` flag and MacDock comment
-- 301 redirect `/niranx/*` → `/*` consistently
-- Add empty-state illustrations to the 176 pages (most probably show blank cards)
-- Add a "What's New" panel pulling from the newly-built admin tools you've been shipping
-- Consolidate `/admin/*` pages under tabbed sections — there are now 8+ admin routes
-
----
-
-## My Recommendation: Pick 3
-
-If I had to choose, I'd do these next, in order:
-
-1. **Cut the sidebar to 6 groups** + hide the rest behind app launcher (no new code, just config)
-2. **Public + SEO-ready Discover** (unlocks organic growth)
-3. **Unify music platforms** (kills the most tech debt)
-
-Reply with which you want and I'll plan the implementation.   ,, and like add Back buttons on each page like on the header and next button also '
+Approve and I'll build it in one pass.
