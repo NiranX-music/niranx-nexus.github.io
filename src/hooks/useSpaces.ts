@@ -120,13 +120,10 @@ export function useSpaces() {
 
   async function fetchPublicSpaces() {
     try {
-      const { data, error } = await supabase
-        .from("spaces")
-        .select("*")
-        .eq("is_public", true)
-        .order("created_at", { ascending: false });
+      const { data, error } = await supabase.rpc("list_public_spaces");
 
       if (error) throw error;
+
 
       // Fetch owner profiles
       const userIds = [...new Set((data || []).map(s => s.user_id))];

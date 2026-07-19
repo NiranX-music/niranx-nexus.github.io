@@ -15126,6 +15126,21 @@ export type Database = {
         Args: { p_student_id: string; p_week_start: string }
         Returns: Json
       }
+      get_test_questions: {
+        Args: { _test_id: string }
+        Returns: {
+          correct_answer: string
+          created_at: string
+          explanation: string
+          id: string
+          marks: number
+          options: Json
+          order_index: number
+          question_text: string
+          question_type: string
+          test_id: string
+        }[]
+      }
       get_user_storage_limit: { Args: { p_user_id: string }; Returns: number }
       get_user_website_count: { Args: { p_user_id: string }; Returns: number }
       has_role: {
@@ -15159,6 +15174,22 @@ export type Database = {
       join_classroom_with_code: {
         Args: { _class_code: string }
         Returns: string
+      }
+      list_public_spaces: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          created_at: string
+          description: string
+          has_password: boolean
+          id: string
+          is_active: boolean
+          is_public: boolean
+          name: string
+          space_url: string
+          updated_at: string
+          user_id: string
+        }[]
       }
       notify_user: {
         Args: {
