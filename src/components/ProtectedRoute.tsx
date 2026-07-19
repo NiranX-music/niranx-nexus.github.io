@@ -11,7 +11,7 @@ interface ProtectedRouteProps {
 }
 
 // Only the Focus Session is publicly accessible without auth
-const PUBLIC_ROUTES = ['/focus-engine', '/niranx/focus'];
+const PUBLIC_ROUTES = ['/focus-engine', '/niranx/focus', '/', '/velorah', '/jack'];
 
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading } = useAuth();
