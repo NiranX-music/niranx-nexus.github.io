@@ -36,6 +36,8 @@ import { QuantumAgentBanner } from "./components/QuantumAgentBanner";
 
 // Critical pages loaded eagerly (landing, auth, dashboard)
 import Landing from "./pages/Landing";
+const LandingRouter = lazy(() => import("./pages/LandingRouter"));
+const AdminLandingSelector = lazy(() => import("./pages/admin/AdminLandingSelector"));
 import Auth from "./pages/Auth";
 const QuantumAgent = lazy(() => import("./pages/QuantumAgent"));
 import Index from "./pages/Index";
